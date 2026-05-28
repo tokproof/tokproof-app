@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Tokproof — Plan & Billing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+.bl-hero { margin-bottom: 32px; }
+.bl-current-banner {
+  display: flex; align-items: center; gap: 14px; padding: 16px 20px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r-xl); margin-bottom: 28px;
+  animation: blFade .3s ease both;
+}
+.bl-curr-ico { font-size: 22px; flex-shrink: 0; }
+.bl-curr-body { flex: 1; }
+.bl-curr-plan { font-size: 15px; font-weight: 900; }
+.bl-curr-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.bl-curr-bar-wrap { width: 160px; height: 4px; background: rgba(255,255,255,.06); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+.bl-curr-bar { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--pink), #ff5c8a); }
+
+/* Pricing toggle */
+.bl-toggle-wrap { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 28px; animation: blFade .3s .04s ease both; }
+.bl-toggle { display: flex; gap: 1px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 2px; }
+.bl-tog-btn { padding: 6px 18px; font-size: 12px; font-weight: 700; color: var(--muted); border-radius: 6px; cursor: pointer; transition: all .15s; }
+.bl-tog-btn.active { background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+.bl-save-tag { font-size: 10px; font-weight: 800; padding: 2px 8px; background: rgba(34,197,94,.1); color: #22c55e; border: 1px solid rgba(34,197,94,.2); border-radius: 99px; }
+
+/* Pricing cards */
+.bl-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; animation: blFade .3s .08s ease both; }
+@media (max-width: 640px) { .bl-plans { grid-template-columns: 1fr; } }
+.bl-plan-card { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--r-xl); padding: 28px 24px; position: relative; transition: border-color .2s, box-shadow .2s; }
+.bl-plan-card:hover { border-color: rgba(255,45,117,.2); box-shadow: 0 8px 28px rgba(0,0,0,.2); }
+.bl-plan-popular { border-color: rgba(255,45,117,.35) !important; box-shadow: 0 0 0 1px rgba(255,45,117,.1), 0 8px 32px rgba(255,45,117,.08) !important; }
+.bl-popular-tag { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 800; padding: 3px 12px; background: var(--grad); color: #fff; border-radius: 99px; white-space: nowrap; }
+.bl-plan-name { font-size: 16px; font-weight: 900; margin-bottom: 4px; }
+.bl-plan-desc { font-size: 12px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+.bl-price-row { display: flex; align-items: baseline; gap: 4px; margin-bottom: 20px; }
+.bl-price { font-size: 40px; font-weight: 900; letter-spacing: -.04em; }
+.bl-price-mo { font-size: 13px; color: var(--muted); font-weight: 600; }
+.bl-price-save { font-size: 11px; color: #22c55e; font-weight: 700; margin-left: 6px; }
+.bl-feat-list { display: flex; flex-direction: column; gap: 9px; margin-bottom: 24px; }
+.bl-feat { display: flex; align-items: flex-start; gap: 9px; font-size: 12px; }
+.bl-feat-ico { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 900; flex-shrink: 0; margin-top: 1px; }
+.bl-feat-ok { background: rgba(34,197,94,.12); color: #22c55e; }
+.bl-feat-lock { background: rgba(255,255,255,.06); color: var(--muted2); }
+.bl-feat-txt { color: var(--text); line-height: 1.45; }
+.bl-feat-txt-dim { color: var(--muted2); }
+.bl-current-chip { font-size: 10px; font-weight: 800; padding: 3px 10px; background: rgba(255,255,255,.06); border: 1px solid var(--border); border-radius: 99px; color: var(--muted); }
+
+/* Feature comparison table */
+.bl-table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 24px; animation: blFade .3s .12s ease both; }
+.bl-table { width: 100%; border-collapse: collapse; }
+.bl-table thead th { padding: 14px 20px; text-align: left; font-size: 12px; font-weight: 800; background: rgba(255,255,255,.02); border-bottom: 1px solid var(--border); }
+.bl-table thead th:not(:first-child) { text-align: center; }
+.bl-table th-plan { font-size: 14px; }
+.bl-table tbody td { padding: 11px 20px; border-bottom: 1px solid rgba(45,45,56,.4); font-size: 12px; }
+.bl-table tbody tr:last-child td { border-bottom: none; }
+.bl-table tbody td:not(:first-child) { text-align: center; }
+.bl-table-section th { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--muted2); padding: 14px 20px 6px; background: rgba(255,255,255,.02); border-bottom: 1px solid rgba(45,45,56,.3); }
+.bl-chk { font-size: 13px; color: #22c55e; }
+.bl-x { font-size: 11px; color: var(--muted2); }
+.bl-feat-name { color: var(--muted); font-weight: 600; }
+
+/* Billing history */
+.bl-hist-table { width: 100%; border-collapse: collapse; }
+.bl-hist-table th { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--muted2); padding: 0 0 12px; text-align: left; }
+.bl-hist-table td { padding: 10px 0; border-top: 1px solid rgba(45,45,56,.4); font-size: 12px; vertical-align: middle; }
+.bl-hist-table tr:first-child td { border-top: none; }
+
+@keyframes blFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body class="db-page">
+
+<!-- ── SLIDE PANEL ── -->
+<div class="sp-overlay" id="spOverlay" onclick="closeSidePanel(event)">
+  <aside class="sp-panel" id="spPanel">
+    <div class="sp-close" onclick="document.getElementById('spOverlay').classList.remove('open')">✕</div>
+    <div class="sp-user">
+      <div class="sp-user-av">P</div>
+      <div class="sp-user-name">Paula Nuñez</div>
+      <div class="sp-user-handle">@auraglow</div>
+      <div class="sp-user-email">hola@auraglow.com</div>
+    </div>
+    <nav class="sp-nav">
+      <div class="sp-nav-section">Workspace</div>
+      <a href="index.html" class="sp-nav-item"><span class="sp-nav-ico">▦</span> Dashboard</a>
+      <a href="index.html" class="sp-nav-item"><span class="sp-nav-ico">🗂</span> Mis páginas</a>
+      <a href="analytics.html" class="sp-nav-item"><span class="sp-nav-ico">📊</span> Analytics</a>
+      <a href="safe-link.html" class="sp-nav-item"><span class="sp-nav-ico">🔍</span> Safe Link Score</a>
+      <a href="templates.html" class="sp-nav-item"><span class="sp-nav-ico">🎨</span> Templates</a>
+      <div class="sp-nav-section">Cuenta</div>
+      <a href="billing.html" class="sp-nav-item active"><span class="sp-nav-ico">⚡</span> Plan & Billing <span class="sp-nav-badge">Free</span></a>
+      <a href="faq.html" class="sp-nav-item"><span class="sp-nav-ico">❓</span> FAQ & Ayuda</a>
+      <a href="settings.html" class="sp-nav-item"><span class="sp-nav-ico">⚙️</span> Settings</a>
+      <a href="home.html" class="sp-nav-item"><span class="sp-nav-ico" style="opacity:.4">→</span><span style="opacity:.4">Cerrar sesión</span></a>
+    </nav>
+    <div class="sp-foot">
+      <div class="sp-plan-box">
+        <div class="sp-plan-top">
+          <span class="sp-plan-label">Plan Free</span>
+          <span style="font-size:9px;padding:2px 7px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:99px;color:var(--muted);font-weight:800">Free</span>
+        </div>
+        <div class="sp-plan-bar-wrap"><div class="sp-plan-bar-fill" style="width:100%;background:linear-gradient(90deg,var(--pink),#ff6b6b)"></div></div>
+        <div class="sp-plan-pages">1 / 1 páginas publicadas</div>
+        <a href="billing.html" class="btn btn-primary btn-full btn-sm" style="margin-top:10px;font-size:11px">⬆ Upgrade to Pro</a>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+  <a href="index.html" class="tb-logo">
+    <img class="tb-logo-img" src="assets/tokproof-logo.png" alt="Tokproof"/>
+    <span>Tokproof</span>
+  </a>
+  <div class="tb-sep"></div>
+  <span style="font-size:12px;color:var(--muted);font-weight:600">Plan & Billing</span>
+  <div class="tb-right">
+    <div style="width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;cursor:pointer;color:#fff;flex-shrink:0" onclick="openSidePanel()">P</div>
+  </div>
+</header>
+
+<main class="db-main" style="max-width:860px">
+
+  <!-- ── HERO ── -->
+  <div class="bl-hero">
+    <h1 class="db-title">Plan & Billing</h1>
+    <p class="db-sub">Manage your subscription and usage.</p>
+  </div>
+
+  <!-- Current plan banner -->
+  <div class="bl-current-banner">
+    <div class="bl-curr-ico">🔒</div>
+    <div class="bl-curr-body">
+      <div class="bl-curr-plan">You're on the <strong>Free plan</strong></div>
+      <div class="bl-curr-sub">1 / 1 pages published · limit reached</div>
+      <div class="bl-curr-bar-wrap"><div class="bl-curr-bar" style="width:100%"></div></div>
+    </div>
+    <a href="#plans" class="btn btn-primary btn-sm" style="flex-shrink:0">⬆ Upgrade to Pro</a>
+  </div>
+
+  <!-- Billing period toggle -->
+  <div class="bl-toggle-wrap" id="plans">
+    <div class="bl-toggle">
+      <div class="bl-tog-btn active" onclick="setBilling('monthly',this)">Monthly</div>
+      <div class="bl-tog-btn" onclick="setBilling('annual',this)">Annual</div>
+    </div>
+    <span class="bl-save-tag">Save 2 months</span>
+  </div>
+
+  <!-- Pricing cards -->
+  <div class="bl-plans">
+
+    <!-- Free plan -->
+    <div class="bl-plan-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div class="bl-plan-name">Free</div>
+        <span class="bl-current-chip">✓ Current plan</span>
+      </div>
+      <div class="bl-plan-desc">Perfect to get started and test your first trust page.</div>
+      <div class="bl-price-row">
+        <span class="bl-price" style="color:var(--text)">$0</span>
+        <span class="bl-price-mo">/ month</span>
+      </div>
+      <div class="bl-feat-list">
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-ok">✓</div><span class="bl-feat-txt">1 published page</span></div>
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-ok">✓</div><span class="bl-feat-txt">Trust Page & Simple Page</span></div>
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-ok">✓</div><span class="bl-feat-txt">Basic Safe Link Score</span></div>
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-ok">✓</div><span class="bl-feat-txt">Basic analytics</span></div>
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-lock">—</div><span class="bl-feat-txt-dim">A/B Testing</span></div>
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-lock">—</div><span class="bl-feat-txt-dim">Custom domain</span></div>
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-lock">—</div><span class="bl-feat-txt-dim">Remove Tokproof branding</span></div>
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-lock">—</div><span class="bl-feat-txt-dim">Priority support</span></div>
+      </div>
+      <button class="btn btn-secondary btn-full" disabled style="opacity:.45;cursor:not-allowed">Current plan</button>
+    </div>
+
+    <!-- Pro plan -->
+    <div class="bl-plan-card bl-plan-popular">
+      <div class="bl-popular-tag">Most popular</div>
+      <div class="bl-plan-name" style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Pro</div>
+      <div class="bl-plan-desc">For serious creators and brands scaling their TikTok shop.</div>
+      <div class="bl-price-row">
+        <span class="bl-price" style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text" id="proPrice">$19</span>
+        <span class="bl-price-mo">/ month</span>
+        <span class="bl-price-save" id="proSave" style="display:none">2 months free</span>
+      </div>
+      <div class="bl-feat-list">
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-ok">✓</div><span class="bl-feat-txt"><strong>Unlimited</strong> published pages</span></div>
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-ok">✓</div><span class="bl-feat-txt">Trust Page & Simple Page</span></div>
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-ok">✓</div><span class="bl-feat-txt">Full Safe Link Score + AI tips</span></div>
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-ok">✓</div><span class="bl-feat-txt">Advanced analytics dashboard</span></div>
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-ok">✓</div><span class="bl-feat-txt">A/B Testing</span></div>
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-ok">✓</div><span class="bl-feat-txt">Custom domain</span></div>
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-ok">✓</div><span class="bl-feat-txt">Remove Tokproof branding</span></div>
+        <div class="bl-feat"><div class="bl-feat-ico bl-feat-ok">✓</div><span class="bl-feat-txt">Priority support (24h)</span></div>
+      </div>
+      <a href="#" class="btn btn-primary btn-full" style="font-size:13px">⬆ Upgrade to Pro →</a>
+      <div style="text-align:center;font-size:10px;color:var(--muted2);margin-top:8px">Cancel anytime. No contracts.</div>
+    </div>
+
+  </div>
+
+  <!-- Feature table -->
+  <div class="bl-table-wrap">
+    <table class="bl-table">
+      <thead>
+        <tr>
+          <th style="width:45%">Feature</th>
+          <th>Free</th>
+          <th style="background:rgba(255,45,117,.04)"><span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:900">Pro</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th colspan="3" class="bl-table-section">Pages</th></tr>
+        <tr><td class="bl-feat-name">Published pages</td><td>1</td><td style="background:rgba(255,45,117,.025);font-weight:800;color:var(--text)">Unlimited</td></tr>
+        <tr><td class="bl-feat-name">Trust Page</td><td><span class="bl-chk">✓</span></td><td style="background:rgba(255,45,117,.025)"><span class="bl-chk">✓</span></td></tr>
+        <tr><td class="bl-feat-name">Simple Page</td><td><span class="bl-chk">✓</span></td><td style="background:rgba(255,45,117,.025)"><span class="bl-chk">✓</span></td></tr>
+        <tr><td class="bl-feat-name">Custom domain</td><td><span class="bl-x">—</span></td><td style="background:rgba(255,45,117,.025)"><span class="bl-chk">✓</span></td></tr>
+        <tr><th colspan="3" class="bl-table-section">Analytics</th></tr>
+        <tr><td class="bl-feat-name">Basic analytics (views, CTR)</td><td><span class="bl-chk">✓</span></td><td style="background:rgba(255,45,117,.025)"><span class="bl-chk">✓</span></td></tr>
+        <tr><td class="bl-feat-name">Advanced analytics + export</td><td><span class="bl-x">—</span></td><td style="background:rgba(255,45,117,.025)"><span class="bl-chk">✓</span></td></tr>
+        <tr><td class="bl-feat-name">Real-time activity feed</td><td><span class="bl-x">—</span></td><td style="background:rgba(255,45,117,.025)"><span class="bl-chk">✓</span></td></tr>
+        <tr><th colspan="3" class="bl-table-section">Trust & Safety</th></tr>
+        <tr><td class="bl-feat-name">Safe Link Score</td><td>Basic</td><td style="background:rgba(255,45,117,.025);font-weight:800;color:var(--text)">Full + AI tips</td></tr>
+        <tr><td class="bl-feat-name">Content moderation alerts</td><td><span class="bl-chk">✓</span></td><td style="background:rgba(255,45,117,.025)"><span class="bl-chk">✓</span></td></tr>
+        <tr><th colspan="3" class="bl-table-section">Optimization</th></tr>
+        <tr><td class="bl-feat-name">A/B Testing</td><td><span class="bl-x">—</span></td><td style="background:rgba(255,45,117,.025)"><span class="bl-chk">✓</span></td></tr>
+        <tr><td class="bl-feat-name">Remove Tokproof branding</td><td><span class="bl-x">—</span></td><td style="background:rgba(255,45,117,.025)"><span class="bl-chk">✓</span></td></tr>
+        <tr><td class="bl-feat-name">Priority support</td><td><span class="bl-x">—</span></td><td style="background:rgba(255,45,117,.025)"><span class="bl-chk">✓</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Billing history -->
+  <div class="an-card" style="margin-bottom:40px;animation:blFade .3s .16s ease both">
+    <div style="font-size:14px;font-weight:800;margin-bottom:14px">Billing history</div>
+    <div style="padding:32px;text-align:center;color:var(--muted2)">
+      <div style="font-size:28px;margin-bottom:8px">📄</div>
+      <div style="font-size:13px;font-weight:700">No invoices yet</div>
+      <div style="font-size:11px;margin-top:4px">Invoices will appear here once you upgrade to Pro.</div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function openSidePanel() { document.getElementById('spOverlay').classList.add('open'); }
+function closeSidePanel(e) { if (e.target === document.getElementById('spOverlay')) document.getElementById('spOverlay').classList.remove('open'); }
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') document.getElementById('spOverlay').classList.remove('open'); });
+function setBilling(type, el) {
+  document.querySelectorAll('.bl-tog-btn').forEach(function(b) { b.classList.remove('active'); });
+  el.classList.add('active');
+  var price = document.getElementById('proPrice');
+  var save = document.getElementById('proSave');
+  if (type === 'annual') { price.textContent = '$15'; save.style.display = 'inline'; }
+  else { price.textContent = '$19'; save.style.display = 'none'; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Crear cuenta — Tokproof</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+/* Step dots — 2 steps */
+.reg-steps { display: flex; align-items: center; gap: 0; margin-bottom: 28px; }
+.reg-step-dot {
+  width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: var(--muted);
+  transition: all .25s; flex-shrink: 0; background: var(--bg2);
+}
+.reg-step-dot.active { border-color: var(--pink); color: var(--pink); background: rgba(255,45,117,.08); }
+.reg-step-dot.done { background: var(--grad); border-color: transparent; color: #fff; }
+.reg-step-line { flex: 1; height: 1.5px; background: var(--border); transition: background .25s; }
+.reg-step-line.done { background: var(--pink); }
+</style>
+</head>
+<body class="reg-page">
+
+<div class="reg-wrap">
+
+  <!-- Logo -->
+  <div class="reg-logo">
+    <a href="home.html" class="tb-logo" style="font-size:18px;text-decoration:none">
+      <img class="tb-logo-img" style="width:44px;height:44px" src="assets/tokproof-logo.png" alt="Tokproof"/>
+      Tokproof
+    </a>
+  </div>
+
+  <!-- Step indicator — 2 steps -->
+  <div class="reg-steps" id="regSteps">
+    <div class="reg-step-dot active" id="dot1">1</div>
+    <div class="reg-step-line" id="line1"></div>
+    <div class="reg-step-dot" id="dot2">2</div>
+  </div>
+
+  <!-- ── STEP 1: Account ── -->
+  <div class="reg-card" id="step1">
+    <h1 class="reg-card-title">Crea tu cuenta</h1>
+    <p class="reg-card-sub">Únete gratis. Sin tarjeta de crédito.</p>
+
+    <form onsubmit="return false">
+      <div class="fg">
+        <label class="fl">Nombre completo <span class="fi-label-rec">Recomendado</span></label>
+        <input class="fi" type="text" placeholder="Tu nombre o nombre de marca" autocomplete="name" id="inp-name"/>
+      </div>
+      <div class="fg">
+        <label class="fl">Email</label>
+        <input class="fi" type="email" placeholder="hola@tumarca.com" autocomplete="email" id="inp-email"/>
+      </div>
+      <div class="fg" style="margin-bottom:24px">
+        <label class="fl">Contraseña</label>
+        <input class="fi" type="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" id="inp-pass"/>
+        <span class="fh">Al menos 8 caracteres, preferiblemente con números.</span>
+      </div>
+
+      <button class="btn btn-primary btn-full btn-lg" onclick="goStep(2)">Continuar →</button>
+
+      <div class="reg-or"><span>o</span></div>
+      <button class="btn btn-secondary btn-full" style="gap:8px" type="button">
+        <span style="font-size:16px">G</span> Continuar con Google
+      </button>
+    </form>
+
+    <p class="reg-login-link">¿Ya tienes cuenta? <a href="index.html">Iniciar sesión</a></p>
+  </div>
+
+  <!-- ── STEP 2: @Username ── -->
+  <div class="reg-card" id="step2" style="display:none">
+    <h1 class="reg-card-title">Elige tu <span class="gt">@username</span></h1>
+    <p class="reg-card-sub">Esta será tu URL pública de Tokproof. Podrás compartirla en tu bio de TikTok.</p>
+
+    <form onsubmit="return false">
+      <div class="fg">
+        <label class="fl">Tu username público</label>
+        <div style="display:flex">
+          <span style="padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-right:none;border-radius:var(--r) 0 0 var(--r);font-size:12px;color:var(--muted);white-space:nowrap;flex-shrink:0;display:flex;align-items:center">tokproof.app/@</span>
+          <div class="ub-wrap" style="flex:1;position:relative">
+            <input class="fi" type="text" placeholder="tumarca" id="inp-username"
+              style="border-radius:0 var(--r) var(--r) 0;padding-right:90px"
+              oninput="checkUsername(this.value)"
+              autocomplete="off" autocapitalize="off" spellcheck="false"/>
+            <span class="ub-status ub-avail" id="ubStatus" style="display:none"></span>
+          </div>
+        </div>
+        <div class="ub-preview" id="ubPreview">
+          <span style="font-size:14px">🔗</span>
+          <span class="ub-preview-url" id="ubUrl">tokproof.app/@tumarca</span>
+          <span class="ub-preview-tag" id="ubTag">disponible</span>
+        </div>
+        <span class="fh" style="margin-top:6px">Solo letras, números, guiones y guion bajo. Mínimo 3 caracteres.</span>
+      </div>
+
+      <div class="fi-tip" style="margin-bottom:20px">
+        <span class="fi-tip-ico">💡</span>
+        <span>Usa el nombre de tu marca o tu @usuario de TikTok. Ej: <strong style="color:var(--text)">@glowskin</strong>, <strong style="color:var(--text)">@kikedrops</strong></span>
+      </div>
+
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost btn-sm" type="button" onclick="goStep(1)" style="flex-shrink:0">← Atrás</button>
+        <a href="editor.html" class="btn btn-primary btn-full">Empezar a crear →</a>
+      </div>
+
+      <p style="font-size:11px;color:var(--muted2);text-align:center;margin-top:12px;line-height:1.6">
+        Al continuar aceptas los <a href="#" style="color:var(--spurple)">Términos de Servicio</a> y la <a href="#" style="color:var(--spurple)">Política de Privacidad</a> de Tokproof.
+      </p>
+    </form>
+  </div>
+
+</div><!-- /reg-wrap -->
+
+<script>
+/* ── Step navigation ── */
+function goStep(n) {
+  [1,2].forEach(function(i) {
+    document.getElementById('step'+i).style.display = (i === n) ? '' : 'none';
+    var dot = document.getElementById('dot'+i);
+    if (i < n) { dot.classList.remove('active'); dot.classList.add('done'); dot.textContent = '✓'; }
+    else if (i === n) { dot.classList.add('active'); dot.classList.remove('done'); dot.textContent = i; }
+    else { dot.classList.remove('active','done'); dot.textContent = i; }
+  });
+  document.getElementById('line1').classList.toggle('done', n > 1);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── Username checker ── */
+var taken = ['admin','tokproof','tiktok','shopify','demo','test','user','marca'];
+function checkUsername(val) {
+  var clean = val.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+  var url = document.getElementById('ubUrl');
+  var tag = document.getElementById('ubTag');
+  var status = document.getElementById('ubStatus');
+  url.textContent = 'tokproof.app/@' + (clean || 'tumarca');
+  if (!clean || clean.length < 3) {
+    tag.textContent = 'mínimo 3 caracteres'; tag.style.color = 'var(--muted2)';
+    status.style.display = 'none'; return;
+  }
+  if (taken.includes(clean)) {
+    tag.textContent = '✕ no disponible'; tag.style.color = 'var(--danger)';
+    status.innerHTML = '<span style="color:var(--danger)">✕ No disponible</span>';
+    status.style.display = 'flex'; return;
+  }
+  tag.textContent = '✓ disponible'; tag.style.color = 'var(--success)';
+  status.innerHTML = '<span style="color:var(--success)">✓ Disponible</span>';
+  status.style.display = 'flex';
+}
+</script>
+</body>
+</html>

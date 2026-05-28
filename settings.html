@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Tokproof — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+.st-layout { display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: start; }
+@media (max-width: 680px) { .st-layout { grid-template-columns: 1fr; } }
+
+/* Settings sidebar nav */
+.st-nav { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-xl); overflow: hidden; position: sticky; top: 76px; }
+.st-nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 16px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; transition: background .12s, color .12s; border-bottom: 1px solid rgba(45,45,56,.4); text-decoration: none; }
+.st-nav-item:last-child { border-bottom: none; }
+.st-nav-item:hover { background: rgba(255,255,255,.03); color: var(--text); }
+.st-nav-item.active { color: var(--text); background: rgba(255,45,117,.07); border-right: 2px solid var(--pink); }
+.st-nav-ico { font-size: 14px; flex-shrink: 0; }
+
+/* Settings sections */
+.st-section { display: none; }
+.st-section.active { display: block; }
+.st-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 22px 24px; margin-bottom: 16px; }
+.st-card-title { font-size: 15px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 4px; }
+.st-card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 20px; }
+.st-divider { height: 1px; background: rgba(45,45,56,.6); margin: 18px 0; }
+
+/* Avatar upload */
+.st-av-row { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+.st-av { width: 56px; height: 56px; border-radius: 50%; background: var(--grad); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; color: #fff; flex-shrink: 0; }
+.st-av-info { flex: 1; }
+.st-av-name { font-size: 15px; font-weight: 800; margin-bottom: 2px; }
+.st-av-handle { font-size: 12px; color: var(--spurple); font-weight: 700; }
+.st-av-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+/* Notification toggles */
+.st-notif-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(45,45,56,.4); }
+.st-notif-row:last-child { border-bottom: none; }
+.st-notif-body { flex: 1; }
+.st-notif-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.st-notif-desc { font-size: 11px; color: var(--muted); line-height: 1.45; }
+
+/* Danger zone */
+.st-danger-item { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid rgba(45,45,56,.4); flex-wrap: wrap; gap: 10px; }
+.st-danger-item:last-child { border-bottom: none; }
+.st-danger-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.st-danger-desc { font-size: 11px; color: var(--muted); line-height: 1.45; }
+
+/* Color swatch picker */
+.st-color-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.st-swatch { width: 28px; height: 28px; border-radius: 7px; cursor: pointer; border: 2px solid transparent; transition: border-color .15s, transform .15s; }
+.st-swatch:hover { transform: scale(1.1); }
+.st-swatch.selected { border-color: #fff; }
+
+@keyframes stFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.st-section.active { animation: stFade .2s ease both; }
+</style>
+</head>
+<body class="db-page">
+
+<!-- ── SLIDE PANEL ── -->
+<div class="sp-overlay" id="spOverlay" onclick="closeSidePanel(event)">
+  <aside class="sp-panel" id="spPanel">
+    <div class="sp-close" onclick="document.getElementById('spOverlay').classList.remove('open')">✕</div>
+    <div class="sp-user">
+      <div class="sp-user-av">P</div>
+      <div class="sp-user-name">Paula Nuñez</div>
+      <div class="sp-user-handle">@auraglow</div>
+      <div class="sp-user-email">hola@auraglow.com</div>
+    </div>
+    <nav class="sp-nav">
+      <div class="sp-nav-section">Workspace</div>
+      <a href="index.html" class="sp-nav-item"><span class="sp-nav-ico">▦</span> Dashboard</a>
+      <a href="index.html" class="sp-nav-item"><span class="sp-nav-ico">🗂</span> Mis páginas</a>
+      <a href="analytics.html" class="sp-nav-item"><span class="sp-nav-ico">📊</span> Analytics</a>
+      <a href="safe-link.html" class="sp-nav-item"><span class="sp-nav-ico">🔍</span> Safe Link Score</a>
+      <a href="templates.html" class="sp-nav-item"><span class="sp-nav-ico">🎨</span> Templates</a>
+      <div class="sp-nav-section">Cuenta</div>
+      <a href="billing.html" class="sp-nav-item"><span class="sp-nav-ico">⚡</span> Plan & Billing <span class="sp-nav-badge">Free</span></a>
+      <a href="faq.html" class="sp-nav-item"><span class="sp-nav-ico">❓</span> FAQ & Ayuda</a>
+      <a href="settings.html" class="sp-nav-item active"><span class="sp-nav-ico">⚙️</span> Settings</a>
+      <a href="home.html" class="sp-nav-item"><span class="sp-nav-ico" style="opacity:.4">→</span><span style="opacity:.4">Cerrar sesión</span></a>
+    </nav>
+    <div class="sp-foot">
+      <div class="sp-plan-box">
+        <div class="sp-plan-top">
+          <span class="sp-plan-label">Plan Free</span>
+          <span style="font-size:9px;padding:2px 7px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:99px;color:var(--muted);font-weight:800">Free</span>
+        </div>
+        <div class="sp-plan-bar-wrap"><div class="sp-plan-bar-fill" style="width:100%;background:linear-gradient(90deg,var(--pink),#ff6b6b)"></div></div>
+        <div class="sp-plan-pages">1 / 1 páginas publicadas</div>
+        <a href="billing.html" class="btn btn-primary btn-full btn-sm" style="margin-top:10px;font-size:11px">⬆ Upgrade to Pro</a>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+  <a href="index.html" class="tb-logo">
+    <img class="tb-logo-img" src="assets/tokproof-logo.png" alt="Tokproof"/>
+    <span>Tokproof</span>
+  </a>
+  <div class="tb-sep"></div>
+  <span style="font-size:12px;color:var(--muted);font-weight:600">Settings</span>
+  <div class="tb-right">
+    <div style="width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;cursor:pointer;color:#fff;flex-shrink:0" onclick="openSidePanel()">P</div>
+  </div>
+</header>
+
+<main class="db-main" style="max-width:900px">
+
+  <div style="margin-bottom:28px">
+    <h1 class="db-title">Settings</h1>
+    <p class="db-sub">Manage your account, profile, and preferences.</p>
+  </div>
+
+  <div class="st-layout">
+
+    <!-- Settings nav -->
+    <nav class="st-nav">
+      <a class="st-nav-item active" onclick="showSection('profile',this)"><span class="st-nav-ico">👤</span> Profile</a>
+      <a class="st-nav-item" onclick="showSection('account',this)"><span class="st-nav-ico">🔑</span> Account</a>
+      <a class="st-nav-item" onclick="showSection('branding',this)"><span class="st-nav-ico">🎨</span> Branding</a>
+      <a class="st-nav-item" onclick="showSection('notifs',this)"><span class="st-nav-ico">🔔</span> Notifications</a>
+      <a class="st-nav-item" onclick="showSection('danger',this)" style="color:#ef4444"><span class="st-nav-ico">⚠️</span> Danger zone</a>
+    </nav>
+
+    <!-- Settings content -->
+    <div>
+
+      <!-- Profile -->
+      <div class="st-section active" id="sec-profile">
+        <div class="st-card">
+          <div class="st-card-title">Your profile</div>
+          <div class="st-card-desc">This information is visible on your Tokproof pages and account.</div>
+          <div class="st-av-row">
+            <div class="st-av">P</div>
+            <div class="st-av-info">
+              <div class="st-av-name">Paula Nuñez</div>
+              <div class="st-av-handle">@auraglow</div>
+              <div class="st-av-actions">
+                <button class="btn btn-secondary btn-xs">📷 Change photo</button>
+                <button class="btn btn-ghost btn-xs">Remove</button>
+              </div>
+            </div>
+          </div>
+          <div class="st-divider"></div>
+          <div class="fg">
+            <label class="fl">Full name</label>
+            <input class="fi" type="text" value="Paula Nuñez"/>
+          </div>
+          <div class="fg">
+            <label class="fl">Display name / Brand</label>
+            <input class="fi" type="text" value="AuraGlow"/>
+            <span class="fh">Shown on your public pages. Can be your brand or creator name.</span>
+          </div>
+          <div class="fg">
+            <label class="fl">Bio <span class="fi-label-opt">Optional</span></label>
+            <textarea class="fi" style="min-height:68px" placeholder="A short description of your brand or what you sell…">Skincare brand focused on Vitamin C serums. As seen on TikTok 🌿</textarea>
+          </div>
+          <div class="fg" style="margin-bottom:0">
+            <label class="fl">TikTok username</label>
+            <input class="fi" type="text" value="@auraglow_official" placeholder="@yourtiktok"/>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end">
+          <button class="btn btn-primary btn-sm" onclick="showSaved()">Save changes</button>
+        </div>
+      </div>
+
+      <!-- Account -->
+      <div class="st-section" id="sec-account">
+        <div class="st-card">
+          <div class="st-card-title">Account</div>
+          <div class="st-card-desc">Your login credentials and public URL.</div>
+          <div class="fg">
+            <label class="fl">Email address</label>
+            <input class="fi" type="email" value="hola@auraglow.com"/>
+          </div>
+          <div class="fg">
+            <label class="fl">Your Tokproof URL</label>
+            <div style="display:flex">
+              <span style="padding:9px 10px;background:var(--bg);border:1px solid var(--border);border-right:none;border-radius:var(--r) 0 0 var(--r);font-size:11px;color:var(--muted);white-space:nowrap;flex-shrink:0;display:flex;align-items:center">tokproof.app/@</span>
+              <input class="fi" type="text" value="auraglow" style="border-radius:0 var(--r) var(--r) 0"/>
+            </div>
+            <span class="fh">Changing your username will break any existing links shared externally.</span>
+          </div>
+        </div>
+        <div class="st-card">
+          <div class="st-card-title">Change password</div>
+          <div class="st-card-desc">Use a strong password of at least 8 characters.</div>
+          <div class="fg">
+            <label class="fl">Current password</label>
+            <input class="fi" type="password" placeholder="Enter current password"/>
+          </div>
+          <div class="fg">
+            <label class="fl">New password</label>
+            <input class="fi" type="password" placeholder="Minimum 8 characters"/>
+          </div>
+          <div class="fg" style="margin-bottom:0">
+            <label class="fl">Confirm new password</label>
+            <input class="fi" type="password" placeholder="Repeat new password"/>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end">
+          <button class="btn btn-primary btn-sm" onclick="showSaved()">Save changes</button>
+        </div>
+      </div>
+
+      <!-- Branding -->
+      <div class="st-section" id="sec-branding">
+        <div class="st-card">
+          <div class="st-card-title">Brand colors</div>
+          <div class="st-card-desc">These colors are used as defaults on all new pages you create.</div>
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Primary color</div>
+          <div class="st-color-row">
+            <div class="st-swatch selected" style="background:#FF2D75" onclick="selectSwatch(this,'primary')"></div>
+            <div class="st-swatch" style="background:#ef4444" onclick="selectSwatch(this,'primary')"></div>
+            <div class="st-swatch" style="background:#f97316" onclick="selectSwatch(this,'primary')"></div>
+            <div class="st-swatch" style="background:#eab308" onclick="selectSwatch(this,'primary')"></div>
+            <div class="st-swatch" style="background:#22c55e" onclick="selectSwatch(this,'primary')"></div>
+            <div class="st-swatch" style="background:#3b82f6" onclick="selectSwatch(this,'primary')"></div>
+            <div class="st-swatch" style="background:#8b5cf6" onclick="selectSwatch(this,'primary')"></div>
+            <div class="st-swatch" style="border:1.5px dashed var(--border);background:transparent" title="Custom color"></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;margin-top:14px">Secondary color</div>
+          <div class="st-color-row">
+            <div class="st-swatch" style="background:#FF2D75" onclick="selectSwatch(this,'secondary')"></div>
+            <div class="st-swatch" style="background:#ef4444" onclick="selectSwatch(this,'secondary')"></div>
+            <div class="st-swatch selected" style="background:#7C3AED" onclick="selectSwatch(this,'secondary')"></div>
+            <div class="st-swatch" style="background:#8b5cf6" onclick="selectSwatch(this,'secondary')"></div>
+            <div class="st-swatch" style="background:#3b82f6" onclick="selectSwatch(this,'secondary')"></div>
+            <div class="st-swatch" style="background:#0ea5e9" onclick="selectSwatch(this,'secondary')"></div>
+            <div class="st-swatch" style="background:#22c55e" onclick="selectSwatch(this,'secondary')"></div>
+            <div class="st-swatch" style="border:1.5px dashed var(--border);background:transparent" title="Custom color"></div>
+          </div>
+        </div>
+        <div class="st-card">
+          <div class="st-card-title">Tokproof branding</div>
+          <div class="st-card-desc">Control whether the Tokproof badge appears at the bottom of your pages.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:2px">Show "Built with Tokproof" badge</div>
+              <div style="font-size:11px;color:var(--muted)">Displayed in the footer of your public pages. Helps others discover Tokproof.</div>
+            </div>
+            <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Shown</span></label>
+          </div>
+          <div style="margin-top:12px;padding:10px 12px;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.16);border-radius:var(--r);font-size:11px;color:var(--muted)">
+            <strong style="color:var(--spurple)">Pro feature:</strong> Remove the Tokproof badge entirely with the Pro plan. <a href="billing.html" style="color:var(--spurple);font-weight:700">Upgrade →</a>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end">
+          <button class="btn btn-primary btn-sm" onclick="showSaved()">Save changes</button>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="st-section" id="sec-notifs">
+        <div class="st-card">
+          <div class="st-card-title">Email notifications</div>
+          <div class="st-card-desc">Choose which events send you an email.</div>
+          <div class="st-notif-row">
+            <div class="st-notif-body">
+              <div class="st-notif-title">Weekly analytics digest</div>
+              <div class="st-notif-desc">A summary of your page performance every Monday morning.</div>
+            </div>
+            <label class="tw"><input type="checkbox" checked/><span class="tw-lbl"></span></label>
+          </div>
+          <div class="st-notif-row">
+            <div class="st-notif-body">
+              <div class="st-notif-title">CTR milestone alerts</div>
+              <div class="st-notif-desc">Notify me when a page reaches 100, 500, or 1000 clicks.</div>
+            </div>
+            <label class="tw"><input type="checkbox" checked/><span class="tw-lbl"></span></label>
+          </div>
+          <div class="st-notif-row">
+            <div class="st-notif-body">
+              <div class="st-notif-title">Safe Link Score warnings</div>
+              <div class="st-notif-desc">Alert when a page's score drops below 80.</div>
+            </div>
+            <label class="tw"><input type="checkbox" checked/><span class="tw-lbl"></span></label>
+          </div>
+          <div class="st-notif-row">
+            <div class="st-notif-body">
+              <div class="st-notif-title">TikTok policy updates</div>
+              <div class="st-notif-desc">Get notified when TikTok's link-in-bio policy changes.</div>
+            </div>
+            <label class="tw"><input type="checkbox"/><span class="tw-lbl"></span></label>
+          </div>
+          <div class="st-notif-row">
+            <div class="st-notif-body">
+              <div class="st-notif-title">Product updates & news</div>
+              <div class="st-notif-desc">New features, templates, and improvements from Tokproof.</div>
+            </div>
+            <label class="tw"><input type="checkbox" checked/><span class="tw-lbl"></span></label>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end">
+          <button class="btn btn-primary btn-sm" onclick="showSaved()">Save preferences</button>
+        </div>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="st-section" id="sec-danger">
+        <div class="st-card" style="border-color:rgba(239,68,68,.22)">
+          <div class="st-card-title" style="color:#ef4444">Danger zone</div>
+          <div class="st-card-desc">These actions are permanent and cannot be undone.</div>
+          <div class="st-danger-item">
+            <div>
+              <div class="st-danger-title">Export all data</div>
+              <div class="st-danger-desc">Download a copy of all your pages, analytics, and account data as JSON.</div>
+            </div>
+            <button class="btn btn-ghost btn-sm">⬇ Export data</button>
+          </div>
+          <div class="st-danger-item">
+            <div>
+              <div class="st-danger-title">Unpublish all pages</div>
+              <div class="st-danger-desc">Take all your active pages offline immediately. You can re-publish at any time.</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" style="color:var(--warn);border-color:rgba(245,158,11,.3)">Unpublish all</button>
+          </div>
+          <div class="st-danger-item">
+            <div>
+              <div class="st-danger-title">Delete account</div>
+              <div class="st-danger-desc">Permanently delete your account and all associated pages, data, and analytics. This cannot be reversed.</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" style="color:#ef4444;border-color:rgba(239,68,68,.3)" onclick="confirmDelete()">Delete account</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /layout -->
+
+  <div id="savedToast" style="position:fixed;bottom:24px;right:24px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);border-radius:var(--r-lg);padding:10px 18px;font-size:13px;font-weight:700;color:#22c55e;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;z-index:999">✓ Changes saved</div>
+
+  <div style="height:40px"></div>
+</main>
+
+<script>
+function openSidePanel() { document.getElementById('spOverlay').classList.add('open'); }
+function closeSidePanel(e) { if (e.target === document.getElementById('spOverlay')) document.getElementById('spOverlay').classList.remove('open'); }
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') document.getElementById('spOverlay').classList.remove('open'); });
+
+function showSection(id, navEl) {
+  document.querySelectorAll('.st-section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.st-nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.getElementById('sec-' + id).classList.add('active');
+  navEl.classList.add('active');
+}
+
+function selectSwatch(el, group) {
+  el.closest('.st-color-row').querySelectorAll('.st-swatch').forEach(function(s) { s.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+
+function showSaved() {
+  var toast = document.getElementById('savedToast');
+  toast.style.opacity = '1'; toast.style.transform = 'translateY(0)';
+  setTimeout(function() { toast.style.opacity = '0'; toast.style.transform = 'translateY(8px)'; }, 2200);
+}
+
+function confirmDelete() {
+  if (confirm('Are you sure? This will permanently delete your account and all data. This cannot be undone.')) {
+    window.location.href = 'home.html';
+  }
+}
+</script>
+</body>
+</html>

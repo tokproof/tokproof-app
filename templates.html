@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Tokproof — Templates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+.tp-hero { margin-bottom: 28px; }
+.tp-filter-row { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+.tp-filter-btn { padding: 6px 16px; font-size: 12px; font-weight: 700; color: var(--muted); background: var(--card); border: 1px solid var(--border); border-radius: 99px; cursor: pointer; transition: all .15s; white-space: nowrap; }
+.tp-filter-btn:hover { border-color: rgba(255,45,117,.3); color: var(--text); }
+.tp-filter-btn.active { background: var(--grad); color: #fff; border-color: transparent; box-shadow: 0 3px 12px rgba(255,45,117,.25); }
+.tp-count { font-size: 12px; color: var(--muted); margin-left: auto; }
+
+.tp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+
+.tp-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--r-xl);
+  overflow: hidden; cursor: pointer;
+  transition: border-color .2s, transform .2s, box-shadow .2s;
+}
+.tp-card:hover { border-color: rgba(255,45,117,.32); transform: translateY(-3px); box-shadow: 0 12px 36px rgba(0,0,0,.35); }
+.tp-card:hover .tp-use-btn { opacity: 1; transform: translateY(0); }
+
+/* Large mockup preview */
+.tp-preview { height: 200px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.tp-prev-inner { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* TikTok-style mockup elements */
+.tp-mock-vid { flex: 0 0 80px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.tp-mock-overlay { position: absolute; inset: 0; }
+.tp-mock-play { width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,.18); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 8px; z-index: 1; flex-shrink: 0; }
+.tp-mock-side { position: absolute; right: 10px; top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.tp-mock-side-act { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.tp-mock-side-ico { font-size: 10px; }
+.tp-mock-side-n { font-size: 5px; color: rgba(255,255,255,.6); font-weight: 700; }
+.tp-mock-content { flex: 1; padding: 10px 12px; display: flex; flex-direction: column; gap: 5px; justify-content: center; }
+.tp-mock-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 5.5px; font-weight: 800; padding: 1.5px 5px; border-radius: 99px; margin-bottom: 2px; align-self: flex-start; }
+.tp-mock-ttl { height: 3px; border-radius: 2px; background: rgba(255,255,255,.18); }
+.tp-mock-stars { display: flex; gap: 1px; font-size: 6px; }
+.tp-mock-cta-btn { height: 9px; border-radius: 4px; width: 88%; margin-top: 3px; }
+.tp-mock-proof { display: flex; gap: 3px; align-items: center; }
+.tp-mock-proof-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.25); }
+
+/* Simple page mockup */
+.tp-mock-avatar-lg { width: 28px; height: 28px; border-radius: 50%; margin: 0 auto 4px; }
+.tp-mock-handle { height: 2.5px; border-radius: 2px; background: rgba(255,255,255,.2); width: 55%; margin: 0 auto 8px; }
+.tp-mock-link-row { height: 8px; border-radius: 4px; background: rgba(255,255,255,.08); margin-bottom: 4px; }
+
+/* Use overlay */
+.tp-use-overlay { position: absolute; inset: 0; background: rgba(15,15,16,.75); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; }
+.tp-card:hover .tp-use-overlay { opacity: 1; }
+.tp-use-btn { background: var(--grad); color: #fff; font-size: 12px; font-weight: 800; padding: 9px 20px; border-radius: var(--r-lg); border: none; cursor: pointer; transform: translateY(6px); transition: transform .2s, opacity .2s; opacity: 0; box-shadow: 0 4px 16px rgba(255,45,117,.35); }
+
+/* Card info row */
+.tp-info { padding: 12px 14px; }
+.tp-info-top { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.tp-name { font-size: 13px; font-weight: 800; }
+.tp-badge-row { display: flex; align-items: center; justify-content: space-between; }
+.tp-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.tp-tag { font-size: 9px; font-weight: 700; padding: 2px 7px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 99px; color: var(--muted2); }
+.tp-use-link { font-size: 11px; font-weight: 700; color: var(--spurple); cursor: pointer; white-space: nowrap; }
+.tp-use-link:hover { text-decoration: underline; }
+
+@keyframes tpFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.tp-grid > * { animation: tpFade .3s ease both; }
+.tp-grid > *:nth-child(2) { animation-delay: .04s; }
+.tp-grid > *:nth-child(3) { animation-delay: .08s; }
+.tp-grid > *:nth-child(4) { animation-delay: .12s; }
+.tp-grid > *:nth-child(5) { animation-delay: .16s; }
+.tp-grid > *:nth-child(6) { animation-delay: .20s; }
+</style>
+</head>
+<body class="db-page">
+
+<!-- ── SLIDE PANEL ── -->
+<div class="sp-overlay" id="spOverlay" onclick="closeSidePanel(event)">
+  <aside class="sp-panel" id="spPanel">
+    <div class="sp-close" onclick="document.getElementById('spOverlay').classList.remove('open')">✕</div>
+    <div class="sp-user">
+      <div class="sp-user-av">P</div>
+      <div class="sp-user-name">Paula Nuñez</div>
+      <div class="sp-user-handle">@auraglow</div>
+      <div class="sp-user-email">hola@auraglow.com</div>
+    </div>
+    <nav class="sp-nav">
+      <div class="sp-nav-section">Workspace</div>
+      <a href="index.html" class="sp-nav-item"><span class="sp-nav-ico">▦</span> Dashboard</a>
+      <a href="index.html" class="sp-nav-item"><span class="sp-nav-ico">🗂</span> Mis páginas</a>
+      <a href="analytics.html" class="sp-nav-item"><span class="sp-nav-ico">📊</span> Analytics</a>
+      <a href="safe-link.html" class="sp-nav-item"><span class="sp-nav-ico">🔍</span> Safe Link Score</a>
+      <a href="templates.html" class="sp-nav-item active"><span class="sp-nav-ico">🎨</span> Templates</a>
+      <div class="sp-nav-section">Cuenta</div>
+      <a href="billing.html" class="sp-nav-item"><span class="sp-nav-ico">⚡</span> Plan & Billing <span class="sp-nav-badge">Free</span></a>
+      <a href="faq.html" class="sp-nav-item"><span class="sp-nav-ico">❓</span> FAQ & Ayuda</a>
+      <a href="settings.html" class="sp-nav-item"><span class="sp-nav-ico">⚙️</span> Settings</a>
+      <a href="home.html" class="sp-nav-item"><span class="sp-nav-ico" style="opacity:.4">→</span><span style="opacity:.4">Cerrar sesión</span></a>
+    </nav>
+    <div class="sp-foot">
+      <div class="sp-plan-box">
+        <div class="sp-plan-top">
+          <span class="sp-plan-label">Plan Free</span>
+          <span style="font-size:9px;padding:2px 7px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:99px;color:var(--muted);font-weight:800">Free</span>
+        </div>
+        <div class="sp-plan-bar-wrap"><div class="sp-plan-bar-fill" style="width:100%;background:linear-gradient(90deg,var(--pink),#ff6b6b)"></div></div>
+        <div class="sp-plan-pages">1 / 1 páginas publicadas</div>
+        <a href="billing.html" class="btn btn-primary btn-full btn-sm" style="margin-top:10px;font-size:11px">⬆ Upgrade to Pro</a>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+  <a href="index.html" class="tb-logo">
+    <img class="tb-logo-img" src="assets/tokproof-logo.png" alt="Tokproof"/>
+    <span>Tokproof</span>
+  </a>
+  <div class="tb-sep"></div>
+  <span style="font-size:12px;color:var(--muted);font-weight:600">Templates</span>
+  <div class="tb-right">
+    <div style="width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;cursor:pointer;color:#fff;flex-shrink:0" onclick="openSidePanel()">P</div>
+  </div>
+</header>
+
+<main class="db-main">
+
+  <div class="tp-hero">
+    <h1 class="db-title">Templates</h1>
+    <p class="db-sub">Start from a professionally designed layout. Customise everything in the editor in minutes.</p>
+  </div>
+
+  <!-- Filters -->
+  <div class="tp-filter-row">
+    <button class="tp-filter-btn active" onclick="filterTpl('all',this)">All</button>
+    <button class="tp-filter-btn" onclick="filterTpl('trust',this)">🛡 Trust Page</button>
+    <button class="tp-filter-btn" onclick="filterTpl('simple',this)">🔗 Simple Page</button>
+    <span class="tp-count" id="tplCount">6 templates</span>
+  </div>
+
+  <!-- Template grid -->
+  <div class="tp-grid" id="tplGrid">
+
+    <!-- 1. TikTok Beauty — Trust -->
+    <div class="tp-card" data-type="trust">
+      <div class="tp-preview" style="background:linear-gradient(160deg,#180d14,#0f0f10)">
+        <div class="tp-prev-inner">
+          <div class="tp-mock-vid" style="background:linear-gradient(180deg,rgba(255,45,117,.28),rgba(255,45,117,.06))">
+            <div class="tp-mock-play">▶</div>
+            <div class="tp-mock-side">
+              <div class="tp-mock-side-act"><span class="tp-mock-side-ico">❤️</span><span class="tp-mock-side-n">8.4k</span></div>
+              <div class="tp-mock-side-act"><span class="tp-mock-side-ico">💬</span><span class="tp-mock-side-n">1.2k</span></div>
+              <div class="tp-mock-side-act"><span class="tp-mock-side-ico">↗️</span><span class="tp-mock-side-n">Share</span></div>
+            </div>
+          </div>
+          <div class="tp-mock-content">
+            <div style="display:flex;gap:4px;align-items:center;margin-bottom:4px">
+              <div class="tp-mock-badge" style="background:rgba(255,45,117,.15);color:rgba(255,45,117,.9);border:1px solid rgba(255,45,117,.25)">✓ Verified brand</div>
+            </div>
+            <div class="tp-mock-ttl" style="width:85%"></div>
+            <div style="height:2px;border-radius:1px;background:rgba(255,255,255,.06);width:60%;margin-top:3px"></div>
+            <div class="tp-mock-proof" style="margin-top:5px">
+              <span style="font-size:7px;color:rgba(255,193,7,.9)">★★★★★</span>
+              <span style="font-size:5.5px;color:rgba(255,255,255,.4);margin-left:3px">2,341 reviews</span>
+            </div>
+            <div class="tp-mock-cta-btn" style="background:linear-gradient(90deg,#FF2D75,#7C3AED)"></div>
+          </div>
+        </div>
+        <div class="tp-use-overlay"><button class="tp-use-btn" onclick="useTemplate('trust')">Use template →</button></div>
+      </div>
+      <div class="tp-info">
+        <div class="tp-info-top">
+          <span class="tp-name">TikTok Beauty</span>
+          <span class="lc-type-badge lc-type-trust" style="font-size:8px;padding:2px 7px">Trust</span>
+        </div>
+        <div class="tp-badge-row">
+          <div class="tp-tags"><span class="tp-tag">reviews</span><span class="tp-tag">skincare</span><span class="tp-tag">social proof</span></div>
+          <span class="tp-use-link" onclick="useTemplate('trust')">Use →</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Fashion Creator — Simple -->
+    <div class="tp-card" data-type="simple">
+      <div class="tp-preview" style="background:linear-gradient(160deg,#0d1220,#0f0f10)">
+        <div class="tp-prev-inner" style="padding-top:18px">
+          <div style="display:flex;justify-content:center;margin-bottom:4px">
+            <div class="tp-mock-avatar-lg" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)"></div>
+          </div>
+          <div class="tp-mock-handle"></div>
+          <div style="padding:0 20px">
+            <div class="tp-mock-link-row" style="background:rgba(59,130,246,.2)"></div>
+            <div class="tp-mock-link-row" style="background:rgba(139,92,246,.15)"></div>
+            <div class="tp-mock-link-row" style="background:rgba(255,255,255,.06)"></div>
+            <div class="tp-mock-link-row" style="background:rgba(59,130,246,.12)"></div>
+          </div>
+        </div>
+        <div class="tp-use-overlay"><button class="tp-use-btn" onclick="useTemplate('simple')">Use template →</button></div>
+      </div>
+      <div class="tp-info">
+        <div class="tp-info-top">
+          <span class="tp-name">Fashion Creator</span>
+          <span class="lc-type-badge lc-type-simple" style="font-size:8px;padding:2px 7px">Simple</span>
+        </div>
+        <div class="tp-badge-row">
+          <div class="tp-tags"><span class="tp-tag">links</span><span class="tp-tag">creator</span><span class="tp-tag">fashion</span></div>
+          <span class="tp-use-link" onclick="useTemplate('simple')">Use →</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Gadgets & Tech — Trust -->
+    <div class="tp-card" data-type="trust">
+      <div class="tp-preview" style="background:linear-gradient(160deg,#0d1a0e,#0f0f10)">
+        <div class="tp-prev-inner">
+          <div class="tp-mock-vid" style="background:linear-gradient(180deg,rgba(34,197,94,.22),rgba(34,197,94,.04))">
+            <div class="tp-mock-play" style="background:rgba(34,197,94,.22)">▶</div>
+            <div class="tp-mock-side">
+              <div class="tp-mock-side-act"><span class="tp-mock-side-ico">❤️</span><span class="tp-mock-side-n">12k</span></div>
+              <div class="tp-mock-side-act"><span class="tp-mock-side-ico">💬</span><span class="tp-mock-side-n">834</span></div>
+            </div>
+          </div>
+          <div class="tp-mock-content">
+            <div class="tp-mock-badge" style="background:rgba(34,197,94,.12);color:rgba(34,197,94,.9);border:1px solid rgba(34,197,94,.22)">⚡ Best Seller</div>
+            <div class="tp-mock-ttl" style="width:88%;background:rgba(255,255,255,.15)"></div>
+            <div style="height:2px;border-radius:1px;background:rgba(34,197,94,.12);width:62%;margin-top:3px"></div>
+            <div class="tp-mock-proof" style="margin-top:5px">
+              <span style="font-size:7px;color:rgba(34,197,94,.9)">★★★★★</span>
+              <span style="font-size:5.5px;color:rgba(255,255,255,.35);margin-left:3px">4,128 reviews</span>
+            </div>
+            <div class="tp-mock-cta-btn" style="background:linear-gradient(90deg,#22c55e,#16a34a)"></div>
+          </div>
+        </div>
+        <div class="tp-use-overlay"><button class="tp-use-btn" onclick="useTemplate('trust')">Use template →</button></div>
+      </div>
+      <div class="tp-info">
+        <div class="tp-info-top">
+          <span class="tp-name">Gadgets & Tech</span>
+          <span class="lc-type-badge lc-type-trust" style="font-size:8px;padding:2px 7px">Trust</span>
+        </div>
+        <div class="tp-badge-row">
+          <div class="tp-tags"><span class="tp-tag">tech</span><span class="tp-tag">product</span><span class="tp-tag">shopify</span></div>
+          <span class="tp-use-link" onclick="useTemplate('trust')">Use →</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Pets & Lifestyle — Trust -->
+    <div class="tp-card" data-type="trust">
+      <div class="tp-preview" style="background:linear-gradient(160deg,#1a150c,#0f0f10)">
+        <div class="tp-prev-inner">
+          <div class="tp-mock-vid" style="background:linear-gradient(180deg,rgba(245,158,11,.2),rgba(245,158,11,.03))">
+            <div class="tp-mock-play" style="background:rgba(245,158,11,.2)">▶</div>
+            <div class="tp-mock-side">
+              <div class="tp-mock-side-act"><span class="tp-mock-side-ico">❤️</span><span class="tp-mock-side-n">6.1k</span></div>
+              <div class="tp-mock-side-act"><span class="tp-mock-side-ico">🔖</span><span class="tp-mock-side-n">982</span></div>
+            </div>
+          </div>
+          <div class="tp-mock-content">
+            <div class="tp-mock-badge" style="background:rgba(245,158,11,.12);color:rgba(245,158,11,.9);border:1px solid rgba(245,158,11,.22)">🐾 Trending</div>
+            <div class="tp-mock-ttl" style="width:78%;background:rgba(255,255,255,.14)"></div>
+            <div style="height:2px;border-radius:1px;background:rgba(245,158,11,.1);width:55%;margin-top:3px"></div>
+            <div class="tp-mock-proof" style="margin-top:5px">
+              <span style="font-size:7px;color:rgba(245,158,11,.9)">★★★★★</span>
+              <span style="font-size:5.5px;color:rgba(255,255,255,.35);margin-left:3px">1,847 reviews</span>
+            </div>
+            <div class="tp-mock-cta-btn" style="background:linear-gradient(90deg,#f59e0b,#ef4444)"></div>
+          </div>
+        </div>
+        <div class="tp-use-overlay"><button class="tp-use-btn" onclick="useTemplate('trust')">Use template →</button></div>
+      </div>
+      <div class="tp-info">
+        <div class="tp-info-top">
+          <span class="tp-name">Pets & Lifestyle</span>
+          <span class="lc-type-badge lc-type-trust" style="font-size:8px;padding:2px 7px">Trust</span>
+        </div>
+        <div class="tp-badge-row">
+          <div class="tp-tags"><span class="tp-tag">pets</span><span class="tp-tag">lifestyle</span><span class="tp-tag">product</span></div>
+          <span class="tp-use-link" onclick="useTemplate('trust')">Use →</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Info Product — Trust -->
+    <div class="tp-card" data-type="trust">
+      <div class="tp-preview" style="background:linear-gradient(160deg,#13101a,#0f0f10)">
+        <div class="tp-prev-inner">
+          <div class="tp-mock-vid" style="background:linear-gradient(180deg,rgba(168,85,247,.22),rgba(168,85,247,.04))">
+            <div class="tp-mock-play" style="background:rgba(168,85,247,.22)">▶</div>
+            <div class="tp-mock-side">
+              <div class="tp-mock-side-act"><span class="tp-mock-side-ico">❤️</span><span class="tp-mock-side-n">9.3k</span></div>
+              <div class="tp-mock-side-act"><span class="tp-mock-side-ico">💬</span><span class="tp-mock-side-n">2.1k</span></div>
+            </div>
+          </div>
+          <div class="tp-mock-content">
+            <div class="tp-mock-badge" style="background:rgba(168,85,247,.12);color:rgba(168,85,247,.9);border:1px solid rgba(168,85,247,.22)">✦ Digital product</div>
+            <div class="tp-mock-ttl" style="width:90%;background:rgba(255,255,255,.15)"></div>
+            <div style="height:2px;border-radius:1px;background:rgba(168,85,247,.12);width:70%;margin-top:3px"></div>
+            <div class="tp-mock-proof" style="margin-top:5px">
+              <span style="font-size:7px;color:rgba(168,85,247,.9)">★★★★★</span>
+              <span style="font-size:5.5px;color:rgba(255,255,255,.35);margin-left:3px">3,206 reviews</span>
+            </div>
+            <div class="tp-mock-cta-btn" style="background:linear-gradient(90deg,#a855f7,#7c3aed)"></div>
+          </div>
+        </div>
+        <div class="tp-use-overlay"><button class="tp-use-btn" onclick="useTemplate('trust')">Use template →</button></div>
+      </div>
+      <div class="tp-info">
+        <div class="tp-info-top">
+          <span class="tp-name">Info Product</span>
+          <span class="lc-type-badge lc-type-trust" style="font-size:8px;padding:2px 7px">Trust</span>
+        </div>
+        <div class="tp-badge-row">
+          <div class="tp-tags"><span class="tp-tag">digital</span><span class="tp-tag">course</span><span class="tp-tag">ebook</span></div>
+          <span class="tp-use-link" onclick="useTemplate('trust')">Use →</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Minimal Creator — Simple -->
+    <div class="tp-card" data-type="simple">
+      <div class="tp-preview" style="background:#0f0f10">
+        <div class="tp-prev-inner" style="padding-top:18px">
+          <div style="display:flex;justify-content:center;margin-bottom:4px">
+            <div class="tp-mock-avatar-lg" style="background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.12)"></div>
+          </div>
+          <div class="tp-mock-handle" style="background:rgba(255,255,255,.12)"></div>
+          <div style="padding:0 20px">
+            <div class="tp-mock-link-row"></div>
+            <div class="tp-mock-link-row" style="background:rgba(255,255,255,.05)"></div>
+            <div class="tp-mock-link-row"></div>
+            <div class="tp-mock-link-row" style="background:rgba(255,255,255,.05)"></div>
+          </div>
+        </div>
+        <div class="tp-use-overlay"><button class="tp-use-btn" onclick="useTemplate('simple')">Use template →</button></div>
+      </div>
+      <div class="tp-info">
+        <div class="tp-info-top">
+          <span class="tp-name">Minimal Creator</span>
+          <span class="lc-type-badge lc-type-simple" style="font-size:8px;padding:2px 7px">Simple</span>
+        </div>
+        <div class="tp-badge-row">
+          <div class="tp-tags"><span class="tp-tag">minimal</span><span class="tp-tag">links</span><span class="tp-tag">creator</span></div>
+          <span class="tp-use-link" onclick="useTemplate('simple')">Use →</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tp-grid -->
+
+  <div style="height:48px"></div>
+</main>
+
+<script>
+function openSidePanel() { document.getElementById('spOverlay').classList.add('open'); }
+function closeSidePanel(e) { if (e.target === document.getElementById('spOverlay')) document.getElementById('spOverlay').classList.remove('open'); }
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') document.getElementById('spOverlay').classList.remove('open'); });
+
+function filterTpl(type, btn) {
+  document.querySelectorAll('.tp-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  var cards = document.querySelectorAll('.tp-card');
+  var count = 0;
+  cards.forEach(function(card) {
+    var show = type === 'all' || card.dataset.type === type;
+    card.style.display = show ? '' : 'none';
+    if (show) count++;
+  });
+  document.getElementById('tplCount').textContent = count + ' template' + (count !== 1 ? 's' : '');
+}
+
+function useTemplate(type) {
+  window.location.href = 'editor.html';
+}
+</script>
+</body>
+</html>

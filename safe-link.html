@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Tokproof — Safe Link Score</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+.sl-hero { margin-bottom: 28px; }
+.sl-row { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: start; }
+@media (max-width: 780px) { .sl-row { grid-template-columns: 1fr; } }
+.sl-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 22px 24px; }
+
+/* Score ring card */
+.sl-ring-card { text-align: center; padding: 28px 24px 24px; }
+.sl-ring-wrap { position: relative; width: 140px; height: 140px; margin: 0 auto 20px; }
+.sl-ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.sl-ring-track { fill: none; stroke: rgba(255,255,255,.06); stroke-width: 12; }
+.sl-ring-fill { fill: none; stroke-width: 12; stroke-linecap: round;
+  stroke-dasharray: 376; stroke-dashoffset: 30;
+  stroke: url(#ringGrad); transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1); }
+.sl-ring-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.sl-ring-val { font-size: 38px; font-weight: 900; letter-spacing: -.05em; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.sl-ring-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 700; }
+.sl-status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.22); border-radius: 99px; font-size: 12px; font-weight: 800; color: #22c55e; margin-bottom: 14px; }
+.sl-ring-desc { font-size: 12px; color: var(--muted); line-height: 1.6; text-align: center; }
+
+/* Score breakdown */
+.sl-breakdown { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+.sl-cat { display: flex; align-items: center; gap: 10px; }
+.sl-cat-name { font-size: 11px; font-weight: 700; color: var(--muted); min-width: 110px; }
+.sl-cat-bar-wrap { flex: 1; height: 5px; background: rgba(255,255,255,.06); border-radius: 99px; overflow: hidden; }
+.sl-cat-bar { height: 100%; border-radius: 99px; }
+.sl-cat-score { font-size: 11px; font-weight: 800; min-width: 28px; text-align: right; }
+
+/* Checklist */
+.sl-chk-list { display: flex; flex-direction: column; gap: 8px; }
+.sl-chk-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); transition: border-color .15s; }
+.sl-chk-item:hover { border-color: rgba(255,255,255,.1); }
+.sl-chk-item-ok { border-left: 2px solid rgba(34,197,94,.4); }
+.sl-chk-item-warn { border-left: 2px solid rgba(245,158,11,.4); }
+.sl-chk-item-fail { border-left: 2px solid rgba(239,68,68,.4); }
+.sl-chk-ico { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 900; flex-shrink: 0; margin-top: 1px; }
+.sl-chk-ok-ico { background: rgba(34,197,94,.12); color: #22c55e; border: 1px solid rgba(34,197,94,.22); }
+.sl-chk-warn-ico { background: rgba(245,158,11,.1); color: #f59e0b; border: 1px solid rgba(245,158,11,.22); }
+.sl-chk-fail-ico { background: rgba(239,68,68,.1); color: #ef4444; border: 1px solid rgba(239,68,68,.22); }
+.sl-chk-body { flex: 1; }
+.sl-chk-title { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+.sl-chk-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.sl-chk-tag-ok { font-size: 9px; font-weight: 800; padding: 1px 6px; background: rgba(34,197,94,.1); color: #22c55e; border-radius: 99px; border: 1px solid rgba(34,197,94,.2); display: inline-flex; margin-left: 6px; }
+.sl-chk-tag-warn { font-size: 9px; font-weight: 800; padding: 1px 6px; background: rgba(245,158,11,.1); color: #f59e0b; border-radius: 99px; border: 1px solid rgba(245,158,11,.2); display: inline-flex; margin-left: 6px; }
+
+/* Per-page table */
+.sl-pg-table { width: 100%; border-collapse: collapse; }
+.sl-pg-table th { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--muted2); padding: 0 0 10px; text-align: left; }
+.sl-pg-table td { padding: 10px 0; border-top: 1px solid rgba(45,45,56,.5); vertical-align: middle; }
+.sl-pg-table tr:first-child td { border-top: none; }
+.sl-score-pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 10px; font-weight: 800; }
+.sl-pill-green { background: rgba(34,197,94,.1); color: #22c55e; border: 1px solid rgba(34,197,94,.2); }
+.sl-pill-yellow { background: rgba(245,158,11,.1); color: #f59e0b; border: 1px solid rgba(245,158,11,.2); }
+.sl-pill-red { background: rgba(239,68,68,.1); color: #ef4444; border: 1px solid rgba(239,68,68,.2); }
+
+/* Recommendations */
+.sl-rec { display: flex; flex-direction: column; gap: 10px; }
+.sl-rec-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-lg); transition: border-color .15s; }
+.sl-rec-item:hover { border-color: rgba(255,45,117,.2); }
+.sl-rec-num { width: 24px; height: 24px; border-radius: 50%; background: rgba(168,85,247,.12); border: 1px solid rgba(168,85,247,.22); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; color: var(--spurple); flex-shrink: 0; margin-top: 1px; }
+.sl-rec-body { flex: 1; }
+.sl-rec-title { font-size: 13px; font-weight: 800; margin-bottom: 3px; }
+.sl-rec-desc { font-size: 11px; color: var(--muted); line-height: 1.55; }
+.sl-rec-cta { font-size: 11px; font-weight: 700; color: var(--spurple); margin-top: 5px; cursor: pointer; }
+.sl-rec-cta:hover { text-decoration: underline; }
+.sl-rec-impact { font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 99px; flex-shrink: 0; align-self: flex-start; margin-top: 2px; }
+.sl-rec-high { background: rgba(239,68,68,.1); color: #ef4444; border: 1px solid rgba(239,68,68,.2); }
+.sl-rec-med { background: rgba(245,158,11,.1); color: #f59e0b; border: 1px solid rgba(245,158,11,.2); }
+.sl-rec-low { background: rgba(34,197,94,.1); color: #22c55e; border: 1px solid rgba(34,197,94,.2); }
+
+@keyframes slFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.sl-ring-card { animation: slFade .3s ease both; }
+.sl-right { animation: slFade .3s .06s ease both; }
+</style>
+</head>
+<body class="db-page">
+
+<!-- ── SLIDE PANEL ── -->
+<div class="sp-overlay" id="spOverlay" onclick="closeSidePanel(event)">
+  <aside class="sp-panel" id="spPanel">
+    <div class="sp-close" onclick="document.getElementById('spOverlay').classList.remove('open')">✕</div>
+    <div class="sp-user">
+      <div class="sp-user-av">P</div>
+      <div class="sp-user-name">Paula Nuñez</div>
+      <div class="sp-user-handle">@auraglow</div>
+      <div class="sp-user-email">hola@auraglow.com</div>
+    </div>
+    <nav class="sp-nav">
+      <div class="sp-nav-section">Workspace</div>
+      <a href="index.html" class="sp-nav-item"><span class="sp-nav-ico">▦</span> Dashboard</a>
+      <a href="index.html" class="sp-nav-item"><span class="sp-nav-ico">🗂</span> Mis páginas <span class="sp-nav-badge-new">2</span></a>
+      <a href="analytics.html" class="sp-nav-item"><span class="sp-nav-ico">📊</span> Analytics</a>
+      <a href="safe-link.html" class="sp-nav-item active"><span class="sp-nav-ico">🔍</span> Safe Link Score</a>
+      <a href="templates.html" class="sp-nav-item"><span class="sp-nav-ico">🎨</span> Templates</a>
+      <div class="sp-nav-section">Cuenta</div>
+      <a href="billing.html" class="sp-nav-item"><span class="sp-nav-ico">⚡</span> Plan & Billing <span class="sp-nav-badge">Free</span></a>
+      <a href="faq.html" class="sp-nav-item"><span class="sp-nav-ico">❓</span> FAQ & Ayuda</a>
+      <a href="settings.html" class="sp-nav-item"><span class="sp-nav-ico">⚙️</span> Settings</a>
+      <a href="home.html" class="sp-nav-item"><span class="sp-nav-ico" style="opacity:.4">→</span><span style="opacity:.4">Cerrar sesión</span></a>
+    </nav>
+    <div class="sp-foot">
+      <div class="sp-plan-box">
+        <div class="sp-plan-top">
+          <span class="sp-plan-label">Plan Free</span>
+          <span style="font-size:9px;padding:2px 7px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:99px;color:var(--muted);font-weight:800">Free</span>
+        </div>
+        <div class="sp-plan-bar-wrap"><div class="sp-plan-bar-fill" style="width:100%;background:linear-gradient(90deg,var(--pink),#ff6b6b)"></div></div>
+        <div class="sp-plan-pages">1 / 1 páginas publicadas</div>
+        <a href="billing.html" class="btn btn-primary btn-full btn-sm" style="margin-top:10px;font-size:11px">⬆ Upgrade to Pro</a>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+  <a href="index.html" class="tb-logo">
+    <img class="tb-logo-img" src="assets/tokproof-logo.png" alt="Tokproof"/>
+    <span>Tokproof</span>
+  </a>
+  <div class="tb-sep"></div>
+  <span style="font-size:12px;color:var(--muted);font-weight:600">Safe Link Score</span>
+  <div class="tb-right">
+    <a href="editor.html" class="btn btn-ghost btn-sm">✏️ Open editor</a>
+    <div style="width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;cursor:pointer;color:#fff;flex-shrink:0" onclick="openSidePanel()">P</div>
+  </div>
+</header>
+
+<main class="db-main">
+
+  <!-- ── HERO ── -->
+  <div class="sl-hero">
+    <h1 class="db-title">Safe Link Score</h1>
+    <p class="db-sub">How trustworthy and TikTok-compliant your pages are. A high score means less friction and more conversions.</p>
+  </div>
+
+  <div class="sl-row">
+
+    <!-- LEFT: Overall score card -->
+    <div>
+      <div class="sl-card sl-ring-card" style="margin-bottom:16px">
+        <div class="sl-ring-wrap">
+          <svg class="sl-ring-svg" viewBox="0 0 140 140">
+            <defs>
+              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#FF2D75"/>
+                <stop offset="100%" stop-color="#7C3AED"/>
+              </linearGradient>
+            </defs>
+            <circle class="sl-ring-track" cx="70" cy="70" r="60"/>
+            <circle class="sl-ring-fill" cx="70" cy="70" r="60" id="ringFill"/>
+          </svg>
+          <div class="sl-ring-inner">
+            <span class="sl-ring-val">92</span>
+            <span class="sl-ring-lbl">/100</span>
+          </div>
+        </div>
+        <div class="sl-status-badge">✓ Excellent</div>
+        <p class="sl-ring-desc">Your page meets TikTok's trust standards. Buyers landing here are unlikely to bounce due to trust issues.</p>
+      </div>
+
+      <!-- Score by category -->
+      <div class="sl-card">
+        <div style="font-size:13px;font-weight:800;margin-bottom:14px">Score by category</div>
+        <div class="sl-breakdown">
+          <div class="sl-cat">
+            <span class="sl-cat-name">🔗 Links & URLs</span>
+            <div class="sl-cat-bar-wrap"><div class="sl-cat-bar" style="width:100%;background:linear-gradient(90deg,var(--pink),var(--spurple))"></div></div>
+            <span class="sl-cat-score" style="color:#22c55e">100</span>
+          </div>
+          <div class="sl-cat">
+            <span class="sl-cat-name">⚖️ Legal & footer</span>
+            <div class="sl-cat-bar-wrap"><div class="sl-cat-bar" style="width:100%;background:linear-gradient(90deg,var(--pink),var(--spurple))"></div></div>
+            <span class="sl-cat-score" style="color:#22c55e">100</span>
+          </div>
+          <div class="sl-cat">
+            <span class="sl-cat-name">📝 Content quality</span>
+            <div class="sl-cat-bar-wrap"><div class="sl-cat-bar" style="width:80%;background:rgba(34,197,94,.6)"></div></div>
+            <span class="sl-cat-score" style="color:#22c55e">80</span>
+          </div>
+          <div class="sl-cat">
+            <span class="sl-cat-name">🏷️ Meta / SEO</span>
+            <div class="sl-cat-bar-wrap"><div class="sl-cat-bar" style="width:75%;background:rgba(245,158,11,.7)"></div></div>
+            <span class="sl-cat-score" style="color:#f59e0b">75</span>
+          </div>
+          <div class="sl-cat">
+            <span class="sl-cat-name">🛒 CTA clarity</span>
+            <div class="sl-cat-bar-wrap"><div class="sl-cat-bar" style="width:95%;background:linear-gradient(90deg,var(--pink),var(--spurple))"></div></div>
+            <span class="sl-cat-score" style="color:#22c55e">95</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: checklist + recommendations -->
+    <div class="sl-right">
+
+      <!-- Per-page scores -->
+      <div class="sl-card" style="margin-bottom:16px">
+        <div style="font-size:13px;font-weight:800;margin-bottom:14px">Pages overview</div>
+        <table class="sl-pg-table">
+          <thead>
+            <tr>
+              <th>Page</th>
+              <th>Type</th>
+              <th>Score</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div style="font-size:12px;font-weight:700">AuraGlow Vitamin C</div>
+                <div style="font-size:10px;color:var(--spurple);font-weight:600">@auraglow</div>
+              </td>
+              <td><span class="lc-type-badge lc-type-trust" style="font-size:9px">Trust</span></td>
+              <td><span class="sl-score-pill sl-pill-green">🛡 92 · Excellent</span></td>
+              <td><span class="sdot sdot-on" style="font-size:11px">Active</span></td>
+              <td><a href="editor.html" style="font-size:11px;color:var(--spurple);font-weight:700;text-decoration:none">Edit →</a></td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-size:12px;font-weight:700">Summer Glow Bundle</div>
+                <div style="font-size:10px;color:var(--spurple);font-weight:600">@glowbundle</div>
+              </td>
+              <td><span class="lc-type-badge lc-type-simple" style="font-size:9px">Simple</span></td>
+              <td><span class="sl-score-pill sl-pill-yellow">🛡 78 · Medium</span></td>
+              <td><span class="sdot sdot-off" style="font-size:11px;color:var(--muted)">Draft</span></td>
+              <td><a href="editor.html" style="font-size:11px;color:var(--spurple);font-weight:700;text-decoration:none">Edit →</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Full checklist -->
+      <div class="sl-card" style="margin-bottom:16px">
+        <div style="font-size:13px;font-weight:800;margin-bottom:14px">Checklist · AuraGlow Vitamin C Serum</div>
+        <div class="sl-chk-list">
+          <div class="sl-chk-item sl-chk-item-ok">
+            <div class="sl-chk-ico sl-chk-ok-ico">✓</div>
+            <div class="sl-chk-body">
+              <div class="sl-chk-title">No auto-redirects detected<span class="sl-chk-tag-ok">Pass</span></div>
+              <div class="sl-chk-desc">Visitors land directly on your page without being auto-forwarded. TikTok rates this positively.</div>
+            </div>
+          </div>
+          <div class="sl-chk-item sl-chk-item-ok">
+            <div class="sl-chk-ico sl-chk-ok-ico">✓</div>
+            <div class="sl-chk-body">
+              <div class="sl-chk-title">Clean destination URL<span class="sl-chk-tag-ok">Pass</span></div>
+              <div class="sl-chk-desc">CTA links directly to the official Shopify product page. No URL shorteners or tracking cloaks.</div>
+            </div>
+          </div>
+          <div class="sl-chk-item sl-chk-item-ok">
+            <div class="sl-chk-ico sl-chk-ok-ico">✓</div>
+            <div class="sl-chk-body">
+              <div class="sl-chk-title">Legal footer present<span class="sl-chk-tag-ok">Pass</span></div>
+              <div class="sl-chk-desc">Privacy policy, terms of service, and contact email are visible in the footer.</div>
+            </div>
+          </div>
+          <div class="sl-chk-item sl-chk-item-ok">
+            <div class="sl-chk-ico sl-chk-ok-ico">✓</div>
+            <div class="sl-chk-body">
+              <div class="sl-chk-title">HTTPS active<span class="sl-chk-tag-ok">Pass</span></div>
+              <div class="sl-chk-desc">Your page is served over HTTPS with a valid SSL certificate.</div>
+            </div>
+          </div>
+          <div class="sl-chk-item sl-chk-item-ok">
+            <div class="sl-chk-ico sl-chk-ok-ico">✓</div>
+            <div class="sl-chk-body">
+              <div class="sl-chk-title">CTA copy is clear and non-aggressive<span class="sl-chk-tag-ok">Pass</span></div>
+              <div class="sl-chk-desc">Button text is descriptive and honest. No fake urgency or misleading claims detected.</div>
+            </div>
+          </div>
+          <div class="sl-chk-item sl-chk-item-warn">
+            <div class="sl-chk-ico sl-chk-warn-ico">!</div>
+            <div class="sl-chk-body">
+              <div class="sl-chk-title">Meta description missing<span class="sl-chk-tag-warn">Warning</span></div>
+              <div class="sl-chk-desc">Adding a meta description improves how your page appears in search results and when shared. Go to Safe Link / SEO in the editor to fix this.</div>
+            </div>
+          </div>
+          <div class="sl-chk-item sl-chk-item-ok">
+            <div class="sl-chk-ico sl-chk-ok-ico">✓</div>
+            <div class="sl-chk-body">
+              <div class="sl-chk-title">Social proof present<span class="sl-chk-tag-ok">Pass</span></div>
+              <div class="sl-chk-desc">Page includes reviews and TikTok comments. Helps reduce buyer hesitation.</div>
+            </div>
+          </div>
+          <div class="sl-chk-item sl-chk-item-ok">
+            <div class="sl-chk-ico sl-chk-ok-ico">✓</div>
+            <div class="sl-chk-body">
+              <div class="sl-chk-title">No aggressive popups<span class="sl-chk-tag-ok">Pass</span></div>
+              <div class="sl-chk-desc">No exit-intent popups, overlays, or interruptive elements detected.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendations -->
+      <div class="sl-card">
+        <div style="font-size:13px;font-weight:800;margin-bottom:4px">Recommendations</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Fix these to push your score to 100</div>
+        <div class="sl-rec">
+          <div class="sl-rec-item">
+            <div class="sl-rec-num">1</div>
+            <div class="sl-rec-body">
+              <div class="sl-rec-title">Add a meta description</div>
+              <div class="sl-rec-desc">A 1-2 sentence description improves SEO and increases click-throughs when the link is shared on social media or appears in search results. Estimated +5 points.</div>
+              <div class="sl-rec-cta" onclick="window.location.href='editor.html'">Fix in editor →</div>
+            </div>
+            <span class="sl-rec-impact sl-rec-med">+5 pts</span>
+          </div>
+          <div class="sl-rec-item">
+            <div class="sl-rec-num">2</div>
+            <div class="sl-rec-body">
+              <div class="sl-rec-title">Add contact information to Summer Glow Bundle</div>
+              <div class="sl-rec-desc">Your Simple Page draft is missing a contact email. TikTok's trust algorithm looks for visible contact methods before ranking link-in-bio pages. Estimated +3 points.</div>
+              <div class="sl-rec-cta" onclick="window.location.href='editor.html'">Fix in editor →</div>
+            </div>
+            <span class="sl-rec-impact sl-rec-low">+3 pts</span>
+          </div>
+        </div>
+
+        <div style="margin-top:18px;padding:14px;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.16);border-radius:var(--r-lg);display:flex;gap:12px;align-items:flex-start">
+          <span style="font-size:18px;flex-shrink:0">✦</span>
+          <div>
+            <div style="font-size:12px;font-weight:800;margin-bottom:3px">Unlock AI-powered recommendations <span class="badge-pro" style="font-size:9px;padding:2px 8px">Pro</span></div>
+            <div style="font-size:11px;color:var(--muted);line-height:1.55">Get automated suggestions based on your page content, audience behavior, and TikTok policy updates.</div>
+            <a href="billing.html" style="font-size:11px;font-weight:700;color:var(--spurple);text-decoration:none;display:inline-block;margin-top:6px">Learn about Pro →</a>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /sl-right -->
+  </div><!-- /sl-row -->
+
+  <div style="height:40px"></div>
+</main>
+
+<script>
+function openSidePanel() { document.getElementById('spOverlay').classList.add('open'); }
+function closeSidePanel(e) { if (e.target === document.getElementById('spOverlay')) document.getElementById('spOverlay').classList.remove('open'); }
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') document.getElementById('spOverlay').classList.remove('open'); });
+// Animate ring on load
+window.addEventListener('load', function() {
+  var fill = document.getElementById('ringFill');
+  if (!fill) return;
+  var score = 92;
+  var circumference = 376;
+  var offset = circumference - (score / 100) * circumference;
+  fill.style.strokeDashoffset = offset;
+});
+</script>
+</body>
+</html>

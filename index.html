@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Tokproof — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body class="db-page">
+
+<!-- ── SLIDE PANEL ── -->
+<div class="sp-overlay" id="spOverlay" onclick="closeSidePanel(event)">
+  <aside class="sp-panel" id="spPanel">
+    <div class="sp-close" onclick="document.getElementById('spOverlay').classList.remove('open')">✕</div>
+    <div class="sp-user">
+      <div class="sp-user-av">P</div>
+      <div class="sp-user-name">Paula Nuñez</div>
+      <div class="sp-user-handle">@auraglow</div>
+      <div class="sp-user-email">hola@auraglow.com</div>
+    </div>
+    <nav class="sp-nav">
+      <div class="sp-nav-section">Workspace</div>
+      <a href="index.html" class="sp-nav-item active"><span class="sp-nav-ico">▦</span> Dashboard</a>
+      <a href="index.html" class="sp-nav-item"><span class="sp-nav-ico">🗂</span> Mis páginas <span class="sp-nav-badge-new">2</span></a>
+      <a href="analytics.html" class="sp-nav-item"><span class="sp-nav-ico">📊</span> Analytics</a>
+      <a href="safe-link.html" class="sp-nav-item"><span class="sp-nav-ico">🔍</span> Safe Link Score</a>
+      <a href="templates.html" class="sp-nav-item"><span class="sp-nav-ico">🎨</span> Templates</a>
+      <div class="sp-nav-section">Cuenta</div>
+      <a href="billing.html" class="sp-nav-item"><span class="sp-nav-ico">⚡</span> Plan & Billing <span class="sp-nav-badge" id="spPlanBadge">Free</span></a>
+      <a href="faq.html" class="sp-nav-item"><span class="sp-nav-ico">❓</span> FAQ & Ayuda</a>
+      <a href="settings.html" class="sp-nav-item"><span class="sp-nav-ico">⚙️</span> Settings</a>
+      <a href="home.html" class="sp-nav-item"><span class="sp-nav-ico" style="opacity:.4">→</span><span style="opacity:.4">Cerrar sesión</span></a>
+    </nav>
+    <div class="sp-foot">
+      <div class="sp-plan-box" id="spPlanBoxFree">
+        <div class="sp-plan-top">
+          <span class="sp-plan-label">Plan Free</span>
+          <span style="font-size:9px;padding:2px 7px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:99px;color:var(--muted);font-weight:800">Free</span>
+        </div>
+        <div class="sp-plan-bar-wrap"><div class="sp-plan-bar-fill" style="width:100%;background:linear-gradient(90deg,var(--pink),#ff6b6b)"></div></div>
+        <div class="sp-plan-pages">1 / 1 páginas publicadas</div>
+        <a href="billing.html" class="btn btn-primary btn-full btn-sm" style="margin-top:10px;font-size:11px">⬆ Upgrade to Pro</a>
+      </div>
+      <div class="sp-plan-box sp-plan-box-pro" id="spPlanBoxPro" style="display:none">
+        <div class="sp-plan-top">
+          <span class="sp-plan-label" style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Plan Pro</span>
+          <span class="badge-pro" style="font-size:9px;padding:2px 8px">Pro</span>
+        </div>
+        <div class="sp-plan-bar-wrap"><div class="sp-plan-bar-fill" style="width:20%"></div></div>
+        <div class="sp-plan-pages">2 / 10 páginas publicadas</div>
+        <div style="font-size:11px;color:var(--success);font-weight:700;margin-top:8px">✓ Plan Pro activo</div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- ── NEW LANDING MODAL ── -->
+<div class="nl-overlay" id="nlOverlay" onclick="handleOverlayClick(event)">
+  <div class="nl-modal">
+    <h2 class="nl-modal-title">New landing page</h2>
+    <p class="nl-modal-sub">Choose the format that fits your product and strategy.</p>
+    <div class="nl-type-grid">
+      <div class="nl-type-card selected" id="nlTrust" onclick="selectNlType('trust')">
+        <div class="nl-type-ico">🛡</div>
+        <div style="flex:1">
+          <div class="nl-type-name">Trust Page</div>
+          <div class="nl-type-desc">1 product · social proof · direct CTA to Shopify. Best for TikTok Shop.</div>
+          <div class="nl-type-tags"><span class="pt-tag">reviews</span><span class="pt-tag">Shopify</span><span class="pt-tag">social proof</span></div>
+          <a href="landing.html" class="nl-type-preview" target="_blank" onclick="event.stopPropagation()">See example →</a>
+        </div>
+      </div>
+      <div class="nl-type-card" id="nlSimple" onclick="selectNlType('simple')">
+        <div class="nl-type-ico">🔗</div>
+        <div style="flex:1">
+          <div class="nl-type-name">Simple Page</div>
+          <div class="nl-type-desc">Multiple links and products · premium Linktree for creators.</div>
+          <div class="nl-type-tags"><span class="pt-tag">links</span><span class="pt-tag">WhatsApp</span><span class="pt-tag">creator</span></div>
+          <a href="simple.html" class="nl-type-preview" target="_blank" onclick="event.stopPropagation()">See example →</a>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost btn-sm" onclick="closeNewLanding()" style="flex-shrink:0">Cancel</button>
+      <a href="editor.html" class="btn btn-primary btn-full">Create page →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+  <a href="index.html" class="tb-logo">
+    <img class="tb-logo-img" src="assets/tokproof-logo.png" alt="Tokproof"/>
+    <span>Tokproof</span>
+  </a>
+  <div class="tb-sep"></div>
+  <span style="font-size:12px;color:var(--muted);font-weight:600">Trust pages for TikTok-to-Shopify traffic</span>
+  <div class="tb-right">
+    <a href="#" class="btn btn-ghost btn-sm">Docs</a>
+    <a href="faq.html" class="btn btn-ghost btn-sm">Ayuda</a>
+    <div style="width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;cursor:pointer;color:#fff;flex-shrink:0;transition:opacity .15s,transform .15s" onmouseover="this.style.opacity='.85';this.style.transform='scale(1.04)'" onmouseout="this.style.opacity='1';this.style.transform='scale(1)'" onclick="openSidePanel()" title="Account menu">P</div>
+  </div>
+</header>
+
+<main class="db-main">
+
+  <!-- ── DEMO PLAN SWITCHER (internal testing only) ── -->
+  <div class="demo-switcher">
+    <span class="demo-switcher-label">👁 Vista previa</span>
+    <button class="demo-sw-btn active" id="btnFree" onclick="setPlan('free')">Plan Free</button>
+    <button class="demo-sw-btn demo-sw-btn-pro" id="btnPro" onclick="setPlan('pro')">Plan Pro · 10 páginas</button>
+  </div>
+
+  <!-- ── HERO ── -->
+  <div class="db-hero">
+    <div class="db-hero-top">
+      <div>
+        <h1 class="db-title">Mis <span class="gt">Landings</span></h1>
+        <p class="db-sub">Crea, edita y publica tus Tokproof trust pages en minutos.</p>
+      </div>
+      <div class="db-actions">
+        <button class="btn btn-primary" onclick="openNewLanding()">
+          <span style="font-size:16px;line-height:1">+</span> Nueva landing
+        </button>
+        <button class="btn btn-secondary btn-sm">↑ Importar</button>
+        <button class="btn btn-secondary btn-sm">↓ Exportar todo</button>
+        <a href="faq.html" class="btn btn-purple btn-sm">? ¿Cómo publicar en TikTok?</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STATS ── -->
+  <div class="db-stats">
+    <div class="db-stat"><div class="db-stat-lbl">Landings activas</div><div class="db-stat-val v-pink">2</div></div>
+    <div class="db-stat"><div class="db-stat-lbl">Total clicks</div><div class="db-stat-val">2,394</div></div>
+    <div class="db-stat"><div class="db-stat-lbl">CTR promedio</div><div class="db-stat-val v-pink">3.4%</div></div>
+    <div class="db-stat"><div class="db-stat-lbl">Conversiones est.</div><div class="db-stat-val v-purple">81</div></div>
+    <div class="db-stat"><div class="db-stat-lbl">Vistas hoy</div><div class="db-stat-val v-success">+147</div></div>
+  </div>
+
+  <!-- ── PLAN STRIP ── -->
+  <div id="planStrip" style="margin-top:0;display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r-xl);padding:16px 22px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+      <span style="font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Plan</span>
+      <span class="db-count" id="stripPlanBadge" style="font-size:9px;padding:2px 8px">Free</span>
+    </div>
+    <div style="width:1px;height:18px;background:var(--border);flex-shrink:0"></div>
+    <!-- Free strip -->
+    <div id="stripFree" style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;flex-wrap:wrap">
+      <span style="font-size:12px;color:var(--muted);font-weight:600">Páginas publicadas</span>
+      <div style="flex:1;min-width:80px;max-width:160px;height:4px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden">
+        <div style="width:100%;height:100%;background:linear-gradient(90deg,var(--pink),#ff5c8a);border-radius:99px"></div>
+      </div>
+      <span style="font-size:12px;font-weight:800;color:var(--muted2)">1 / 1</span>
+      <div style="width:1px;height:18px;background:var(--border);flex-shrink:0"></div>
+      <a href="billing.html" class="btn btn-primary btn-sm" style="font-size:11px;padding:5px 14px">⬆ Upgrade to Pro</a>
+    </div>
+    <!-- Pro strip -->
+    <div id="stripPro" style="display:none;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
+      <span style="font-size:12px;color:var(--muted);font-weight:600">Páginas publicadas</span>
+      <div style="flex:1;min-width:80px;max-width:160px;height:4px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden">
+        <div style="width:20%;height:100%;background:var(--grad);border-radius:99px"></div>
+      </div>
+      <span style="font-size:12px;font-weight:800;color:var(--muted2)">2 / ∞</span>
+      <div style="width:1px;height:18px;background:var(--border);flex-shrink:0"></div>
+      <span style="font-size:12px;color:var(--muted)">🔒 tokproof.app/@auraglow</span>
+      <button class="btn btn-ghost btn-sm" style="font-size:11px;padding:4px 12px" onclick="copyUrl('stripCopyBtn')" id="stripCopyBtn">Copiar</button>
+      <div style="width:1px;height:18px;background:var(--border);flex-shrink:0"></div>
+      <span style="font-size:12px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">✦ Plan Pro activo</span>
+    </div>
+  </div>
+
+  <!-- ── PAGES ── -->
+  <div class="db-sec-hd">
+    <h2>Tus landings</h2>
+    <span class="db-count">2</span>
+    <span style="flex:1"></span>
+    <select class="fi" style="width:auto;padding:6px 10px;font-size:12px">
+      <option>Ordenar: Recientes</option><option>Más clicks</option><option>Mejor CTR</option>
+    </select>
+  </div>
+
+  <div class="db-grid">
+
+    <!-- Card 1 — Trust Page · Active -->
+    <div class="lc">
+      <div class="lc-inner">
+        <div class="lc-thumb">
+          <div class="lc-mini">
+            <div class="lc-mini-notch"></div>
+            <div class="lc-mini-vid">▶</div>
+            <div class="lc-mini-body">
+              <div class="lc-mini-ttl">AuraGlow Vitamin C Serum</div>
+              <div class="lc-mini-price">$34.99</div>
+              <div class="lc-mini-bar"></div>
+            </div>
+          </div>
+          <span class="lc-pg">Página 1</span>
+        </div>
+        <div class="lc-info">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+            <span class="lc-type-badge lc-type-trust">Trust Page</span>
+            <span class="sdot sdot-on">Activo</span>
+          </div>
+          <div class="lc-name">AuraGlow Vitamin C Serum</div>
+          <div class="lc-store">🛍 glow-store.myshopify.com</div>
+          <div class="lc-stats">
+            <div class="lc-stat"><span class="lc-stat-lbl">Clicks</span><span class="lc-stat-val v-pink">1,247</span></div>
+            <div class="lc-stat"><span class="lc-stat-lbl">CTR</span><span class="lc-stat-val v-pink">3.8%</span></div>
+            <div class="lc-stat"><span class="lc-stat-lbl">Vistas</span><span class="lc-stat-val">32,816</span></div>
+            <div class="lc-stat"><span class="lc-stat-lbl">Creada</span><span class="lc-stat-val" style="font-size:13px;color:var(--muted)">3 May</span></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-top:8px">
+            <div class="lc-url"><span style="color:var(--muted2);font-size:13px">🔒</span><span class="lc-url-txt">tokproof.app/@auraglow</span></div>
+            <div class="lc-safe-pill lc-safe-green">
+              🛡 92
+              <div class="lc-safe-tip">
+                <div style="font-weight:800;color:var(--text);margin-bottom:5px">Safe Link Score · 92/100</div>
+                <div class="lc-tip-row lc-tip-ok">✓ Legal footer present</div>
+                <div class="lc-tip-row lc-tip-ok">✓ Clean destination URL</div>
+                <div class="lc-tip-row lc-tip-ok">✓ No auto-redirects</div>
+                <div class="lc-tip-row lc-tip-warn">· Meta description missing</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="lc-foot">
+        <a href="editor.html" class="btn btn-secondary btn-xs">✏️ Editar</a>
+        <a href="landing.html" class="btn btn-ghost btn-xs" target="_blank">👁 Ver</a>
+        <a href="#" class="btn btn-ghost btn-xs">📋 Copiar</a>
+        <a href="#" class="btn btn-ghost btn-xs">⧉ Duplicar</a>
+        <div class="lc-foot-r">
+          <a href="#" class="btn btn-pub btn-xs">🚀 Publicar</a>
+          <a href="#" class="btn btn-danger btn-xs">🗑 Eliminar</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 — Simple Page · Draft -->
+    <div class="lc">
+      <div class="lc-inner">
+        <div class="lc-thumb">
+          <div class="lc-mini" style="background:linear-gradient(180deg,#14142a,#0f0f18)">
+            <div class="lc-mini-notch"></div>
+            <div class="lc-mini-vid" style="background:linear-gradient(180deg,rgba(124,58,237,.22),transparent)">🔗</div>
+            <div class="lc-mini-body">
+              <div class="lc-mini-ttl">@glowbundle</div>
+              <div class="lc-mini-price" style="color:var(--spurple);font-size:8.5px">3 links · 2 products</div>
+              <div class="lc-mini-bar" style="background:linear-gradient(90deg,#7c3aed,#a855f7)"></div>
+            </div>
+          </div>
+          <span class="lc-pg">Página 2</span>
+        </div>
+        <div class="lc-info">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+            <span class="lc-type-badge lc-type-simple">Simple Page</span>
+            <span class="sdot sdot-off" style="color:var(--muted)">Borrador</span>
+          </div>
+          <div class="lc-name">Summer Glow Bundle</div>
+          <div class="lc-store">🛍 glow-store.myshopify.com</div>
+          <div class="lc-stats">
+            <div class="lc-stat"><span class="lc-stat-lbl">Clicks</span><span class="lc-stat-val">1,147</span></div>
+            <div class="lc-stat"><span class="lc-stat-lbl">CTR</span><span class="lc-stat-val">2.9%</span></div>
+            <div class="lc-stat"><span class="lc-stat-lbl">Vistas</span><span class="lc-stat-val">39,552</span></div>
+            <div class="lc-stat"><span class="lc-stat-lbl">Creada</span><span class="lc-stat-val" style="font-size:13px;color:var(--muted)">7 May</span></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-top:8px">
+            <div class="lc-url" style="opacity:.55"><span style="color:var(--muted2);font-size:13px">🔗</span><span class="lc-url-txt" style="color:var(--muted)">tokproof.app/@glowbundle · no publicado</span></div>
+            <div class="lc-safe-pill lc-safe-yellow">
+              🛡 78
+              <div class="lc-safe-tip">
+                <div style="font-weight:800;color:var(--text);margin-bottom:5px">Safe Link Score · 78/100</div>
+                <div class="lc-tip-row lc-tip-ok">✓ Clean destination URL</div>
+                <div class="lc-tip-row lc-tip-warn">· Legal footer missing</div>
+                <div class="lc-tip-row lc-tip-warn">· Meta description empty</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="lc-foot">
+        <a href="editor.html" class="btn btn-secondary btn-xs">✏️ Editar</a>
+        <a href="simple.html" class="btn btn-ghost btn-xs" target="_blank">👁 Ver</a>
+        <a href="#" class="btn btn-ghost btn-xs">📋 Copiar</a>
+        <a href="#" class="btn btn-ghost btn-xs">⧉ Duplicar</a>
+        <div class="lc-foot-r">
+          <a href="#" class="btn btn-pub btn-xs">🚀 Publicar</a>
+          <a href="#" class="btn btn-danger btn-xs">🗑 Eliminar</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /db-grid -->
+
+  <!-- ── NEW PAGE CTA ── -->
+  <div style="margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:var(--r-xl);padding:44px 24px;text-align:center">
+    <div style="font-size:22px;margin-bottom:10px">✦</div>
+    <div style="font-size:15px;font-weight:800;margin-bottom:6px">Crea tu siguiente trust page</div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto">Añade una nueva landing para un producto, una campaña de TikTok o un bundle. Lista en menos de 5 minutos.</div>
+    <button class="btn btn-primary" onclick="openNewLanding()">+ Nueva landing</button>
+  </div>
+
+  <!-- ── FREE PLAN LIMIT ── -->
+  <div id="limitCard" style="margin-top:40px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <h2 style="font-size:15px;font-weight:800">Plan</h2>
+      <span class="db-count" id="planLabel">Free</span>
+    </div>
+
+    <!-- Free -->
+    <div id="planFreeBlock">
+      <div style="background:var(--card);border:1px solid rgba(255,45,117,.18);border-radius:var(--r-xl);padding:20px 22px">
+        <div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div style="font-size:14px;font-weight:900;margin-bottom:3px">Plan Free · <span style="color:var(--danger)">límite alcanzado</span></div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px">Has publicado 1 / 1 páginas. Sube a Pro para publicar páginas ilimitadas, A/B testing, analytics avanzados y dominio personalizado.</div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px">
+              <span style="font-size:9px;font-weight:700;padding:2px 7px;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.18);border-radius:99px;color:var(--spurple)">∞ Unlimited pages</span>
+              <span style="font-size:9px;font-weight:700;padding:2px 7px;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.18);border-radius:99px;color:var(--spurple)">🧪 A/B Testing</span>
+              <span style="font-size:9px;font-weight:700;padding:2px 7px;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.18);border-radius:99px;color:var(--spurple)">📊 Analytics avanzados</span>
+              <span style="font-size:9px;font-weight:700;padding:2px 7px;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.18);border-radius:99px;color:var(--spurple)">🌐 Custom domain</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;align-items:flex-end">
+            <a href="billing.html" class="btn btn-primary">⬆ Upgrade to Pro</a>
+            <div style="font-size:10px;color:var(--muted2);text-align:center">$19/mo · Cancel anytime</div>
+          </div>
+        </div>
+        <div style="margin-top:16px;height:4px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden">
+          <div style="width:100%;height:100%;background:linear-gradient(90deg,var(--pink),#ff5c8a);border-radius:99px"></div>
+        </div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:5px;font-weight:600">1 / 1 pages published</div>
+      </div>
+    </div>
+
+    <!-- Pro -->
+    <div id="planProBlock" style="display:none">
+      <div style="background:var(--card);border:1px solid rgba(168,85,247,.22);border-radius:var(--r-xl);padding:20px 22px">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+              <div style="font-size:14px;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Plan Pro activo</div>
+              <span class="badge-pro" style="font-size:9px;padding:2px 8px">Pro</span>
+            </div>
+            <div style="font-size:12px;color:var(--muted)">2 / 10 páginas publicadas · 8 disponibles</div>
+          </div>
+          <a href="billing.html" class="btn btn-ghost btn-sm" style="flex-shrink:0">Manage billing →</a>
+        </div>
+        <div style="margin-top:14px;height:4px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden">
+          <div style="width:20%;height:100%;background:var(--grad);border-radius:99px"></div>
+        </div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:5px;font-weight:600">2 / 10 pages published</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TEMPLATES ── -->
+  <div style="margin-top:48px">
+    <div class="tmpl-hd">
+      <h2 class="tmpl-title">Templates</h2>
+      <span class="db-count">6</span>
+      <span style="flex:1"></span>
+      <a href="templates.html" style="font-size:12px;color:var(--spurple);font-weight:700;text-decoration:none">Ver todos →</a>
+    </div>
+    <div class="tmpl-carousel">
+
+      <div class="tmpl-card tmpl-card-l" onclick="openNewLanding()">
+        <div class="tmpl-mock" style="background:linear-gradient(160deg,#180d14,#0f0f10)">
+          <div class="tmpl-mock-vid" style="background:linear-gradient(180deg,rgba(255,45,117,.18),transparent)">
+            <div class="tmpl-mock-play">▶</div>
+            <div class="tmpl-mock-acts"><div class="tmpl-mock-act-dot"></div><div class="tmpl-mock-act-dot"></div><div class="tmpl-mock-act-dot"></div></div>
+          </div>
+          <div class="tmpl-mock-body">
+            <div class="tmpl-mock-line" style="width:75%"></div>
+            <div class="tmpl-mock-line-sm" style="width:50%"></div>
+            <div class="tmpl-mock-cta" style="background:var(--grad);width:85%"></div>
+          </div>
+        </div>
+        <div class="tmpl-info">
+          <div class="tmpl-name">TikTok Beauty</div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="lc-type-badge lc-type-trust" style="font-size:8px;padding:1px 6px">Trust</span>
+            <span style="font-size:10px;color:var(--spurple);font-weight:700;cursor:pointer">Use →</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tmpl-card tmpl-card-l" onclick="openNewLanding()">
+        <div class="tmpl-mock" style="background:linear-gradient(160deg,#0d1220,#0f0f10)">
+          <div style="display:flex;justify-content:center;padding:8px 0 2px">
+            <div class="tmpl-mock-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)"></div>
+          </div>
+          <div class="tmpl-mock-body">
+            <div class="tmpl-mock-name" style="width:50%"></div>
+            <div class="tmpl-mock-link" style="background:rgba(59,130,246,.18)"></div>
+            <div class="tmpl-mock-link-sm"></div>
+            <div class="tmpl-mock-link" style="background:rgba(139,92,246,.14)"></div>
+          </div>
+        </div>
+        <div class="tmpl-info">
+          <div class="tmpl-name">Fashion Creator</div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="lc-type-badge lc-type-simple" style="font-size:8px;padding:1px 6px">Simple</span>
+            <span style="font-size:10px;color:var(--spurple);font-weight:700;cursor:pointer">Use →</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tmpl-card tmpl-card-l" onclick="openNewLanding()">
+        <div class="tmpl-mock" style="background:linear-gradient(160deg,#0d1a0e,#0f0f10)">
+          <div class="tmpl-mock-vid" style="background:linear-gradient(180deg,rgba(34,197,94,.16),transparent)">
+            <div class="tmpl-mock-play" style="background:rgba(34,197,94,.2)">▶</div>
+          </div>
+          <div class="tmpl-mock-body">
+            <div class="tmpl-mock-line" style="width:80%;background:rgba(34,197,94,.15)"></div>
+            <div class="tmpl-mock-line-sm" style="width:55%"></div>
+            <div class="tmpl-mock-cta" style="background:linear-gradient(90deg,#22c55e,#16a34a);width:85%"></div>
+          </div>
+        </div>
+        <div class="tmpl-info">
+          <div class="tmpl-name">Gadgets & Tech</div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="lc-type-badge lc-type-trust" style="font-size:8px;padding:1px 6px">Trust</span>
+            <span style="font-size:10px;color:var(--spurple);font-weight:700;cursor:pointer">Use →</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tmpl-card tmpl-card-l" onclick="openNewLanding()">
+        <div class="tmpl-mock" style="background:linear-gradient(160deg,#1a150c,#0f0f10)">
+          <div class="tmpl-mock-vid" style="background:linear-gradient(180deg,rgba(245,158,11,.15),transparent)">
+            <div class="tmpl-mock-play" style="background:rgba(245,158,11,.18)">▶</div>
+          </div>
+          <div class="tmpl-mock-body">
+            <div class="tmpl-mock-line" style="width:70%;background:rgba(245,158,11,.14)"></div>
+            <div class="tmpl-mock-line-sm" style="width:48%"></div>
+            <div class="tmpl-mock-cta" style="background:linear-gradient(90deg,#f59e0b,#ef4444);width:85%"></div>
+          </div>
+        </div>
+        <div class="tmpl-info">
+          <div class="tmpl-name">Pets & Lifestyle</div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="lc-type-badge lc-type-trust" style="font-size:8px;padding:1px 6px">Trust</span>
+            <span style="font-size:10px;color:var(--spurple);font-weight:700;cursor:pointer">Use →</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tmpl-card tmpl-card-l" onclick="openNewLanding()">
+        <div class="tmpl-mock" style="background:linear-gradient(160deg,#13101a,#0f0f10)">
+          <div class="tmpl-mock-vid" style="background:linear-gradient(180deg,rgba(168,85,247,.15),transparent)">
+            <div class="tmpl-mock-play" style="background:rgba(168,85,247,.18)">▶</div>
+          </div>
+          <div class="tmpl-mock-body">
+            <div class="tmpl-mock-line" style="width:85%;background:rgba(168,85,247,.14)"></div>
+            <div class="tmpl-mock-line-sm" style="width:60%"></div>
+            <div class="tmpl-mock-cta" style="background:linear-gradient(90deg,#a855f7,#7c3aed);width:85%"></div>
+          </div>
+        </div>
+        <div class="tmpl-info">
+          <div class="tmpl-name">Info Product</div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="lc-type-badge lc-type-trust" style="font-size:8px;padding:1px 6px">Trust</span>
+            <span style="font-size:10px;color:var(--spurple);font-weight:700;cursor:pointer">Use →</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tmpl-card tmpl-card-l" onclick="openNewLanding()">
+        <div class="tmpl-mock" style="background:#0f0f10">
+          <div style="display:flex;justify-content:center;padding:8px 0 2px">
+            <div class="tmpl-mock-avatar" style="background:rgba(255,255,255,.12)"></div>
+          </div>
+          <div class="tmpl-mock-body">
+            <div class="tmpl-mock-name" style="width:40%;background:rgba(255,255,255,.12)"></div>
+            <div class="tmpl-mock-link"></div>
+            <div class="tmpl-mock-link-sm"></div>
+            <div class="tmpl-mock-link"></div>
+          </div>
+        </div>
+        <div class="tmpl-info">
+          <div class="tmpl-name">Minimal Creator</div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="lc-type-badge lc-type-simple" style="font-size:8px;padding:1px 6px">Simple</span>
+            <span style="font-size:10px;color:var(--spurple);font-weight:700;cursor:pointer">Use →</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="height:52px"></div>
+</main>
+
+<script>
+/* ── Side panel ── */
+function openSidePanel() { document.getElementById('spOverlay').classList.add('open'); }
+function closeSidePanel(e) { if (e.target === document.getElementById('spOverlay')) document.getElementById('spOverlay').classList.remove('open'); }
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.getElementById('spOverlay').classList.remove('open');
+    document.getElementById('nlOverlay').classList.remove('open');
+  }
+});
+
+/* ── New landing modal ── */
+function openNewLanding() { document.getElementById('nlOverlay').classList.add('open'); }
+function closeNewLanding() { document.getElementById('nlOverlay').classList.remove('open'); }
+function handleOverlayClick(e) { if (e.target === document.getElementById('nlOverlay')) closeNewLanding(); }
+function selectNlType(type) {
+  document.getElementById('nlSimple').classList.toggle('selected', type === 'simple');
+  document.getElementById('nlTrust').classList.toggle('selected', type === 'trust');
+}
+
+/* ── Copy URL ── */
+function copyUrl(id) {
+  navigator.clipboard && navigator.clipboard.writeText('https://tokproof.app/@auraglow').then(function() {
+    var btn = document.getElementById(id);
+    if (!btn) return;
+    var prev = btn.textContent;
+    btn.textContent = '✓ Copied';
+    btn.style.color = 'var(--success)';
+    btn.style.borderColor = 'var(--success)';
+    setTimeout(function() { btn.textContent = prev; btn.style.color = ''; btn.style.borderColor = ''; }, 2000);
+  });
+}
+
+/* ── Plan switcher ── */
+function setPlan(type) {
+  var isFree = type === 'free';
+  document.getElementById('btnFree').classList.toggle('active', isFree);
+  document.getElementById('btnPro').classList.toggle('active', !isFree);
+  document.getElementById('planFreeBlock').style.display = isFree ? '' : 'none';
+  document.getElementById('planProBlock').style.display = isFree ? 'none' : '';
+  document.getElementById('planLabel').textContent = isFree ? 'Free' : 'Pro';
+  document.getElementById('spPlanBoxFree').style.display = isFree ? '' : 'none';
+  document.getElementById('spPlanBoxPro').style.display = isFree ? 'none' : '';
+  var badge = document.getElementById('spPlanBadge');
+  badge.textContent = isFree ? 'Free' : 'Pro';
+  badge.style.background = isFree ? '' : 'var(--grad)';
+  badge.style.color = isFree ? '' : '#fff';
+  badge.style.borderColor = isFree ? '' : 'transparent';
+  /* plan strip */
+  var stripBadge = document.getElementById('stripPlanBadge');
+  stripBadge.textContent = isFree ? 'Free' : 'Pro';
+  stripBadge.style.background = isFree ? '' : 'var(--grad)';
+  stripBadge.style.color = isFree ? '' : '#fff';
+  stripBadge.style.borderColor = isFree ? '' : 'transparent';
+  document.getElementById('stripFree').style.display = isFree ? 'flex' : 'none';
+  var stripPro = document.getElementById('stripPro');
+  stripPro.style.display = isFree ? 'none' : 'flex';
+  stripPro.style.alignItems = 'center';
+  stripPro.style.gap = '10px';
+}
+</script>
+</body>
+</html>

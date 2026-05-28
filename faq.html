@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Tokproof — FAQ & Help</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+.fq-hero { margin-bottom: 32px; text-align: center; }
+.fq-search-wrap { max-width: 480px; margin: 16px auto 0; position: relative; }
+.fq-search { width: 100%; padding: 12px 16px 12px 40px; background: var(--card); border: 1px solid var(--border); border-radius: var(--r-xl); font-size: 14px; color: var(--text); font-family: inherit; outline: none; transition: border-color .15s, box-shadow .15s; }
+.fq-search:focus { border-color: var(--pink); box-shadow: 0 0 0 3px rgba(255,45,117,.1); }
+.fq-search-ico { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none; }
+
+.fq-cats { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 28px; }
+.fq-cat-btn { padding: 6px 16px; font-size: 12px; font-weight: 700; color: var(--muted); background: var(--card); border: 1px solid var(--border); border-radius: 99px; cursor: pointer; transition: all .15s; }
+.fq-cat-btn:hover { border-color: rgba(255,45,117,.3); color: var(--text); }
+.fq-cat-btn.active { background: var(--grad); color: #fff; border-color: transparent; box-shadow: 0 3px 12px rgba(255,45,117,.25); }
+
+.fq-layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; max-width: 900px; margin: 0 auto; }
+@media (max-width: 760px) { .fq-layout { grid-template-columns: 1fr; } }
+
+/* Accordion */
+.fq-group { margin-bottom: 24px; }
+.fq-group-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--muted2); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.fq-group-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.fq-item { border: 1px solid var(--border); border-radius: var(--r-lg); margin-bottom: 6px; overflow: hidden; transition: border-color .15s; }
+.fq-item:hover { border-color: rgba(255,45,117,.2); }
+.fq-item[open] { border-color: rgba(255,45,117,.28); background: rgba(255,45,117,.025); }
+.fq-item > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; cursor: pointer; font-size: 13px; font-weight: 700; list-style: none; user-select: none; transition: color .15s; }
+.fq-item > summary::-webkit-details-marker { display: none; }
+.fq-item[open] > summary { color: var(--text); }
+.fq-chev { font-size: 11px; color: var(--muted2); transition: transform .18s; flex-shrink: 0; }
+.fq-item[open] > summary .fq-chev { transform: rotate(90deg); color: var(--pink); }
+.fq-ans { padding: 0 16px 16px; font-size: 13px; color: var(--muted); line-height: 1.7; }
+.fq-ans a { color: var(--spurple); font-weight: 700; }
+.fq-ans strong { color: var(--text); }
+
+/* No results */
+.fq-empty { text-align: center; padding: 48px 20px; color: var(--muted2); display: none; }
+.fq-empty-ico { font-size: 32px; margin-bottom: 8px; }
+
+/* Help sidebar */
+.fq-help-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 20px; margin-bottom: 14px; }
+.fq-help-title { font-size: 13px; font-weight: 800; margin-bottom: 4px; }
+.fq-help-desc { font-size: 11px; color: var(--muted); line-height: 1.55; margin-bottom: 12px; }
+.fq-quick-links { display: flex; flex-direction: column; gap: 6px; }
+.fq-quick-link { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); font-size: 12px; font-weight: 700; color: var(--muted); text-decoration: none; transition: border-color .15s, color .15s; }
+.fq-quick-link:hover { border-color: rgba(255,45,117,.25); color: var(--text); }
+
+@keyframes fqFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.fq-group { animation: fqFade .3s ease both; }
+.fq-group:nth-child(2) { animation-delay: .04s; }
+.fq-group:nth-child(3) { animation-delay: .08s; }
+.fq-group:nth-child(4) { animation-delay: .12s; }
+</style>
+</head>
+<body class="db-page">
+
+<!-- ── SLIDE PANEL ── -->
+<div class="sp-overlay" id="spOverlay" onclick="closeSidePanel(event)">
+  <aside class="sp-panel" id="spPanel">
+    <div class="sp-close" onclick="document.getElementById('spOverlay').classList.remove('open')">✕</div>
+    <div class="sp-user">
+      <div class="sp-user-av">P</div>
+      <div class="sp-user-name">Paula Nuñez</div>
+      <div class="sp-user-handle">@auraglow</div>
+      <div class="sp-user-email">hola@auraglow.com</div>
+    </div>
+    <nav class="sp-nav">
+      <div class="sp-nav-section">Workspace</div>
+      <a href="index.html" class="sp-nav-item"><span class="sp-nav-ico">▦</span> Dashboard</a>
+      <a href="index.html" class="sp-nav-item"><span class="sp-nav-ico">🗂</span> Mis páginas</a>
+      <a href="analytics.html" class="sp-nav-item"><span class="sp-nav-ico">📊</span> Analytics</a>
+      <a href="safe-link.html" class="sp-nav-item"><span class="sp-nav-ico">🔍</span> Safe Link Score</a>
+      <a href="templates.html" class="sp-nav-item"><span class="sp-nav-ico">🎨</span> Templates</a>
+      <div class="sp-nav-section">Cuenta</div>
+      <a href="billing.html" class="sp-nav-item"><span class="sp-nav-ico">⚡</span> Plan & Billing <span class="sp-nav-badge">Free</span></a>
+      <a href="faq.html" class="sp-nav-item active"><span class="sp-nav-ico">❓</span> FAQ & Ayuda</a>
+      <a href="settings.html" class="sp-nav-item"><span class="sp-nav-ico">⚙️</span> Settings</a>
+      <a href="home.html" class="sp-nav-item"><span class="sp-nav-ico" style="opacity:.4">→</span><span style="opacity:.4">Cerrar sesión</span></a>
+    </nav>
+    <div class="sp-foot">
+      <div class="sp-plan-box">
+        <div class="sp-plan-top">
+          <span class="sp-plan-label">Plan Free</span>
+          <span style="font-size:9px;padding:2px 7px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:99px;color:var(--muted);font-weight:800">Free</span>
+        </div>
+        <div class="sp-plan-bar-wrap"><div class="sp-plan-bar-fill" style="width:100%;background:linear-gradient(90deg,var(--pink),#ff6b6b)"></div></div>
+        <div class="sp-plan-pages">1 / 1 páginas publicadas</div>
+        <a href="billing.html" class="btn btn-primary btn-full btn-sm" style="margin-top:10px;font-size:11px">⬆ Upgrade to Pro</a>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+  <a href="index.html" class="tb-logo">
+    <img class="tb-logo-img" src="assets/tokproof-logo.png" alt="Tokproof"/>
+    <span>Tokproof</span>
+  </a>
+  <div class="tb-sep"></div>
+  <span style="font-size:12px;color:var(--muted);font-weight:600">FAQ & Help</span>
+  <div class="tb-right">
+    <div style="width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;cursor:pointer;color:#fff;flex-shrink:0" onclick="openSidePanel()">P</div>
+  </div>
+</header>
+
+<main class="db-main">
+
+  <!-- Hero + search -->
+  <div class="fq-hero">
+    <h1 class="db-title">FAQ & Help</h1>
+    <p class="db-sub">Everything you need to know about Tokproof.</p>
+    <div class="fq-search-wrap">
+      <span class="fq-search-ico">🔍</span>
+      <input class="fq-search" type="text" placeholder="Search questions…" oninput="searchFaq(this.value)" id="fqSearch"/>
+    </div>
+  </div>
+
+  <!-- Category filters -->
+  <div class="fq-cats">
+    <button class="fq-cat-btn active" onclick="filterFaq('all',this)">All</button>
+    <button class="fq-cat-btn" onclick="filterFaq('getting-started',this)">Getting started</button>
+    <button class="fq-cat-btn" onclick="filterFaq('tiktok',this)">TikTok</button>
+    <button class="fq-cat-btn" onclick="filterFaq('pages',this)">Pages</button>
+    <button class="fq-cat-btn" onclick="filterFaq('analytics',this)">Analytics</button>
+    <button class="fq-cat-btn" onclick="filterFaq('billing',this)">Billing</button>
+  </div>
+
+  <div class="fq-layout">
+
+    <!-- FAQ list -->
+    <div>
+
+      <div class="fq-empty" id="fqEmpty">
+        <div class="fq-empty-ico">🔍</div>
+        <div style="font-size:14px;font-weight:700;color:var(--muted)">No results found</div>
+        <div style="font-size:12px;margin-top:4px">Try a different search or <a href="#" style="color:var(--spurple);font-weight:700">contact support</a></div>
+      </div>
+
+      <!-- Getting started -->
+      <div class="fq-group" data-cat="getting-started">
+        <div class="fq-group-title">🚀 Getting started</div>
+
+        <details class="fq-item">
+          <summary>What is Tokproof and how does it work? <span class="fq-chev">›</span></summary>
+          <div class="fq-ans">Tokproof lets you create <strong>trust pages</strong> — dedicated landing pages that sit between your TikTok bio link and your Shopify store. Instead of sending followers directly to a product page (which TikTok may downrank), you send them to a Tokproof page that builds confidence with reviews, social proof, and FAQs — then redirects them to buy. <a href="landing.html" target="_blank">See an example →</a></div>
+        </details>
+
+        <details class="fq-item">
+          <summary>What's the difference between a Trust Page and a Simple Page? <span class="fq-chev">›</span></summary>
+          <div class="fq-ans">A <strong>Trust Page</strong> is optimised for a single product: it shows a video-style hero, social proof (reviews and TikTok comments), FAQs, and a single strong CTA that links to Shopify. Best for product launches and high-ticket items.<br><br>A <strong>Simple Page</strong> is a premium link-in-bio. It shows your avatar, bio, and a list of links to different products, WhatsApp, your store, or any other URL. Best for creators who promote multiple items.</div>
+        </details>
+
+        <details class="fq-item">
+          <summary>Do I need technical knowledge to use Tokproof? <span class="fq-chev">›</span></summary>
+          <div class="fq-ans">Not at all. Tokproof is built for creators and brand owners, not developers. You fill in a form, pick a template, and your page is live in minutes. No code, no hosting, no domain needed.</div>
+        </details>
+      </div>
+
+      <!-- TikTok -->
+      <div class="fq-group" data-cat="tiktok">
+        <div class="fq-group-title">🎵 TikTok</div>
+
+        <details class="fq-item">
+          <summary>How do I add my Tokproof link to my TikTok bio? <span class="fq-chev">›</span></summary>
+          <div class="fq-ans">1. Publish your Tokproof page from the dashboard.<br>2. Copy your URL (e.g. <strong>tokproof.app/@auraglow</strong>) from the plan bar.<br>3. Go to TikTok → Edit profile → Website → Paste your URL.<br><br>You need a TikTok Business Account with 1,000+ followers to use the bio link feature.</div>
+        </details>
+
+        <details class="fq-item">
+          <summary>Will TikTok allow my Tokproof link? <span class="fq-chev">›</span></summary>
+          <div class="fq-ans">Yes — Tokproof pages are designed to comply with TikTok's link-in-bio policies. We use clean URLs, no auto-redirects, and a visible destination. That's exactly what the <strong>Safe Link Score</strong> measures: the higher your score, the safer your page is from TikTok restrictions.</div>
+        </details>
+
+        <details class="fq-item">
+          <summary>Can I use Tokproof with TikTok Shop? <span class="fq-chev">›</span></summary>
+          <div class="fq-ans">Yes. Tokproof works alongside TikTok Shop. You can link your CTA directly to a TikTok Shop product or to your Shopify store. Many creators use Tokproof as a trust layer that converts browsers into confident buyers before they hit the checkout.</div>
+        </details>
+      </div>
+
+      <!-- Pages -->
+      <div class="fq-group" data-cat="pages">
+        <div class="fq-group-title">📄 Pages</div>
+
+        <details class="fq-item">
+          <summary>How many pages can I create? <span class="fq-chev">›</span></summary>
+          <div class="fq-ans">On the <strong>Free plan</strong>, you can publish 1 page. You can create as many drafts as you want, but only 1 can be active at a time.<br><br>On the <strong>Pro plan</strong>, you get unlimited published pages — ideal for promoting multiple products or running seasonal campaigns. <a href="billing.html">See Pro pricing →</a></div>
+        </details>
+
+        <details class="fq-item">
+          <summary>Can I change my @username after creating my account? <span class="fq-chev">›</span></summary>
+          <div class="fq-ans">Yes, you can change it in <a href="settings.html">Settings → Account</a>. Keep in mind that changing your username will update your public URL. Any old links shared externally will stop working, so it's best to avoid changing it once you've shared it widely.</div>
+        </details>
+
+        <details class="fq-item">
+          <summary>What is the Safe Link Score and how do I improve it? <span class="fq-chev">›</span></summary>
+          <div class="fq-ans">The <strong>Safe Link Score</strong> is Tokproof's trust rating for each of your pages, from 0 to 100. It checks factors like URL cleanliness, legal footer presence, CTA honesty, and meta tags. Visit the <a href="safe-link.html">Safe Link Score page</a> to see your score and personalised recommendations for improving it.</div>
+        </details>
+
+        <details class="fq-item">
+          <summary>Can I use a custom domain? <span class="fq-chev">›</span></summary>
+          <div class="fq-ans">Custom domains (e.g. <strong>link.auraglow.com</strong>) are available on the Pro plan. On Free, your URL is <strong>tokproof.app/@yourhandle</strong>. <a href="billing.html">Upgrade to Pro →</a></div>
+        </details>
+      </div>
+
+      <!-- Analytics -->
+      <div class="fq-group" data-cat="analytics">
+        <div class="fq-group-title">📊 Analytics</div>
+
+        <details class="fq-item">
+          <summary>What analytics does Tokproof track? <span class="fq-chev">›</span></summary>
+          <div class="fq-ans">Tokproof tracks: <strong>total visitors</strong>, <strong>CTA clicks</strong>, <strong>click-through rate (CTR)</strong>, <strong>traffic sources</strong> (TikTok, Direct, Instagram, etc.), <strong>device types</strong>, <strong>top countries</strong>, and a real-time activity feed. On Pro, you also get advanced breakdowns and CSV export.</div>
+        </details>
+
+        <details class="fq-item">
+          <summary>How accurate is the CTR measurement? <span class="fq-chev">›</span></summary>
+          <div class="fq-ans">CTR is calculated as <strong>CTA clicks ÷ total page views × 100</strong>. A click is counted each time a visitor taps your primary CTA button. The average Tokproof CTR is around 3.5%. Anything above 5% is excellent.</div>
+        </details>
+      </div>
+
+      <!-- Billing -->
+      <div class="fq-group" data-cat="billing">
+        <div class="fq-group-title">💳 Billing</div>
+
+        <details class="fq-item">
+          <summary>How does the Pro plan billing work? <span class="fq-chev">›</span></summary>
+          <div class="fq-ans">Pro is billed monthly ($19/mo) or annually ($15/mo, saving 2 months). You can cancel at any time — your Pro features stay active until the end of your current billing period. We accept all major credit and debit cards.</div>
+        </details>
+
+        <details class="fq-item">
+          <summary>Is there a free trial for Pro? <span class="fq-chev">›</span></summary>
+          <div class="fq-ans">The Free plan is permanently free and lets you explore Tokproof without a credit card. We're working on a Pro trial — sign up for our newsletter on the <a href="home.html">homepage</a> to be notified when it launches.</div>
+        </details>
+
+        <details class="fq-item">
+          <summary>Can I cancel my Pro subscription? <span class="fq-chev">›</span></summary>
+          <div class="fq-ans">Yes, any time from <a href="billing.html">Settings → Billing</a>. There's no cancellation fee. After cancellation, your account reverts to the Free plan at the end of the period — your pages and data are not deleted.</div>
+        </details>
+      </div>
+
+    </div><!-- /faq list -->
+
+    <!-- Help sidebar -->
+    <div>
+      <div class="fq-help-card">
+        <div class="fq-help-title">Still need help?</div>
+        <div class="fq-help-desc">Can't find what you're looking for? Our team is here to help.</div>
+        <div class="fq-quick-links">
+          <a href="#" class="fq-quick-link"><span>💬</span> Chat with us on WhatsApp</a>
+          <a href="mailto:hola@tokproof.app" class="fq-quick-link"><span>✉️</span> Email us</a>
+          <a href="home.html" class="fq-quick-link"><span>🌐</span> Visit our website</a>
+        </div>
+      </div>
+
+      <div class="fq-help-card" style="background:rgba(168,85,247,.05);border-color:rgba(168,85,247,.18)">
+        <div class="fq-help-title">Quick navigation</div>
+        <div class="fq-quick-links">
+          <a href="index.html" class="fq-quick-link"><span>▦</span> Dashboard</a>
+          <a href="analytics.html" class="fq-quick-link"><span>📊</span> Analytics</a>
+          <a href="safe-link.html" class="fq-quick-link"><span>🔍</span> Safe Link Score</a>
+          <a href="templates.html" class="fq-quick-link"><span>🎨</span> Templates</a>
+          <a href="billing.html" class="fq-quick-link"><span>⚡</span> Plan & Billing</a>
+          <a href="settings.html" class="fq-quick-link"><span>⚙️</span> Settings</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /fq-layout -->
+
+  <div style="height:40px"></div>
+</main>
+
+<script>
+function openSidePanel() { document.getElementById('spOverlay').classList.add('open'); }
+function closeSidePanel(e) { if (e.target === document.getElementById('spOverlay')) document.getElementById('spOverlay').classList.remove('open'); }
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') document.getElementById('spOverlay').classList.remove('open'); });
+
+function filterFaq(cat, btn) {
+  document.querySelectorAll('.fq-cat-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('.fq-group').forEach(function(g) {
+    g.style.display = (cat === 'all' || g.dataset.cat === cat) ? '' : 'none';
+  });
+  document.getElementById('fqSearch').value = '';
+}
+
+function searchFaq(val) {
+  var q = val.toLowerCase().trim();
+  var anyVisible = false;
+  document.querySelectorAll('.fq-item').forEach(function(item) {
+    var text = item.textContent.toLowerCase();
+    var show = !q || text.includes(q);
+    item.style.display = show ? '' : 'none';
+    if (show) anyVisible = true;
+  });
+  document.querySelectorAll('.fq-group').forEach(function(g) {
+    var hasVisible = Array.from(g.querySelectorAll('.fq-item')).some(function(i) { return i.style.display !== 'none'; });
+    g.style.display = hasVisible ? '' : 'none';
+  });
+  document.getElementById('fqEmpty').style.display = anyVisible ? 'none' : 'block';
+}
+</script>
+</body>
+</html>

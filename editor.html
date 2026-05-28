@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Tokproof — Editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body class="ed-page">
+
+<!-- ── FIXED TOPBAR ──────────────────────────── -->
+<header class="ed-topbar">
+  <a href="index.html" class="btn btn-ghost btn-sm" style="gap:5px;flex-shrink:0">← Volver</a>
+  <div class="tb-sep"></div>
+  <a href="index.html" class="tb-logo" style="font-size:15px;flex-shrink:0">
+    <img class="tb-logo-img" style="width:34px;height:34px" src="assets/tokproof-logo.png" alt="Tokproof"/>
+    Tokproof
+  </a>
+  <div class="tb-sep"></div>
+  <div class="tb-name">AuraGlow Vitamin C Serum</div>
+  <span class="badge-pro" style="font-size:9px;padding:2px 9px;flex-shrink:0">Pro</span>
+  <div class="ed-tb-r">
+    <a href="#" class="btn btn-ghost btn-sm">💾 Guardar</a>
+    <a href="landing.html" class="btn btn-ghost btn-sm" target="_blank">👁 Ver</a>
+    <a href="#" class="btn btn-ghost btn-sm">📋 Copiar</a>
+    <a href="#" class="btn btn-secondary btn-sm">⬇ Exportar</a>
+    <a href="#" class="btn btn-pub btn-sm">🚀 Publicar</a>
+    <label class="tw" style="margin-left:4px">
+      <input type="checkbox" checked/>
+      <span class="tw-lbl">Activo</span>
+    </label>
+  </div>
+</header>
+
+<div class="ed-body">
+
+  <!-- ── SIDEBAR ─────────────────────────────── -->
+  <aside class="ed-sb">
+
+    <!-- 1. GENERAL -->
+    <details class="ed-sec" open>
+      <summary><span class="ed-sec-ico">⚙️</span> General <span class="ed-sec-chev">›</span></summary>
+      <div class="ed-sec-desc">Configuración básica de tu página: nombre, URL del producto y enlace público.</div>
+      <div class="ed-sec-body">
+        <div class="fg">
+          <label class="fl">Nombre de marca</label>
+          <input class="fi" type="text" value="AuraGlow" placeholder="Ej: AuraGlow, Laura Skin…"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Nombre del producto <span class="fi-label-opt">Opcional en Simple Page</span></label>
+          <input class="fi" type="text" value="Vitamin C Face Serum"/>
+        </div>
+        <div class="fg">
+          <label class="fl">URL del producto (Shopify) <span class="fi-label-rec">Importante</span></label>
+          <input class="fi" type="url" placeholder="https://tu-tienda.myshopify.com/products/..."/>
+          <div class="fi-tip"><span class="fi-tip-ico">💡</span>Este será el destino cuando alguien pulse el CTA principal. Usa la URL exacta del producto, sin acortadores.</div>
+        </div>
+        <div class="fg">
+          <label class="fl">Tu URL pública en Tokproof</label>
+          <div style="display:flex">
+            <span style="padding:9px 10px;background:var(--bg);border:1px solid var(--border);border-right:none;border-radius:var(--r) 0 0 var(--r);font-size:11px;color:var(--muted);white-space:nowrap;flex-shrink:0">tokproof.app/@</span>
+            <input class="fi" type="text" value="auraglow" style="border-radius:0 var(--r) var(--r) 0"/>
+          </div>
+          <span class="fh">Tu enlace público: <span style="color:var(--spurple)">tokproof.app/@auraglow</span></span>
+        </div>
+        <div class="fg">
+          <label class="fl">Estado de la página</label>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Activo (visible al público)</span></label>
+        </div>
+      </div>
+    </details>
+
+    <!-- 2. BRANDING / COLORES -->
+    <details class="ed-sec">
+      <summary><span class="ed-sec-ico">🎨</span> Branding / Colores <span class="ed-sec-chev">›</span></summary>
+      <div class="ed-sec-desc">Personaliza los colores de tu página. Los cambios se aplican en tiempo real en la preview.</div>
+      <div class="ed-sec-body">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Vista previa del degradado</div>
+        <div class="grad-preview"></div>
+
+        <div class="cpf">
+          <input type="color" value="#FF2D75"/>
+          <span class="cpf-lbl">Color principal (pink)</span>
+          <span class="cpf-hex">#FF2D75</span>
+        </div>
+        <div class="cpf">
+          <input type="color" value="#7C3AED"/>
+          <span class="cpf-lbl">Color secundario (purple)</span>
+          <span class="cpf-hex">#7C3AED</span>
+        </div>
+        <div class="cpf">
+          <input type="color" value="#FF2D75"/>
+          <span class="cpf-lbl">Gradient inicio</span>
+          <span class="cpf-hex">#FF2D75</span>
+        </div>
+        <div class="cpf">
+          <input type="color" value="#7C3AED"/>
+          <span class="cpf-lbl">Gradient final</span>
+          <span class="cpf-hex">#7C3AED</span>
+        </div>
+
+        <hr style="margin:10px 0"/>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Fondos y cards</div>
+
+        <div class="cpf">
+          <input type="color" value="#0F0F10"/>
+          <span class="cpf-lbl">Fondo de landing</span>
+          <span class="cpf-hex">#0F0F10</span>
+        </div>
+        <div class="cpf">
+          <input type="color" value="#1D1D26"/>
+          <span class="cpf-lbl">Color de cards</span>
+          <span class="cpf-hex">#1D1D26</span>
+        </div>
+        <div class="cpf">
+          <input type="color" value="#2D2D38"/>
+          <span class="cpf-lbl">Color de bordes</span>
+          <span class="cpf-hex">#2D2D38</span>
+        </div>
+
+        <hr style="margin:10px 0"/>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Tipografía</div>
+
+        <div class="cpf">
+          <input type="color" value="#FFFFFF"/>
+          <span class="cpf-lbl">Texto principal</span>
+          <span class="cpf-hex">#FFFFFF</span>
+        </div>
+        <div class="cpf">
+          <input type="color" value="#A1A1AA"/>
+          <span class="cpf-lbl">Texto secundario</span>
+          <span class="cpf-hex">#A1A1AA</span>
+        </div>
+        <div class="fg" style="margin-top:6px">
+          <label class="fl">Fuente</label>
+          <select class="fi">
+            <option>Nunito Sans (recomendada)</option>
+            <option>Inter</option>
+            <option>Poppins</option>
+            <option>DM Sans</option>
+          </select>
+        </div>
+      </div>
+    </details>
+
+    <!-- 4. PERFIL PÚBLICO -->
+    <details class="ed-sec">
+      <summary><span class="ed-sec-ico">👤</span> Perfil público <span class="ed-sec-chev">›</span></summary>
+      <div class="ed-sec-desc">Aparece en la cabecera de tu página pública. Ideal para Simple Pages y trust pages de marca personal.</div>
+      <div class="ed-sec-body">
+        <div class="fg">
+          <label class="fl">Nombre para mostrar</label>
+          <input class="fi" type="text" value="AuraGlow" placeholder="Tu nombre o nombre de marca"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Bio / Descripción corta <span class="fi-label-opt">Opcional</span></label>
+          <textarea class="fi" style="min-height:52px" placeholder="Ej: Skincare para piel radiante 🌟 Envío gratis en todos los pedidos"></textarea>
+          <span class="fh">Máximo 120 caracteres. Visible bajo tu nombre.</span>
+        </div>
+        <div class="fg">
+          <label class="fl">URL del avatar / logo <span class="fi-label-opt">Opcional</span></label>
+          <input class="fi" type="url" placeholder="https://cdn.tumarca.com/logo.jpg"/>
+          <span class="fh">JPG o PNG. Se mostrará como círculo. Si no añades, se usará la inicial del nombre.</span>
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Mostrar perfil en cabecera</label>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Visible</span></label>
+        </div>
+      </div>
+    </details>
+
+    <!-- 5. PRODUCTO -->
+    <details class="ed-sec">
+      <summary><span class="ed-sec-ico">🏷️</span> Producto <span class="ed-sec-chev">›</span></summary>
+      <div class="ed-sec-desc">El texto principal de tu trust page. El headline es lo primero que leerá el usuario.</div>
+      <div class="ed-sec-body">
+        <div class="fg">
+          <label class="fl">Headline principal</label>
+          <input class="fi" type="text" value="The serum everyone on TikTok is talking about"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Subheadline</label>
+          <textarea class="fi">Vitamin C + Hyaluronic Acid formula loved by 10,000+ buyers. Fast results, gentle formula.</textarea>
+        </div>
+        <div class="fg">
+          <label class="fl">Descripción corta (opcional)</label>
+          <textarea class="fi" style="min-height:52px" placeholder="Descripción adicional visible en la landing..."></textarea>
+        </div>
+        <div class="fg">
+          <label class="fl">Mostrar nombre del producto</label>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Visible</span></label>
+        </div>
+      </div>
+    </details>
+
+    <!-- 6. MEDIA -->
+    <details class="ed-sec">
+      <summary><span class="ed-sec-ico">🎥</span> Media <span class="ed-sec-chev">›</span></summary>
+      <div class="ed-sec-desc">El vídeo o imagen que aparece arriba de la página, estilo TikTok. Ratio 9:16 recomendado.</div>
+      <div class="ed-sec-body">
+        <div class="fg">
+          <label class="fl">Tipo de media</label>
+          <div class="media-tabs">
+            <div class="media-tab active">🖼 Imagen</div>
+            <div class="media-tab">🎬 Vídeo</div>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">URL de imagen / vídeo</label>
+          <input class="fi" type="url" placeholder="https://cdn.tumarca.com/producto.mp4"/>
+          <span class="fh">MP4, WebM o imagen JPG/PNG. Ratio 9:16 recomendado.</span>
+        </div>
+        <div class="fg">
+          <label class="fl">URL poster del vídeo (thumbnail)</label>
+          <input class="fi" type="url" placeholder="https://cdn.tumarca.com/poster.jpg"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Nombre del creador</label>
+          <input class="fi" type="text" value="@auraglow_official"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Texto de vistas</label>
+          <input class="fi" type="text" value="2.1M views"/>
+        </div>
+        <hr style="margin:8px 0 12px"/>
+        <div class="fg">
+          <label class="fl">Controles del vídeo</label>
+          <label class="tw"><input type="checkbox"/><span class="tw-lbl">Mostrar controles nativos</span></label>
+        </div>
+        <div class="fg">
+          <label class="fl">Iconos laterales estilo TikTok</label>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Mostrar likes / comentar / compartir</span></label>
+        </div>
+        <div class="fi-row">
+          <div class="fg">
+            <label class="fl">Likes en el vídeo</label>
+            <input class="fi" type="text" value="8.4k"/>
+          </div>
+          <div class="fg">
+            <label class="fl">Comentarios</label>
+            <input class="fi" type="text" value="1.2k"/>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- 7. PRECIO -->
+    <details class="ed-sec">
+      <summary><span class="ed-sec-ico">💰</span> Precio <span class="ed-sec-chev">›</span></summary>
+      <div class="ed-sec-desc">El precio es opcional. Ocúltalo para una experiencia más social y menos agresiva de venta.</div>
+      <div class="ed-sec-body">
+        <div class="fg">
+          <label class="fl">Mostrar precio</label>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Visible en la landing</span></label>
+          <div class="fi-tip" style="margin-top:8px"><span class="fi-tip-ico">💡</span>Ocultarlo hace que la página se sienta más social y menos como una tienda. La venta final ocurre en Shopify.</div>
+        </div>
+        <div class="fg">
+          <label class="fl">Precio actual</label>
+          <input class="fi" type="text" value="$34.99"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Precio comparado (tachado)</label>
+          <input class="fi" type="text" value="$49.99"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Badge descuento</label>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Mostrar badge "Save 30%"</span></label>
+        </div>
+        <div class="fg">
+          <label class="fl">Texto del badge</label>
+          <input class="fi" type="text" value="Save 30%"/>
+        </div>
+      </div>
+    </details>
+
+    <!-- 6. PRUEBA SOCIAL -->
+    <details class="ed-sec">
+      <summary><span class="ed-sec-ico">🔢</span> Prueba Social <span class="ed-sec-chev">›</span></summary>
+      <div class="ed-sec-body">
+        <div class="fg">
+          <label class="fl">Valoración media (⭐)</label>
+          <input class="fi" type="text" value="4.9"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Total reseñas</label>
+          <input class="fi" type="text" value="2,341 reviews"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Contador de ventas</label>
+          <input class="fi" type="text" value="1,247 sold this week"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Texto de envío</label>
+          <input class="fi" type="text" value="Free shipping"/>
+        </div>
+      </div>
+    </details>
+
+    <!-- 7. COMENTARIOS TIKTOK -->
+    <details class="ed-sec">
+      <summary><span class="ed-sec-ico">💬</span> Comentarios TikTok <span class="ed-sec-chev">›</span></summary>
+      <div class="ed-sec-body">
+
+        <div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px">
+          <div class="fi-row">
+            <div class="fg"><label class="fl">Usuario 1</label><input class="fi" type="text" value="@skincarebysofia"/></div>
+            <div class="fg"><label class="fl">Nombre</label><input class="fi" type="text" value="Sofia R."/></div>
+          </div>
+          <div class="fg"><label class="fl">Comentario</label><textarea class="fi" style="min-height:52px">Literally just got mine and my skin is GLOWING after 3 days 🤩</textarea></div>
+          <div class="fi-row">
+            <div class="fg"><label class="fl">Likes</label><input class="fi" type="text" value="2.3k"/></div>
+            <div class="fg"><label class="fl">Color avatar</label><input type="color" class="fi" value="#FF6B6B" style="height:40px;padding:4px;cursor:pointer"/></div>
+          </div>
+          <div class="fg"><label class="fl">URL foto del cliente (opcional)</label><input class="fi" type="url" placeholder="https://... (prueba visual del producto)"/></div>
+          <div class="fg"><label class="fl">Respuesta de la marca</label><textarea class="fi" style="min-height:52px">Thank you Sofia! So happy you're seeing results! 💚</textarea></div>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Visible</span></label>
+        </div>
+
+        <div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px">
+          <div class="fi-row">
+            <div class="fg"><label class="fl">Usuario 2</label><input class="fi" type="text" value="@kayla.wellness"/></div>
+            <div class="fg"><label class="fl">Nombre</label><input class="fi" type="text" value="Kayla M."/></div>
+          </div>
+          <div class="fg"><label class="fl">Comentario</label><textarea class="fi" style="min-height:52px">Does it work on dark spots? Asking for a friend 👀</textarea></div>
+          <div class="fi-row">
+            <div class="fg"><label class="fl">Likes</label><input class="fi" type="text" value="891"/></div>
+            <div class="fg"><label class="fl">Color avatar</label><input type="color" class="fi" value="#4ECDC4" style="height:40px;padding:4px;cursor:pointer"/></div>
+          </div>
+          <div class="fg"><label class="fl">Respuesta de la marca</label><textarea class="fi" style="min-height:52px">Yes! Most users see dark spot results in 2–4 weeks 🙌</textarea></div>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Visible</span></label>
+        </div>
+
+        <div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px">
+          <div class="fi-row">
+            <div class="fg"><label class="fl">Usuario 3</label><input class="fi" type="text" value="@makeupmira_"/></div>
+            <div class="fg"><label class="fl">Nombre</label><input class="fi" type="text" value="Mira L."/></div>
+          </div>
+          <div class="fg"><label class="fl">Comentario</label><textarea class="fi" style="min-height:52px">No cap this is the best $35 I've spent this year 😭</textarea></div>
+          <div class="fi-row">
+            <div class="fg"><label class="fl">Likes</label><input class="fi" type="text" value="1.1k"/></div>
+            <div class="fg"><label class="fl">Color avatar</label><input type="color" class="fi" value="#7C3AED" style="height:40px;padding:4px;cursor:pointer"/></div>
+          </div>
+          <div class="fg"><label class="fl">URL foto del cliente (opcional)</label><input class="fi" type="url" placeholder="https://..."/></div>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Visible</span></label>
+        </div>
+
+        <a href="#" class="btn btn-ghost btn-xs btn-full">+ Añadir comentario</a>
+      </div>
+    </details>
+
+    <!-- 8. REVIEWS -->
+    <details class="ed-sec">
+      <summary><span class="ed-sec-ico">⭐</span> Reviews <span class="ed-sec-chev">›</span></summary>
+      <div class="ed-sec-body">
+
+        <div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px">
+          <div class="fi-row">
+            <div class="fg"><label class="fl">Nombre</label><input class="fi" type="text" value="Jessica R."/></div>
+            <div class="fg"><label class="fl">Estrellas</label><select class="fi"><option>5 ★★★★★</option><option>4 ★★★★</option><option>3 ★★★</option></select></div>
+          </div>
+          <div class="fg"><label class="fl">Texto de la review</label><textarea class="fi">"I was skeptical but this faded my dark spots in 2 weeks. My dermatologist couldn't believe it!"</textarea></div>
+          <div class="fi-row">
+            <div class="fg"><label class="fl">Fecha</label><input class="fi" type="text" value="2 weeks ago"/></div>
+            <div class="fg"><label class="fl">Verificado</label><label class="tw" style="margin-top:6px"><input type="checkbox" checked/><span class="tw-lbl">Sí</span></label></div>
+          </div>
+          <div class="fg"><label class="fl">URL foto del producto (opcional)</label><input class="fi" type="url" placeholder="https://..."/></div>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Visible</span></label>
+        </div>
+
+        <div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px">
+          <div class="fi-row">
+            <div class="fg"><label class="fl">Nombre</label><input class="fi" type="text" value="Amara L."/></div>
+            <div class="fg"><label class="fl">Estrellas</label><select class="fi"><option>5 ★★★★★</option></select></div>
+          </div>
+          <div class="fg"><label class="fl">Texto de la review</label><textarea class="fi">"Sensitive skin queen here — zero reaction, just results. 10/10 💖"</textarea></div>
+          <div class="fi-row">
+            <div class="fg"><label class="fl">Fecha</label><input class="fi" type="text" value="5 days ago"/></div>
+            <div class="fg"><label class="fl">Verificado</label><label class="tw" style="margin-top:6px"><input type="checkbox" checked/><span class="tw-lbl">Sí</span></label></div>
+          </div>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Visible</span></label>
+        </div>
+
+        <a href="#" class="btn btn-ghost btn-xs btn-full">+ Añadir review</a>
+      </div>
+    </details>
+
+    <!-- 9. LOGOS / VISTO EN -->
+    <details class="ed-sec">
+      <summary><span class="ed-sec-ico">🏆</span> Logos / Visto en <span class="ed-sec-chev">›</span></summary>
+      <div class="ed-sec-body">
+        <div class="fg">
+          <label class="fl">Mostrar sección "Visto en"</label>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Visible</span></label>
+        </div>
+        <div class="fg">
+          <label class="fl">Título de la sección</label>
+          <input class="fi" type="text" value="As seen on"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;gap:6px;align-items:center">
+            <input class="fi" type="text" value="🎵 TikTok" style="flex:1"/>
+            <label class="tw"><input type="checkbox" checked/></label>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input class="fi" type="text" value="🛍 Shopify" style="flex:1"/>
+            <label class="tw"><input type="checkbox" checked/></label>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input class="fi" type="text" value="⭐ Trustpilot" style="flex:1"/>
+            <label class="tw"><input type="checkbox" checked/></label>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input class="fi" type="text" value="💄 Cosmopolitan" style="flex:1"/>
+            <label class="tw"><input type="checkbox" checked/></label>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input class="fi" type="text" value="📰 Forbes" style="flex:1"/>
+            <label class="tw"><input type="checkbox" checked/></label>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input class="fi" type="text" value="🗞 El País" style="flex:1"/>
+            <label class="tw"><input type="checkbox" checked/></label>
+          </div>
+        </div>
+        <a href="#" class="btn btn-ghost btn-xs btn-full" style="margin-top:8px">+ Añadir logo</a>
+      </div>
+    </details>
+
+    <!-- 10. BOTONES -->
+    <details class="ed-sec">
+      <summary><span class="ed-sec-ico">🛒</span> Botones <span class="ed-sec-chev">›</span></summary>
+      <div class="ed-sec-body">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">Botón principal (degradado)</div>
+        <div class="fg"><label class="fl">Texto CTA</label><input class="fi" type="text" value="🛒 Ver producto oficial"/></div>
+        <div class="fg"><label class="fl">URL destino (Shopify)</label><input class="fi" type="url" placeholder="https://tu-tienda.myshopify.com/products/..."/></div>
+        <div class="fg"><label class="fl">Microcopy bajo el botón</label><input class="fi" type="text" value="🔒 Te llevaremos a la página oficial del producto."/></div>
+
+        <hr style="margin:12px 0"/>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">Botones secundarios (estilo Linktree)</div>
+
+        <div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px">
+          <div class="fg"><label class="fl">Botón 1 — Texto</label><input class="fi" type="text" value="🎵 Ver vídeo en TikTok"/></div>
+          <div class="fg" style="margin-bottom:6px"><label class="fl">URL</label><input class="fi" type="url" placeholder="https://tiktok.com/@..."/></div>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Visible</span></label>
+        </div>
+        <div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px">
+          <div class="fg"><label class="fl">Botón 2 — Texto</label><input class="fi" type="text" value="💬 WhatsApp soporte"/></div>
+          <div class="fg" style="margin-bottom:6px"><label class="fl">URL</label><input class="fi" type="url" placeholder="https://wa.me/34..."/></div>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Visible</span></label>
+        </div>
+        <div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px">
+          <div class="fg"><label class="fl">Botón 3 — Texto</label><input class="fi" type="text" value="📋 Preguntas frecuentes"/></div>
+          <div class="fg" style="margin-bottom:6px"><label class="fl">URL</label><input class="fi" type="url" placeholder="https://..."/></div>
+          <label class="tw"><input type="checkbox"/><span class="tw-lbl">Visible</span></label>
+        </div>
+
+        <div class="fg">
+          <label class="fl">CTA sticky inferior</label>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Mostrar CTA fijo en la base</span></label>
+        </div>
+      </div>
+    </details>
+
+    <!-- 11. FAQ -->
+    <details class="ed-sec">
+      <summary><span class="ed-sec-ico">❓</span> FAQ <span class="ed-sec-chev">›</span></summary>
+      <div class="ed-sec-body">
+        <div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px">
+          <div class="fg"><label class="fl">Pregunta 1</label><input class="fi" type="text" value="Does it work on dark spots?"/></div>
+          <div class="fg" style="margin-bottom:0"><label class="fl">Respuesta 1</label><textarea class="fi" style="min-height:52px">Yes — Vitamin C is clinically proven to reduce hyperpigmentation in 2–4 weeks of daily use.</textarea></div>
+        </div>
+        <div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px">
+          <div class="fg"><label class="fl">Pregunta 2</label><input class="fi" type="text" value="How fast is shipping?"/></div>
+          <div class="fg" style="margin-bottom:0"><label class="fl">Respuesta 2</label><textarea class="fi" style="min-height:52px">2–5 business days US. Free shipping on all orders. Tracking included.</textarea></div>
+        </div>
+        <div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px">
+          <div class="fg"><label class="fl">Pregunta 3</label><input class="fi" type="text" value="Is it safe for sensitive skin?"/></div>
+          <div class="fg" style="margin-bottom:0"><label class="fl">Respuesta 3</label><textarea class="fi" style="min-height:52px">Formulated without parabens, sulfates, or artificial fragrances. Dermatologist-tested.</textarea></div>
+        </div>
+        <a href="#" class="btn btn-ghost btn-xs btn-full">+ Añadir pregunta</a>
+      </div>
+    </details>
+
+    <!-- 12. GARANTÍAS -->
+    <details class="ed-sec">
+      <summary><span class="ed-sec-ico">🛡</span> Garantías <span class="ed-sec-chev">›</span></summary>
+      <div class="ed-sec-body">
+        <div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px">
+          <div class="fi-row">
+            <div class="fg"><label class="fl">Emoji</label><input class="fi" type="text" value="📦"/></div>
+            <div class="fg"><label class="fl">Título</label><input class="fi" type="text" value="Free Shipping"/></div>
+          </div>
+          <div class="fg" style="margin-bottom:0"><label class="fl">Subtexto</label><input class="fi" type="text" value="On all orders, always"/></div>
+        </div>
+        <div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px">
+          <div class="fi-row">
+            <div class="fg"><label class="fl">Emoji</label><input class="fi" type="text" value="↩️"/></div>
+            <div class="fg"><label class="fl">Título</label><input class="fi" type="text" value="30-Day Returns"/></div>
+          </div>
+          <div class="fg" style="margin-bottom:0"><label class="fl">Subtexto</label><input class="fi" type="text" value="No questions asked"/></div>
+        </div>
+        <div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px">
+          <div class="fi-row">
+            <div class="fg"><label class="fl">Emoji</label><input class="fi" type="text" value="🔒"/></div>
+            <div class="fg"><label class="fl">Título</label><input class="fi" type="text" value="SSL Secure"/></div>
+          </div>
+          <div class="fg" style="margin-bottom:0"><label class="fl">Subtexto</label><input class="fi" type="text" value="256-bit encryption"/></div>
+        </div>
+      </div>
+    </details>
+
+    <!-- 13. ORDEN DE BLOQUES -->
+    <details class="ed-sec">
+      <summary><span class="ed-sec-ico">⠿</span> Orden de bloques <span class="ed-sec-chev">›</span></summary>
+      <div class="ed-sec-body">
+        <p style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.6">Arrastra para reordenar los bloques de tu landing. <span style="color:var(--spurple)">Drag &amp; drop</span> disponible próximamente.</p>
+        <div class="block-list">
+          <div class="boi"><span class="boi-drag">⠿</span><span class="boi-ico">🎥</span><span class="boi-name">Hero / Media</span><div class="boi-actions"><label class="tw"><input type="checkbox" checked/></label><a href="#" class="btn btn-ghost btn-xs">⚙</a></div></div>
+          <div class="boi"><span class="boi-drag">⠿</span><span class="boi-ico">🏷️</span><span class="boi-name">Producto</span><div class="boi-actions"><label class="tw"><input type="checkbox" checked/></label><a href="#" class="btn btn-ghost btn-xs">⚙</a></div></div>
+          <div class="boi"><span class="boi-drag">⠿</span><span class="boi-ico">💰</span><span class="boi-name">Precio</span><div class="boi-actions"><label class="tw"><input type="checkbox" checked/></label><a href="#" class="btn btn-ghost btn-xs">⚙</a></div></div>
+          <div class="boi"><span class="boi-drag">⠿</span><span class="boi-ico">🛒</span><span class="boi-name">Botones CTA</span><div class="boi-actions"><label class="tw"><input type="checkbox" checked/></label><a href="#" class="btn btn-ghost btn-xs">⚙</a></div></div>
+          <div class="boi"><span class="boi-drag">⠿</span><span class="boi-ico">🔢</span><span class="boi-name">Prueba Social</span><div class="boi-actions"><label class="tw"><input type="checkbox" checked/></label><a href="#" class="btn btn-ghost btn-xs">⚙</a></div></div>
+          <div class="boi"><span class="boi-drag">⠿</span><span class="boi-ico">💬</span><span class="boi-name">Comentarios TikTok</span><div class="boi-actions"><label class="tw"><input type="checkbox" checked/></label><a href="#" class="btn btn-ghost btn-xs">⚙</a></div></div>
+          <div class="boi"><span class="boi-drag">⠿</span><span class="boi-ico">⭐</span><span class="boi-name">Reviews</span><div class="boi-actions"><label class="tw"><input type="checkbox" checked/></label><a href="#" class="btn btn-ghost btn-xs">⚙</a></div></div>
+          <div class="boi"><span class="boi-drag">⠿</span><span class="boi-ico">🏆</span><span class="boi-name">Logos</span><div class="boi-actions"><label class="tw"><input type="checkbox" checked/></label><a href="#" class="btn btn-ghost btn-xs">⚙</a></div></div>
+          <div class="boi"><span class="boi-drag">⠿</span><span class="boi-ico">🛡</span><span class="boi-name">Garantías</span><div class="boi-actions"><label class="tw"><input type="checkbox" checked/></label><a href="#" class="btn btn-ghost btn-xs">⚙</a></div></div>
+          <div class="boi"><span class="boi-drag">⠿</span><span class="boi-ico">❓</span><span class="boi-name">FAQ</span><div class="boi-actions"><label class="tw"><input type="checkbox" checked/></label><a href="#" class="btn btn-ghost btn-xs">⚙</a></div></div>
+          <div class="boi"><span class="boi-drag">⠿</span><span class="boi-ico">📄</span><span class="boi-name">Footer</span><div class="boi-actions"><label class="tw"><input type="checkbox" checked/></label><a href="#" class="btn btn-ghost btn-xs">⚙</a></div></div>
+        </div>
+      </div>
+    </details>
+
+    <!-- 14. A/B TESTING -->
+    <details class="ed-sec">
+      <summary>
+        <span class="ed-sec-ico">🧪</span> A/B Testing
+        <span class="ed-sec-chev">›</span>
+      </summary>
+      <div class="ed-sec-body">
+
+        <div class="ab-coming-soon">
+          <div style="font-size:12px;font-weight:700;color:var(--spurple);margin-bottom:4px">Qué puedes testear</div>
+          <ul>
+            <li>Headline principal</li>
+            <li>Texto del CTA</li>
+            <li>Orden de bloques</li>
+            <li>Vídeo vs imagen</li>
+            <li>Precio visible / oculto</li>
+          </ul>
+        </div>
+
+        <p style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.6">Define dos variantes de tu landing y Tokproof las sirve al 50/50 para medir cuál convierte más.</p>
+
+        <div class="ab-variant-row">
+          <div class="ab-variant-card">
+            <div class="fl" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <span>Variante A</span>
+              <span class="badge badge-success" style="font-size:9px;padding:2px 7px">Activa</span>
+            </div>
+            <div class="fg">
+              <label class="fl">Headline</label>
+              <input class="fi" type="text" value="The serum everyone is talking about"/>
+            </div>
+            <div class="fg" style="margin-bottom:8px">
+              <label class="fl">CTA</label>
+              <input class="fi" type="text" value="Ver producto oficial →"/>
+            </div>
+            <label class="tw">
+              <input type="radio" name="ab-active" checked/>
+              <span class="tw-lbl" style="font-size:11px">Usar esta variante</span>
+            </label>
+          </div>
+          <div class="ab-variant-card">
+            <div class="fl" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <span>Variante B</span>
+              <span class="badge badge-muted" style="font-size:9px;padding:2px 7px">En pausa</span>
+            </div>
+            <div class="fg">
+              <label class="fl">Headline</label>
+              <input class="fi" type="text" value="10,000+ glowing results"/>
+            </div>
+            <div class="fg" style="margin-bottom:8px">
+              <label class="fl">CTA</label>
+              <input class="fi" type="text" value="✨ Comprar ahora — 30% off"/>
+            </div>
+            <label class="tw">
+              <input type="radio" name="ab-active"/>
+              <span class="tw-lbl" style="font-size:11px">Usar esta variante</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- 15. ANALYTICS -->
+    <details class="ed-sec">
+      <summary>
+        <span class="ed-sec-ico">📊</span> Analytics
+        <span class="ed-sec-chev">›</span>
+      </summary>
+      <div class="ed-sec-body">
+
+        <div class="an-stat-grid">
+          <div class="an-stat-card">
+            <div class="an-lbl">Vistas</div>
+            <div class="an-val" style="color:var(--text)">32,816</div>
+          </div>
+          <div class="an-stat-card">
+            <div class="an-lbl">Clicks CTA</div>
+            <div class="an-val" style="color:var(--pink)">1,247</div>
+          </div>
+          <div class="an-stat-card">
+            <div class="an-lbl">CTR</div>
+            <div class="an-val" style="color:var(--pink)">3.8%</div>
+          </div>
+          <div class="an-stat-card">
+            <div class="an-lbl">Clicks Shopify</div>
+            <div class="an-val" style="color:var(--spurple)">894</div>
+          </div>
+        </div>
+
+        <div class="an-chart-placeholder">
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Vistas · últimos 7 días</div>
+          <div class="an-chart-bars">
+            <div class="an-bar" style="height:35%"></div>
+            <div class="an-bar" style="height:55%"></div>
+            <div class="an-bar" style="height:42%"></div>
+            <div class="an-bar" style="height:70%"></div>
+            <div class="an-bar" style="height:58%"></div>
+            <div class="an-bar" style="height:90%"></div>
+            <div class="an-bar" style="height:65%"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:var(--muted2)">
+            <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- 16. SAFE LINK / SEO -->
+    <details class="ed-sec">
+      <summary><span class="ed-sec-ico">🔍</span> Safe Link / SEO <span class="ed-sec-chev">›</span></summary>
+      <div class="ed-sec-desc">Optimiza tu página para TikTok y motores de búsqueda. Un score alto mejora la confianza del comprador.</div>
+      <div class="ed-sec-body">
+
+        <!-- Score -->
+        <div class="sl-score-row">
+          <div>
+            <div class="sl-score-val">92<span style="font-size:14px;font-weight:700;opacity:.6">/100</span></div>
+            <div style="font-size:10px;color:var(--muted2);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Safe Score</div>
+          </div>
+          <div style="flex:1">
+            <div style="height:6px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:6px">
+              <div style="height:100%;width:92%;background:var(--grad);border-radius:99px"></div>
+            </div>
+            <ul class="sl-checklist">
+              <li class="sl-check-item"><span class="sl-check-ico sl-check-ok">✓</span>Sin redirecciones automáticas</li>
+              <li class="sl-check-item"><span class="sl-check-ico sl-check-ok">✓</span>URL destino clara y visible</li>
+              <li class="sl-check-item"><span class="sl-check-ico sl-check-ok">✓</span>Footer legal presente</li>
+              <li class="sl-check-item"><span class="sl-check-ico sl-check-ok">✓</span>HTTPS activo</li>
+              <li class="sl-check-item"><span class="sl-check-ico sl-check-warn">!</span>Meta descripción vacía</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="fg"><label class="fl">Título SEO de la página</label><input class="fi" type="text" value="AuraGlow Vitamin C Serum — Official Page"/></div>
+        <div class="fg"><label class="fl">Meta descripción</label><textarea class="fi" style="min-height:52px" placeholder="Describe tu producto en 1-2 frases. Aparece en Google y al compartir el link.">The Vitamin C serum loved by 10,000+ buyers on TikTok. Real reviews, FAQs, free shipping.</textarea></div>
+
+        <hr style="margin:10px 0"/>
+
+        <!-- Content moderation warning -->
+        <div class="cw-banner" style="margin-bottom:12px">
+          <span style="font-size:14px;flex-shrink:0">⚠️</span>
+          <span><strong style="color:var(--warn)">Revisión pendiente:</strong> TikTok puede revisar tu página antes de activar el enlace en bio. Asegúrate de que el contenido cumple con las normas de la plataforma.</span>
+        </div>
+
+        <div class="fg"><label class="fl">Email de contacto</label><input class="fi" type="email" placeholder="hola@tumarca.com"/></div>
+        <div class="fg"><label class="fl">URL Política de privacidad</label><input class="fi" type="url" placeholder="https://tu-tienda.com/privacy"/></div>
+        <div class="fg"><label class="fl">URL Términos de servicio</label><input class="fi" type="url" placeholder="https://tu-tienda.com/terms"/></div>
+
+        <hr style="margin:10px 0"/>
+        <div class="fg">
+          <label class="fl">Badge "Powered by Tokproof"</label>
+          <label class="tw"><input type="checkbox" checked/><span class="tw-lbl">Mostrar en footer</span></label>
+        </div>
+      </div>
+    </details>
+
+    <div style="height:40px"></div>
+  </aside>
+
+  <!-- ── MAIN: IFRAME PREVIEW ───────────────── -->
+  <main class="ed-main">
+    <div class="ed-preview-col">
+
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="ed-device-toggle">
+          <button class="ed-dev-btn active" data-device="mobile">📱 Móvil</button>
+          <button class="ed-dev-btn" data-device="desktop">🖥 Desktop</button>
+        </div>
+      </div>
+
+      <div class="ed-prev-lbl">Vista previa en tiempo real</div>
+
+      <div class="ed-url-bar" id="edUrlBar">
+        🔒 tokproof.app/@auraglow
+      </div>
+
+      <div class="ed-iframe-wrap" id="previewContainer">
+        <iframe id="previewFrame" src="landing.html" title="Vista previa"></iframe>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+        <a href="landing.html" class="btn btn-ghost btn-sm" target="_blank">↗ Abrir en nueva pestaña</a>
+        <a href="#" class="btn btn-ghost btn-sm">📋 Copiar enlace</a>
+      </div>
+
+    </div>
+  </main>
+
+</div><!-- /ed-body -->
+
+<script>
+/* ── Device toggle ── */
+document.querySelectorAll('.ed-dev-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.ed-dev-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    var isDesktop = btn.dataset.device === 'desktop';
+    document.getElementById('previewContainer').classList.toggle('ed-desk', isDesktop);
+    document.getElementById('edUrlBar').classList.toggle('ed-desk', isDesktop);
+  });
+});
+
+/* ── Media tabs ── */
+document.querySelectorAll('.media-tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    tab.closest('.media-tabs').querySelectorAll('.media-tab').forEach(function(t) {
+      t.classList.remove('active');
+    });
+    tab.classList.add('active');
+  });
+});
+
+/* ── Color pickers → update iframe CSS vars ── */
+var VAR_MAP = {
+  'Color principal':   '--pink',
+  'Color secundario':  '--purple',
+  'Gradient inicio':   '__grad_start',
+  'Gradient final':    '__grad_end',
+  'Fondo de landing':  '--bg',
+  'Color de cards':    '--card',
+  'Color de bordes':   '--border',
+  'Texto principal':   '--text',
+  'Texto secundario':  '--muted'
+};
+
+var gradStart = '#FF2D75', gradEnd = '#7C3AED';
+
+function applyToIframe(varName, value) {
+  var iframe = document.getElementById('previewFrame');
+  try {
+    var root = iframe.contentDocument && iframe.contentDocument.documentElement;
+    if (!root) return;
+    if (varName === '__grad_start') {
+      gradStart = value;
+      root.style.setProperty('--grad', 'linear-gradient(135deg,' + gradStart + ',' + gradEnd + ')');
+    } else if (varName === '__grad_end') {
+      gradEnd = value;
+      root.style.setProperty('--grad', 'linear-gradient(135deg,' + gradStart + ',' + gradEnd + ')');
+    } else {
+      root.style.setProperty(varName, value);
+    }
+    var gp = document.querySelector('.grad-preview');
+    if (gp) gp.style.background = 'linear-gradient(135deg,' + gradStart + ',' + gradEnd + ')';
+  } catch(e) {}
+}
+
+document.querySelectorAll('.cpf input[type=color]').forEach(function(picker) {
+  var row = picker.closest('.cpf');
+  var label = (row.querySelector('.cpf-lbl') || {}).textContent || '';
+  label = label.trim();
+  var hexEl = row.querySelector('.cpf-hex');
+  picker.addEventListener('input', function() {
+    if (hexEl) hexEl.textContent = picker.value.toUpperCase();
+    var keys = Object.keys(VAR_MAP);
+    for (var i = 0; i < keys.length; i++) {
+      if (label.startsWith(keys[i])) {
+        applyToIframe(VAR_MAP[keys[i]], picker.value);
+        break;
+      }
+    }
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Tokproof — Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+.an-hero { margin-bottom: 28px; }
+.an-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(156px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.an-kpi { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 16px 18px; transition: border-color .18s, transform .18s, box-shadow .18s; }
+.an-kpi:hover { border-color: rgba(255,45,117,.22); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,.2); }
+.an-kpi-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 6px; }
+.an-kpi-val { font-size: 28px; font-weight: 900; letter-spacing: -.04em; }
+.an-kpi-change { font-size: 11px; font-weight: 700; margin-top: 4px; display: flex; align-items: center; gap: 3px; }
+.ch-up { color: #22c55e; }
+.ch-dn { color: #ef4444; }
+.ch-neu { color: var(--muted); }
+
+.an-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 20px 22px; }
+.an-card-hd { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+.an-card-title { font-size: 14px; font-weight: 800; letter-spacing: -.01em; }
+.an-legend { display: flex; gap: 14px; margin-left: auto; flex-wrap: wrap; }
+.an-leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); font-weight: 600; }
+.an-leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.an-leg-dot-pink { background: var(--pink); }
+.an-leg-dot-purple { background: var(--spurple); }
+
+.an-date-tabs { display: flex; gap: 1px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 2px; }
+.an-tab { padding: 5px 12px; font-size: 11px; font-weight: 700; color: var(--muted); border-radius: 6px; cursor: pointer; transition: all .15s; white-space: nowrap; }
+.an-tab.active { background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+
+.an-chart-area { height: 160px; position: relative; }
+.an-chart-grid-lines { position: absolute; inset: 0; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; }
+.an-gridline { width: 100%; height: 1px; background: rgba(255,255,255,.04); }
+
+.an-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+@media (max-width: 680px) { .an-row2 { grid-template-columns: 1fr; } }
+
+.an-source-list { display: flex; flex-direction: column; gap: 12px; }
+.an-src { display: flex; align-items: center; gap: 10px; }
+.an-src-name { font-size: 12px; font-weight: 700; min-width: 74px; }
+.an-src-bar-wrap { flex: 1; height: 5px; background: rgba(255,255,255,.06); border-radius: 99px; overflow: hidden; }
+.an-src-bar { height: 100%; border-radius: 99px; }
+.an-src-pct { font-size: 11px; font-weight: 800; color: var(--muted); min-width: 30px; text-align: right; }
+
+.an-top-pg { display: flex; flex-direction: column; }
+.an-pg-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(45,45,56,.5); }
+.an-pg-row:last-child { border-bottom: none; }
+.an-pg-idx { font-size: 11px; font-weight: 800; color: var(--muted2); width: 16px; text-align: center; flex-shrink: 0; }
+.an-pg-thumb { width: 28px; height: 28px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+.an-pg-info { flex: 1; min-width: 0; }
+.an-pg-name { font-size: 12px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.an-pg-url { font-size: 10px; color: var(--spurple); font-weight: 600; }
+.an-pg-clicks { text-align: right; }
+.an-pg-n { font-size: 14px; font-weight: 900; color: var(--pink); display: block; }
+.an-pg-ctr { font-size: 10px; color: var(--muted); font-weight: 700; }
+
+.an-device-wrap { display: flex; align-items: center; gap: 20px; }
+.an-donut-outer { width: 80px; height: 80px; border-radius: 50%; background: conic-gradient(var(--pink) 0% 68%, var(--spurple) 68% 88%, rgba(255,255,255,.1) 88% 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.an-donut-inner { width: 52px; height: 52px; border-radius: 50%; background: var(--card); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.an-donut-val { font-size: 14px; font-weight: 900; }
+.an-donut-lbl { font-size: 7px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 700; }
+.an-dv-list { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.an-dv { display: flex; align-items: center; gap: 8px; }
+.an-dv-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.an-dv-name { font-size: 11px; color: var(--muted); flex: 1; font-weight: 600; }
+.an-dv-pct { font-size: 12px; font-weight: 800; }
+
+.an-feed { display: flex; flex-direction: column; }
+.an-feed-row { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(45,45,56,.4); }
+.an-feed-row:last-child { border-bottom: none; }
+.an-feed-ico { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+.an-feed-body { flex: 1; }
+.an-feed-desc { font-size: 12px; color: var(--text); font-weight: 600; line-height: 1.4; }
+.an-feed-time { font-size: 10px; color: var(--muted2); margin-top: 2px; }
+
+@keyframes anFadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.an-kpi-grid { animation: anFadeUp .3s ease both; }
+.an-chart-big { animation: anFadeUp .3s .06s ease both; }
+.an-row2 { animation: anFadeUp .3s .1s ease both; }
+</style>
+</head>
+<body class="db-page">
+
+<!-- ── SLIDE PANEL ── -->
+<div class="sp-overlay" id="spOverlay" onclick="closeSidePanel(event)">
+  <aside class="sp-panel" id="spPanel">
+    <div class="sp-close" onclick="document.getElementById('spOverlay').classList.remove('open')">✕</div>
+    <div class="sp-user">
+      <div class="sp-user-av">P</div>
+      <div class="sp-user-name">Paula Nuñez</div>
+      <div class="sp-user-handle">@auraglow</div>
+      <div class="sp-user-email">hola@auraglow.com</div>
+    </div>
+    <nav class="sp-nav">
+      <div class="sp-nav-section">Workspace</div>
+      <a href="index.html" class="sp-nav-item"><span class="sp-nav-ico">▦</span> Dashboard</a>
+      <a href="index.html" class="sp-nav-item"><span class="sp-nav-ico">🗂</span> Mis páginas <span class="sp-nav-badge-new">2</span></a>
+      <a href="analytics.html" class="sp-nav-item active"><span class="sp-nav-ico">📊</span> Analytics</a>
+      <a href="safe-link.html" class="sp-nav-item"><span class="sp-nav-ico">🔍</span> Safe Link Score</a>
+      <a href="templates.html" class="sp-nav-item"><span class="sp-nav-ico">🎨</span> Templates</a>
+      <div class="sp-nav-section">Cuenta</div>
+      <a href="billing.html" class="sp-nav-item"><span class="sp-nav-ico">⚡</span> Plan & Billing <span class="sp-nav-badge">Free</span></a>
+      <a href="faq.html" class="sp-nav-item"><span class="sp-nav-ico">❓</span> FAQ & Ayuda</a>
+      <a href="settings.html" class="sp-nav-item"><span class="sp-nav-ico">⚙️</span> Settings</a>
+      <a href="home.html" class="sp-nav-item"><span class="sp-nav-ico" style="opacity:.4">→</span><span style="opacity:.4">Cerrar sesión</span></a>
+    </nav>
+    <div class="sp-foot">
+      <div class="sp-plan-box">
+        <div class="sp-plan-top">
+          <span class="sp-plan-label">Plan Free</span>
+          <span style="font-size:9px;padding:2px 7px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:99px;color:var(--muted);font-weight:800">Free</span>
+        </div>
+        <div class="sp-plan-bar-wrap"><div class="sp-plan-bar-fill" style="width:100%;background:linear-gradient(90deg,var(--pink),#ff6b6b)"></div></div>
+        <div class="sp-plan-pages">1 / 1 páginas publicadas</div>
+        <a href="billing.html" class="btn btn-primary btn-full btn-sm" style="margin-top:10px;font-size:11px">⬆ Upgrade to Pro</a>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+  <a href="index.html" class="tb-logo">
+    <img class="tb-logo-img" src="assets/tokproof-logo.png" alt="Tokproof"/>
+    <span>Tokproof</span>
+  </a>
+  <div class="tb-sep"></div>
+  <span style="font-size:12px;color:var(--muted);font-weight:600">Analytics</span>
+  <div class="tb-right">
+    <a href="#" class="btn btn-ghost btn-sm">⬇ Export CSV</a>
+    <a href="#" class="btn btn-ghost btn-sm">Docs</a>
+    <div style="width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;cursor:pointer;color:#fff;flex-shrink:0;transition:opacity .15s,transform .15s" onmouseover="this.style.opacity='.85';this.style.transform='scale(1.04)'" onmouseout="this.style.opacity='1';this.style.transform='scale(1)'" onclick="openSidePanel()">P</div>
+  </div>
+</header>
+
+<main class="db-main">
+
+  <!-- ── HERO ── -->
+  <div class="an-hero">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:6px">
+      <div>
+        <h1 class="db-title">Analytics</h1>
+        <p class="db-sub">Performance across all your Tokproof pages · last 30 days</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div class="an-date-tabs">
+          <div class="an-tab" onclick="setTab(this,'7d')">7d</div>
+          <div class="an-tab active" onclick="setTab(this,'30d')">30d</div>
+          <div class="an-tab" onclick="setTab(this,'90d')">90d</div>
+          <div class="an-tab" onclick="setTab(this,'all')">All time</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── KPIs ── -->
+  <div class="an-kpi-grid">
+    <div class="an-kpi">
+      <div class="an-kpi-lbl">Total visitors</div>
+      <div class="an-kpi-val" style="color:var(--text)">32,816</div>
+      <div class="an-kpi-change ch-up">↑ +18.4% vs prev period</div>
+    </div>
+    <div class="an-kpi">
+      <div class="an-kpi-lbl">CTA clicks</div>
+      <div class="an-kpi-val" style="color:var(--pink)">1,247</div>
+      <div class="an-kpi-change ch-up">↑ +12.1%</div>
+    </div>
+    <div class="an-kpi">
+      <div class="an-kpi-lbl">Avg. CTR</div>
+      <div class="an-kpi-val" style="color:var(--pink)">3.8%</div>
+      <div class="an-kpi-change ch-up">↑ +0.4pp</div>
+    </div>
+    <div class="an-kpi">
+      <div class="an-kpi-lbl">TikTok traffic</div>
+      <div class="an-kpi-val" style="color:var(--spurple)">81%</div>
+      <div class="an-kpi-change ch-neu">→ stable</div>
+    </div>
+    <div class="an-kpi">
+      <div class="an-kpi-lbl">Est. conversions</div>
+      <div class="an-kpi-val" style="color:#22c55e">81</div>
+      <div class="an-kpi-change ch-up">↑ +9 vs prev</div>
+    </div>
+  </div>
+
+  <!-- ── MAIN CHART ── -->
+  <div class="an-card an-chart-big" style="margin-bottom:16px">
+    <div class="an-card-hd">
+      <div class="an-card-title">Visitors & CTA clicks</div>
+      <div class="an-legend">
+        <div class="an-leg"><div class="an-leg-dot an-leg-dot-pink"></div>Visitors</div>
+        <div class="an-leg"><div class="an-leg-dot an-leg-dot-purple"></div>CTA Clicks</div>
+      </div>
+    </div>
+    <div class="an-chart-area">
+      <!-- Grid lines -->
+      <div class="an-chart-grid-lines">
+        <div class="an-gridline"></div>
+        <div class="an-gridline"></div>
+        <div class="an-gridline"></div>
+        <div class="an-gridline"></div>
+      </div>
+      <!-- SVG chart -->
+      <svg viewBox="0 0 700 160" preserveAspectRatio="none" width="100%" height="100%" style="position:absolute;inset:0">
+        <defs>
+          <linearGradient id="pinkGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(255,45,117,.3)"/>
+            <stop offset="100%" stop-color="rgba(255,45,117,0)"/>
+          </linearGradient>
+          <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(168,85,247,.22)"/>
+            <stop offset="100%" stop-color="rgba(168,85,247,0)"/>
+          </linearGradient>
+        </defs>
+        <!-- Visitors area fill -->
+        <path d="M0,130 C20,128 40,122 65,115 C85,108 105,118 125,112 C145,106 165,90 185,84 C205,78 225,88 248,78 C268,68 288,55 310,48 C330,42 350,52 372,44 C392,36 415,22 440,18 C460,14 480,24 505,16 C525,10 550,8 575,6 C595,4 630,9 660,7 C675,6 690,8 700,6 L700,160 L0,160 Z" fill="url(#pinkGrad)"/>
+        <!-- Visitors line -->
+        <path d="M0,130 C20,128 40,122 65,115 C85,108 105,118 125,112 C145,106 165,90 185,84 C205,78 225,88 248,78 C268,68 288,55 310,48 C330,42 350,52 372,44 C392,36 415,22 440,18 C460,14 480,24 505,16 C525,10 550,8 575,6 C595,4 630,9 660,7 C675,6 690,8 700,6" fill="none" stroke="#FF2D75" stroke-width="2"/>
+        <!-- CTA clicks area fill -->
+        <path d="M0,148 C20,147 45,144 65,142 C90,140 110,143 130,141 C155,138 175,132 200,128 C220,124 245,130 265,126 C290,122 310,112 335,106 C355,100 380,108 400,102 C425,96 445,84 470,78 C490,72 515,80 538,74 C558,68 580,66 600,62 C620,58 640,64 660,60 C675,57 690,60 700,58 L700,160 L0,160 Z" fill="url(#purpleGrad)"/>
+        <!-- CTA clicks line -->
+        <path d="M0,148 C20,147 45,144 65,142 C90,140 110,143 130,141 C155,138 175,132 200,128 C220,124 245,130 265,126 C290,122 310,112 335,106 C355,100 380,108 400,102 C425,96 445,84 470,78 C490,72 515,80 538,74 C558,68 580,66 600,62 C620,58 640,64 660,60 C675,57 690,60 700,58" fill="none" stroke="#A855F7" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <!-- X-axis labels -->
+    <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:9px;color:var(--muted2);font-weight:600;padding:0 2px">
+      <span>Apr 9</span><span>Apr 14</span><span>Apr 19</span><span>Apr 24</span><span>Apr 29</span><span>May 4</span><span>May 9</span>
+    </div>
+  </div>
+
+  <!-- ── 2-COL ROW ── -->
+  <div class="an-row2">
+
+    <!-- Traffic sources -->
+    <div class="an-card">
+      <div class="an-card-hd" style="margin-bottom:14px">
+        <div class="an-card-title">Traffic sources</div>
+      </div>
+      <div class="an-source-list">
+        <div class="an-src">
+          <span class="an-src-name">🎵 TikTok</span>
+          <div class="an-src-bar-wrap"><div class="an-src-bar" style="width:81%;background:linear-gradient(90deg,var(--pink),var(--spurple))"></div></div>
+          <span class="an-src-pct">81%</span>
+        </div>
+        <div class="an-src">
+          <span class="an-src-name">🔗 Direct</span>
+          <div class="an-src-bar-wrap"><div class="an-src-bar" style="width:12%;background:rgba(255,255,255,.3)"></div></div>
+          <span class="an-src-pct">12%</span>
+        </div>
+        <div class="an-src">
+          <span class="an-src-name">📸 Instagram</span>
+          <div class="an-src-bar-wrap"><div class="an-src-bar" style="width:5%;background:rgba(168,85,247,.6)"></div></div>
+          <span class="an-src-pct">5%</span>
+        </div>
+        <div class="an-src">
+          <span class="an-src-name">🌐 Other</span>
+          <div class="an-src-bar-wrap"><div class="an-src-bar" style="width:2%;background:rgba(255,255,255,.2)"></div></div>
+          <span class="an-src-pct">2%</span>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(45,45,56,.5)">
+        <div class="an-card-title" style="margin-bottom:12px">Top countries</div>
+        <div class="an-source-list">
+          <div class="an-src">
+            <span class="an-src-name">🇪🇸 Spain</span>
+            <div class="an-src-bar-wrap"><div class="an-src-bar" style="width:62%;background:rgba(255,45,117,.5)"></div></div>
+            <span class="an-src-pct">62%</span>
+          </div>
+          <div class="an-src">
+            <span class="an-src-name">🇲🇽 Mexico</span>
+            <div class="an-src-bar-wrap"><div class="an-src-bar" style="width:21%;background:rgba(168,85,247,.5)"></div></div>
+            <span class="an-src-pct">21%</span>
+          </div>
+          <div class="an-src">
+            <span class="an-src-name">🇺🇸 USA</span>
+            <div class="an-src-bar-wrap"><div class="an-src-bar" style="width:11%;background:rgba(255,255,255,.25)"></div></div>
+            <span class="an-src-pct">11%</span>
+          </div>
+          <div class="an-src">
+            <span class="an-src-name">🌍 Other</span>
+            <div class="an-src-bar-wrap"><div class="an-src-bar" style="width:6%;background:rgba(255,255,255,.15)"></div></div>
+            <span class="an-src-pct">6%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top pages -->
+    <div class="an-card">
+      <div class="an-card-hd" style="margin-bottom:10px">
+        <div class="an-card-title">Top pages</div>
+        <a href="index.html" style="font-size:11px;color:var(--spurple);font-weight:700;text-decoration:none;margin-left:auto">View all →</a>
+      </div>
+      <div class="an-top-pg">
+        <div class="an-pg-row">
+          <span class="an-pg-idx">1</span>
+          <div class="an-pg-thumb">🧴</div>
+          <div class="an-pg-info">
+            <div class="an-pg-name">AuraGlow Vitamin C Serum</div>
+            <div class="an-pg-url">tokproof.app/@auraglow</div>
+          </div>
+          <div class="an-pg-clicks"><span class="an-pg-n">1,247</span><span class="an-pg-ctr">3.8% CTR</span></div>
+        </div>
+        <div class="an-pg-row">
+          <span class="an-pg-idx">2</span>
+          <div class="an-pg-thumb">🌿</div>
+          <div class="an-pg-info">
+            <div class="an-pg-name">Summer Glow Bundle</div>
+            <div class="an-pg-url">tokproof.app/@glowbundle</div>
+          </div>
+          <div class="an-pg-clicks"><span class="an-pg-n" style="color:var(--muted2)">—</span><span class="an-pg-ctr">Draft</span></div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(45,45,56,.5)">
+        <div class="an-card-title" style="margin-bottom:12px">Devices</div>
+        <div class="an-device-wrap">
+          <div class="an-donut-outer">
+            <div class="an-donut-inner">
+              <span class="an-donut-val">68%</span>
+              <span class="an-donut-lbl">Mobile</span>
+            </div>
+          </div>
+          <div class="an-dv-list">
+            <div class="an-dv">
+              <div class="an-dv-dot" style="background:var(--pink)"></div>
+              <span class="an-dv-name">📱 Mobile</span>
+              <span class="an-dv-pct" style="color:var(--pink)">68%</span>
+            </div>
+            <div class="an-dv">
+              <div class="an-dv-dot" style="background:var(--spurple)"></div>
+              <span class="an-dv-name">💻 Desktop</span>
+              <span class="an-dv-pct" style="color:var(--spurple)">20%</span>
+            </div>
+            <div class="an-dv">
+              <div class="an-dv-dot" style="background:rgba(255,255,255,.25)"></div>
+              <span class="an-dv-name">📟 Tablet</span>
+              <span class="an-dv-pct" style="color:var(--muted)">12%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /an-row2 -->
+
+  <!-- ── RECENT ACTIVITY ── -->
+  <div class="an-card" style="margin-top:16px;margin-bottom:40px">
+    <div class="an-card-hd" style="margin-bottom:10px">
+      <div class="an-card-title">Recent activity</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--success);font-weight:700;margin-left:auto">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse-dot 2s infinite"></div>
+        Live
+      </div>
+    </div>
+    <div class="an-feed">
+      <div class="an-feed-row">
+        <span class="an-feed-ico">🛒</span>
+        <div class="an-feed-body">
+          <div class="an-feed-desc">Visitor clicked <strong>Ver producto oficial</strong> on AuraGlow Vitamin C Serum</div>
+          <div class="an-feed-time">2 minutes ago · 📱 Mobile · 🎵 TikTok · 🇪🇸 Spain</div>
+        </div>
+      </div>
+      <div class="an-feed-row">
+        <span class="an-feed-ico">👁</span>
+        <div class="an-feed-body">
+          <div class="an-feed-desc">New visitor landed on AuraGlow Vitamin C Serum</div>
+          <div class="an-feed-time">4 minutes ago · 📱 Mobile · 🎵 TikTok · 🇲🇽 Mexico</div>
+        </div>
+      </div>
+      <div class="an-feed-row">
+        <span class="an-feed-ico">🛒</span>
+        <div class="an-feed-body">
+          <div class="an-feed-desc">Visitor clicked <strong>Ver producto oficial</strong> on AuraGlow Vitamin C Serum</div>
+          <div class="an-feed-time">11 minutes ago · 📱 Mobile · 🎵 TikTok · 🇪🇸 Spain</div>
+        </div>
+      </div>
+      <div class="an-feed-row">
+        <span class="an-feed-ico">💬</span>
+        <div class="an-feed-body">
+          <div class="an-feed-desc">Visitor tapped <strong>WhatsApp support</strong> link</div>
+          <div class="an-feed-time">28 minutes ago · 📱 Mobile · 🔗 Direct · 🇪🇸 Spain</div>
+        </div>
+      </div>
+      <div class="an-feed-row">
+        <span class="an-feed-ico">👁</span>
+        <div class="an-feed-body">
+          <div class="an-feed-desc">New visitor landed on AuraGlow Vitamin C Serum</div>
+          <div class="an-feed-time">45 minutes ago · 💻 Desktop · 🔗 Direct · 🇺🇸 USA</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function openSidePanel() { document.getElementById('spOverlay').classList.add('open'); }
+function closeSidePanel(e) { if (e.target === document.getElementById('spOverlay')) document.getElementById('spOverlay').classList.remove('open'); }
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') document.getElementById('spOverlay').classList.remove('open'); });
+function setTab(el, range) {
+  document.querySelectorAll('.an-tab').forEach(function(t) { t.classList.remove('active'); });
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
