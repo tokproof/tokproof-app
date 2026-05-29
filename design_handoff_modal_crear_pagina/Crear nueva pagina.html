@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Crear nueva página</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --pink:#ec4899;
+    --pink-deep:#db2777;
+    --purple:#a855f7;
+    --purple-deep:#9333ea;
+    --ink:#1f2430;
+    --muted:#5d6473;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Poppins',system-ui,sans-serif;
+    background:#0f0e13;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    overflow:hidden;
+  }
+
+  /* ===== dimmed dashboard backdrop ===== */
+  .backdrop{position:fixed;inset:0;overflow:hidden;background:#171520;}
+  .bd-app{position:absolute;inset:0;filter:saturate(.7);opacity:.5;}
+  .bd-sidebar{position:absolute;left:0;top:0;bottom:0;width:300px;background:#fafafb;}
+  .bd-brand{position:absolute;left:24px;top:14px;width:170px;height:34px;border-radius:9px;background:linear-gradient(90deg,#7c3aed33,#ec489922);} 
+  .bd-brand::before{content:"";position:absolute;left:0;top:2px;width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#c026d3);}
+  .bd-navitem{position:absolute;left:28px;width:150px;height:14px;border-radius:7px;background:#e7e7ec;}
+  .bd-pill{position:absolute;width:44px;height:16px;border-radius:8px;background:#a855f7;opacity:.5;}
+  .bd-card{position:absolute;border-radius:14px;background:#ffffff;border:1px solid #eceaf0;}
+  .bd-promo{position:absolute;left:24px;bottom:60px;width:230px;height:150px;border-radius:16px;background:linear-gradient(150deg,#7c3aed,#c026d3);opacity:.85;}
+  .bd-topbtn{position:absolute;top:30px;border-radius:9px;}
+  .bd-line{position:absolute;height:12px;border-radius:6px;background:#e2e0e8;}
+
+  /* dark scrim */
+  .scrim{position:fixed;inset:0;background:rgba(18,16,26,.55);backdrop-filter:blur(2px);}
+
+  /* ===== modal ===== */
+  .modal{
+    position:relative;
+    width:980px;
+    max-width:calc(100vw - 64px);
+    overflow:hidden;
+    background:linear-gradient(180deg,#ffffff 0%,#fdfbfe 60%,#faf6fd 100%);
+    border-radius:24px;
+    padding:32px 32px 24px;
+    box-shadow:0 40px 90px -20px rgba(20,10,40,.55);
+  }
+
+  .close{
+    position:absolute;top:26px;right:28px;width:30px;height:30px;border:none;background:transparent;
+    color:#9aa0ac;cursor:pointer;display:grid;place-items:center;border-radius:8px;transition:.15s;
+  }
+  .close:hover{background:#f1eef5;color:#5d6473;}
+  .close svg{width:22px;height:22px;}
+
+  .head{display:flex;align-items:center;gap:13px;margin-bottom:11px;}
+  .spark{width:32px;height:32px;flex:none;}
+  h1{font-size:28px;font-weight:600;letter-spacing:-.01em;color:#161a23;}
+  .sub{font-size:15px;line-height:1.5;color:#4f5563;max-width:540px;font-weight:400;}
+  .sub b{font-weight:600;color:var(--pink-deep);}
+
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;width:100%;margin-top:22px;}
+
+  .card{
+    border-radius:20px;padding:28px;cursor:pointer;position:relative;
+    transition:transform .18s ease, box-shadow .18s ease;
+    min-width:0;max-width:100%;overflow:hidden;height:340px;
+  }
+  .card.trust{
+    background:linear-gradient(160deg,#fdeef5 0%,#fbe3ef 100%);
+    border:2px solid #f4a8cf;
+  }
+  .card.links{
+    background:linear-gradient(160deg,#f6f1fd 0%,#efe6fb 100%);
+    border:2px solid #e3d6f7;
+  }
+  .card:hover{transform:translateY(-2px);}
+  .card.trust:hover{box-shadow:0 20px 40px -18px rgba(236,72,153,.5);}
+  .card.links:hover{box-shadow:0 20px 40px -18px rgba(168,85,247,.45);}
+
+  .card-row{display:block;}
+  .card-left{max-width:calc(100% - 175px);min-width:0;}
+
+  .badge-icon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;margin-bottom:12px;}
+  .badge-icon svg{width:21px;height:21px;color:#fff;}
+  .trust .badge-icon{background:linear-gradient(150deg,#f472b6,#db2777);box-shadow:0 8px 18px -6px rgba(219,39,119,.6);}
+  .links .badge-icon{background:linear-gradient(150deg,#c084fc,#9333ea);box-shadow:0 8px 18px -6px rgba(147,51,234,.55);}
+
+  .card h2{font-size:19px;font-weight:600;color:#1c2029;letter-spacing:-.02em;}
+  .rec{
+    display:inline-block;margin-top:8px;font-size:12px;font-weight:600;color:#c026a8;
+    background:#fbd7ee;padding:4px 12px;border-radius:999px;
+  }
+  .card p.desc{margin-top:11px;font-size:12px;line-height:1.45;color:#5b6171;font-weight:400;}
+
+  ul.feats{list-style:none;margin-top:14px;display:flex;flex-direction:column;gap:11px;}
+  ul.feats li{display:flex;align-items:flex-start;gap:8px;font-size:11px;line-height:1.3;color:#3f4452;font-weight:400;}
+  .chk{width:17px;height:17px;border-radius:50%;flex:none;display:grid;place-items:center;margin-top:1px;}
+  .chk svg{width:10px;height:10px;color:#fff;}
+  .trust .chk{background:var(--pink);}
+  .links .chk{background:var(--purple);}
+
+  /* ===== phone ===== */
+  .phone{
+    width:145px;border-radius:27px;padding:5px;
+    background:linear-gradient(160deg,#2a2a2e,#0e0e10);
+    box-shadow:0 16px 32px -14px rgba(20,10,40,.5);
+    position:absolute;right:18px;top:50%;transform:translateY(-50%);
+  }
+  .screen{border-radius:23px;overflow:hidden;position:relative;height:280px;}
+  .notch{position:absolute;top:7px;left:50%;transform:translateX(-50%);width:54px;height:15px;background:#0e0e10;border-radius:10px;z-index:5;}
+  .statusbar{position:absolute;top:0;left:0;right:0;height:22px;display:flex;justify-content:space-between;align-items:center;padding:6px 12px 0;z-index:4;}
+  .sb-dots{display:flex;gap:2px;}
+  .sb-dots i{display:block;width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.65;}
+  .sb-r{display:flex;gap:3px;align-items:center;}
+  .sb-r i{display:block;width:5px;height:5px;border-radius:1px;background:currentColor;opacity:.65;}
+
+  /* trust screen */
+  .scr-trust{background:linear-gradient(180deg,#fde6f0 0%,#fbdbe9 100%);height:100%;color:#3f4452;display:flex;flex-direction:column;}
+  .scr-trust .brandbar{height:24px;flex:none;}
+  .scr-trust .body{padding:4px 9px 0;text-align:center;}
+  .scr-trust .h{font-size:12.5px;line-height:1.05;font-weight:700;color:#e0397f;letter-spacing:-.02em;margin-top:2px;}
+  .scr-trust .tag{font-size:7.5px;line-height:1.3;color:#5b6171;margin-top:5px;padding:0 4px;}
+  .scr-trust .pimg{margin-top:6px;height:58px;border-radius:10px;overflow:hidden;background:#f8cfe0;}
+  .scr-trust .pimg img{width:100%;height:100%;object-fit:cover;}
+  .scr-trust .stars{display:flex;align-items:center;justify-content:flex-start;gap:3px;margin-top:6px;font-size:7px;color:#7a7f8c;}
+  .scr-trust .stars .s{color:#f5b301;font-size:8px;letter-spacing:-1px;}
+  .scr-trust .q{text-align:left;font-size:8.5px;font-weight:600;color:#3f4452;margin-top:6px;}
+  .scr-trust .mini{list-style:none;margin-top:5px;display:flex;flex-direction:column;gap:4px;}
+  .scr-trust .mini li{display:flex;align-items:center;gap:5px;font-size:7.5px;color:#5b6171;}
+  .scr-trust .mini i{width:8px;height:8px;border-radius:50%;background:var(--pink);flex:none;}
+  .scr-trust .buy{margin:auto 9px 10px;height:26px;border-radius:10px;background:linear-gradient(90deg,#f9388f,#e0266f);color:#fff;font-size:9px;font-weight:600;display:grid;place-items:center;}
+
+  /* links screen */
+  .scr-links{background:linear-gradient(180deg,#9b6cf0 0%,#b388f4 55%,#e9dcfb 100%);height:100%;color:#fff;text-align:center;padding:22px 11px 0;}
+  .scr-links .avatar{width:44px;height:44px;border-radius:50%;margin:5px auto 0;overflow:hidden;border:2px solid rgba(255,255,255,.55);background:#cbb6ee;}
+  .scr-links .avatar img{width:100%;height:100%;object-fit:cover;object-position:center 30%;}
+  .scr-links .user{font-size:11px;font-weight:700;margin-top:6px;}
+  .scr-links .bio{font-size:7px;opacity:.85;margin-top:2px;}
+  .scr-links .socials{display:flex;justify-content:center;gap:9px;margin-top:6px;}
+  .scr-links .socials svg{width:12px;height:12px;color:#fff;opacity:.95;}
+  .scr-links .lnk{margin-top:7px;background:rgba(255,255,255,.92);color:#7c3aed;font-size:7.5px;font-weight:600;border-radius:9px;height:22px;display:grid;place-items:center;box-shadow:0 4px 10px -4px rgba(80,30,140,.4);}
+
+  /* ===== footer ===== */
+  .actions{display:grid;grid-template-columns:1fr 1.6fr;gap:18px;margin-top:24px;}
+  .btn{height:56px;border-radius:18px;font-family:inherit;font-size:17px;font-weight:600;cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:.16s;}
+  .btn-cancel{background:#fff;border:1.5px solid #e6e2ee;color:#3f4452;}
+  .btn-cancel:hover{background:#f7f5fb;}
+  .btn-create{background:linear-gradient(90deg,#f0339a 0%,#c43cd6 55%,#9b53f0 100%);color:#fff;box-shadow:0 16px 30px -12px rgba(180,40,190,.6);}
+  .btn-create:hover{filter:brightness(1.04);transform:translateY(-1px);}
+
+  .foot{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;font-size:13.5px;color:#6a7080;font-weight:400;}
+  .foot svg{width:16px;height:16px;color:#a855f7;flex:none;}
+  .foot b{color:var(--pink-deep);font-weight:600;}
+
+  @media(max-width:760px){
+    .modal{padding:26px 18px 20px;border-radius:22px;}
+    .grid{grid-template-columns:1fr;}
+    h1{font-size:24px;}
+  }
+</style>
+</head>
+<body>
+
+  <!-- dimmed dashboard behind -->
+  <div class="backdrop" aria-hidden="true">
+    <div class="bd-app">
+      <div class="bd-sidebar"></div>
+      <div class="bd-brand"></div>
+      <div class="bd-navitem" style="top:78px;"></div>
+      <div class="bd-navitem" style="top:130px;"></div>
+      <div class="bd-navitem" style="top:182px;width:110px;"></div>
+      <div class="bd-pill" style="left:188px;top:181px;"></div>
+      <div class="bd-navitem" style="top:240px;"></div>
+      <div class="bd-navitem" style="top:355px;"></div>
+      <div class="bd-pill" style="left:120px;top:354px;"></div>
+      <div class="bd-navitem" style="top:410px;width:90px;"></div>
+      <div class="bd-navitem" style="top:462px;width:120px;"></div>
+      <div class="bd-navitem" style="top:514px;width:150px;"></div>
+      <div class="bd-promo"></div>
+
+      <div class="bd-line" style="left:340px;top:36px;width:90px;background:#c084fc;opacity:.6;"></div>
+      <div class="bd-card" style="left:500px;top:24px;width:230px;height:40px;"></div>
+      <div class="bd-card" style="left:1040px;top:24px;width:130px;height:36px;background:#a855f7;opacity:.55;border:none;"></div>
+      <div class="bd-line" style="left:1230px;top:30px;width:300px;background:#ef5b9c;opacity:.6;"></div>
+      <div class="bd-card" style="left:790px;top:120px;width:760px;height:120px;"></div>
+      <div class="bd-card" style="left:790px;top:270px;width:360px;height:170px;"></div>
+      <div class="bd-card" style="left:1180px;top:270px;width:370px;height:170px;"></div>
+      <div class="bd-card" style="left:790px;top:470px;width:760px;height:90px;"></div>
+    </div>
+    <div class="scrim"></div>
+  </div>
+
+  <!-- modal -->
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button class="close" id="btnClose" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>
+    </button>
+
+    <div class="head">
+      <svg class="spark" viewBox="0 0 24 24" fill="none">
+        <defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ec4899"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs>
+        <path d="M12 2c.5 4.5 2.5 6.5 7 7-4.5.5-6.5 2.5-7 7-.5-4.5-2.5-6.5-7-7 4.5-.5 6.5-2.5 7-7z" fill="url(#sg)"/>
+        <path d="M19 3c.2 1.6.9 2.3 2.5 2.5C19.9 5.7 19.2 6.4 19 8c-.2-1.6-.9-2.3-2.5-2.5C18.1 5.3 18.8 4.6 19 3z" fill="url(#sg)"/>
+      </svg>
+      <h1 id="modal-title">Crear nueva página</h1>
+    </div>
+    <p class="sub">Elige el formato que mejor se adapta a tu objetivo. Todas las páginas incluyen nuestra <b>guía para abrir en navegador</b> desde TikTok.</p>
+
+    <div class="grid">
+      <!-- TRUST -->
+      <div class="card trust" data-card="trust">
+        <div class="card-row">
+          <div class="card-left">
+            <div class="badge-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg>
+            </div>
+            <h2>Página de Confianza</h2>
+            <div class="rec">Recomendada</div>
+            <p class="desc">Crea una mini landing completa y optimizada para generar confianza y convertir más.</p>
+            <ul class="feats">
+              <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Diseño completo y personalizable</li>
+              <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Reviews, FAQ y beneficios</li>
+              <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Ideal para productos físicos</li>
+              <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Incluye apertura en navegador</li>
+            </ul>
+          </div>
+          <!-- phone trust -->
+          <div class="phone">
+            <div class="screen">
+              <div class="notch"></div>
+              <div class="statusbar" style="color:#3f4452;">
+                <span class="sb-dots"><i></i><i></i><i></i></span>
+                <span class="sb-r"><i></i><i></i><i style="width:8px;"></i></span>
+              </div>
+              <div class="scr-trust">
+                <div class="brandbar"></div>
+                <div class="body">
+                  <div class="h">Descubre tu mejor<br/>versión ✨</div>
+                  <div class="tag">Skincare coreano para una piel saludable y radiante.</div>
+                  <div class="pimg"><img src="assets/product.png" alt="producto" /></div>
+                  <div class="stars"><span class="s">★★★★★</span> 4.8 (128 reseñas)</div>
+                  <div class="q">¿Por qué te encantará?</div>
+                  <ul class="mini">
+                    <li><i></i>Ingredientes naturales</li>
+                    <li><i></i>Resultados visibles</li>
+                    <li><i></i>Envío rápido y seguro</li>
+                  </ul>
+                </div>
+                <div class="buy">Comprar ahora</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LINKS -->
+      <div class="card links" data-card="links">
+        <div class="card-row">
+          <div class="card-left">
+            <div class="badge-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1.5-1.5"/></svg>
+            </div>
+            <h2>Página de Links</h2>
+            <p class="desc" style="margin-top:16px;">Crea una página simple con enlaces directos para enviar tráfico rápidamente a tu web o redes sociales.</p>
+            <ul class="feats">
+              <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Enlaces ilimitados</li>
+              <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Diseño limpio y rápido</li>
+              <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Ideal para creadores y marcas</li>
+              <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Incluye exit para abrir en navegador</li>
+            </ul>
+          </div>
+          <!-- phone links -->
+          <div class="phone">
+            <div class="screen">
+              <div class="notch"></div>
+              <div class="statusbar" style="color:#fff;">
+                <span class="sb-dots"><i></i><i></i><i></i></span>
+                <span class="sb-r"><i></i><i></i><i style="width:8px;"></i></span>
+              </div>
+              <div class="scr-links">
+                <div class="avatar"><img src="assets/avatar.png" alt="perfil" /></div>
+                <div class="user">@tuusuario</div>
+                <div class="bio">Creadora de contenido | Belleza | Lifestyle</div>
+                <div class="socials">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 3v3.2a4.8 4.8 0 003.5 1.6V11a8 8 0 01-3.6-.9v5.5a5.6 5.6 0 11-5.6-5.6c.3 0 .6 0 .9.1v3.3a2.4 2.4 0 102.4 2.4V3H16z"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 8.2a3 3 0 00-2.1-2.1C18 5.6 12 5.6 12 5.6s-6 0-7.9.5A3 3 0 002 8.2 31 31 0 002 12a31 31 0 00.1 3.8 3 3 0 002.1 2.1c1.9.5 7.9.5 7.9.5s6 0 7.9-.5a3 3 0 002.1-2.1A31 31 0 0022 12a31 31 0 00-.1-3.8zM10 15V9l5 3-5 3z"/></svg>
+                </div>
+                <div class="lnk">Mi tienda</div>
+                <div class="lnk">Productos favoritos</div>
+                <div class="lnk">Descuentos exclusivos</div>
+                <div class="lnk">Sígueme en TikTok</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-cancel" id="btnCancel">Cancelar</button>
+      <button class="btn btn-create" id="btnCreate">Crear página <span aria-hidden="true">→</span></button>
+    </div>
+
+    <div class="foot">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z"/></svg>
+      <span>Todas las páginas incluyen nuestra <b>guía para abrir en navegador</b> desde TikTok.</span>
+    </div>
+  </div>
+
+<script>
+  const cards = document.querySelectorAll('.card');
+  let selected = 'trust';
+  function syncBorders(){
+    cards.forEach(c=>{
+      const isSel = c.dataset.card === selected;
+      if(c.classList.contains('trust')){
+        c.style.borderColor = isSel ? '#f4a8cf' : 'transparent';
+        c.style.boxShadow = isSel ? '0 14px 34px -18px rgba(236,72,153,.45)' : 'none';
+      }else{
+        c.style.borderColor = isSel ? '#c9aef0' : 'transparent';
+        c.style.boxShadow = isSel ? '0 14px 34px -18px rgba(168,85,247,.4)' : 'none';
+      }
+    });
+  }
+  cards.forEach(c=>c.addEventListener('click',()=>{selected=c.dataset.card;syncBorders();}));
+  syncBorders();
+
+  function closeModal(){
+    const m=document.querySelector('.modal');
+    m.style.transition='opacity .2s, transform .2s';
+    m.style.opacity='0';m.style.transform='scale(.97)';
+  }
+  document.getElementById('btnClose').addEventListener('click',closeModal);
+  document.getElementById('btnCancel').addEventListener('click',closeModal);
+  document.getElementById('btnCreate').addEventListener('click',()=>{
+    const b=document.getElementById('btnCreate');
+    b.textContent = selected==='trust' ? 'Creando Página de Confianza…' : 'Creando Página de Links…';
+  });
+</script>
+</body>
+</html>
