@@ -19,9 +19,9 @@ export default function ComparisonBlock({ block, theme }: Props) {
 
       <div style={{ borderRadius: rs.cardR, overflow: 'hidden', border: rs.cardBorder }}>
         {/* Header */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1.5fr', background: 'rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1.5fr', background: rs.innerBg }}>
           <div style={{ ...cellBase, textAlign: 'left' }} />
-          <div style={{ ...cellBase, fontWeight: 700, color: 'rgba(255,255,255,0.45)', fontSize: rs.sub }}>{d.leftTitle || 'Otros'}</div>
+          <div style={{ ...cellBase, fontWeight: 700, color: rs.textSecondary, fontSize: rs.sub }}>{d.leftTitle || 'Otros'}</div>
           <div style={{ ...cellBase, fontWeight: 700, color: rs.accent, fontSize: rs.sub }}>{d.rightTitle || 'Nosotros'}</div>
         </div>
 
@@ -29,20 +29,20 @@ export default function ComparisonBlock({ block, theme }: Props) {
         {(d.rows ?? []).map((row, i) => (
           <div key={row.id} style={{
             display: 'grid', gridTemplateColumns: '2fr 1.5fr 1.5fr',
-            background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.025)',
-            borderTop: '1px solid rgba(255,255,255,0.06)',
+            background: i % 2 === 0 ? 'transparent' : rs.innerBg,
+            borderTop: rs.cardBorder,
           }}>
             <div style={{ ...cellBase, textAlign: 'left', color: rs.text, fontWeight: 500 }}>{row.label}</div>
             <div style={{
               ...cellBase,
-              color: row.winner === 'left' ? rs.accent : 'rgba(255,255,255,0.35)',
+              color: row.winner === 'left' ? rs.accent : rs.textSecondary,
               fontWeight: row.winner === 'left' ? 700 : 400,
             }}>
               {row.winner === 'left' ? '✓ ' : ''}{row.leftValue}
             </div>
             <div style={{
               ...cellBase,
-              color: row.winner === 'right' ? rs.accent : 'rgba(255,255,255,0.35)',
+              color: row.winner === 'right' ? rs.accent : rs.textSecondary,
               fontWeight: row.winner === 'right' ? 700 : 400,
             }}>
               {row.winner === 'right' ? '✓ ' : ''}{row.rightValue}

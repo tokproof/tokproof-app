@@ -14,7 +14,7 @@ export default function UrgencyOfferBlock({ block, theme }: Props) {
         <div style={{ marginBottom: rs.gap }}>
           <span style={{
             display: 'inline-block', padding: '4px 14px', borderRadius: 999,
-            background: rs.grad, color: '#fff', fontSize: rs.body, fontWeight: 700,
+            background: rs.grad, color: rs.buttonText, fontSize: rs.body, fontWeight: 700,
           }}>
             {d.badgeText}
           </span>
@@ -28,7 +28,7 @@ export default function UrgencyOfferBlock({ block, theme }: Props) {
 
       {/* Description */}
       {d.description && (
-        <p style={{ fontSize: rs.body + 1, color: 'rgba(255,255,255,0.65)', lineHeight: 1.55, marginBottom: rs.gap }}>
+        <p style={{ fontSize: rs.body + 1, color: rs.textSecondary, lineHeight: 1.55, marginBottom: rs.gap }}>
           {d.description}
         </p>
       )}
@@ -38,7 +38,7 @@ export default function UrgencyOfferBlock({ block, theme }: Props) {
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: rs.gap,
           padding: '8px 16px', borderRadius: rs.cardR,
-          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.10)',
+          background: rs.innerBg, border: rs.cardBorder,
           fontSize: rs.body, fontWeight: 600, color: rs.text,
         }}>
           ⏱️ {d.countdownText}
@@ -49,7 +49,7 @@ export default function UrgencyOfferBlock({ block, theme }: Props) {
       {d.ctaText && (
         <button style={{
           width: '100%', padding: '14px 20px', borderRadius: rs.btnR,
-          background: rs.grad, color: '#fff', border: 'none', cursor: 'pointer',
+          background: rs.grad, color: rs.buttonText, border: 'none', cursor: 'pointer',
           fontSize: rs.body + 2, fontWeight: 800, letterSpacing: '-0.01em',
           boxShadow: `0 10px 28px ${rs.accent}44`,
         }}>

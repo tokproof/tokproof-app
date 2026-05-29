@@ -21,7 +21,7 @@ export default function TrustBadgesBlock({ block, theme }: Props) {
   return (
     <div style={{ background: rs.bg, padding: rs.pad, fontFamily: rs.fontFamily }}>
       {active.length === 0 ? (
-        <div style={{ textAlign: 'center', fontSize: rs.body, color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>
+        <div style={{ textAlign: 'center', fontSize: rs.body, color: rs.textSecondary, fontStyle: 'italic' }}>
           Añade badges en el editor
         </div>
       ) : (
@@ -38,7 +38,7 @@ export default function TrustBadgesBlock({ block, theme }: Props) {
               <span style={{ fontSize: 24, lineHeight: 1 }}>{BADGE_ICONS[badge.icon]}</span>
               <span style={{ fontSize: rs.sub, fontWeight: 700, color: rs.text, lineHeight: 1.3 }}>{badge.title}</span>
               {badge.description && (
-                <span style={{ fontSize: rs.sub - 1, color: 'rgba(255,255,255,0.45)', lineHeight: 1.3 }}>{badge.description}</span>
+                <span style={{ fontSize: rs.sub - 1, color: rs.textSecondary, lineHeight: 1.3 }}>{badge.description}</span>
               )}
             </div>
           ))}

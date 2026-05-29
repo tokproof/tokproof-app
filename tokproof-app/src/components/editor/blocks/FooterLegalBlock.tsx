@@ -18,30 +18,30 @@ export default function FooterLegalBlock({ block, theme }: Props) {
       {/* Legal links */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center', marginBottom: 10 }}>
         {d.privacyUrl && (
-          <a href={d.privacyUrl} style={{ fontSize: rs.sub, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>
+          <a href={d.privacyUrl} style={{ fontSize: rs.sub, color: rs.textSecondary, textDecoration: 'none' }}>
             Privacidad
           </a>
         )}
         {d.termsUrl && (
-          <a href={d.termsUrl} style={{ fontSize: rs.sub, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>
+          <a href={d.termsUrl} style={{ fontSize: rs.sub, color: rs.textSecondary, textDecoration: 'none' }}>
             Términos
           </a>
         )}
         {d.contactEmail && (
-          <a href={`mailto:${d.contactEmail}`} style={{ fontSize: rs.sub, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>
+          <a href={`mailto:${d.contactEmail}`} style={{ fontSize: rs.sub, color: rs.textSecondary, textDecoration: 'none' }}>
             Contacto
           </a>
         )}
       </div>
 
       {d.legalText && (
-        <p style={{ fontSize: rs.sub - 1, color: 'rgba(255,255,255,0.25)', lineHeight: 1.5, maxWidth: 320, margin: '0 auto 10px' }}>
+        <p style={{ fontSize: rs.sub - 1, color: rs.textSecondary, lineHeight: 1.5, maxWidth: 320, margin: '0 auto 10px' }}>
           {d.legalText}
         </p>
       )}
 
       {d.showTokproofBranding && (
-        <div style={{ fontSize: rs.sub, color: 'rgba(255,255,255,0.2)', marginTop: 6 }}>
+        <div style={{ fontSize: rs.sub, color: rs.textSecondary, marginTop: 6 }}>
           Powered by <span style={{ fontWeight: 700 }}>Tokproof</span>
         </div>
       )}

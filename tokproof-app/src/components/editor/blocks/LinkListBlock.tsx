@@ -27,7 +27,7 @@ export default function LinkListBlock({ block, theme }: Props) {
           </div>
         ))}
         {(d.links ?? []).length === 0 && (
-          <div style={{ padding: '12px 16px', borderRadius: rs.cardR, background: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(255,255,255,0.1)', fontSize: rs.body, color: 'rgba(255,255,255,0.35)', textAlign: 'center' }}>
+          <div style={{ padding: '12px 16px', borderRadius: rs.cardR, background: rs.innerBg, border: rs.cardBorder, fontSize: rs.body, color: rs.textSecondary, textAlign: 'center' }}>
             Añade enlaces en el editor
           </div>
         )}

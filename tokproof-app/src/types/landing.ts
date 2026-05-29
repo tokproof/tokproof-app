@@ -188,14 +188,25 @@ export interface ThemeBackground {
 
 // ─── Theme & settings ─────────────────────────────────────────────────────────
 export interface LandingTheme {
+  // Core
   primaryColor: string
   secondaryColor: string
   backgroundColor: string
   textColor: string
   fontFamily: string
   radius: 'square' | 'soft' | 'medium' | 'round'
+  // Gradient background (flat fields — preferred over nested ThemeBackground)
+  backgroundMode?: 'solid' | 'gradient'
+  gradientFrom?: string
+  gradientTo?: string
+  // Extended color palette
+  accentColor?: string
   secondaryTextColor?: string
-  buttonColor?: string
+  cardBackgroundColor?: string
+  elementBackgroundColor?: string
+  borderColor?: string
+  buttonTextColor?: string
+  // Legacy — kept for backward compat, prefer flat fields above
   background?: ThemeBackground
 }
 

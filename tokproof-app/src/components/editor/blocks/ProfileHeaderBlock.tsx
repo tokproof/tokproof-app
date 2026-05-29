@@ -33,26 +33,26 @@ export default function ProfileHeaderBlock({ block, theme }: Props) {
           <span style={{
             width: 18, height: 18, borderRadius: '50%', background: rs.accent,
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 10, color: '#fff', fontWeight: 700, flexShrink: 0,
+            fontSize: 10, color: rs.buttonText, fontWeight: 700, flexShrink: 0,
           }}>✓</span>
         )}
       </div>
 
       {/* Username */}
-      <div style={{ fontSize: rs.body, color: 'rgba(255,255,255,0.5)', marginBottom: d.bio ? rs.gap : 0 }}>
+      <div style={{ fontSize: rs.body, color: rs.textSecondary, marginBottom: d.bio ? rs.gap : 0 }}>
         @{d.username || 'usuario'}
       </div>
 
       {/* Bio */}
       {d.bio && (
-        <p style={{ fontSize: rs.body, color: 'rgba(255,255,255,0.7)', lineHeight: 1.55, margin: `0 0 ${d.location ? rs.gap : 0}px` }}>
+        <p style={{ fontSize: rs.body, color: rs.textSecondary, lineHeight: 1.55, margin: `0 0 ${d.location ? rs.gap : 0}px` }}>
           {d.bio}
         </p>
       )}
 
       {/* Location */}
       {d.location && (
-        <div style={{ fontSize: rs.sub, color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+        <div style={{ fontSize: rs.sub, color: rs.textSecondary, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
           <span>📍</span> {d.location}
         </div>
       )}

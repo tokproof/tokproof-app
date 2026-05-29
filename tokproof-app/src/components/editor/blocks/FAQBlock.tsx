@@ -32,10 +32,10 @@ export default function FAQBlock({ block, theme }: Props) {
               }}
             >
               <span style={{ fontSize: rs.body + 1, fontWeight: 600, color: rs.text, lineHeight: 1.4 }}>{item.question}</span>
-              <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 16, flexShrink: 0, transform: open === item.id ? 'rotate(180deg)' : 'none', transition: '.2s' }}>▾</span>
+              <span style={{ color: rs.textSecondary, fontSize: 16, flexShrink: 0, transform: open === item.id ? 'rotate(180deg)' : 'none', transition: '.2s' }}>▾</span>
             </button>
             {open === item.id && (
-              <div style={{ padding: '0 14px 12px', fontSize: rs.body, color: 'rgba(255,255,255,0.6)', lineHeight: 1.55 }}>
+              <div style={{ padding: '0 14px 12px', fontSize: rs.body, color: rs.textSecondary, lineHeight: 1.55 }}>
                 {item.answer}
               </div>
             )}

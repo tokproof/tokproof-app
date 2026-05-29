@@ -13,11 +13,11 @@ export default function ProductGridBlock({ block, theme }: Props) {
         <h2 style={{ fontSize: rs.h2, fontWeight: 800, color: rs.text, marginBottom: d.subtitle ? 4 : rs.gap, textAlign: rs.align }}>{d.title}</h2>
       )}
       {d.subtitle && (
-        <p style={{ fontSize: rs.body, color: 'rgba(255,255,255,0.55)', marginBottom: rs.gap, textAlign: rs.align }}>{d.subtitle}</p>
+        <p style={{ fontSize: rs.body, color: rs.textSecondary, marginBottom: rs.gap, textAlign: rs.align }}>{d.subtitle}</p>
       )}
 
       {(d.products ?? []).length === 0 ? (
-        <div style={{ padding: 20, textAlign: 'center', borderRadius: rs.cardR, border: '1px dashed rgba(255,255,255,0.12)', fontSize: rs.body, color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>
+        <div style={{ padding: 20, textAlign: 'center', borderRadius: rs.cardR, border: rs.cardBorder, fontSize: rs.body, color: rs.textSecondary, fontStyle: 'italic' }}>
           Añade productos en el editor
         </div>
       ) : (
@@ -32,7 +32,7 @@ export default function ProductGridBlock({ block, theme }: Props) {
             }}>
               {/* Image */}
               <div style={{
-                aspectRatio: '1/1', background: 'rgba(255,255,255,0.04)',
+                aspectRatio: '1/1', background: rs.innerBg,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 position: 'relative', overflow: 'hidden',
               }}>
@@ -46,7 +46,7 @@ export default function ProductGridBlock({ block, theme }: Props) {
                   <span style={{
                     position: 'absolute', top: 6, left: 6,
                     fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 999,
-                    background: rs.accent, color: '#fff',
+                    background: rs.accent, color: rs.buttonText,
                   }}>{p.badge}</span>
                 )}
               </div>
@@ -57,7 +57,7 @@ export default function ProductGridBlock({ block, theme }: Props) {
                 {(p.price || p.compareAtPrice) && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     {p.price && <span style={{ fontSize: rs.body + 1, fontWeight: 800, color: rs.accent }}>{p.price}</span>}
-                    {p.compareAtPrice && <span style={{ fontSize: rs.sub, color: 'rgba(255,255,255,0.35)', textDecoration: 'line-through' }}>{p.compareAtPrice}</span>}
+                    {p.compareAtPrice && <span style={{ fontSize: rs.sub, color: rs.textSecondary, textDecoration: 'line-through' }}>{p.compareAtPrice}</span>}
                   </div>
                 )}
               </div>

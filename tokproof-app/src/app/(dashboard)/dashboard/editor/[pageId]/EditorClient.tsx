@@ -11,26 +11,103 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { arrayMove } from '@dnd-kit/sortable'
-import type { LandingConfig, LandingBlock, LandingTheme, LandingSettings, BlockStyle, ThemeBackground } from '@/types/landing'
+import type { LandingConfig, LandingBlock, LandingTheme, LandingSettings, BlockStyle } from '@/types/landing'
 import { makeDefaultConfig, makeDefaultBlocks } from '@/types/landing'
 import { FONT_OPTIONS, getPageBackground } from '@/lib/blockStyle'
 
 // ─── Theme presets ────────────────────────────────────────────────────────────
-interface ThemePreset {
-  id: string; name: string
-  primaryColor: string; secondaryColor: string; backgroundColor: string; textColor: string
+type ThemePreset = Omit<LandingTheme, 'fontFamily' | 'radius'> & {
+  id: string; name: string; description: string
   fontFamily: string; radius: 'square' | 'soft' | 'medium' | 'round'
 }
+
 const THEME_PRESETS: ThemePreset[] = [
-  { id: 'rosa_premium',     name: 'Rosa Premium',    primaryColor: '#F647A9', secondaryColor: '#FF8EC0', backgroundColor: '#1A0A13', textColor: '#FFFFFF', fontFamily: 'Nunito Sans',      radius: 'soft'   },
-  { id: 'negro_onyx',       name: 'Negro Onyx',      primaryColor: '#A3A3A3', secondaryColor: '#737373', backgroundColor: '#0A0A0A', textColor: '#FFFFFF', fontFamily: 'Inter',            radius: 'square' },
-  { id: 'amarillo_pollito', name: 'Amarillo Pollito', primaryColor: '#F5C800', secondaryColor: '#FF9900', backgroundColor: '#1A1500', textColor: '#FFFFFF', fontFamily: 'Poppins',          radius: 'medium' },
-  { id: 'azul_confianza',   name: 'Azul Confianza',  primaryColor: '#3B82F6', secondaryColor: '#60A5FA', backgroundColor: '#0A1628', textColor: '#FFFFFF', fontFamily: 'Inter',            radius: 'soft'   },
-  { id: 'verde_natural',    name: 'Verde Natural',   primaryColor: '#22C55E', secondaryColor: '#4ADE80', backgroundColor: '#0A1A0E', textColor: '#FFFFFF', fontFamily: 'Nunito Sans',      radius: 'medium' },
-  { id: 'nude_beauty',      name: 'Nude Beauty',     primaryColor: '#C4956A', secondaryColor: '#E8B88A', backgroundColor: '#1A1410', textColor: '#F5E6D8', fontFamily: 'Playfair Display', radius: 'soft'   },
-  { id: 'morado_creator',   name: 'Morado Creator',  primaryColor: '#8B5CF6', secondaryColor: '#A78BFA', backgroundColor: '#0F0A1A', textColor: '#FFFFFF', fontFamily: 'Manrope',          radius: 'round'  },
-  { id: 'minimal_blanco',   name: 'Minimal Blanco',  primaryColor: '#171717', secondaryColor: '#6B7280', backgroundColor: '#FFFFFF', textColor: '#171717', fontFamily: 'Inter',            radius: 'soft'   },
+  {
+    id: 'rosa_premium', name: 'Rosa Premium', description: 'Femenino, elegante y moderno',
+    backgroundMode: 'gradient', gradientFrom: '#FFF4FA', gradientTo: '#FBE7F4',
+    backgroundColor: '#FFF4FA',
+    primaryColor: '#EC3FA3', secondaryColor: '#A855F7', accentColor: '#FF4FB8',
+    textColor: '#171717', secondaryTextColor: '#6B7280',
+    cardBackgroundColor: '#FFFFFF', elementBackgroundColor: '#FCE7F3',
+    borderColor: '#F9A8D4', buttonTextColor: '#FFFFFF',
+    fontFamily: 'Nunito Sans', radius: 'soft',
+  },
+  {
+    id: 'negro_onyx', name: 'Negro Onyx', description: 'Moderno, profesional y sofisticado',
+    backgroundMode: 'solid', backgroundColor: '#0B0B10',
+    gradientFrom: '#0B0B10', gradientTo: '#18181B',
+    primaryColor: '#8B5CF6', secondaryColor: '#EC4899', accentColor: '#A855F7',
+    textColor: '#FFFFFF', secondaryTextColor: '#A1A1AA',
+    cardBackgroundColor: '#18181B', elementBackgroundColor: '#27272A',
+    borderColor: '#3F3F46', buttonTextColor: '#FFFFFF',
+    fontFamily: 'Inter', radius: 'square',
+  },
+  {
+    id: 'amarillo_pollito', name: 'Amarillo Pollito', description: 'Cálido, amigable y llamativo',
+    backgroundMode: 'solid', backgroundColor: '#FDE68A',
+    gradientFrom: '#FDE68A', gradientTo: '#FEF3C7',
+    primaryColor: '#F59E0B', secondaryColor: '#92400E', accentColor: '#FBBF24',
+    textColor: '#3B2600', secondaryTextColor: '#856321',
+    cardBackgroundColor: '#FEF3C7', elementBackgroundColor: '#FCD34D',
+    borderColor: '#F59E0B', buttonTextColor: '#3B2600',
+    fontFamily: 'Poppins', radius: 'medium',
+  },
+  {
+    id: 'azul_confianza', name: 'Azul Confianza', description: 'Profesional, limpio y confiable',
+    backgroundMode: 'gradient', gradientFrom: '#EFF6FF', gradientTo: '#DBEAFE',
+    backgroundColor: '#EFF6FF',
+    primaryColor: '#3B82F6', secondaryColor: '#60A5FA', accentColor: '#2563EB',
+    textColor: '#0F172A', secondaryTextColor: '#64748B',
+    cardBackgroundColor: '#FFFFFF', elementBackgroundColor: '#DBEAFE',
+    borderColor: '#93C5FD', buttonTextColor: '#FFFFFF',
+    fontFamily: 'Inter', radius: 'soft',
+  },
+  {
+    id: 'verde_natural', name: 'Verde Natural', description: 'Fresco, natural y saludable',
+    backgroundMode: 'gradient', gradientFrom: '#F0FDF4', gradientTo: '#DCFCE7',
+    backgroundColor: '#F0FDF4',
+    primaryColor: '#22C55E', secondaryColor: '#16A34A', accentColor: '#15803D',
+    textColor: '#052E16', secondaryTextColor: '#4B6356',
+    cardBackgroundColor: '#FFFFFF', elementBackgroundColor: '#DCFCE7',
+    borderColor: '#86EFAC', buttonTextColor: '#FFFFFF',
+    fontFamily: 'Nunito Sans', radius: 'medium',
+  },
+  {
+    id: 'nude_beauty', name: 'Nude Beauty', description: 'Suave, elegante y minimalista',
+    backgroundMode: 'solid', backgroundColor: '#FFF7ED',
+    gradientFrom: '#FFF7ED', gradientTo: '#FFEDD5',
+    primaryColor: '#FB923C', secondaryColor: '#C084FC', accentColor: '#EA580C',
+    textColor: '#431407', secondaryTextColor: '#9A6B55',
+    cardBackgroundColor: '#FFFFFF', elementBackgroundColor: '#FFEDD5',
+    borderColor: '#FDBA74', buttonTextColor: '#FFFFFF',
+    fontFamily: 'Playfair Display', radius: 'soft',
+  },
+  {
+    id: 'morado_creator', name: 'Morado Creator', description: 'Creativo, moderno y vibrante',
+    backgroundMode: 'gradient', gradientFrom: '#F5F3FF', gradientTo: '#EDE9FE',
+    backgroundColor: '#F5F3FF',
+    primaryColor: '#8B5CF6', secondaryColor: '#EC4899', accentColor: '#7C3AED',
+    textColor: '#1E1B4B', secondaryTextColor: '#6D5C91',
+    cardBackgroundColor: '#FFFFFF', elementBackgroundColor: '#EDE9FE',
+    borderColor: '#C4B5FD', buttonTextColor: '#FFFFFF',
+    fontFamily: 'Manrope', radius: 'round',
+  },
+  {
+    id: 'minimal_blanco', name: 'Minimal Blanco', description: 'Minimalista, limpio y profesional',
+    backgroundMode: 'solid', backgroundColor: '#FFFFFF',
+    gradientFrom: '#FFFFFF', gradientTo: '#F3F4F6',
+    primaryColor: '#111827', secondaryColor: '#6B7280', accentColor: '#111827',
+    textColor: '#111827', secondaryTextColor: '#6B7280',
+    cardBackgroundColor: '#FFFFFF', elementBackgroundColor: '#F3F4F6',
+    borderColor: '#E5E7EB', buttonTextColor: '#FFFFFF',
+    fontFamily: 'Inter', radius: 'soft',
+  },
 ]
+
+function applyPreset(preset: ThemePreset): Partial<LandingTheme> {
+  const { id: _id, name: _n, description: _d, ...themeFields } = preset
+  return themeFields
+}
 import BlockRenderer from '@/components/editor/BlockRenderer'
 import SortableBlockList from '@/components/editor/SortableBlockList'
 
@@ -312,9 +389,8 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
 
                 {/* ── ESTILOS: theme editor ── */}
                 {activeTool === 'estilos' && (() => {
-                  const bgMode = landingConfig.theme.background?.mode ?? 'solid'
-                  const patchBg = (patch: Partial<ThemeBackground>) =>
-                    updateTheme({ background: { mode: bgMode, ...(landingConfig.theme.background ?? {}), ...patch } as ThemeBackground })
+                  const th  = landingConfig.theme
+                  const bgMode = th.backgroundMode ?? th.background?.mode ?? 'solid'
                   return (
                   <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
 
@@ -322,86 +398,76 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                     <section style={{ marginBottom: 20 }}>
                       <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Tema predefinido</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-                        {THEME_PRESETS.map(p => (
-                          <button
-                            key={p.id}
-                            onClick={() => updateTheme({ primaryColor: p.primaryColor, secondaryColor: p.secondaryColor, backgroundColor: p.backgroundColor, textColor: p.textColor, fontFamily: p.fontFamily, radius: p.radius })}
-                            style={{ padding: 0, border: `2px solid ${landingConfig.theme.primaryColor === p.primaryColor && landingConfig.theme.backgroundColor === p.backgroundColor ? T.pink : T.border2}`, borderRadius: 10, overflow: 'hidden', cursor: 'pointer', background: 'none', textAlign: 'left' }}
-                          >
-                            <div style={{ height: 18, background: `linear-gradient(135deg,${p.primaryColor},${p.secondaryColor})` }} />
-                            <div style={{ padding: '4px 7px 6px', background: p.backgroundColor }}>
-                              <div style={{ fontSize: 10, fontWeight: 600, color: p.textColor, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 3 }}>{p.name}</div>
-                              <div style={{ display: 'flex', gap: 3 }}>
-                                <span style={{ width: 7, height: 7, borderRadius: 999, background: p.primaryColor, display: 'inline-block' }} />
-                                <span style={{ width: 7, height: 7, borderRadius: 999, background: p.secondaryColor, display: 'inline-block' }} />
-                                <span style={{ width: 7, height: 7, borderRadius: 999, background: p.textColor, border: '1px solid rgba(128,128,128,0.3)', display: 'inline-block' }} />
+                        {THEME_PRESETS.map(p => {
+                          const isActive = th.accentColor === p.accentColor && th.cardBackgroundColor === p.cardBackgroundColor
+                          const previewBg = p.backgroundMode === 'gradient'
+                            ? `linear-gradient(180deg,${p.gradientFrom} 0%,${p.gradientTo} 100%)`
+                            : p.backgroundColor
+                          return (
+                            <button
+                              key={p.id}
+                              onClick={() => updateTheme(applyPreset(p))}
+                              style={{ padding: 0, border: `2px solid ${isActive ? T.pink : T.border2}`, borderRadius: 10, overflow: 'hidden', cursor: 'pointer', background: 'none', textAlign: 'left' }}
+                            >
+                              <div style={{ height: 18, background: `linear-gradient(135deg,${p.primaryColor},${p.secondaryColor})` }} />
+                              <div style={{ padding: '4px 7px 6px', background: previewBg }}>
+                                <div style={{ fontSize: 10, fontWeight: 700, color: p.textColor, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 2 }}>{p.name}</div>
+                                <div style={{ fontSize: 9, color: p.secondaryTextColor, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 3 }}>{p.description}</div>
+                                <div style={{ display: 'flex', gap: 3 }}>
+                                  {[p.primaryColor, p.secondaryColor, p.cardBackgroundColor ?? '#fff', p.textColor].map((c, i) => (
+                                    <span key={i} style={{ width: 7, height: 7, borderRadius: 999, background: c, border: '1px solid rgba(128,128,128,0.2)', display: 'inline-block', flexShrink: 0 }} />
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                          </button>
-                        ))}
+                            </button>
+                          )
+                        })}
                       </div>
                     </section>
 
                     {/* ── Background ── */}
                     <section style={{ marginBottom: 20 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Fondo</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Personalizar fondo</div>
                       <div style={{ display: 'flex', background: T.softPurple, borderRadius: 999, padding: 3, gap: 2, marginBottom: 12 }}>
                         {([{ key: 'solid', label: 'Sólido' }, { key: 'gradient', label: 'Degradado' }] as const).map(m => {
                           const active = bgMode === m.key
                           return (
-                            <button key={m.key} onClick={() => patchBg({ mode: m.key })}
+                            <button key={m.key}
+                              onClick={() => updateTheme({ backgroundMode: m.key })}
                               style={{ flex: 1, padding: '5px 0', borderRadius: 999, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 500, background: active ? 'white' : 'transparent', color: active ? T.ink : T.ink2, boxShadow: active ? '0 2px 8px rgba(0,0,0,.08)' : 'none', transition: 'all .15s' }}>
                               {m.label}
                             </button>
                           )
                         })}
                       </div>
-                      {bgMode === 'solid' && (
-                        <ColorRow label="Color de fondo" value={landingConfig.theme.backgroundColor} onChange={v => updateTheme({ backgroundColor: v })} />
-                      )}
-                      {bgMode === 'gradient' && (
+                      {bgMode === 'solid' ? (
+                        <ColorRow label="Color de fondo" value={th.backgroundColor} onChange={v => updateTheme({ backgroundColor: v })} />
+                      ) : (
                         <>
-                          <ColorRow label="Color inicio"  value={landingConfig.theme.background?.gradientFrom ?? landingConfig.theme.backgroundColor} onChange={v => patchBg({ gradientFrom: v })} />
-                          <ColorRow label="Color fin"     value={landingConfig.theme.background?.gradientTo   ?? landingConfig.theme.secondaryColor}  onChange={v => patchBg({ gradientTo: v })} />
-                          <div style={{ marginBottom: 10 }}>
-                            <span style={{ fontSize: 11, fontWeight: 500, color: T.ink2, marginBottom: 4, display: 'block' }}>Dirección</span>
-                            <div style={{ display: 'flex', gap: 4 }}>
-                              {([
-                                { key: 'to bottom',       label: '↓'  },
-                                { key: 'to right',        label: '→'  },
-                                { key: 'to bottom right', label: '↘'  },
-                              ] as const).map(d => {
-                                const active = (landingConfig.theme.background?.gradientDirection ?? 'to bottom') === d.key
-                                return (
-                                  <button key={d.key} onClick={() => patchBg({ gradientDirection: d.key })}
-                                    style={{ flex: 1, padding: '6px 0', borderRadius: 8, border: `1.5px solid ${active ? T.pink : T.border2}`, background: active ? T.softPink2 : T.card, color: active ? T.pink : T.ink2, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-                                    {d.label}
-                                  </button>
-                                )
-                              })}
-                            </div>
-                          </div>
-                          <div style={{ height: 28, borderRadius: 8, background: getPageBackground(landingConfig.theme) }} />
+                          <ColorRow label="Color inicio" value={th.gradientFrom ?? th.backgroundColor}  onChange={v => updateTheme({ gradientFrom: v })} />
+                          <ColorRow label="Color fin"    value={th.gradientTo   ?? th.secondaryColor}   onChange={v => updateTheme({ gradientTo: v })} />
+                          <div style={{ height: 28, borderRadius: 8, marginTop: 4, background: getPageBackground(th) }} />
                         </>
                       )}
                     </section>
 
                     {/* ── Global colors ── */}
                     <section style={{ marginBottom: 20 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Colores globales</div>
-                      <ColorRow label="Color primario"     value={landingConfig.theme.primaryColor}                              onChange={v => updateTheme({ primaryColor: v })} />
-                      <ColorRow label="Color secundario"   value={landingConfig.theme.secondaryColor}                            onChange={v => updateTheme({ secondaryColor: v })} />
-                      <ColorRow label="Texto principal"    value={landingConfig.theme.textColor}                                 onChange={v => updateTheme({ textColor: v })} />
-                      <ColorRow label="Texto secundario"   value={landingConfig.theme.secondaryTextColor ?? '#9CA3AF'}           onChange={v => updateTheme({ secondaryTextColor: v })} />
-                      <ColorRow label="Color de botones"   value={landingConfig.theme.buttonColor ?? landingConfig.theme.primaryColor} onChange={v => updateTheme({ buttonColor: v })} />
-                      <div style={{ height: 28, borderRadius: 8, marginTop: 6, background: `linear-gradient(135deg,${landingConfig.theme.primaryColor},${landingConfig.theme.secondaryColor})` }} />
+                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Personalizar colores</div>
+                      <ColorRow label="Color principal"   value={th.primaryColor}                            onChange={v => updateTheme({ primaryColor: v })} />
+                      <ColorRow label="Color secundario"  value={th.secondaryColor}                          onChange={v => updateTheme({ secondaryColor: v })} />
+                      <ColorRow label="Texto principal"   value={th.textColor}                               onChange={v => updateTheme({ textColor: v })} />
+                      <ColorRow label="Texto secundario"  value={th.secondaryTextColor ?? '#9CA3AF'}         onChange={v => updateTheme({ secondaryTextColor: v })} />
+                      <ColorRow label="Color cards"       value={th.cardBackgroundColor ?? '#FFFFFF'}        onChange={v => updateTheme({ cardBackgroundColor: v })} />
+                      <ColorRow label="Color elementos"   value={th.elementBackgroundColor ?? '#F3F4F6'}     onChange={v => updateTheme({ elementBackgroundColor: v })} />
+                      <ColorRow label="Color botones"     value={th.accentColor ?? th.primaryColor}         onChange={v => updateTheme({ accentColor: v })} />
                     </section>
 
                     {/* ── Typography ── */}
                     <section style={{ marginBottom: 20 }}>
                       <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Tipografía global</div>
                       <select
-                        value={landingConfig.theme.fontFamily}
+                        value={th.fontFamily}
                         onChange={e => updateTheme({ fontFamily: e.target.value })}
                         style={{ width: '100%', padding: '8px 10px', borderRadius: 9, border: `1px solid ${T.border2}`, background: T.card, fontSize: 12, color: T.ink, outline: 'none' }}
                       >
@@ -419,11 +485,8 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                           { key: 'medium', label: 'Medio'    },
                           { key: 'round',  label: 'Redondo'  },
                         ] as const).map(r => (
-                          <button
-                            key={r.key}
-                            onClick={() => updateTheme({ radius: r.key })}
-                            style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: `1.5px solid ${landingConfig.theme.radius === r.key ? T.pink : T.border2}`, background: landingConfig.theme.radius === r.key ? T.softPink2 : T.card, color: landingConfig.theme.radius === r.key ? T.pink : T.ink2, fontSize: 11, fontWeight: 600, cursor: 'pointer', minWidth: 56 }}
-                          >
+                          <button key={r.key} onClick={() => updateTheme({ radius: r.key })}
+                            style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: `1.5px solid ${th.radius === r.key ? T.pink : T.border2}`, background: th.radius === r.key ? T.softPink2 : T.card, color: th.radius === r.key ? T.pink : T.ink2, fontSize: 11, fontWeight: 600, cursor: 'pointer', minWidth: 56 }}>
                             {r.label}
                           </button>
                         ))}

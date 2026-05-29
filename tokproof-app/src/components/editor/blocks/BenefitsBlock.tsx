@@ -26,7 +26,7 @@ export default function BenefitsBlock({ block, theme }: Props) {
             <span style={{ fontSize: 22, flexShrink: 0, lineHeight: 1 }}>{item.icon}</span>
             <div>
               <div style={{ fontSize: rs.body + 1, fontWeight: 700, color: rs.text, marginBottom: 2 }}>{item.title}</div>
-              <div style={{ fontSize: rs.body, color: 'rgba(255,255,255,0.55)', lineHeight: 1.45 }}>{item.description}</div>
+              <div style={{ fontSize: rs.body, color: rs.textSecondary, lineHeight: 1.45 }}>{item.description}</div>
             </div>
           </div>
         ))}
