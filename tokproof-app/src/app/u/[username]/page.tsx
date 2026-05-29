@@ -2,7 +2,9 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import TrustPageRenderer from '@/components/public/TrustPageRenderer'
 import SimplePageRenderer from '@/components/public/SimplePageRenderer'
+import LandingPageRenderer from '@/components/public/LandingPageRenderer'
 import type { FullPage } from '@/types'
+import type { LandingConfig } from '@/types/landing'
 
 interface PublicPageProps {
   params: { username: string }
@@ -69,6 +71,12 @@ export default async function PublicPage({ params }: PublicPageProps) {
     reviews: (reviews ?? []) as FullPage['reviews'],
     faqs: (faqs ?? []) as FullPage['faqs'],
     logos: (logos ?? []) as FullPage['logos'],
+  }
+
+  // If the page was built with the new block editor, use LandingPageRenderer
+  const landingConfig = (page.settings as Record<string, unknown>)?._landingConfig
+  if (landingConfig && typeof landingConfig === 'object' && 'blocks' in landingConfig) {
+    return <LandingPageRenderer config={landingConfig as LandingConfig} />
   }
 
   return (

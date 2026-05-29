@@ -11,8 +11,9 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { arrayMove } from '@dnd-kit/sortable'
-import type { LandingConfig, LandingBlock, LandingTheme, LandingSettings } from '@/types/landing'
+import type { LandingConfig, LandingBlock, LandingTheme, LandingSettings, BlockStyle } from '@/types/landing'
 import { makeDefaultConfig, makeDefaultBlocks } from '@/types/landing'
+import { FONT_OPTIONS } from '@/lib/blockStyle'
 import BlockRenderer from '@/components/editor/BlockRenderer'
 import SortableBlockList from '@/components/editor/SortableBlockList'
 
@@ -167,6 +168,20 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
     setLandingConfig(prev => ({ ...prev, blocks: [...prev.blocks, newBlock] }))
   }, [])
 
+  const updateBlockStyle = useCallback((blockId: string, patch: Partial<BlockStyle>) => {
+    setLandingConfig(prev => ({
+      ...prev,
+      blocks: prev.blocks.map(b => {
+        if (b.id !== blockId) return b
+        const merged = { ...(b.style ?? {}), ...patch } as BlockStyle
+        for (const key of Object.keys(merged) as Array<keyof BlockStyle>) {
+          if (merged[key] === undefined) delete merged[key]
+        }
+        return { ...b, style: Object.keys(merged).length > 0 ? merged : undefined }
+      }),
+    }))
+  }, [])
+
   const updateTheme = useCallback((patch: Partial<LandingTheme>) => {
     setLandingConfig(prev => ({ ...prev, theme: { ...prev.theme, ...patch } }))
   }, [])
@@ -269,6 +284,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                     blocks={landingConfig.blocks}
                     theme={landingConfig.theme}
                     onUpdateBlock={updateBlock}
+                    onUpdateBlockStyle={updateBlockStyle}
                     onToggleVisibility={toggleBlockVisibility}
                     onDelete={deleteBlock}
                     onDuplicate={duplicateBlock}
@@ -296,22 +312,24 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                         onChange={e => updateTheme({ fontFamily: e.target.value })}
                         style={{ width: '100%', padding: '8px 10px', borderRadius: 9, border: `1px solid ${T.border2}`, background: T.card, fontSize: 12, color: T.ink, outline: 'none' }}
                       >
-                        <option>Nunito Sans</option>
-                        <option>Inter</option>
-                        <option>Poppins</option>
-                        <option>DM Sans</option>
+                        {FONT_OPTIONS.map(f => <option key={f}>{f}</option>)}
                       </select>
                     </section>
                     <section>
                       <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Bordes</div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        {(['soft', 'medium', 'round'] as const).map(r => (
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        {([
+                          { key: 'square', label: 'Cuadrado' },
+                          { key: 'soft',   label: 'Suave'    },
+                          { key: 'medium', label: 'Medio'    },
+                          { key: 'round',  label: 'Redondo'  },
+                        ] as const).map(r => (
                           <button
-                            key={r}
-                            onClick={() => updateTheme({ radius: r })}
-                            style={{ flex: 1, padding: '7px 0', borderRadius: r === 'soft' ? 8 : r === 'medium' ? 12 : 999, border: `1.5px solid ${landingConfig.theme.radius === r ? T.pink : T.border2}`, background: landingConfig.theme.radius === r ? T.softPink2 : T.card, color: landingConfig.theme.radius === r ? T.pink : T.ink2, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}
+                            key={r.key}
+                            onClick={() => updateTheme({ radius: r.key })}
+                            style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: `1.5px solid ${landingConfig.theme.radius === r.key ? T.pink : T.border2}`, background: landingConfig.theme.radius === r.key ? T.softPink2 : T.card, color: landingConfig.theme.radius === r.key ? T.pink : T.ink2, fontSize: 11, fontWeight: 600, cursor: 'pointer', minWidth: 56 }}
                           >
-                            {r === 'soft' ? 'Suave' : r === 'medium' ? 'Medio' : 'Round'}
+                            {r.label}
                           </button>
                         ))}
                       </div>

@@ -1,3 +1,15 @@
+// ─── Per-block style overrides ────────────────────────────────────────────────
+export interface BlockStyle {
+  backgroundColor?: string
+  textColor?: string
+  accentColor?: string
+  fontFamily?: string
+  fontSize?: 'small' | 'medium' | 'large'
+  textAlign?: 'left' | 'center'
+  borderRadius?: 'square' | 'soft' | 'medium' | 'round'
+  spacing?: 'compact' | 'normal' | 'airy'
+}
+
 // ─── Block types ─────────────────────────────────────────────────────────────
 export type BlockType =
   | 'hero_product'
@@ -18,6 +30,7 @@ export interface LandingBlock {
   visible: boolean
   locked?: boolean
   data: Record<string, unknown>
+  style?: BlockStyle
 }
 
 // ─── Per-block data shapes ────────────────────────────────────────────────────
@@ -77,7 +90,7 @@ export interface LandingTheme {
   backgroundColor: string
   textColor: string
   fontFamily: string
-  radius: 'soft' | 'medium' | 'round'
+  radius: 'square' | 'soft' | 'medium' | 'round'
 }
 
 export interface LandingSettings {

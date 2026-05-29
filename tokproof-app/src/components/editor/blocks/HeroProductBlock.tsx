@@ -1,16 +1,17 @@
 import type { LandingBlock, LandingTheme, HeroProductData } from '@/types/landing'
+import { resolveBlockStyle } from '@/lib/blockStyle'
 
 interface Props { block: LandingBlock; theme: LandingTheme }
 
 export default function HeroProductBlock({ block, theme }: Props) {
-  const d = block.data as unknown as HeroProductData
-  const grad = `linear-gradient(135deg, ${theme.primaryColor}, ${theme.secondaryColor})`
+  const d  = block.data as unknown as HeroProductData
+  const rs = resolveBlockStyle(block, theme)
 
   return (
-    <div style={{ background: theme.backgroundColor, padding: '20px 18px 24px', color: theme.textColor }}>
+    <div style={{ background: rs.bg, padding: rs.pad, color: rs.text, fontFamily: rs.fontFamily }}>
       {/* Image placeholder */}
       <div style={{
-        width: '100%', aspectRatio: '16/9', borderRadius: 14, marginBottom: 14,
+        width: '100%', aspectRatio: '16/9', borderRadius: rs.cardR, marginBottom: rs.gap + 4,
         background: 'rgba(255,255,255,0.06)', border: '1px dashed rgba(255,255,255,0.12)',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6,
         overflow: 'hidden',
@@ -21,16 +22,16 @@ export default function HeroProductBlock({ block, theme }: Props) {
         ) : (
           <>
             <span style={{ fontSize: 28 }}>🖼️</span>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>Imagen del producto</span>
+            <span style={{ fontSize: rs.sub, color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>Imagen del producto</span>
           </>
         )}
       </div>
 
       {/* Badge */}
       {d.showBadge && d.badgeText && (
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: rs.gap }}>
           <span style={{
-            fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 999,
+            fontSize: rs.sub, fontWeight: 700, padding: '3px 10px', borderRadius: 999,
             background: 'rgba(255,255,255,0.1)', color: '#FFD700', letterSpacing: '.02em',
           }}>{d.badgeText}</span>
         </div>
@@ -38,34 +39,34 @@ export default function HeroProductBlock({ block, theme }: Props) {
 
       {/* Headline */}
       <h1 style={{
-        fontSize: 20, fontWeight: 800, lineHeight: 1.25, marginBottom: 8,
-        letterSpacing: '-0.02em', color: theme.textColor,
+        fontSize: rs.h1, fontWeight: 800, lineHeight: 1.25, marginBottom: rs.gap,
+        letterSpacing: '-0.02em', color: rs.text, textAlign: rs.align,
       }}>{d.headline || 'Tu headline aquí'}</h1>
 
       {/* Subheadline */}
       {d.subheadline && (
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.55, marginBottom: 10 }}>
+        <p style={{ fontSize: rs.body + 1, color: 'rgba(255,255,255,0.7)', lineHeight: 1.55, marginBottom: rs.gap, textAlign: rs.align }}>
           {d.subheadline}
         </p>
       )}
 
       {/* Description */}
       {d.description && (
-        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 12 }}>
+        <p style={{ fontSize: rs.body, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: rs.gap, textAlign: rs.align }}>
           {d.description}
         </p>
       )}
 
       {/* Rating */}
       {d.showRating && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-          <span style={{ color: '#FFD700', fontSize: 13 }}>★★★★★</span>
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{d.rating} · +2.4K reseñas</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, justifyContent: rs.align === 'center' ? 'center' : 'flex-start' }}>
+          <span style={{ color: '#FFD700', fontSize: rs.body + 1 }}>★★★★★</span>
+          <span style={{ fontSize: rs.sub, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{d.rating} · +2.4K reseñas</span>
         </div>
       )}
 
       {/* Quick CTA teaser */}
-      <div style={{ marginTop: 18, padding: '11px 16px', borderRadius: 12, background: grad, textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#fff' }}>
+      <div style={{ marginTop: rs.gap + 8, padding: '11px 16px', borderRadius: rs.btnR, background: rs.grad, textAlign: 'center', fontSize: rs.body + 1, fontWeight: 700, color: '#fff' }}>
         🛒 Ver producto oficial
       </div>
     </div>
