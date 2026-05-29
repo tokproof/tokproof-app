@@ -7,8 +7,8 @@ import type { FullPage, PageSettings } from '@/types'
 import TrustPageRenderer from '@/components/public/TrustPageRenderer'
 import SimplePageRenderer from '@/components/public/SimplePageRenderer'
 import {
-  Home, BarChart3, ShieldCheck, LayoutGrid, CreditCard, Settings,
-  Link2, HelpCircle, LogOut, ArrowLeft, Pencil, ChevronDown,
+  BarChart3, ShieldCheck, LayoutGrid, Settings,
+  Link2, HelpCircle, ArrowLeft, Pencil, ChevronDown,
   Eye, UploadCloud, Plus, Undo2, Redo2, Monitor, Minus, Palette,
   User, Box, DollarSign, MessageSquare, Star, MousePointerClick, Search,
   Image as ImageIcon, type LucideIcon,
@@ -208,7 +208,6 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
   const [isActive, setIsActive] = useState(page.status === 'published')
 
   // ── Layout state ──
-  const [navCollapsed, setNavCollapsed] = useState(false)
   const [focus, setFocus] = useState(false)
   const [zoom, setZoom] = useState(100)
   const [activeTool, setActiveTool] = useState<'secciones' | 'estilos' | 'ajustes'>('secciones')
@@ -293,15 +292,6 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
   const previewData: FullPage = { page, buttons, comments, reviews, faqs, logos, profile: data.profile }
   const publicUrl = `tokproof.app/@${page.username ?? 'tuusuario'}`
 
-  // ── NAV items ──
-  const navItems: Array<{ icon: LucideIcon; label: string; href: string; active?: boolean }> = [
-    { icon: Home, label: 'Dashboard', href: '/dashboard' },
-    { icon: BarChart3, label: 'Analytics', href: '/dashboard' },
-    { icon: LayoutGrid, label: 'Páginas', href: '/dashboard', active: true },
-    { icon: CreditCard, label: 'Billing', href: '/dashboard' },
-    { icon: Settings, label: 'Ajustes', href: '/dashboard' },
-  ]
-
   // ── RENDER ────────────────────────────────────────────────────────────────
   return (
     <>
@@ -313,7 +303,6 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
         @keyframes edFadeIn {
           from { opacity: 0; } to { opacity: 1; }
         }
-        .ed-nav-item:hover { background: rgba(123,97,255,0.06) !important; }
         .ed-tool-btn:hover { background: rgba(123,97,255,0.06) !important; }
         .ed-sec-row-btn:hover { background: rgba(123,97,255,0.03) !important; }
       `}</style>
@@ -322,100 +311,6 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
         display: 'flex', height: '100vh', overflow: 'hidden',
         background: T.bg, fontFamily: 'Inter,system-ui,sans-serif',
       }}>
-
-        {/* ═══ NAV ═══════════════════════════════════════════════════════════ */}
-        {!focus && (
-          <nav style={{
-            width: navCollapsed ? 72 : 210,
-            flexShrink: 0,
-            background: T.gradSide,
-            borderRight: `1px solid ${T.border}`,
-            display: 'flex',
-            flexDirection: 'column',
-            transition: 'width .28s cubic-bezier(.5,.1,.2,1)',
-            overflow: 'hidden',
-          }}>
-            {/* Logo */}
-            <div style={{
-              padding: navCollapsed ? '18px 0' : '18px 16px',
-              display: 'flex', alignItems: 'center', gap: 10,
-              borderBottom: `1px solid ${T.border}`,
-            }}>
-              <div style={{
-                width: 34, height: 34, borderRadius: 10, flexShrink: 0,
-                background: T.grad,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                marginLeft: navCollapsed ? 'auto' : 0,
-                marginRight: navCollapsed ? 'auto' : 0,
-              }}>
-                <ShieldCheck size={17} color="white" />
-              </div>
-              {!navCollapsed && (
-                <span style={{ fontSize: 14, fontWeight: 700, color: T.ink, whiteSpace: 'nowrap' }}>
-                  Tokproof
-                </span>
-              )}
-            </div>
-
-            {/* Nav items */}
-            <div style={{ flex: 1, padding: '8px', display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' }}>
-              {navItems.map(item => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="ed-nav-item"
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: navCollapsed ? '9px 0' : '9px 10px',
-                    borderRadius: 13,
-                    justifyContent: navCollapsed ? 'center' : 'flex-start',
-                    background: item.active ? T.softPink : 'transparent',
-                    color: item.active ? T.pink : T.ink2,
-                    textDecoration: 'none',
-                    fontSize: 13, fontWeight: item.active ? 600 : 500,
-                    transition: 'background .15s',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  <item.icon size={16} style={{ flexShrink: 0 }} />
-                  {!navCollapsed && <span>{item.label}</span>}
-                </Link>
-              ))}
-            </div>
-
-            {/* Bottom: help + logout */}
-            <div style={{ padding: '8px 8px 16px', display: 'flex', flexDirection: 'column', gap: 2, borderTop: `1px solid ${T.border}` }}>
-              <button
-                className="ed-nav-item"
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  padding: navCollapsed ? '9px 0' : '9px 10px',
-                  borderRadius: 13, border: 'none', background: 'transparent',
-                  color: T.ink2, cursor: 'pointer', width: '100%',
-                  justifyContent: navCollapsed ? 'center' : 'flex-start',
-                  fontSize: 13, fontWeight: 500,
-                }}
-              >
-                <HelpCircle size={16} style={{ flexShrink: 0 }} />
-                {!navCollapsed && <span>Ayuda</span>}
-              </button>
-              <Link
-                href="/logout"
-                className="ed-nav-item"
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  padding: navCollapsed ? '9px 0' : '9px 10px',
-                  borderRadius: 13, color: T.ink2, textDecoration: 'none',
-                  fontSize: 13, fontWeight: 500,
-                  justifyContent: navCollapsed ? 'center' : 'flex-start',
-                }}
-              >
-                <LogOut size={16} style={{ flexShrink: 0 }} />
-                {!navCollapsed && <span>Salir</span>}
-              </Link>
-            </div>
-          </nav>
-        )}
 
         {/* ═══ SECTIONS WRAP (position:relative — anchors mini-rail) ════════ */}
         {!focus && (
@@ -434,28 +329,10 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
               <div style={{
                 padding: '14px 16px',
                 borderBottom: `1px solid ${T.border}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                display: 'flex', alignItems: 'center',
                 flexShrink: 0,
               }}>
                 <span style={{ fontSize: 14.5, fontWeight: 700, color: T.pink }}>General</span>
-                <button
-                  onClick={() => setNavCollapsed(p => !p)}
-                  title={navCollapsed ? 'Expandir nav' : 'Colapsar nav'}
-                  style={{
-                    width: 28, height: 28,
-                    border: `1px solid ${T.border2}`, borderRadius: 8,
-                    background: T.card, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: T.ink2,
-                  }}
-                >
-                  <span style={{
-                    fontSize: 14, fontWeight: 600, lineHeight: 1,
-                    display: 'inline-block',
-                    transform: navCollapsed ? 'rotate(180deg)' : 'none',
-                    transition: 'transform .28s',
-                  }}>‹</span>
-                </button>
               </div>
 
               {/* Page info card */}
