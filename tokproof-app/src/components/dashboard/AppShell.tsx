@@ -4,24 +4,25 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  Home, BarChart3, ShieldCheck, LayoutGrid,
+  Home, BarChart3, LayoutGrid, ShieldCheck,
   CreditCard, Settings, HelpCircle, LogOut, ArrowRight, Crown,
-  PanelLeftClose, PanelLeft,
+  PanelLeftClose, PanelLeft, ShoppingBag, User,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/types'
 
 const NAV_MAIN = [
-  { href: '/dashboard', label: 'Dashboard', Icon: Home, exact: true },
-  { href: '/dashboard/analytics', label: 'Analytics', Icon: BarChart3, exact: false },
-  { href: '/dashboard/safe-link', label: 'TikTok Rescue', Icon: ShieldCheck, exact: false, pro: true },
-  { href: '/dashboard/templates', label: 'Templates', Icon: LayoutGrid, exact: false },
+  { href: '/dashboard',                  label: 'Dashboard',      Icon: Home,        exact: true  },
+  { href: '/dashboard/ecommerce',        label: 'E-commerce',     Icon: ShoppingBag, exact: false },
+  { href: '/dashboard/personal-brand',   label: 'Marca Personal', Icon: User,        exact: false },
+  { href: '/dashboard/analytics',        label: 'Analytics',      Icon: BarChart3,   exact: false },
+  { href: '/dashboard/templates',        label: 'Templates',      Icon: LayoutGrid,  exact: false },
 ]
 
 const NAV_ACCOUNT = [
-  { href: '/dashboard/billing', label: 'Billing', Icon: CreditCard, exact: false, showBadge: true },
-  { href: '/dashboard/settings', label: 'Settings', Icon: Settings, exact: false },
-  { href: '/dashboard/faq', label: 'Help', Icon: HelpCircle, exact: false },
+  { href: '/dashboard/billing',  label: 'Billing',  Icon: CreditCard,  exact: false, showBadge: true },
+  { href: '/dashboard/settings', label: 'Settings', Icon: Settings,    exact: false },
+  { href: '/dashboard/faq',      label: 'Help',     Icon: HelpCircle,  exact: false },
 ]
 
 interface AppShellProps {
@@ -116,7 +117,7 @@ export default function AppShell({ children, profile }: AppShellProps) {
 
         {/* Main nav */}
         <div className="nav-section">
-          {NAV_MAIN.map(({ href, label, Icon, exact, pro }) => (
+          {NAV_MAIN.map(({ href, label, Icon, exact }) => (
             <Link
               key={href}
               href={href}
@@ -131,7 +132,6 @@ export default function AppShell({ children, profile }: AppShellProps) {
             >
               <span className="nav-item-ico"><Icon size={20} strokeWidth={1.8} /></span>
               {!collapsed && <span>{label}</span>}
-              {!collapsed && pro && <span className="nav-item-badge">PRO</span>}
             </Link>
           ))}
         </div>

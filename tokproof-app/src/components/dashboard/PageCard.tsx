@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Calendar, Link2, MoreHorizontal } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Page } from '@/types'
+import { getPublicPageUrl, getPublicExitUrl, getPublicPageDisplay, getPublicExitDisplay } from '@/lib/urls'
 
 interface PageCardProps {
   page: Page
@@ -20,8 +21,10 @@ export default function PageCard({ page, pageNumber, onDeleted, stats }: PageCar
   const isSimple = page.type === 'simple'
   const deEnabled = page.settings.direct_exit_enabled
   const deUrl = page.settings.direct_exit_url
-  const publicUrl = page.username ? `tokproof.app/@${page.username}` : null
-  const goUrl = page.username ? `tokproof.app/@${page.username}/go` : null
+  const publicUrl     = page.username ? getPublicPageUrl(page.username)     : null
+  const publicDisplay = page.username ? getPublicPageDisplay(page.username) : null
+  const goUrl         = page.username ? getPublicExitUrl(page.username)     : null
+  const goDisplay     = page.username ? getPublicExitDisplay(page.username) : null
 
   const createdAt = new Date(page.created_at).toLocaleDateString('es-ES', {
     day: 'numeric', month: 'long', year: 'numeric',
@@ -73,7 +76,7 @@ export default function PageCard({ page, pageNumber, onDeleted, stats }: PageCar
     { icon: '✏', label: 'Editar', onClick: () => { window.location.href = `/dashboard/editor/${page.id}` } },
     isPublished && page.username ? { icon: '👁', label: 'Ver página', onClick: () => window.open(`/u/${page.username}`, '_blank') } : null,
     { icon: '⧉', label: 'Duplicar', onClick: handleDuplicate },
-    publicUrl && isPublished ? { icon: '🔗', label: 'Copiar link', onClick: () => navigator.clipboard?.writeText(`https://${publicUrl}`) } : null,
+    publicUrl && isPublished ? { icon: '🔗', label: 'Copiar link', onClick: () => navigator.clipboard?.writeText(publicUrl) } : null,
     !isPublished ? { icon: '🚀', label: publishing ? '...' : 'Publicar', onClick: handlePublish } : null,
     { icon: '🗑', label: 'Eliminar', onClick: handleDelete, danger: true },
   ].filter(Boolean) as { icon: string; label: string; onClick: () => void; danger?: boolean }[]
@@ -121,14 +124,14 @@ export default function PageCard({ page, pageNumber, onDeleted, stats }: PageCar
           <Calendar size={11} />
           Creada el {createdAt}
         </div>
-        {publicUrl && (
+        {publicDisplay && (
           <div className="page-info-links" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <span className="page-link-pill">
-              <Link2 size={11} /> {publicUrl}
+              <Link2 size={11} /> {publicDisplay}
             </span>
-            {goUrl && deEnabled && deUrl && (
+            {goDisplay && deEnabled && deUrl && (
               <span className="page-link-pill">
-                <Link2 size={11} /> {goUrl}
+                <Link2 size={11} /> {goDisplay}
               </span>
             )}
           </div>

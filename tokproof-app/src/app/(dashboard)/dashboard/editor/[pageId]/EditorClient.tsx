@@ -14,6 +14,7 @@ import { arrayMove } from '@dnd-kit/sortable'
 import type { LandingConfig, LandingBlock, LandingTheme, LandingSettings, BlockStyle } from '@/types/landing'
 import { makeDefaultConfig, makeDefaultBlocks } from '@/types/landing'
 import { FONT_OPTIONS, getPageBackground } from '@/lib/blockStyle'
+import { getPublicPageUrl, getPublicPageDisplay } from '@/lib/urls'
 
 // ─── Theme presets ────────────────────────────────────────────────────────────
 type ThemePreset = Omit<LandingTheme, 'fontFamily' | 'radius'> & {
@@ -328,12 +329,11 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
   }
 
   function handleCopy() {
-    const url = `https://tokproof.app/@${landingConfig.slug}`
-    navigator.clipboard?.writeText?.(url)
+    navigator.clipboard?.writeText?.(getPublicPageUrl(landingConfig.slug))
     showToast('Enlace copiado')
   }
 
-  const publicUrl = `tokproof.app/@${landingConfig.slug || 'tuusuario'}`
+  const publicUrl = getPublicPageDisplay(landingConfig.slug || 'tuusuario')
   const isPublished = landingConfig.status === 'published'
 
   // ─── RENDER ──────────────────────────────────────────────────────────────
@@ -373,7 +373,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                   <Pencil size={12} color={T.ink3} style={{ flexShrink: 0 }} />
                 </div>
                 <div style={{ fontSize: 11, color: T.ink3, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  tokproof.app/@{landingConfig.slug || 'tuusuario'}
+                  {publicUrl}
                 </div>
               </div>
 

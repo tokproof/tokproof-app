@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/types'
+import { getPublicPageDisplay } from '@/lib/urls'
 
 export default function SettingsPage() {
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -64,7 +65,7 @@ export default function SettingsPage() {
             <div className="fg">
               <label className="fl">Username público</label>
               <input className="fi" type="text" value={`@${profile?.username ?? ''}`} disabled style={{ opacity: .6 }} />
-              <span className="fh">tokproof.app/@{profile?.username ?? ''}</span>
+              <span className="fh">{getPublicPageDisplay(profile?.username ?? '')}</span>
             </div>
             <button className="btn btn-primary" type="submit" disabled={saving}>
               {saving ? 'Guardando...' : saved ? '✓ Guardado' : 'Guardar cambios'}

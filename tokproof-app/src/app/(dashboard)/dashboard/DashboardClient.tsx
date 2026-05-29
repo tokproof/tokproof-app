@@ -8,8 +8,10 @@ import {
 } from 'lucide-react'
 import PageCard from '@/components/dashboard/PageCard'
 import UpgradeModal from '@/components/shared/UpgradeModal'
-import NewLandingModal from './NewLandingModal'
+import CreateEcommerceModal from '@/components/dashboard/CreateEcommerceModal'
+import CreatePersonalBrandModal from '@/components/dashboard/CreatePersonalBrandModal'
 import type { Page, Profile } from '@/types'
+import { getPublicPageUrl, getPublicExitUrl, getPublicPageDisplay, getPublicExitDisplay } from '@/lib/urls'
 
 /* ── Link icon con gradiente SVG ─────────────── */
 function GradLinkIcon({ size = 15 }: { size?: number }) {
@@ -157,8 +159,10 @@ function RescueWidget({ guides, opens, rate }: {
 /* ── Link widget ─────────────────────────────── */
 function LinkWidget({ profile }: { profile: Profile }) {
   const username = profile.username
-  const publicUrl = username ? `tokproof.app/@${username}` : null
-  const goUrl = username ? `tokproof.app/@${username}/go` : null
+  const publicUrl     = username ? getPublicPageUrl(username)     : null
+  const publicDisplay = username ? getPublicPageDisplay(username) : null
+  const goUrl         = username ? getPublicExitUrl(username)     : null
+  const goDisplay     = username ? getPublicExitDisplay(username) : null
   const primary = useCopy()
   const go = useCopy()
 
@@ -170,12 +174,12 @@ function LinkWidget({ profile }: { profile: Profile }) {
           <div className="link-field-group">
             <div className="link-field-label">Enlace principal</div>
             <div className="link-field-row">
-              <span className="link-field-url">{publicUrl ?? 'Sin configurar'}</span>
+              <span className="link-field-url">{publicDisplay ?? 'Sin configurar'}</span>
               {publicUrl && (
                 <button
                   className={`link-copy-btn${primary.copied ? ' copied' : ''}`}
                   title="Copiar"
-                  onClick={() => primary.copy(`https://${publicUrl}`)}
+                  onClick={() => primary.copy(publicUrl)}
                 >
                   {primary.copied ? <Check size={13} /> : <GradLinkIcon size={13} />}
                 </button>
@@ -185,12 +189,12 @@ function LinkWidget({ profile }: { profile: Profile }) {
           <div className="link-field-group">
             <div className="link-field-label">Enlace Direct Exit</div>
             <div className="link-field-row">
-              <span className="link-field-url">{goUrl ?? 'Sin configurar'}</span>
+              <span className="link-field-url">{goDisplay ?? 'Sin configurar'}</span>
               {goUrl && (
                 <button
                   className={`link-copy-btn${go.copied ? ' copied' : ''}`}
                   title="Copiar"
-                  onClick={() => go.copy(`https://${goUrl}`)}
+                  onClick={() => go.copy(goUrl)}
                 >
                   {go.copied ? <Check size={13} /> : <GradLinkIcon size={13} />}
                 </button>
@@ -213,11 +217,52 @@ function LinkWidget({ profile }: { profile: Profile }) {
   )
 }
 
+/* ── Category selector modal ─────────────────── */
+function CategorySelectModal({
+  open, onClose, onSelect,
+}: {
+  open: boolean
+  onClose: () => void
+  onSelect: (cat: 'ecommerce' | 'personal_brand') => void
+}) {
+  if (!open) return null
+  return (
+    <div className="cm-overlay" onClick={e => { if (e.currentTarget === e.target) onClose() }}>
+      <div className="cat-modal">
+        <h2 style={{ fontSize: 20, fontWeight: 900, color: '#171717', marginBottom: 4, letterSpacing: '-.03em' }}>¿Qué quieres crear?</h2>
+        <p style={{ fontSize: 13, color: '#6B7280', marginBottom: 20 }}>Elige el tipo de página que mejor encaja con tu objetivo.</p>
+
+        <div className="cat-card" onClick={() => onSelect('ecommerce')}>
+          <div className="cat-card-ico" style={{ background: 'rgba(123,97,255,.1)' }}>🛒</div>
+          <div>
+            <div className="cat-card-title">E-commerce</div>
+            <div className="cat-card-desc">Crea páginas para vender productos físicos o digitales.</div>
+          </div>
+        </div>
+
+        <div className="cat-card" onClick={() => onSelect('personal_brand')}>
+          <div className="cat-card-ico" style={{ background: 'rgba(16,185,129,.1)' }}>⭐</div>
+          <div>
+            <div className="cat-card-title">Marca Personal</div>
+            <div className="cat-card-desc">Crea páginas para compartir enlaces, servicios, redes y contenido.</div>
+          </div>
+        </div>
+
+        <button className="btn btn-ghost btn-sm" style={{ width: '100%', marginTop: 12 }} onClick={onClose}>
+          Cancelar
+        </button>
+      </div>
+    </div>
+  )
+}
+
 /* ── Main component ──────────────────────────── */
 export default function DashboardClient({ profile, pages, analytics, pageStats }: DashboardClientProps) {
   const [pageList, setPageList] = useState<Page[]>(pages)
   const [activeFilter, setActiveFilter] = useState<'all' | 'published' | 'draft'>('all')
-  const [modalOpen, setModalOpen] = useState(false)
+  const [categoryOpen,  setCategoryOpen]  = useState(false)
+  const [ecomOpen,      setEcomOpen]      = useState(false)
+  const [pbOpen,        setPbOpen]        = useState(false)
   const [upgradeOpen, setUpgradeOpen] = useState(false)
   const headerCopy = useCopy()
 
@@ -225,11 +270,18 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
   const publishedCount = pageList.filter(p => p.status === 'published').length
   const draftCount = pageList.filter(p => p.status === 'draft').length
   const firstName = (profile.display_name ?? profile.email ?? 'creator').split(' ')[0]
-  const publicUrl = profile.username ? `tokproof.app/@${profile.username}` : null
+  const publicUrl     = profile.username ? getPublicPageUrl(profile.username)     : null
+  const publicDisplay = profile.username ? getPublicPageDisplay(profile.username) : null
 
   function openNewLanding() {
-    if (isFree && publishedCount >= 1) setUpgradeOpen(true)
-    else setModalOpen(true)
+    if (isFree && publishedCount >= 1) { setUpgradeOpen(true); return }
+    setCategoryOpen(true)
+  }
+
+  function handleCategorySelect(cat: 'ecommerce' | 'personal_brand') {
+    setCategoryOpen(false)
+    if (cat === 'ecommerce') setEcomOpen(true)
+    else setPbOpen(true)
   }
 
   const filteredPages = pageList.filter(p => {
@@ -246,12 +298,22 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
 
   return (
     <>
-      <NewLandingModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
+      <CategorySelectModal
+        open={categoryOpen}
+        onClose={() => setCategoryOpen(false)}
+        onSelect={handleCategorySelect}
+      />
+      <CreateEcommerceModal
+        open={ecomOpen}
+        onClose={() => setEcomOpen(false)}
         userId={profile.user_id}
         username={profile.username}
-        canPublishMore={!isFree || publishedCount < 1}
+      />
+      <CreatePersonalBrandModal
+        open={pbOpen}
+        onClose={() => setPbOpen(false)}
+        userId={profile.user_id}
+        username={profile.username}
       />
       <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
 
@@ -268,7 +330,7 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
               <>
                 <button
                   className="btn btn-ghost btn-sm"
-                  onClick={() => headerCopy.copy(`https://${publicUrl}`)}
+                  onClick={() => headerCopy.copy(publicUrl!)}
                   style={headerCopy.copied ? {
                     background: 'linear-gradient(135deg,#F647A9 0%,#7B61FF 100%)',
                     borderColor: 'transparent',

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { isValidUsername } from '@/lib/utils'
+import { getPublicPageDisplay, getPublicHostname } from '@/lib/urls'
 
 type Step = 1 | 2
 
@@ -76,7 +77,7 @@ export default function OnboardingPage() {
     router.refresh()
   }
 
-  const urlPreview = `tokproof.app/@${username || 'tumarca'}`
+  const urlPreview = getPublicPageDisplay(username || 'tumarca')
 
   return (
     <div className="reg-page">
@@ -104,7 +105,7 @@ export default function OnboardingPage() {
               <label className="fl">Tu username público</label>
               <div style={{ display: 'flex' }}>
                 <span style={{ padding: '10px 12px', background: 'var(--bg)', border: '1px solid var(--border)', borderRight: 'none', borderRadius: 'var(--r) 0 0 var(--r)', fontSize: 12, color: 'var(--muted)', whiteSpace: 'nowrap', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-                  tokproof.app/@
+                  {getPublicHostname()}/@
                 </span>
                 <div style={{ flex: 1, position: 'relative' }}>
                   <input
@@ -157,7 +158,7 @@ export default function OnboardingPage() {
         {step === 2 && (
           <div className="reg-card">
             <h1 className="reg-card-title">¡Todo listo, <span className="gt">@{username}</span>!</h1>
-            <p className="reg-card-sub">Tu URL pública es <strong style={{ color: 'var(--spurple)' }}>tokproof.app/@{username}</strong>. Ahora crea tu primera trust page.</p>
+            <p className="reg-card-sub">Tu URL pública es <strong style={{ color: 'var(--spurple)' }}>{getPublicPageDisplay(username)}</strong>. Ahora crea tu primera trust page.</p>
 
             <div style={{ display: 'grid', gap: 12, margin: '20px 0' }}>
               <div style={{ background: 'var(--bg)', border: '1px solid rgba(255,45,117,.18)', borderRadius: 'var(--r-xl)', padding: '16px 18px', display: 'flex', alignItems: 'flex-start', gap: 12 }}>

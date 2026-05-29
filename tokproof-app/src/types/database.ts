@@ -99,6 +99,11 @@ export interface PageSettings {
   direct_exit_delay?: number
   direct_exit_guide_text?: string
   direct_exit_on_trust_cta?: boolean
+
+  // Category system (stored in JSONB settings, no migration needed)
+  _category?: 'ecommerce' | 'personal_brand'
+  _pageType?: 'trust_page' | 'simple_page' | 'creator_page'
+  _landingConfig?: Record<string, unknown>
 }
 
 export interface Page {
