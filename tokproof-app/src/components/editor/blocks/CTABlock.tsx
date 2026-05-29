@@ -8,11 +8,9 @@ export default function CTABlock({ block, theme }: Props) {
   const rs = resolveBlockStyle(block, theme)
 
   const btnStyle: React.CSSProperties =
-    d.style === 'gradient'
-      ? { background: rs.grad, color: rs.buttonText, border: 'none', boxShadow: `0 10px 28px ${rs.accent}44` }
-      : d.style === 'outline'
+    d.style === 'outline'
       ? { background: 'transparent', color: rs.accent, border: `2px solid ${rs.accent}` }
-      : { background: rs.accent, color: rs.buttonText, border: 'none' }
+      : { background: rs.btnBg, color: rs.buttonText, border: 'none', boxShadow: `0 10px 28px ${rs.accent}44` }
 
   return (
     <div style={{ background: rs.bg, padding: rs.pad, textAlign: 'center', fontFamily: rs.fontFamily }}>

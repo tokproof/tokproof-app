@@ -47,7 +47,8 @@ export interface ResolvedStyle {
   textSecondary: string  // secondary / muted text
   accent:        string  // accent / CTA color
   buttonText:    string  // text ON buttons
-  grad:          string  // gradient string for buttons
+  btnBg:         string  // button background (solid color or gradient string)
+  grad:          string  // decorative gradient (avatars, etc.) — use btnBg for actual buttons
   fontFamily:    string
   h1: number; h2: number; body: number; sub: number
   align:         'left' | 'center'
@@ -120,10 +121,20 @@ export function resolveBlockStyle(block: LandingBlock, theme: LandingTheme): Res
   const textSecondary = theme.secondaryTextColor ?? 'rgba(255,255,255,0.55)'
   const buttonText    = theme.buttonTextColor ?? '#FFFFFF'
 
+  // Button background — per-block accent override → solid; else follow theme.buttonStyle
+  const blockAccentOverride = (useColors && s.accentColor) ? s.accentColor : undefined
+  const effectiveButtonStyle = theme.buttonStyle ?? (isGradient ? 'gradient' : 'solid')
+  const btnBg = blockAccentOverride
+    ? blockAccentOverride
+    : effectiveButtonStyle === 'gradient'
+      ? `linear-gradient(135deg, ${theme.buttonGradientFrom ?? accent}, ${theme.buttonGradientTo ?? theme.secondaryColor})`
+      : (theme.buttonColor ?? accent)
+
   return {
     bg, text, textSecondary,
     accent,
     buttonText,
+    btnBg,
     grad: `linear-gradient(135deg, ${accent}, ${theme.secondaryColor})`,
     fontFamily,
     h1: fs.h1, h2: fs.h2, body: fs.body, sub: fs.sub,

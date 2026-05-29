@@ -49,7 +49,7 @@ export default function UrgencyOfferBlock({ block, theme }: Props) {
       {d.ctaText && (
         <button style={{
           width: '100%', padding: '14px 20px', borderRadius: rs.btnR,
-          background: rs.grad, color: rs.buttonText, border: 'none', cursor: 'pointer',
+          background: rs.btnBg, color: rs.buttonText, border: 'none', cursor: 'pointer',
           fontSize: rs.body + 2, fontWeight: 800, letterSpacing: '-0.01em',
           boxShadow: `0 10px 28px ${rs.accent}44`,
         }}>

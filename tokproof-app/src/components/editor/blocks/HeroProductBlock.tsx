@@ -7,18 +7,25 @@ export default function HeroProductBlock({ block, theme }: Props) {
   const d  = block.data as unknown as HeroProductData
   const rs = resolveBlockStyle(block, theme)
 
+  const mediaUrl = d.media?.url ?? d.imageUrl
+  const isVideo  = d.media?.type === 'video'
+
   return (
     <div style={{ background: rs.bg, padding: rs.pad, color: rs.text, fontFamily: rs.fontFamily }}>
-      {/* Image */}
+      {/* Media */}
       <div style={{
         width: '100%', aspectRatio: '16/9', borderRadius: rs.cardR, marginBottom: rs.gap + 4,
         background: rs.innerBg, border: rs.cardBorder,
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6,
         overflow: 'hidden',
       }}>
-        {d.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={d.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        {mediaUrl ? (
+          isVideo ? (
+            <video src={mediaUrl} muted playsInline controls style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={mediaUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          )
         ) : (
           <>
             <span style={{ fontSize: 28 }}>🖼️</span>
@@ -67,7 +74,7 @@ export default function HeroProductBlock({ block, theme }: Props) {
       )}
 
       {/* Quick CTA */}
-      <div style={{ marginTop: rs.gap + 8, padding: '11px 16px', borderRadius: rs.btnR, background: rs.grad, textAlign: 'center', fontSize: rs.body + 1, fontWeight: 700, color: rs.buttonText }}>
+      <div style={{ marginTop: rs.gap + 8, padding: '11px 16px', borderRadius: rs.btnR, background: rs.btnBg, textAlign: 'center', fontSize: rs.body + 1, fontWeight: 700, color: rs.buttonText }}>
         🛒 Ver producto oficial
       </div>
     </div>

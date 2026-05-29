@@ -30,6 +30,7 @@ const THEME_PRESETS: ThemePreset[] = [
     textColor: '#171717', secondaryTextColor: '#6B7280',
     cardBackgroundColor: '#FFFFFF', elementBackgroundColor: '#FCE7F3',
     borderColor: '#F9A8D4', buttonTextColor: '#FFFFFF',
+    buttonStyle: 'gradient', buttonGradientFrom: '#FF4FB8', buttonGradientTo: '#A855F7',
     fontFamily: 'Nunito Sans', radius: 'soft',
   },
   {
@@ -40,6 +41,7 @@ const THEME_PRESETS: ThemePreset[] = [
     textColor: '#FFFFFF', secondaryTextColor: '#A1A1AA',
     cardBackgroundColor: '#18181B', elementBackgroundColor: '#27272A',
     borderColor: '#3F3F46', buttonTextColor: '#FFFFFF',
+    buttonStyle: 'gradient', buttonGradientFrom: '#8B5CF6', buttonGradientTo: '#EC4899',
     fontFamily: 'Inter', radius: 'square',
   },
   {
@@ -50,6 +52,7 @@ const THEME_PRESETS: ThemePreset[] = [
     textColor: '#3B2600', secondaryTextColor: '#856321',
     cardBackgroundColor: '#FEF3C7', elementBackgroundColor: '#FCD34D',
     borderColor: '#F59E0B', buttonTextColor: '#3B2600',
+    buttonStyle: 'solid', buttonColor: '#F59E0B',
     fontFamily: 'Poppins', radius: 'medium',
   },
   {
@@ -60,6 +63,7 @@ const THEME_PRESETS: ThemePreset[] = [
     textColor: '#0F172A', secondaryTextColor: '#64748B',
     cardBackgroundColor: '#FFFFFF', elementBackgroundColor: '#DBEAFE',
     borderColor: '#93C5FD', buttonTextColor: '#FFFFFF',
+    buttonStyle: 'solid', buttonColor: '#2563EB',
     fontFamily: 'Inter', radius: 'soft',
   },
   {
@@ -70,6 +74,7 @@ const THEME_PRESETS: ThemePreset[] = [
     textColor: '#052E16', secondaryTextColor: '#4B6356',
     cardBackgroundColor: '#FFFFFF', elementBackgroundColor: '#DCFCE7',
     borderColor: '#86EFAC', buttonTextColor: '#FFFFFF',
+    buttonStyle: 'solid', buttonColor: '#22C55E',
     fontFamily: 'Nunito Sans', radius: 'medium',
   },
   {
@@ -80,6 +85,7 @@ const THEME_PRESETS: ThemePreset[] = [
     textColor: '#431407', secondaryTextColor: '#9A6B55',
     cardBackgroundColor: '#FFFFFF', elementBackgroundColor: '#FFEDD5',
     borderColor: '#FDBA74', buttonTextColor: '#FFFFFF',
+    buttonStyle: 'solid', buttonColor: '#EA580C',
     fontFamily: 'Playfair Display', radius: 'soft',
   },
   {
@@ -90,6 +96,7 @@ const THEME_PRESETS: ThemePreset[] = [
     textColor: '#1E1B4B', secondaryTextColor: '#6D5C91',
     cardBackgroundColor: '#FFFFFF', elementBackgroundColor: '#EDE9FE',
     borderColor: '#C4B5FD', buttonTextColor: '#FFFFFF',
+    buttonStyle: 'gradient', buttonGradientFrom: '#8B5CF6', buttonGradientTo: '#EC4899',
     fontFamily: 'Manrope', radius: 'round',
   },
   {
@@ -100,6 +107,7 @@ const THEME_PRESETS: ThemePreset[] = [
     textColor: '#111827', secondaryTextColor: '#6B7280',
     cardBackgroundColor: '#FFFFFF', elementBackgroundColor: '#F3F4F6',
     borderColor: '#E5E7EB', buttonTextColor: '#FFFFFF',
+    buttonStyle: 'solid', buttonColor: '#111827',
     fontFamily: 'Inter', radius: 'soft',
   },
 ]
@@ -460,8 +468,45 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                       <ColorRow label="Texto secundario"  value={th.secondaryTextColor ?? '#9CA3AF'}         onChange={v => updateTheme({ secondaryTextColor: v })} />
                       <ColorRow label="Color cards"       value={th.cardBackgroundColor ?? '#FFFFFF'}        onChange={v => updateTheme({ cardBackgroundColor: v })} />
                       <ColorRow label="Color elementos"   value={th.elementBackgroundColor ?? '#F3F4F6'}     onChange={v => updateTheme({ elementBackgroundColor: v })} />
-                      <ColorRow label="Color botones"     value={th.accentColor ?? th.primaryColor}         onChange={v => updateTheme({ accentColor: v })} />
+                      <ColorRow label="Acento / CTA"      value={th.accentColor ?? th.primaryColor}         onChange={v => updateTheme({ accentColor: v })} />
                     </section>
+
+                    {/* ── Botones ── */}
+                    {(() => {
+                      const effectiveBtnStyle = th.buttonStyle ?? (bgMode === 'gradient' ? 'gradient' : 'solid')
+                      const btnPreviewBg = effectiveBtnStyle === 'gradient'
+                        ? `linear-gradient(135deg, ${th.buttonGradientFrom ?? th.accentColor ?? th.primaryColor}, ${th.buttonGradientTo ?? th.secondaryColor})`
+                        : (th.buttonColor ?? th.accentColor ?? th.primaryColor)
+                      const btnR = th.radius === 'round' ? 999 : th.radius === 'medium' ? 24 : th.radius === 'square' ? 2 : 14
+                      return (
+                        <section style={{ marginBottom: 20 }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Botones</div>
+                          <div style={{ display: 'flex', background: T.softPurple, borderRadius: 999, padding: 3, gap: 2, marginBottom: 12 }}>
+                            {([{ key: 'solid', label: 'Sólido' }, { key: 'gradient', label: 'Degradado' }] as const).map(m => {
+                              const active = effectiveBtnStyle === m.key
+                              return (
+                                <button key={m.key} onClick={() => updateTheme({ buttonStyle: m.key })}
+                                  style={{ flex: 1, padding: '5px 0', borderRadius: 999, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 500, background: active ? 'white' : 'transparent', color: active ? T.ink : T.ink2, boxShadow: active ? '0 2px 8px rgba(0,0,0,.08)' : 'none', transition: 'all .15s' }}>
+                                  {m.label}
+                                </button>
+                              )
+                            })}
+                          </div>
+                          {effectiveBtnStyle === 'gradient' ? (
+                            <>
+                              <ColorRow label="Color inicio botón" value={th.buttonGradientFrom ?? th.accentColor ?? th.primaryColor} onChange={v => updateTheme({ buttonGradientFrom: v })} />
+                              <ColorRow label="Color fin botón"    value={th.buttonGradientTo   ?? th.secondaryColor}                  onChange={v => updateTheme({ buttonGradientTo: v })} />
+                            </>
+                          ) : (
+                            <ColorRow label="Color del botón"     value={th.buttonColor ?? th.accentColor ?? th.primaryColor}         onChange={v => updateTheme({ buttonColor: v })} />
+                          )}
+                          <ColorRow label="Texto del botón"       value={th.buttonTextColor ?? '#FFFFFF'}                             onChange={v => updateTheme({ buttonTextColor: v })} />
+                          <div style={{ marginTop: 10, padding: '10px 16px', borderRadius: btnR, background: btnPreviewBg, color: th.buttonTextColor ?? '#FFFFFF', textAlign: 'center', fontSize: 12, fontWeight: 700 }}>
+                            Vista previa del botón
+                          </div>
+                        </section>
+                      )
+                    })()}
 
                     {/* ── Typography ── */}
                     <section style={{ marginBottom: 20 }}>

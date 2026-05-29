@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import type {
   LandingBlock, LandingTheme, BlockStyle,
-  HeroProductData, BenefitsData, BenefitItem,
+  HeroProductData, HeroMedia, BenefitsData, BenefitItem,
   LinkListData, LinkItem,
   FAQData, FaqItem,
   CTAData,
@@ -390,13 +390,120 @@ function BlockEditor({ block, onUpdate }: {
 // ─── Hero editor ──────────────────────────────────────────────────────────────
 function HeroEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Partial<LandingBlock['data']>) => void }) {
   const d = block.data as unknown as HeroProductData
+  const [mediaTab, setMediaTab] = useState<'extract' | 'image' | 'video' | 'url'>('extract')
+  const [extractUrl, setExtractUrl] = useState('')
+  const [extracting, setExtracting] = useState(false)
+  const [extractError, setExtractError] = useState<string | null>(null)
+
+  async function handleExtract() {
+    if (!extractUrl) return
+    setExtracting(true); setExtractError(null)
+    try {
+      const res  = await fetch('/api/extract-product-media', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: extractUrl }) })
+      const data = await res.json()
+      if (data.imageUrl) {
+        onUpdate({ media: { type: 'image', url: data.imageUrl, source: 'extracted' } as HeroMedia, imageUrl: data.imageUrl })
+      } else {
+        setExtractError(data.error ?? 'No se encontró imagen')
+      }
+    } catch { setExtractError('Error de conexión') }
+    finally { setExtracting(false) }
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') {
+    const file = e.target.files?.[0]
+    if (!file) return
+    let url: string | null = null
+    try {
+      const { createClient } = await import('@/lib/supabase/client')
+      const sb   = createClient()
+      const path = `hero-media/${Date.now()}_${file.name.replace(/\s+/g, '_')}`
+      const { error } = await sb.storage.from('uploads').upload(path, file)
+      if (!error) url = sb.storage.from('uploads').getPublicUrl(path).data.publicUrl
+    } catch { /* fallback below */ }
+    const finalUrl = url ?? URL.createObjectURL(file)
+    onUpdate({ media: { type, url: finalUrl, source: 'upload' } as HeroMedia, ...(type === 'image' ? { imageUrl: finalUrl } : {}) })
+  }
+
+  const currentMedia = d.media?.url ?? d.imageUrl
+
   return (
     <>
       <FG><FL>Headline principal</FL><FI value={d.headline} onChange={e => onUpdate({ headline: e.target.value })} /></FG>
       <FG><FL>Subheadline</FL><FI value={d.subheadline} onChange={e => onUpdate({ subheadline: e.target.value })} /></FG>
       <FG><FL>Descripción</FL><FTA value={d.description} onChange={e => onUpdate({ description: e.target.value })} /></FG>
-      <FG><FL>URL de imagen</FL><FI type="url" value={d.imageUrl} placeholder="https://..." onChange={e => onUpdate({ imageUrl: e.target.value })} /></FG>
-      <div style={{ display: 'flex', gap: 8 }}>
+
+      {/* ── Media section ── */}
+      <div style={{ marginTop: 4, paddingTop: 12, borderTop: `1px solid ${T.border}` }}>
+        <FL>Imagen o vídeo principal</FL>
+
+        {/* Current preview */}
+        {currentMedia && (
+          <div style={{ marginBottom: 8, borderRadius: 8, overflow: 'hidden', border: `1px solid ${T.border2}` }}>
+            {d.media?.type === 'video'
+              ? <video src={currentMedia} controls muted playsInline style={{ width: '100%', maxHeight: 110, display: 'block' }} />
+              // eslint-disable-next-line @next/next/no-img-element
+              : <img src={currentMedia} alt="" style={{ width: '100%', maxHeight: 110, objectFit: 'cover', display: 'block' }} />
+            }
+          </div>
+        )}
+
+        {/* Mode tabs */}
+        <div style={{ display: 'flex', gap: 2, background: T.bg, borderRadius: 8, padding: 3, marginBottom: 10, border: `1px solid ${T.border}` }}>
+          {([
+            { key: 'extract', label: 'Extraer' },
+            { key: 'image',   label: 'Imagen'  },
+            { key: 'video',   label: 'Vídeo'   },
+            { key: 'url',     label: 'URL'      },
+          ] as const).map(tab => (
+            <button key={tab.key} onClick={() => setMediaTab(tab.key)} style={{
+              flex: 1, padding: '4px 0', borderRadius: 6, border: 'none', fontSize: 10.5, fontWeight: 600, cursor: 'pointer',
+              background: mediaTab === tab.key ? T.card : 'transparent',
+              color: mediaTab === tab.key ? T.pink : T.ink3,
+              boxShadow: mediaTab === tab.key ? '0 1px 4px rgba(0,0,0,.08)' : 'none',
+            }}>{tab.label}</button>
+          ))}
+        </div>
+
+        {mediaTab === 'extract' && (
+          <div>
+            <FI value={extractUrl} onChange={e => setExtractUrl(e.target.value)} placeholder="https://tuproducto.com/..." style={{ marginBottom: 6 }} />
+            {extractError && <div style={{ fontSize: 11, color: T.red, marginBottom: 6 }}>{extractError}</div>}
+            <button onClick={handleExtract} disabled={extracting || !extractUrl} style={{ width: '100%', padding: '7px 0', borderRadius: 8, border: 'none', background: T.purple, color: '#fff', fontSize: 12, fontWeight: 600, cursor: extracting || !extractUrl ? 'not-allowed' : 'pointer', opacity: extracting || !extractUrl ? 0.55 : 1 }}>
+              {extracting ? 'Extrayendo...' : 'Extraer imagen'}
+            </button>
+          </div>
+        )}
+
+        {mediaTab === 'image' && (
+          <label style={{ display: 'block', padding: '10px', borderRadius: 8, border: `1.5px dashed ${T.border2}`, textAlign: 'center', cursor: 'pointer', fontSize: 11.5, color: T.ink2 }}>
+            📷 Seleccionar imagen
+            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleFileUpload(e, 'image')} />
+          </label>
+        )}
+
+        {mediaTab === 'video' && (
+          <label style={{ display: 'block', padding: '10px', borderRadius: 8, border: `1.5px dashed ${T.border2}`, textAlign: 'center', cursor: 'pointer', fontSize: 11.5, color: T.ink2 }}>
+            🎬 Seleccionar vídeo
+            <input type="file" accept="video/*" style={{ display: 'none' }} onChange={e => handleFileUpload(e, 'video')} />
+          </label>
+        )}
+
+        {mediaTab === 'url' && (
+          <FI type="url" value={d.media?.url ?? d.imageUrl ?? ''} placeholder="https://..." onChange={e => {
+            const url = e.target.value
+            onUpdate({ media: { type: 'image', url, source: 'url' } as HeroMedia, imageUrl: url })
+          }} />
+        )}
+
+        {currentMedia && (
+          <button onClick={() => onUpdate({ media: undefined, imageUrl: '' })} style={{ marginTop: 8, width: '100%', padding: '5px 0', borderRadius: 6, border: `1px solid ${T.redBorder}`, background: T.redBg, color: T.red, fontSize: 11, cursor: 'pointer' }}>
+            Eliminar media
+          </button>
+        )}
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
         <FG style={{ flex: 1, marginBottom: 0 }}><FL>Badge</FL><FI value={d.badgeText} onChange={e => onUpdate({ badgeText: e.target.value })} /></FG>
         <FG style={{ flex: 1, marginBottom: 0 }}><FL>Rating</FL><FI value={d.rating} onChange={e => onUpdate({ rating: e.target.value })} /></FG>
       </div>

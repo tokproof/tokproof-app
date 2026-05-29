@@ -46,6 +46,13 @@ export interface LandingBlock {
   style?: BlockStyle
 }
 
+// ─── Media attachment ─────────────────────────────────────────────────────────
+export interface HeroMedia {
+  type: 'image' | 'video'
+  url: string
+  source: 'url' | 'upload' | 'extracted'
+}
+
 // ─── Per-block data shapes ────────────────────────────────────────────────────
 export interface HeroProductData {
   headline: string
@@ -56,6 +63,7 @@ export interface HeroProductData {
   showBadge: boolean
   showRating: boolean
   rating: string
+  media?: HeroMedia
 }
 
 export interface BenefitItem {
@@ -206,6 +214,11 @@ export interface LandingTheme {
   elementBackgroundColor?: string
   borderColor?: string
   buttonTextColor?: string
+  // Button system
+  buttonStyle?: 'solid' | 'gradient'
+  buttonColor?: string
+  buttonGradientFrom?: string
+  buttonGradientTo?: string
   // Legacy — kept for backward compat, prefer flat fields above
   background?: ThemeBackground
 }
