@@ -53,8 +53,11 @@
   color-scheme: light;
 }
 
-/* ─── Sidebar width token ─────────────────────── */
-:root { --sidebar-w: 224px; }
+/* ─── Sidebar width tokens ───────────────────── */
+:root {
+  --sidebar-w: 224px;
+  --sidebar-w-collapsed: 72px;
+}
 
 /* ─── APP SHELL ───────────────────────────────── */
 .app-shell {
@@ -77,6 +80,10 @@
   box-shadow: var(--shadow-sidebar);
   overflow-y: auto;
   overflow-x: hidden;
+  transition: width .28s cubic-bezier(.4,0,.2,1);
+}
+.nav-sidebar.collapsed {
+  width: var(--sidebar-w-collapsed);
 }
 
 /* Logo row */
@@ -233,6 +240,85 @@
   flex-shrink: 0;
 }
 
+/* ─── Collapsible sidebar ─────────────────────────────────────────────────── */
+
+/* Logo row — wraps the logo link and the collapse toggle button */
+.nav-logo-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.nav-logo-row .nav-logo {
+  flex: 1;
+  border-bottom: none; /* border lives on the row */
+  min-width: 0;
+}
+.nav-sidebar.collapsed .nav-logo-row {
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px 0 6px;
+  gap: 4px;
+}
+.nav-sidebar.collapsed .nav-logo-row .nav-logo {
+  flex: none;
+  padding: 0;
+  justify-content: center;
+}
+
+/* Collapse toggle button */
+.nav-collapse-btn {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+  border-radius: 7px;
+  margin-right: 10px;
+  transition: background var(--t), color var(--t);
+}
+.nav-collapse-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+.nav-sidebar.collapsed .nav-collapse-btn {
+  margin-right: 0;
+  width: 32px; height: 28px;
+}
+
+/* Nav item in collapsed (icon-only) mode */
+.nav-item.nav-item-icon-only {
+  justify-content: center;
+  padding: 10px 0;
+  margin: 1px 4px;
+  width: calc(100% - 8px);
+  gap: 0;
+}
+
+/* Compact user footer */
+.nav-footer-compact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: default;
+}
+.nav-upgrade-icon {
+  width: 30px; height: 30px;
+  border-radius: 9px;
+  background: var(--grad);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  text-decoration: none;
+  transition: opacity var(--t), transform var(--t);
+}
+.nav-upgrade-icon:hover {
+  opacity: .85;
+  transform: translateY(-1px);
+}
+
 /* App body (right of sidebar) */
 .app-body {
   flex: 1;
@@ -242,6 +328,10 @@
   background: var(--bg);
   display: flex;
   flex-direction: column;
+  transition: margin-left .28s cubic-bezier(.4,0,.2,1);
+}
+.app-body.sidebar-collapsed {
+  margin-left: var(--sidebar-w-collapsed);
 }
 
 /* ─── RESET ───────────────────────────────────── */

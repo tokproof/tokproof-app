@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Home, BarChart3, ShieldCheck, LayoutGrid,
   CreditCard, Settings, HelpCircle, LogOut, ArrowRight, Crown,
+  PanelLeftClose, PanelLeft,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/types'
@@ -28,9 +29,30 @@ interface AppShellProps {
   profile: Profile | null
 }
 
+interface Tooltip {
+  label: string
+  y: number
+}
+
 export default function AppShell({ children, profile }: AppShellProps) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
+  const [tooltip, setTooltip] = useState<Tooltip | null>(null)
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('nav-collapsed')
+      if (saved === 'true') setCollapsed(true)
+    } catch { /* localStorage unavailable */ }
+  }, [])
+
+  function toggleCollapsed() {
+    const next = !collapsed
+    setCollapsed(next)
+    setTooltip(null)
+    try { localStorage.setItem('nav-collapsed', String(next)) } catch { /* ignore */ }
+  }
 
   const initials = (profile?.display_name ?? profile?.email ?? 'U').charAt(0).toUpperCase()
   const isFree = profile?.plan === 'free'
@@ -45,19 +67,52 @@ export default function AppShell({ children, profile }: AppShellProps) {
     return exact ? pathname === href : pathname.startsWith(href)
   }
 
+  function onNavEnter(e: React.MouseEvent<HTMLElement>, label: string) {
+    if (!collapsed) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    setTooltip({ label, y: rect.top + rect.height / 2 })
+  }
+
+  function onNavLeave() {
+    setTooltip(null)
+  }
+
+  const sidebarClass = [
+    'nav-sidebar',
+    mobileOpen ? 'open' : '',
+    collapsed ? 'collapsed' : '',
+  ].filter(Boolean).join(' ')
+
   return (
     <div className="app-shell">
 
-      {/* ── Sidebar ── */}
-      <nav className={`nav-sidebar${mobileOpen ? ' open' : ''}`}>
+      {/* ── Sidebar ─────────────────────────────────────────────────────── */}
+      <nav className={sidebarClass}>
 
-        {/* Brand */}
-        <Link href="/dashboard" className="nav-logo" onClick={() => setMobileOpen(false)}>
-          <div className="nav-logo-mark">
-            <ShieldCheck size={18} color="white" strokeWidth={2} />
-          </div>
-          <span>Tokproof</span>
-        </Link>
+        {/* Logo row + collapse toggle */}
+        <div className="nav-logo-row">
+          <Link
+            href="/dashboard"
+            className="nav-logo"
+            onClick={() => setMobileOpen(false)}
+          >
+            <div className="nav-logo-mark">
+              <ShieldCheck size={18} color="white" strokeWidth={2} />
+            </div>
+            {!collapsed && <span>Tokproof</span>}
+          </Link>
+
+          <button
+            className="nav-collapse-btn"
+            onClick={toggleCollapsed}
+            title={collapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
+          >
+            {collapsed
+              ? <PanelLeft size={15} />
+              : <PanelLeftClose size={15} />
+            }
+          </button>
+        </div>
 
         {/* Main nav */}
         <div className="nav-section">
@@ -66,72 +121,137 @@ export default function AppShell({ children, profile }: AppShellProps) {
               key={href}
               href={href}
               onClick={() => setMobileOpen(false)}
-              className={`nav-item${isActive(href, exact) ? ' active' : ''}`}
+              className={[
+                'nav-item',
+                isActive(href, exact) ? 'active' : '',
+                collapsed ? 'nav-item-icon-only' : '',
+              ].filter(Boolean).join(' ')}
+              onMouseEnter={e => onNavEnter(e, label)}
+              onMouseLeave={onNavLeave}
             >
               <span className="nav-item-ico"><Icon size={20} strokeWidth={1.8} /></span>
-              <span>{label}</span>
-              {pro && <span className="nav-item-badge">PRO</span>}
+              {!collapsed && <span>{label}</span>}
+              {!collapsed && pro && <span className="nav-item-badge">PRO</span>}
             </Link>
           ))}
         </div>
 
         {/* Account nav */}
         <div className="nav-section">
-          <div className="nav-section-label">Cuenta</div>
+          {!collapsed && <div className="nav-section-label">Cuenta</div>}
           {NAV_ACCOUNT.map(({ href, label, Icon, exact, showBadge }) => (
             <Link
               key={href}
               href={href}
               onClick={() => setMobileOpen(false)}
-              className={`nav-item${isActive(href, exact) ? ' active' : ''}`}
+              className={[
+                'nav-item',
+                isActive(href, exact) ? 'active' : '',
+                collapsed ? 'nav-item-icon-only' : '',
+              ].filter(Boolean).join(' ')}
+              onMouseEnter={e => onNavEnter(e, label)}
+              onMouseLeave={onNavLeave}
             >
               <span className="nav-item-ico"><Icon size={20} strokeWidth={1.8} /></span>
-              <span>{label}</span>
-              {showBadge && (
-                <span className="nav-item-badge" style={!isFree ? { background: 'linear-gradient(135deg,#F647A9,#7B61FF)', color: 'white' } : {}}>
+              {!collapsed && <span>{label}</span>}
+              {!collapsed && showBadge && (
+                <span
+                  className="nav-item-badge"
+                  style={!isFree ? { background: 'linear-gradient(135deg,#F647A9,#7B61FF)', color: 'white' } : {}}
+                >
                   {isFree ? 'Free' : 'Pro'}
                 </span>
               )}
             </Link>
           ))}
-          <button className="nav-item nav-item-logout" onClick={handleLogout}>
+          <button
+            className={['nav-item', 'nav-item-logout', collapsed ? 'nav-item-icon-only' : ''].filter(Boolean).join(' ')}
+            onClick={handleLogout}
+            onMouseEnter={e => onNavEnter(e, 'Cerrar sesión')}
+            onMouseLeave={onNavLeave}
+          >
             <span className="nav-item-ico"><LogOut size={20} strokeWidth={1.8} /></span>
-            <span>Cerrar sesión</span>
+            {!collapsed && <span>Cerrar sesión</span>}
           </button>
         </div>
 
-        {/* Profile card */}
+        {/* Footer */}
         <div className="nav-footer">
-          <div className="nav-footer-card">
-            <div className="nav-user">
-              <div className="nav-user-av">{initials}</div>
-              <div className="nav-user-info" style={{ flex: 1 }}>
-                <div className="nav-user-name">{profile?.display_name ?? profile?.email ?? 'Usuario'}</div>
-                <div className="nav-user-plan">{isFree ? 'Plan Free' : 'Plan Pro'}</div>
+          {collapsed ? (
+            <div className="nav-footer-compact">
+              <div
+                className="nav-user-av"
+                onMouseEnter={e => onNavEnter(e, profile?.display_name ?? profile?.email ?? 'Usuario')}
+                onMouseLeave={onNavLeave}
+              >
+                {initials}
               </div>
-              <div style={{
-                width: 22, height: 22, borderRadius: 7,
-                background: 'rgba(255,255,255,.22)',
-                display: 'grid', placeItems: 'center',
-                flexShrink: 0,
-              }}>
-                <Crown size={12} color="white" />
-              </div>
+              {isFree && (
+                <Link
+                  href="/dashboard/billing"
+                  className="nav-upgrade-icon"
+                  title="Upgrade to Pro"
+                >
+                  <Crown size={13} />
+                </Link>
+              )}
             </div>
-            {isFree ? (
-              <Link href="/dashboard/billing" className="nav-upgrade-btn">
-                Upgrade to Pro
-                <ArrowRight size={14} />
-              </Link>
-            ) : (
-              <Link href="/dashboard/settings" className="nav-profile-link">
-                Ver mi perfil
-                <ArrowRight size={14} />
-              </Link>
-            )}
-          </div>
+          ) : (
+            <div className="nav-footer-card">
+              <div className="nav-user">
+                <div className="nav-user-av">{initials}</div>
+                <div className="nav-user-info" style={{ flex: 1 }}>
+                  <div className="nav-user-name">{profile?.display_name ?? profile?.email ?? 'Usuario'}</div>
+                  <div className="nav-user-plan">{isFree ? 'Plan Free' : 'Plan Pro'}</div>
+                </div>
+                <div style={{
+                  width: 22, height: 22, borderRadius: 7,
+                  background: 'rgba(255,255,255,.22)',
+                  display: 'grid', placeItems: 'center',
+                  flexShrink: 0,
+                }}>
+                  <Crown size={12} color="white" />
+                </div>
+              </div>
+              {isFree ? (
+                <Link href="/dashboard/billing" className="nav-upgrade-btn">
+                  Upgrade to Pro
+                  <ArrowRight size={14} />
+                </Link>
+              ) : (
+                <Link href="/dashboard/settings" className="nav-profile-link">
+                  Ver mi perfil
+                  <ArrowRight size={14} />
+                </Link>
+              )}
+            </div>
+          )}
         </div>
       </nav>
+
+      {/* Tooltip — rendered outside sidebar so it's never clipped */}
+      {collapsed && tooltip && (
+        <div
+          style={{
+            position: 'fixed',
+            left: 82,
+            top: tooltip.y,
+            transform: 'translateY(-50%)',
+            background: '#171717',
+            color: '#fff',
+            padding: '5px 11px',
+            borderRadius: 8,
+            fontSize: 13,
+            fontWeight: 600,
+            zIndex: 9999,
+            pointerEvents: 'none',
+            boxShadow: '0 4px 16px rgba(0,0,0,.22)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {tooltip.label}
+        </div>
+      )}
 
       {/* Mobile overlay */}
       {mobileOpen && (
@@ -141,8 +261,8 @@ export default function AppShell({ children, profile }: AppShellProps) {
         />
       )}
 
-      {/* ── App body ── */}
-      <div className="app-body">
+      {/* ── App body ─────────────────────────────────────────────────────── */}
+      <div className={`app-body${collapsed ? ' sidebar-collapsed' : ''}`}>
         <div className="app-topbar" style={{ display: 'none' }} id="mobile-topbar">
           <button className="nav-mobile-toggle" onClick={() => setMobileOpen(v => !v)}>☰</button>
           <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 900, fontSize: 15, color: 'var(--text)' }}>
