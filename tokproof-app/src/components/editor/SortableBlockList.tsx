@@ -244,14 +244,47 @@ function ColRow({ label, value, overridden, onChange, onReset }: {
 }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-      <input type="color" value={value} onChange={e => onChange(e.target.value)}
+      <input type="color" value={value.startsWith('#') ? value : '#1F1F22'} onChange={e => onChange(e.target.value)}
         style={{ width: 26, height: 26, border: 'none', borderRadius: 6, cursor: 'pointer', padding: 2, background: 'none', flexShrink: 0 }} />
       <span style={{ flex: 1, fontSize: 11.5, fontWeight: 500, color: T.ink2 }}>{label}</span>
-      <span style={{ fontSize: 10, fontWeight: 600, color: T.ink3, fontFamily: 'monospace' }}>{value.toUpperCase()}</span>
+      <span style={{ fontSize: 10, fontWeight: 600, color: T.ink3, fontFamily: 'monospace', maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis' }}>{value.toUpperCase()}</span>
       {overridden && (
         <button onClick={onReset} title="Usar tema" style={{ width: 18, height: 18, borderRadius: 4, border: 'none', background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}>
           <RotateCcw size={10} />
         </button>
+      )}
+    </div>
+  )
+}
+
+// ─── Toggle section ───────────────────────────────────────────────────────────
+function ToggleSection({ label, enabled, onToggle, pro, children }: {
+  label: string; enabled: boolean; onToggle: (v: boolean) => void
+  pro?: boolean; children: React.ReactNode
+}) {
+  return (
+    <div style={{ marginBottom: 10, border: `1px solid ${enabled ? 'rgba(246,71,169,0.25)' : T.border2}`, borderRadius: 10, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: enabled ? '#FFF5FB' : T.card }}>
+        <button
+          onClick={() => onToggle(!enabled)}
+          style={{
+            width: 34, height: 18, borderRadius: 999, border: 'none', cursor: 'pointer', flexShrink: 0, padding: 2,
+            background: enabled ? T.pink : '#D1D5DB',
+            display: 'flex', alignItems: 'center', justifyContent: enabled ? 'flex-end' : 'flex-start',
+            transition: 'background .15s',
+          }}
+        >
+          <div style={{ width: 14, height: 14, borderRadius: 999, background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.2)' }} />
+        </button>
+        <span style={{ flex: 1, fontSize: 11.5, fontWeight: 600, color: enabled ? T.ink : T.ink2 }}>{label}</span>
+        {pro && (
+          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 999, background: 'linear-gradient(135deg,#FFD700,#FF8C00)', color: '#fff', letterSpacing: '.03em' }}>PRO</span>
+        )}
+      </div>
+      {enabled && (
+        <div style={{ padding: '10px 10px 12px', borderTop: `1px solid ${T.border}` }}>
+          {children}
+        </div>
       )}
     </div>
   )
@@ -262,41 +295,69 @@ function DesignEditor({ block, theme, onUpdateStyle }: {
   block: LandingBlock; theme: LandingTheme; onUpdateStyle: (patch: Partial<BlockStyle>) => void
 }) {
   const s = block.style ?? {}
-  const sec = (text: string) => (
-    <div style={{ fontSize: 10, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8, marginTop: 14 }}>{text}</div>
+
+  const hasColorOverrides = !!(s.backgroundColor || s.textColor || s.accentColor || s.elementBackgroundColor || s.borderColor)
+  const hasFontOverrides  = !!(s.fontFamily || s.fontSize)
+  const hasBorderOverrides = !!(s.borderRadius || s.spacing)
+
+  const colorsOn = s.customColorsEnabled ?? hasColorOverrides
+  const fontOn   = s.customFontEnabled   ?? hasFontOverrides
+  const borderOn = s.customBorderEnabled ?? hasBorderOverrides
+
+  const sub = (text: string) => (
+    <div style={{ fontSize: 10, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6, marginTop: 10 }}>{text}</div>
   )
+
   return (
     <div>
-      {sec('Colores')}
-      <ColRow label="Fondo" value={s.backgroundColor ?? theme.backgroundColor} overridden={!!s.backgroundColor} onChange={v => onUpdateStyle({ backgroundColor: v })} onReset={() => onUpdateStyle({ backgroundColor: undefined })} />
-      <ColRow label="Texto" value={s.textColor ?? theme.textColor} overridden={!!s.textColor} onChange={v => onUpdateStyle({ textColor: v })} onReset={() => onUpdateStyle({ textColor: undefined })} />
-      <ColRow label="Acento / botón" value={s.accentColor ?? theme.primaryColor} overridden={!!s.accentColor} onChange={v => onUpdateStyle({ accentColor: v })} onReset={() => onUpdateStyle({ accentColor: undefined })} />
+      {/* Colors section */}
+      <ToggleSection label="Personalizar colores" enabled={colorsOn} onToggle={v => onUpdateStyle({ customColorsEnabled: v })} pro>
+        <ColRow label="Fondo del bloque"  value={s.backgroundColor ?? theme.backgroundColor} overridden={!!s.backgroundColor}  onChange={v => onUpdateStyle({ backgroundColor: v })}  onReset={() => onUpdateStyle({ backgroundColor: undefined })} />
+        <ColRow label="Texto"             value={s.textColor ?? theme.textColor}              overridden={!!s.textColor}         onChange={v => onUpdateStyle({ textColor: v })}         onReset={() => onUpdateStyle({ textColor: undefined })} />
+        <ColRow label="Acento / botón"    value={s.accentColor ?? theme.primaryColor}         overridden={!!s.accentColor}       onChange={v => onUpdateStyle({ accentColor: v })}       onReset={() => onUpdateStyle({ accentColor: undefined })} />
+        <ColRow label="Fondo elementos"   value={s.elementBackgroundColor ?? '#1F1F22'}        overridden={!!s.elementBackgroundColor} onChange={v => onUpdateStyle({ elementBackgroundColor: v })} onReset={() => onUpdateStyle({ elementBackgroundColor: undefined })} />
+        <ColRow label="Borde elementos"   value={s.borderColor ?? '#2A2A2E'}                  overridden={!!s.borderColor}       onChange={v => onUpdateStyle({ borderColor: v })}       onReset={() => onUpdateStyle({ borderColor: undefined })} />
+        {sub('Efecto cristal')}
+        <PillGroup
+          options={[{ key: 'none', label: 'Ninguno' }, { key: 'soft', label: 'Suave' }, { key: 'medium', label: 'Medio' }, { key: 'strong', label: 'Fuerte' }]}
+          value={s.glassIntensity}
+          onChange={v => onUpdateStyle({ glassIntensity: v as BlockStyle['glassIntensity'] })}
+        />
+      </ToggleSection>
 
-      {sec('Tipografía')}
-      <FG mb={0}>
-        <div style={{ display: 'flex', gap: 6 }}>
-          <FSel value={s.fontFamily ?? theme.fontFamily} onChange={e => onUpdateStyle({ fontFamily: e.target.value })} style={{ flex: 1 }}>
-            {FONT_OPTIONS.map(f => <option key={f}>{f}</option>)}
-          </FSel>
-          {s.fontFamily && <button onClick={() => onUpdateStyle({ fontFamily: undefined })} style={{ width: 26, height: 26, borderRadius: 6, border: `1px solid ${T.border2}`, background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3, flexShrink: 0 }}><RotateCcw size={11} /></button>}
-        </div>
-      </FG>
+      {/* Typography section */}
+      <ToggleSection label="Personalizar tipografía" enabled={fontOn} onToggle={v => onUpdateStyle({ customFontEnabled: v })} pro>
+        <FG mb={8}>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <FSel value={s.fontFamily ?? theme.fontFamily} onChange={e => onUpdateStyle({ fontFamily: e.target.value })} style={{ flex: 1 }}>
+              {FONT_OPTIONS.map(f => <option key={f}>{f}</option>)}
+            </FSel>
+            {s.fontFamily && <button onClick={() => onUpdateStyle({ fontFamily: undefined })} style={{ width: 26, height: 26, borderRadius: 6, border: `1px solid ${T.border2}`, background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3, flexShrink: 0 }}><RotateCcw size={11} /></button>}
+          </div>
+        </FG>
+        {sub('Tamaño')}
+        <PillGroup options={[{ key: 'small', label: 'Pequeño' }, { key: 'medium', label: 'Medio' }, { key: 'large', label: 'Grande' }]} value={s.fontSize} onChange={v => onUpdateStyle({ fontSize: v })} />
+        {sub('Alineación')}
+        <PillGroup options={[{ key: 'left', label: 'Izquierda' }, { key: 'center', label: 'Centro' }]} value={s.textAlign} onChange={v => onUpdateStyle({ textAlign: v })} />
+      </ToggleSection>
 
-      {sec('Tamaño de texto')}
-      <PillGroup options={[{ key: 'small', label: 'Pequeño' }, { key: 'medium', label: 'Medio' }, { key: 'large', label: 'Grande' }]} value={s.fontSize} onChange={v => onUpdateStyle({ fontSize: v })} />
-
-      {sec('Alineación')}
-      <PillGroup options={[{ key: 'left', label: 'Izquierda' }, { key: 'center', label: 'Centro' }]} value={s.textAlign} onChange={v => onUpdateStyle({ textAlign: v })} />
-
-      {sec('Bordes')}
-      <PillGroup options={[{ key: 'square', label: 'Cuadrado' }, { key: 'soft', label: 'Suave' }, { key: 'medium', label: 'Medio' }, { key: 'round', label: 'Redondo' }]} value={s.borderRadius} onChange={v => onUpdateStyle({ borderRadius: v })} />
-
-      {sec('Espaciado')}
-      <PillGroup options={[{ key: 'compact', label: 'Compacto' }, { key: 'normal', label: 'Normal' }, { key: 'airy', label: 'Amplio' }]} value={s.spacing} onChange={v => onUpdateStyle({ spacing: v })} />
+      {/* Border & spacing section */}
+      <ToggleSection label="Bordes y espaciado" enabled={borderOn} onToggle={v => onUpdateStyle({ customBorderEnabled: v })} pro>
+        {sub('Bordes')}
+        <PillGroup options={[{ key: 'square', label: 'Cuadrado' }, { key: 'soft', label: 'Suave' }, { key: 'medium', label: 'Medio' }, { key: 'round', label: 'Redondo' }]} value={s.borderRadius} onChange={v => onUpdateStyle({ borderRadius: v })} />
+        {sub('Espaciado')}
+        <PillGroup options={[{ key: 'compact', label: 'Compacto' }, { key: 'normal', label: 'Normal' }, { key: 'airy', label: 'Amplio' }]} value={s.spacing} onChange={v => onUpdateStyle({ spacing: v })} />
+      </ToggleSection>
 
       {Object.keys(s).length > 0 && (
-        <button onClick={() => onUpdateStyle({ backgroundColor: undefined, textColor: undefined, accentColor: undefined, fontFamily: undefined, fontSize: undefined, textAlign: undefined, borderRadius: undefined, spacing: undefined })}
-          style={{ marginTop: 14, width: '100%', padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`, background: 'none', color: T.ink3, fontSize: 11, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+        <button onClick={() => onUpdateStyle({
+          customColorsEnabled: undefined, customFontEnabled: undefined, customBorderEnabled: undefined,
+          backgroundColor: undefined, textColor: undefined, accentColor: undefined,
+          elementBackgroundColor: undefined, borderColor: undefined, glassIntensity: undefined,
+          fontFamily: undefined, fontSize: undefined, textAlign: undefined,
+          borderRadius: undefined, spacing: undefined,
+        })}
+          style={{ marginTop: 4, width: '100%', padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`, background: 'none', color: T.ink3, fontSize: 11, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
           <RotateCcw size={11} />Restablecer al tema
         </button>
       )}

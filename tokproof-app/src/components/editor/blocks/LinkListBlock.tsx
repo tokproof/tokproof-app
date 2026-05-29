@@ -16,8 +16,9 @@ export default function LinkListBlock({ block, theme }: Props) {
         {(d.links ?? []).filter(l => l.visible !== false).map((link, i) => (
           <div key={link.id ?? i} style={{
             padding: '12px 16px', borderRadius: rs.btnR,
-            background: 'rgba(255,255,255,0.07)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: rs.elementBg,
+            border: rs.cardBorder,
+            backdropFilter: rs.glassFilter,
             fontSize: rs.body + 1, fontWeight: 600, color: rs.text,
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>

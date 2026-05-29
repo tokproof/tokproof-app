@@ -25,8 +25,9 @@ export default function ProductGridBlock({ block, theme }: Props) {
           {d.products.map(p => (
             <div key={p.id} style={{
               borderRadius: rs.cardR, overflow: 'hidden',
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: rs.elementBg,
+              border: rs.cardBorder,
+              backdropFilter: rs.glassFilter,
               display: 'flex', flexDirection: 'column',
             }}>
               {/* Image */}

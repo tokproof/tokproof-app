@@ -19,8 +19,9 @@ export default function FAQBlock({ block, theme }: Props) {
         {(d.items ?? []).map((item) => (
           <div key={item.id} style={{
             borderRadius: rs.cardR,
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.07)',
+            background: rs.elementBg,
+            border: rs.cardBorder,
+            backdropFilter: rs.glassFilter,
             overflow: 'hidden',
           }}>
             <button

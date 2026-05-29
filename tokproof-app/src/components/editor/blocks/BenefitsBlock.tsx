@@ -19,8 +19,9 @@ export default function BenefitsBlock({ block, theme }: Props) {
           <div key={i} style={{
             display: 'flex', alignItems: 'flex-start', gap: 12,
             padding: '12px 14px', borderRadius: rs.cardR,
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.06)',
+            background: rs.elementBg,
+            border: rs.cardBorder,
+            backdropFilter: rs.glassFilter,
           }}>
             <span style={{ fontSize: 22, flexShrink: 0, lineHeight: 1 }}>{item.icon}</span>
             <div>

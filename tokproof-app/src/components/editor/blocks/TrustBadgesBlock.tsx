@@ -30,8 +30,9 @@ export default function TrustBadgesBlock({ block, theme }: Props) {
             <div key={badge.id} style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
               padding: '12px 10px', borderRadius: rs.cardR,
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.07)',
+              background: rs.elementBg,
+              border: rs.cardBorder,
+              backdropFilter: rs.glassFilter,
               flex: '1 1 72px', textAlign: 'center', maxWidth: 100,
             }}>
               <span style={{ fontSize: 24, lineHeight: 1 }}>{BADGE_ICONS[badge.icon]}</span>

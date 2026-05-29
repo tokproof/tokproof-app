@@ -17,7 +17,7 @@ export default function ComparisonBlock({ block, theme }: Props) {
         <h2 style={{ fontSize: rs.h2, fontWeight: 800, color: rs.text, marginBottom: rs.gap + 4, textAlign: rs.align }}>{d.title}</h2>
       )}
 
-      <div style={{ borderRadius: rs.cardR, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+      <div style={{ borderRadius: rs.cardR, overflow: 'hidden', border: rs.cardBorder }}>
         {/* Header */}
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1.5fr', background: 'rgba(255,255,255,0.06)' }}>
           <div style={{ ...cellBase, textAlign: 'left' }} />

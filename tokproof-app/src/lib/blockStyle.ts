@@ -33,6 +33,20 @@ const SPACING: Record<string, { pad: string; gap: number }> = {
   airy:    { pad: '28px 22px', gap: 16 },
 }
 
+// ─── Glass / element-bg maps ──────────────────────────────────────────────────
+const GLASS_FILTER: Record<string, string> = {
+  soft:   'blur(4px)',
+  medium: 'blur(8px)',
+  strong: 'blur(16px)',
+}
+
+const ELEMENT_BG_MAP: Record<string, string> = {
+  none:   'rgba(255,255,255,0.05)',
+  soft:   'rgba(255,255,255,0.07)',
+  medium: 'rgba(255,255,255,0.12)',
+  strong: 'rgba(255,255,255,0.18)',
+}
+
 // ─── Resolved style ───────────────────────────────────────────────────────────
 export interface ResolvedStyle {
   bg:         string
@@ -46,33 +60,62 @@ export interface ResolvedStyle {
   btnR:       number
   pad:        string
   gap:        number
+  elementBg:   string
+  cardBorder:  string
+  glassFilter: string | undefined
 }
 
+// ─── Page background helper ───────────────────────────────────────────────────
+export function getPageBackground(theme: LandingTheme): string {
+  const bg = theme.background
+  if (!bg || bg.mode === 'solid') return theme.backgroundColor
+  const dir  = bg.gradientDirection ?? 'to bottom'
+  const from = bg.gradientFrom ?? theme.backgroundColor
+  const to   = bg.gradientTo   ?? theme.primaryColor
+  return `linear-gradient(${dir}, ${from}, ${to})`
+}
+
+// ─── Block style resolver ─────────────────────────────────────────────────────
 export function resolveBlockStyle(block: LandingBlock, theme: LandingTheme): ResolvedStyle {
   const s = block.style ?? {}
 
-  const radius = s.borderRadius ?? theme.radius ?? 'soft'
+  // Toggle gates: false = use global; undefined = backward compat (use value if set)
+  const useColors = s.customColorsEnabled !== false
+  const useFont   = s.customFontEnabled   !== false
+  const useBorder = s.customBorderEnabled !== false
+
+  const radius = (useBorder ? s.borderRadius : undefined) ?? theme.radius ?? 'soft'
   const r      = RADIUS[radius] ?? RADIUS.soft
 
-  const fs = FONT_SIZE[s.fontSize ?? 'medium']
-  const sp = SPACING[s.spacing ?? 'normal']
+  const fs = FONT_SIZE[(useFont ? s.fontSize : undefined) ?? 'medium']
+  const sp = SPACING[(useBorder ? s.spacing : undefined) ?? 'normal']
 
-  const accent     = s.accentColor ?? theme.primaryColor
-  const fontKey    = s.fontFamily ?? theme.fontFamily ?? 'Nunito Sans'
+  const accent     = (useColors ? s.accentColor : undefined) ?? theme.primaryColor
+  const fontKey    = (useFont ? s.fontFamily : undefined) ?? theme.fontFamily ?? 'Nunito Sans'
   const fontFamily = FONT_FAMILIES[fontKey] ?? fontKey
 
+  const glassKey   = s.glassIntensity ?? 'none'
+  const glassFilter = glassKey !== 'none' ? GLASS_FILTER[glassKey] : undefined
+
+  const elementBg = (useColors && s.elementBackgroundColor)
+    ? s.elementBackgroundColor
+    : ELEMENT_BG_MAP[glassKey] ?? 'rgba(255,255,255,0.05)'
+
+  const cardBorder = (useColors && s.borderColor)
+    ? `1px solid ${s.borderColor}`
+    : '1px solid rgba(255,255,255,0.08)'
+
   return {
-    bg:         s.backgroundColor ?? theme.backgroundColor,
-    text:       s.textColor       ?? theme.textColor,
+    bg:     (useColors ? s.backgroundColor : undefined) ?? theme.backgroundColor,
+    text:   (useColors ? s.textColor       : undefined) ?? theme.textColor,
     accent,
-    grad:       `linear-gradient(135deg, ${accent}, ${theme.secondaryColor})`,
+    grad:   `linear-gradient(135deg, ${accent}, ${theme.secondaryColor})`,
     fontFamily,
-    h1:   fs.h1,  h2:  fs.h2,
+    h1:   fs.h1,  h2:   fs.h2,
     body: fs.body, sub: fs.sub,
     align:  s.textAlign ?? 'left',
-    cardR:  r.card,
-    btnR:   r.btn,
-    pad:    sp.pad,
-    gap:    sp.gap,
+    cardR:  r.card, btnR:  r.btn,
+    pad:    sp.pad,  gap:  sp.gap,
+    elementBg, cardBorder, glassFilter,
   }
 }

@@ -39,8 +39,9 @@ export default function SocialLinksBlock({ block, theme }: Props) {
             <div key={link.id} style={{
               display: 'flex', alignItems: 'center', gap: 8,
               padding: '10px 14px', borderRadius: rs.btnR,
-              background: 'rgba(255,255,255,0.07)',
-              border: '1px solid rgba(255,255,255,0.10)',
+              background: rs.elementBg,
+              border: rs.cardBorder,
+              backdropFilter: rs.glassFilter,
               flex: '1 1 calc(50% - 8px)', minWidth: 110,
             }}>
               <span style={{ fontSize: 18, flexShrink: 0 }}>{p.emoji}</span>

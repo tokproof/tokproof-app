@@ -1,5 +1,5 @@
 import type { LandingConfig } from '@/types/landing'
-import { FONT_FAMILIES } from '@/lib/blockStyle'
+import { FONT_FAMILIES, getPageBackground } from '@/lib/blockStyle'
 import BlockRenderer from '@/components/editor/BlockRenderer'
 
 interface Props {
@@ -12,7 +12,7 @@ export default function LandingPageRenderer({ config }: Props) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: config.theme.backgroundColor,
+      background: getPageBackground(config.theme),
       color: config.theme.textColor,
       fontFamily,
     }}>

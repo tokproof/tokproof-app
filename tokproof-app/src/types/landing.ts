@@ -1,5 +1,10 @@
 // ─── Per-block style overrides ────────────────────────────────────────────────
 export interface BlockStyle {
+  // Toggle gates — false = use global theme; undefined = backward compat (use value if set)
+  customColorsEnabled?: boolean
+  customFontEnabled?: boolean
+  customBorderEnabled?: boolean
+  // Base overrides
   backgroundColor?: string
   textColor?: string
   accentColor?: string
@@ -8,6 +13,10 @@ export interface BlockStyle {
   textAlign?: 'left' | 'center'
   borderRadius?: 'square' | 'soft' | 'medium' | 'round'
   spacing?: 'compact' | 'normal' | 'airy'
+  // Advanced per-block
+  elementBackgroundColor?: string
+  borderColor?: string
+  glassIntensity?: 'none' | 'soft' | 'medium' | 'strong'
 }
 
 // ─── Block types ─────────────────────────────────────────────────────────────
@@ -169,6 +178,14 @@ export interface FooterLegalData {
   legalText?: string
 }
 
+// ─── Theme background ─────────────────────────────────────────────────────────
+export interface ThemeBackground {
+  mode: 'solid' | 'gradient'
+  gradientFrom?: string
+  gradientTo?: string
+  gradientDirection?: 'to bottom' | 'to right' | 'to bottom right'
+}
+
 // ─── Theme & settings ─────────────────────────────────────────────────────────
 export interface LandingTheme {
   primaryColor: string
@@ -177,6 +194,9 @@ export interface LandingTheme {
   textColor: string
   fontFamily: string
   radius: 'square' | 'soft' | 'medium' | 'round'
+  secondaryTextColor?: string
+  buttonColor?: string
+  background?: ThemeBackground
 }
 
 export interface LandingSettings {
