@@ -20,8 +20,12 @@ export type BlockType =
   | 'cta'
   | 'link_list'
   | 'profile_header'
+  | 'social_links'
   | 'product_grid'
   | 'trust_badges'
+  | 'comparison'
+  | 'urgency_offer'
+  | 'footer_legal'
 
 export interface LandingBlock {
   id: string
@@ -81,6 +85,88 @@ export interface CTAData {
   subtext: string
   url: string
   style: 'gradient' | 'solid' | 'outline'
+}
+
+export interface ProfileHeaderData {
+  avatarUrl: string
+  displayName: string
+  username: string
+  verifiedBadge: boolean
+  bio: string
+  location?: string
+}
+
+export type SocialPlatform = 'tiktok' | 'instagram' | 'youtube' | 'website' | 'email' | 'whatsapp' | 'x' | 'linkedin'
+export interface SocialLink {
+  id: string
+  platform: SocialPlatform
+  url: string
+  label?: string
+  enabled: boolean
+}
+export interface SocialLinksData {
+  links: SocialLink[]
+}
+
+export interface ProductItem {
+  id: string
+  imageUrl: string
+  title: string
+  price?: string
+  compareAtPrice?: string
+  url: string
+  badge?: string
+  description?: string
+}
+export interface ProductGridData {
+  title: string
+  subtitle?: string
+  products: ProductItem[]
+}
+
+export type TrustBadgeIcon = 'shipping' | 'secure' | 'guarantee' | 'returns' | 'support' | 'verified'
+export interface TrustBadge {
+  id: string
+  icon: TrustBadgeIcon
+  title: string
+  description?: string
+  enabled: boolean
+}
+export interface TrustBadgesData {
+  badges: TrustBadge[]
+}
+
+export interface ComparisonRow {
+  id: string
+  label: string
+  leftValue: string
+  rightValue: string
+  winner: 'left' | 'right'
+}
+export interface ComparisonData {
+  title: string
+  leftTitle: string
+  rightTitle: string
+  rows: ComparisonRow[]
+}
+
+export interface UrgencyOfferData {
+  title: string
+  description: string
+  badgeText: string
+  countdownEnabled: boolean
+  countdownText?: string
+  ctaText?: string
+  ctaUrl?: string
+}
+
+export interface FooterLegalData {
+  brandName: string
+  contactEmail: string
+  privacyUrl: string
+  termsUrl: string
+  showTokproofBranding: boolean
+  legalText?: string
 }
 
 // ─── Theme & settings ─────────────────────────────────────────────────────────

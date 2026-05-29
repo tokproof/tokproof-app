@@ -1,9 +1,16 @@
 import type { LandingBlock, LandingTheme } from '@/types/landing'
-import HeroProductBlock from './blocks/HeroProductBlock'
-import BenefitsBlock from './blocks/BenefitsBlock'
-import LinkListBlock from './blocks/LinkListBlock'
-import FAQBlock from './blocks/FAQBlock'
-import CTABlock from './blocks/CTABlock'
+import HeroProductBlock  from './blocks/HeroProductBlock'
+import BenefitsBlock     from './blocks/BenefitsBlock'
+import LinkListBlock     from './blocks/LinkListBlock'
+import FAQBlock          from './blocks/FAQBlock'
+import CTABlock          from './blocks/CTABlock'
+import ProfileHeaderBlock from './blocks/ProfileHeaderBlock'
+import SocialLinksBlock  from './blocks/SocialLinksBlock'
+import ProductGridBlock  from './blocks/ProductGridBlock'
+import TrustBadgesBlock  from './blocks/TrustBadgesBlock'
+import ComparisonBlock   from './blocks/ComparisonBlock'
+import UrgencyOfferBlock from './blocks/UrgencyOfferBlock'
+import FooterLegalBlock  from './blocks/FooterLegalBlock'
 
 interface Props {
   block: LandingBlock
@@ -12,22 +19,21 @@ interface Props {
 
 export default function BlockRenderer({ block, theme }: Props) {
   switch (block.type) {
-    case 'hero_product':
-      return <HeroProductBlock block={block} theme={theme} />
-    case 'benefits':
-      return <BenefitsBlock block={block} theme={theme} />
-    case 'link_list':
-      return <LinkListBlock block={block} theme={theme} />
-    case 'faq':
-      return <FAQBlock block={block} theme={theme} />
-    case 'cta':
-      return <CTABlock block={block} theme={theme} />
-    // Stubs for future blocks — render an empty placeholder so the page builds
+    case 'hero_product':   return <HeroProductBlock  block={block} theme={theme} />
+    case 'benefits':       return <BenefitsBlock     block={block} theme={theme} />
+    case 'link_list':      return <LinkListBlock      block={block} theme={theme} />
+    case 'faq':            return <FAQBlock           block={block} theme={theme} />
+    case 'cta':            return <CTABlock           block={block} theme={theme} />
+    case 'profile_header': return <ProfileHeaderBlock block={block} theme={theme} />
+    case 'social_links':   return <SocialLinksBlock   block={block} theme={theme} />
+    case 'product_grid':   return <ProductGridBlock   block={block} theme={theme} />
+    case 'trust_badges':   return <TrustBadgesBlock   block={block} theme={theme} />
+    case 'comparison':     return <ComparisonBlock    block={block} theme={theme} />
+    case 'urgency_offer':  return <UrgencyOfferBlock  block={block} theme={theme} />
+    case 'footer_legal':   return <FooterLegalBlock   block={block} theme={theme} />
+    // Stubs for future blocks
     case 'tiktok_comments':
     case 'reviews':
-    case 'profile_header':
-    case 'product_grid':
-    case 'trust_badges':
       return (
         <div style={{ padding: '16px 18px', background: theme.backgroundColor, textAlign: 'center' }}>
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>
