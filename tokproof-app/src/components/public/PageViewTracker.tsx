@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { getSessionId } from '@/lib/session'
 
 interface Props {
   pageId: string
@@ -16,6 +17,7 @@ export default function PageViewTracker({ pageId, slug }: Props) {
         pageId,
         slug,
         eventType: 'page_view',
+        sessionId: getSessionId(),
         metadata: { referer: document.referrer },
       }),
     }).catch(() => {})

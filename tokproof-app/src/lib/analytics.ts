@@ -40,6 +40,28 @@ function fmt(n: number): string {
   return String(n)
 }
 
+type RawEvent = {
+  event_type: string
+  session_id: string | null
+  page_id:    string | null
+  created_at: string
+}
+
+/**
+ * Count unique sessions across a filtered event list.
+ * - With session_id: deduplicate by session_id.
+ * - Without session_id (legacy events): bucket by page_id + 5-minute window.
+ */
+function uniqueSessionCount(events: RawEvent[]): number {
+  const seen = new Set<string>()
+  for (const e of events) {
+    const key = e.session_id
+      ?? `${e.page_id ?? ''}|${Math.floor(new Date(e.created_at).getTime() / 300_000)}`
+    seen.add(key)
+  }
+  return seen.size
+}
+
 /** Aggregate metrics for the whole user account (last 30 days) */
 export async function getDashboardAnalytics(userId: string): Promise<DashboardAnalytics> {
   const supabase = createAdminClient()
@@ -47,7 +69,7 @@ export async function getDashboardAnalytics(userId: string): Promise<DashboardAn
 
   const { data } = await supabase
     .from('analytics_events')
-    .select('event_type')
+    .select('event_type, session_id, page_id, created_at')
     .eq('user_id', userId)
     .gte('created_at', since)
 
@@ -55,10 +77,12 @@ export async function getDashboardAnalytics(userId: string): Promise<DashboardAn
     return { views: 0, clicks: 0, ctr: 0, exits: 0, exitSuccess: 0, exitRate: 0 }
   }
 
-  const views       = data.filter(e => VIEW_EVENTS.includes(e.event_type)).length
-  const clicks      = data.filter(e => CLICK_EVENTS.includes(e.event_type)).length
-  const exits       = data.filter(e => EXIT_SHOWN_EVENTS.includes(e.event_type)).length
-  const exitSuccess = data.filter(e => EXIT_SUCCESS_EVENTS.includes(e.event_type)).length
+  const rows = data as RawEvent[]
+
+  const views       = uniqueSessionCount(rows.filter(e => VIEW_EVENTS.includes(e.event_type)))
+  const clicks      = uniqueSessionCount(rows.filter(e => CLICK_EVENTS.includes(e.event_type)))
+  const exits       = uniqueSessionCount(rows.filter(e => EXIT_SHOWN_EVENTS.includes(e.event_type)))
+  const exitSuccess = uniqueSessionCount(rows.filter(e => EXIT_SUCCESS_EVENTS.includes(e.event_type)))
 
   return {
     views,
@@ -81,15 +105,15 @@ export async function getPageStats(
 
   const { data } = await supabase
     .from('analytics_events')
-    .select('page_id, event_type')
+    .select('page_id, event_type, session_id, created_at')
     .in('page_id', pageIds)
     .gte('created_at', since)
 
   const result: Record<string, PageStats> = {}
   for (const id of pageIds) {
-    const ev     = data?.filter(e => e.page_id === id) ?? []
-    const views  = ev.filter(e => VIEW_EVENTS.includes(e.event_type)).length
-    const clicks = ev.filter(e => CLICK_EVENTS.includes(e.event_type)).length
+    const ev     = (data as RawEvent[] | null)?.filter(e => e.page_id === id) ?? []
+    const views  = uniqueSessionCount(ev.filter(e => VIEW_EVENTS.includes(e.event_type)))
+    const clicks = uniqueSessionCount(ev.filter(e => CLICK_EVENTS.includes(e.event_type)))
     result[id]   = { views, clicks, ctr: pct(clicks, views) }
   }
   return result

@@ -20,10 +20,11 @@ export default function BrowserExitGuide({ destinationUrl, pageId, onClose }: Br
   const [copyHover, setCopyHover] = useState(false)
 
   function trackEvent(type: string) {
+    const sessionId = localStorage.getItem('tp_sid') ?? undefined
     fetch('/api/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pageId, eventType: type }),
+      body: JSON.stringify({ pageId, eventType: type, sessionId }),
     }).catch(() => {})
   }
 

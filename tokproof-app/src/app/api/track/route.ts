@@ -4,10 +4,11 @@ import { createAdminClient } from '@/lib/supabase/server'
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { pageId, eventType, slug, metadata } = body as {
+    const { pageId, eventType, slug, sessionId, metadata } = body as {
       pageId?: string
       eventType: string
       slug?: string
+      sessionId?: string
       metadata?: Record<string, unknown>
     }
 
@@ -42,6 +43,7 @@ export async function POST(req: NextRequest) {
       page_id:    pageId ?? null,
       event_type: eventType,
       slug:       slug ?? null,
+      session_id: sessionId ?? null,
       metadata:   enriched,
     })
 

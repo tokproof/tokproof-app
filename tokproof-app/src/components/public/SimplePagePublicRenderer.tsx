@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import type { LandingConfig, SimplePageConfig, SimplePagePlatform } from '@/types/landing'
+import { getSessionId } from '@/lib/session'
 import { getPageBackground, resolveBlockStyle } from '@/lib/blockStyle'
 import type { LandingBlock } from '@/types/landing'
 
@@ -50,6 +51,7 @@ export default function SimplePagePublicRenderer({ config, preview, pageId, slug
         pageId,
         slug,
         eventType: 'page_view',
+        sessionId: getSessionId(),
         metadata: { referer: document.referrer },
       }),
     }).catch(() => {})
@@ -63,6 +65,7 @@ export default function SimplePagePublicRenderer({ config, preview, pageId, slug
       body: JSON.stringify({
         pageId,
         eventType: 'link_click',
+        sessionId: getSessionId(),
         metadata: { linkId, destinationUrl },
       }),
     }).catch(() => {})

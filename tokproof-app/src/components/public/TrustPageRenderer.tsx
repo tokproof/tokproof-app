@@ -5,6 +5,7 @@ import type { FullPage } from '@/types'
 import SafeExitBanner from './SafeExitBanner'
 import BrowserExitGuide from './BrowserExitGuide'
 import { detectWebView } from '@/lib/webview-detection'
+import { getSessionId } from '@/lib/session'
 
 interface Props {
   data: FullPage
@@ -31,6 +32,7 @@ export default function TrustPageRenderer({ data, preview = false }: Props) {
       body: JSON.stringify({
         pageId: page.id,
         eventType: 'page_view',
+        sessionId: getSessionId(),
         metadata: { referer: document.referrer },
       }),
     }).catch(() => {})
@@ -41,7 +43,7 @@ export default function TrustPageRenderer({ data, preview = false }: Props) {
       fetch('/api/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pageId: page.id, eventType: 'shopify_click' }),
+        body: JSON.stringify({ pageId: page.id, eventType: 'shopify_click', sessionId: getSessionId() }),
       }).catch(() => {})
     }
   }
@@ -107,7 +109,7 @@ export default function TrustPageRenderer({ data, preview = false }: Props) {
               fetch('/api/track', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pageId: page.id, eventType: 'cta_click' }),
+                body: JSON.stringify({ pageId: page.id, eventType: 'cta_click', sessionId: getSessionId() }),
               }).catch(() => {})
               setShowExitGuide(true)
             }}
@@ -247,7 +249,7 @@ export default function TrustPageRenderer({ data, preview = false }: Props) {
               fetch('/api/track', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pageId: page.id, eventType: 'cta_click' }),
+                body: JSON.stringify({ pageId: page.id, eventType: 'cta_click', sessionId: getSessionId() }),
               }).catch(() => {})
               setShowExitGuide(true)
             }}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { detectWebView } from '@/lib/webview-detection'
+import { getSessionId } from '@/lib/session'
 import BrowserExitGuide from './BrowserExitGuide'
 
 interface DirectExitClientProps {
@@ -15,7 +16,8 @@ interface DirectExitClientProps {
 // Fire-and-forget analytics — never blocks navigation.
 // Uses sendBeacon when available (survives page unload), falls back to fetch.
 function track(eventType: string, pageId: string) {
-  const body = JSON.stringify({ pageId, eventType })
+  const sessionId = getSessionId()
+  const body = JSON.stringify({ pageId, eventType, sessionId })
   if (navigator.sendBeacon) {
     navigator.sendBeacon('/api/track', new Blob([body], { type: 'application/json' }))
   } else {

@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import type { FullPage } from '@/types'
 import SafeExitBanner from './SafeExitBanner'
+import { getSessionId } from '@/lib/session'
 
 interface Props {
   data: FullPage
@@ -19,7 +20,7 @@ export default function SimplePageRenderer({ data, preview = false }: Props) {
     fetch('/api/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pageId: page.id, eventType: 'page_view', metadata: { referer: document.referrer } }),
+      body: JSON.stringify({ pageId: page.id, eventType: 'page_view', sessionId: getSessionId(), metadata: { referer: document.referrer } }),
     }).catch(() => {})
   }, [page.id, preview])
 
@@ -28,7 +29,7 @@ export default function SimplePageRenderer({ data, preview = false }: Props) {
       fetch('/api/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pageId: page.id, eventType: 'link_click', metadata: { buttonId } }),
+        body: JSON.stringify({ pageId: page.id, eventType: 'link_click', sessionId: getSessionId(), metadata: { buttonId } }),
       }).catch(() => {})
     }
   }
