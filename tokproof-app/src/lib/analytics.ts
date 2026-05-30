@@ -1,12 +1,13 @@
 import { createAdminClient } from '@/lib/supabase/server'
 
 export interface DashboardAnalytics {
-  views:       number
-  clicks:      number
-  ctr:         number   // percentage 0-100
-  exits:       number   // exit_guide_shown
-  exitSuccess: number   // exit_success
-  exitRate:    number   // percentage 0-100
+  views:             number  // unique sessions with page_view | direct_exit_view
+  clicks:            number  // unique sessions with direct_exit_redirected
+  ctr:               number  // clicks / views %
+  exits:             number  // unique sessions where TikTok WebView was detected
+  exitSuccess:       number  // unique sessions that successfully redirected (direct_exit_redirected)
+  exitRate:          number  // exitSuccess / exits %
+  openBrowserClicks: number  // unique sessions where user was already in normal browser
 }
 
 export interface PageStats {
@@ -15,20 +16,30 @@ export interface PageStats {
   ctr:    number
 }
 
-// Events that count as a page view
+// ── Event classification ──────────────────────────────────────────────────────
+
+// A visit = one of these events
 const VIEW_EVENTS = ['page_view', 'direct_exit_view']
 
-// Events that count as a user click / CTA engagement
+// A click = user successfully redirected (TikTok Rescue)
+// or tapped a CTA/link on other page types
 const CLICK_EVENTS = [
   'cta_click', 'link_click', 'shopify_click', 'button_click',
-  'direct_exit_redirected', 'direct_exit_browser_detected',
+  'direct_exit_redirected',
+  // direct_exit_browser_detected is intentionally NOT here
 ]
 
-// Events that count as "exit guide was shown" (user was trapped in WebView)
+// Exit guide shown = user was trapped inside TikTok WebView
 const EXIT_SHOWN_EVENTS = ['exit_guide_shown', 'direct_exit_webview_detected']
 
-// Events that count as a successful rescue (user reached external browser)
-const EXIT_SUCCESS_EVENTS = ['exit_success', 'direct_exit_redirected', 'direct_exit_browser_detected']
+// Successful rescue = user reached an external browser
+// Only direct_exit_redirected — direct_exit_browser_detected is a separate informational signal
+const EXIT_SUCCESS_EVENTS = ['exit_success', 'direct_exit_redirected']
+
+// Separate counter: user arrived at /go already in a normal browser (not TikTok)
+const OPEN_BROWSER_EVENTS = ['direct_exit_browser_detected']
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function pct(num: number, den: number) {
   return den > 0 ? Math.round((num / den) * 100) : 0
@@ -48,7 +59,7 @@ type RawEvent = {
 }
 
 /**
- * Count unique sessions across a filtered event list.
+ * Count unique sessions in a set of events.
  * - With session_id: deduplicate by session_id.
  * - Without session_id (legacy events): bucket by page_id + 5-minute window.
  */
@@ -62,6 +73,31 @@ function uniqueSessionCount(events: RawEvent[]): number {
   return seen.size
 }
 
+function calcMetrics(rows: RawEvent[]): DashboardAnalytics {
+  const views             = uniqueSessionCount(rows.filter(e => VIEW_EVENTS.includes(e.event_type)))
+  const clicks            = uniqueSessionCount(rows.filter(e => CLICK_EVENTS.includes(e.event_type)))
+  const exits             = uniqueSessionCount(rows.filter(e => EXIT_SHOWN_EVENTS.includes(e.event_type)))
+  const exitSuccess       = uniqueSessionCount(rows.filter(e => EXIT_SUCCESS_EVENTS.includes(e.event_type)))
+  const openBrowserClicks = uniqueSessionCount(rows.filter(e => OPEN_BROWSER_EVENTS.includes(e.event_type)))
+  return {
+    views,
+    clicks,
+    ctr:               pct(clicks, views),
+    exits,
+    exitSuccess,
+    exitRate:          pct(exitSuccess, exits),
+    openBrowserClicks,
+  }
+}
+
+const EMPTY: DashboardAnalytics = {
+  views: 0, clicks: 0, ctr: 0,
+  exits: 0, exitSuccess: 0, exitRate: 0,
+  openBrowserClicks: 0,
+}
+
+// ── Queries ───────────────────────────────────────────────────────────────────
+
 /** Aggregate metrics for the whole user account (last 30 days) */
 export async function getDashboardAnalytics(userId: string): Promise<DashboardAnalytics> {
   const supabase = createAdminClient()
@@ -74,40 +110,18 @@ export async function getDashboardAnalytics(userId: string): Promise<DashboardAn
     .gte('created_at', since)
 
   if (error) {
-    // session_id column may not exist yet — retry without it
+    // session_id column not yet added — retry without it
     const { data: fallback } = await supabase
       .from('analytics_events')
       .select('event_type, page_id, created_at')
       .eq('user_id', userId)
       .gte('created_at', since)
-    if (!fallback?.length) return { views: 0, clicks: 0, ctr: 0, exits: 0, exitSuccess: 0, exitRate: 0 }
-    const rows = fallback.map(e => ({ ...e, session_id: null })) as RawEvent[]
-    const views       = uniqueSessionCount(rows.filter(e => VIEW_EVENTS.includes(e.event_type)))
-    const clicks      = uniqueSessionCount(rows.filter(e => CLICK_EVENTS.includes(e.event_type)))
-    const exits       = uniqueSessionCount(rows.filter(e => EXIT_SHOWN_EVENTS.includes(e.event_type)))
-    const exitSuccess = uniqueSessionCount(rows.filter(e => EXIT_SUCCESS_EVENTS.includes(e.event_type)))
-    return { views, clicks, ctr: pct(clicks, views), exits, exitSuccess, exitRate: pct(exitSuccess, exits) }
+    if (!fallback?.length) return EMPTY
+    return calcMetrics(fallback.map(e => ({ ...e, session_id: null })) as RawEvent[])
   }
 
-  if (!data?.length) {
-    return { views: 0, clicks: 0, ctr: 0, exits: 0, exitSuccess: 0, exitRate: 0 }
-  }
-
-  const rows = data as RawEvent[]
-
-  const views       = uniqueSessionCount(rows.filter(e => VIEW_EVENTS.includes(e.event_type)))
-  const clicks      = uniqueSessionCount(rows.filter(e => CLICK_EVENTS.includes(e.event_type)))
-  const exits       = uniqueSessionCount(rows.filter(e => EXIT_SHOWN_EVENTS.includes(e.event_type)))
-  const exitSuccess = uniqueSessionCount(rows.filter(e => EXIT_SUCCESS_EVENTS.includes(e.event_type)))
-
-  return {
-    views,
-    clicks,
-    ctr:         pct(clicks, views),
-    exits,
-    exitSuccess,
-    exitRate:    pct(exitSuccess, exits),
-  }
+  if (!data?.length) return EMPTY
+  return calcMetrics(data as RawEvent[])
 }
 
 /** Per-page stats for a list of page IDs (last 30 days) */
@@ -125,14 +139,16 @@ export async function getPageStats(
     .in('page_id', pageIds)
     .gte('created_at', since)
 
-  // Fallback if session_id column doesn't exist yet
   const rows: RawEvent[] = error
     ? await supabase
         .from('analytics_events')
         .select('page_id, event_type, created_at')
         .in('page_id', pageIds)
         .gte('created_at', since)
-        .then(r => (r.data ?? []).map((e: { page_id: string | null; event_type: string; created_at: string }) => ({ ...e, session_id: null as null })))
+        .then(r => (r.data ?? []).map(
+          (e: { page_id: string | null; event_type: string; created_at: string }) =>
+            ({ ...e, session_id: null as null })
+        ))
     : (data ?? []).map((e: RawEvent) => ({ ...e, session_id: e.session_id ?? null }))
 
   const result: Record<string, PageStats> = {}
@@ -145,20 +161,23 @@ export async function getPageStats(
   return result
 }
 
+// ── Formatters ────────────────────────────────────────────────────────────────
+
 /** Format DashboardAnalytics into the string map DashboardClient expects */
 export function formatAnalytics(a: DashboardAnalytics) {
   return {
-    views:       fmt(a.views),
-    clicks:      fmt(a.clicks),
-    ctr:         `${a.ctr}%`,
-    rescues:     fmt(a.exitSuccess),
-    viewsTrend:  '',
-    clicksTrend: '',
-    ctrTrend:    '',
-    rescuesTrend:'',
-    rescueGuides: fmt(a.exits),
-    rescueOpens:  fmt(a.exitSuccess),
-    rescueRate:   `${a.exitRate}%`,
+    views:            fmt(a.views),
+    clicks:           fmt(a.clicks),
+    ctr:              `${a.ctr}%`,
+    rescues:          fmt(a.exitSuccess),
+    viewsTrend:       '',
+    clicksTrend:      '',
+    ctrTrend:         '',
+    rescuesTrend:     '',
+    rescueGuides:     fmt(a.exits),
+    rescueOpens:      fmt(a.exitSuccess),
+    rescueRate:       `${a.exitRate}%`,
+    openBrowserClicks: fmt(a.openBrowserClicks),
   }
 }
 
