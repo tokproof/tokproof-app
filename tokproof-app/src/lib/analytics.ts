@@ -67,11 +67,27 @@ export async function getDashboardAnalytics(userId: string): Promise<DashboardAn
   const supabase = createAdminClient()
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('analytics_events')
     .select('event_type, session_id, page_id, created_at')
     .eq('user_id', userId)
     .gte('created_at', since)
+
+  if (error) {
+    // session_id column may not exist yet — retry without it
+    const { data: fallback } = await supabase
+      .from('analytics_events')
+      .select('event_type, page_id, created_at')
+      .eq('user_id', userId)
+      .gte('created_at', since)
+    if (!fallback?.length) return { views: 0, clicks: 0, ctr: 0, exits: 0, exitSuccess: 0, exitRate: 0 }
+    const rows = fallback.map(e => ({ ...e, session_id: null })) as RawEvent[]
+    const views       = uniqueSessionCount(rows.filter(e => VIEW_EVENTS.includes(e.event_type)))
+    const clicks      = uniqueSessionCount(rows.filter(e => CLICK_EVENTS.includes(e.event_type)))
+    const exits       = uniqueSessionCount(rows.filter(e => EXIT_SHOWN_EVENTS.includes(e.event_type)))
+    const exitSuccess = uniqueSessionCount(rows.filter(e => EXIT_SUCCESS_EVENTS.includes(e.event_type)))
+    return { views, clicks, ctr: pct(clicks, views), exits, exitSuccess, exitRate: pct(exitSuccess, exits) }
+  }
 
   if (!data?.length) {
     return { views: 0, clicks: 0, ctr: 0, exits: 0, exitSuccess: 0, exitRate: 0 }
@@ -103,15 +119,25 @@ export async function getPageStats(
   const supabase = createAdminClient()
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('analytics_events')
     .select('page_id, event_type, session_id, created_at')
     .in('page_id', pageIds)
     .gte('created_at', since)
 
+  // Fallback if session_id column doesn't exist yet
+  const rows: RawEvent[] = error
+    ? await supabase
+        .from('analytics_events')
+        .select('page_id, event_type, created_at')
+        .in('page_id', pageIds)
+        .gte('created_at', since)
+        .then(r => (r.data ?? []).map((e: { page_id: string | null; event_type: string; created_at: string }) => ({ ...e, session_id: null as null })))
+    : (data ?? []).map((e: RawEvent) => ({ ...e, session_id: e.session_id ?? null }))
+
   const result: Record<string, PageStats> = {}
   for (const id of pageIds) {
-    const ev     = (data as RawEvent[] | null)?.filter(e => e.page_id === id) ?? []
+    const ev     = rows.filter(e => e.page_id === id)
     const views  = uniqueSessionCount(ev.filter(e => VIEW_EVENTS.includes(e.event_type)))
     const clicks = uniqueSessionCount(ev.filter(e => CLICK_EVENTS.includes(e.event_type)))
     result[id]   = { views, clicks, ctr: pct(clicks, views) }
