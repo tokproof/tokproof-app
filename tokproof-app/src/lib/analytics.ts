@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 
 export interface DashboardAnalytics {
   views:       number
@@ -15,7 +15,20 @@ export interface PageStats {
   ctr:    number
 }
 
-const CLICK_EVENTS = ['cta_click', 'link_click', 'shopify_click', 'button_click']
+// Events that count as a page view
+const VIEW_EVENTS = ['page_view', 'direct_exit_view']
+
+// Events that count as a user click / CTA engagement
+const CLICK_EVENTS = [
+  'cta_click', 'link_click', 'shopify_click', 'button_click',
+  'direct_exit_redirected', 'direct_exit_browser_detected',
+]
+
+// Events that count as "exit guide was shown" (user was trapped in WebView)
+const EXIT_SHOWN_EVENTS = ['exit_guide_shown', 'direct_exit_webview_detected']
+
+// Events that count as a successful rescue (user reached external browser)
+const EXIT_SUCCESS_EVENTS = ['exit_success', 'direct_exit_redirected', 'direct_exit_browser_detected']
 
 function pct(num: number, den: number) {
   return den > 0 ? Math.round((num / den) * 100) : 0
@@ -29,7 +42,7 @@ function fmt(n: number): string {
 
 /** Aggregate metrics for the whole user account (last 30 days) */
 export async function getDashboardAnalytics(userId: string): Promise<DashboardAnalytics> {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
   const { data } = await supabase
@@ -42,10 +55,10 @@ export async function getDashboardAnalytics(userId: string): Promise<DashboardAn
     return { views: 0, clicks: 0, ctr: 0, exits: 0, exitSuccess: 0, exitRate: 0 }
   }
 
-  const views       = data.filter(e => e.event_type === 'page_view').length
+  const views       = data.filter(e => VIEW_EVENTS.includes(e.event_type)).length
   const clicks      = data.filter(e => CLICK_EVENTS.includes(e.event_type)).length
-  const exits       = data.filter(e => e.event_type === 'exit_guide_shown').length
-  const exitSuccess = data.filter(e => e.event_type === 'exit_success').length
+  const exits       = data.filter(e => EXIT_SHOWN_EVENTS.includes(e.event_type)).length
+  const exitSuccess = data.filter(e => EXIT_SUCCESS_EVENTS.includes(e.event_type)).length
 
   return {
     views,
@@ -63,7 +76,7 @@ export async function getPageStats(
 ): Promise<Record<string, PageStats>> {
   if (!pageIds.length) return {}
 
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
   const { data } = await supabase
@@ -75,7 +88,7 @@ export async function getPageStats(
   const result: Record<string, PageStats> = {}
   for (const id of pageIds) {
     const ev     = data?.filter(e => e.page_id === id) ?? []
-    const views  = ev.filter(e => e.event_type === 'page_view').length
+    const views  = ev.filter(e => VIEW_EVENTS.includes(e.event_type)).length
     const clicks = ev.filter(e => CLICK_EVENTS.includes(e.event_type)).length
     result[id]   = { views, clicks, ctr: pct(clicks, views) }
   }
