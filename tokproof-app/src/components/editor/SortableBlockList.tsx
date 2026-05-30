@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import UpgradeProModal from '@/components/shared/UpgradeProModal'
+import type { Plan } from '@/lib/plans'
 import {
   DndContext, PointerSensor, useSensor, useSensors, closestCenter, type DragEndEvent,
 } from '@dnd-kit/core'
@@ -80,6 +82,7 @@ const BLOCK_CATEGORIES: Array<{ label: string; blocks: BlockDef[] }> = [
 interface Props {
   blocks: LandingBlock[]
   theme: LandingTheme
+  plan?: Plan
   onUpdateBlock: (id: string, data: Partial<LandingBlock['data']>) => void
   onUpdateBlockStyle: (id: string, style: Partial<BlockStyle>) => void
   onToggleVisibility: (id: string) => void
@@ -807,9 +810,15 @@ function FooterLegalEditor({ block, onUpdate }: { block: LandingBlock; onUpdate:
 }
 
 // ─── Add block picker (categorized) ──────────────────────────────────────────
-function AddBlockPicker({ onAdd }: { onAdd: (type: LandingBlock['type'], data: LandingBlock['data']) => void }) {
-  const [open, setOpen] = useState(false)
-  const [openCat, setOpenCat] = useState<string | null>('General')
+function AddBlockPicker({
+  onAdd, plan = 'free',
+}: {
+  onAdd: (type: LandingBlock['type'], data: LandingBlock['data']) => void
+  plan?: Plan
+}) {
+  const [open,         setOpen]         = useState(false)
+  const [openCat,      setOpenCat]      = useState<string | null>('General')
+  const [upgradeOpen,  setUpgradeOpen]  = useState(false)
 
   return (
     <div style={{ padding: '12px 14px', borderTop: `1px solid ${T.border}`, flexShrink: 0 }}>
@@ -817,7 +826,6 @@ function AddBlockPicker({ onAdd }: { onAdd: (type: LandingBlock['type'], data: L
         <div style={{ marginBottom: 8, background: T.card, borderRadius: 12, border: `1px solid ${T.border2}`, overflow: 'hidden' }}>
           {BLOCK_CATEGORIES.map(cat => (
             <div key={cat.label}>
-              {/* Category header */}
               <button
                 onClick={() => setOpenCat(o => o === cat.label ? null : cat.label)}
                 style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: 'none', border: 'none', borderBottom: `1px solid ${T.border}`, cursor: 'pointer' }}
@@ -825,22 +833,34 @@ function AddBlockPicker({ onAdd }: { onAdd: (type: LandingBlock['type'], data: L
                 <span style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.05em' }}>{cat.label}</span>
                 <ChevronRight size={12} color={T.ink3} style={{ transform: openCat === cat.label ? 'rotate(90deg)' : 'none', transition: 'transform .15s' }} />
               </button>
-              {/* Category blocks */}
               {openCat === cat.label && (
                 <div style={{ padding: '4px 6px 6px' }}>
-                  {cat.blocks.map(b => (
-                    <button
-                      key={b.type}
-                      onClick={() => { onAdd(b.type, b.defaultData); setOpen(false) }}
-                      style={{ width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: T.ink, fontSize: 12, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
-                    >
-                      <span style={{ fontSize: 14 }}>{BLOCK_ICONS[b.type]}</span>
-                      <span style={{ flex: 1 }}>{b.label}</span>
-                      {b.isPremium && (
-                        <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 999, background: 'linear-gradient(135deg,#FFD700,#FF8C00)', color: '#fff', letterSpacing: '.03em', flexShrink: 0 }}>PRO</span>
-                      )}
-                    </button>
-                  ))}
+                  {cat.blocks.map(b => {
+                    const isLocked = b.isPremium && plan === 'free'
+                    return (
+                      <button
+                        key={b.type}
+                        onClick={() => {
+                          if (isLocked) { setUpgradeOpen(true); return }
+                          onAdd(b.type, b.defaultData)
+                          setOpen(false)
+                        }}
+                        style={{
+                          width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8,
+                          border: 'none', background: 'transparent', fontSize: 12, fontWeight: 500,
+                          cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+                          color: isLocked ? T.ink3 : T.ink,
+                          opacity: isLocked ? .75 : 1,
+                        }}
+                      >
+                        <span style={{ fontSize: 14 }}>{BLOCK_ICONS[b.type]}</span>
+                        <span style={{ flex: 1 }}>{b.label}</span>
+                        {b.isPremium && (
+                          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 999, background: 'linear-gradient(135deg,#FFD700,#FF8C00)', color: '#fff', letterSpacing: '.03em', flexShrink: 0 }}>PRO</span>
+                        )}
+                      </button>
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -853,13 +873,20 @@ function AddBlockPicker({ onAdd }: { onAdd: (type: LandingBlock['type'], data: L
       >
         <Plus size={14} />{open ? 'Cancelar' : 'Añadir bloque'}
       </button>
+
+      <UpgradeProModal
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        title="Bloque premium"
+        description="Este bloque está disponible en el plan Pro. Actualiza para añadir bloques premium a tus páginas."
+      />
     </div>
   )
 }
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 export default function SortableBlockList({
-  blocks, theme,
+  blocks, theme, plan = 'free',
   onUpdateBlock, onUpdateBlockStyle, onToggleVisibility, onDelete, onDuplicate, onMove, onAdd,
 }: Props) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
@@ -901,7 +928,7 @@ export default function SortableBlockList({
         )}
       </div>
 
-      <AddBlockPicker onAdd={onAdd} />
+      <AddBlockPicker onAdd={onAdd} plan={plan} />
     </div>
   )
 }

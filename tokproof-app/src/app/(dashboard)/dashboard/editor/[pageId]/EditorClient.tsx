@@ -15,6 +15,7 @@ import type { LandingConfig, LandingBlock, LandingTheme, LandingSettings, BlockS
 import { makeDefaultConfig, makeDefaultBlocks } from '@/types/landing'
 import { FONT_OPTIONS, getPageBackground } from '@/lib/blockStyle'
 import { getPublicPageUrl, getPublicPageDisplay } from '@/lib/urls'
+import { getUserPlan } from '@/lib/plans'
 
 // ─── Theme presets ────────────────────────────────────────────────────────────
 type ThemePreset = Omit<LandingTheme, 'fontFamily' | 'radius'> & {
@@ -197,6 +198,7 @@ interface EditorClientProps {
 export default function EditorClient({ fullPage: initial, demoMode = false }: EditorClientProps) {
   const isDemo = demoMode || initial === null
   const pageId  = initial?.page?.id ?? 'demo'
+  const plan    = getUserPlan(initial?.profile ?? null)
 
   // ── Central state ──
   const [landingConfig, setLandingConfig] = useState<LandingConfig>(() =>
@@ -385,6 +387,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                   <SortableBlockList
                     blocks={landingConfig.blocks}
                     theme={landingConfig.theme}
+                    plan={plan}
                     onUpdateBlock={updateBlock}
                     onUpdateBlockStyle={updateBlockStyle}
                     onToggleVisibility={toggleBlockVisibility}

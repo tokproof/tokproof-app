@@ -7,7 +7,7 @@ import {
   ExternalLink, Clock, Lightbulb, Plus, Check,
 } from 'lucide-react'
 import PageCard from '@/components/dashboard/PageCard'
-import UpgradeModal from '@/components/shared/UpgradeModal'
+import UpgradeProModal from '@/components/shared/UpgradeProModal'
 import CreateEcommerceModal from '@/components/dashboard/CreateEcommerceModal'
 import CreatePersonalBrandModal from '@/components/dashboard/CreatePersonalBrandModal'
 import QuickExitWidget from '@/components/dashboard/QuickExitWidget'
@@ -329,7 +329,12 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
         userId={profile.user_id}
         username={profile.username}
       />
-      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
+      <UpgradeProModal
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        title="Límite de páginas alcanzado"
+        description="Tu plan Free incluye 1 página publicada. Actualiza a Pro para publicar páginas ilimitadas."
+      />
 
       <div className="db-main">
 
