@@ -10,8 +10,16 @@ import PageCard from '@/components/dashboard/PageCard'
 import UpgradeModal from '@/components/shared/UpgradeModal'
 import CreateEcommerceModal from '@/components/dashboard/CreateEcommerceModal'
 import CreatePersonalBrandModal from '@/components/dashboard/CreatePersonalBrandModal'
+import QuickExitWidget from '@/components/dashboard/QuickExitWidget'
 import type { Page, Profile } from '@/types'
 import { getPublicPageUrl, getPublicExitUrl, getPublicPageDisplay, getPublicExitDisplay } from '@/lib/urls'
+
+function isQuickExit(page: Page): boolean {
+  const s = page.settings as Record<string, unknown>
+  if (s._pageType === 'quick_exit') return true
+  const cfg = s._landingConfig as Record<string, unknown> | undefined
+  return cfg?.pageType === 'quick_exit'
+}
 
 /* ── Link icon con gradiente SVG ─────────────── */
 function GradLinkIcon({ size = 15 }: { size?: number }) {
@@ -267,8 +275,9 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
   const headerCopy = useCopy()
 
   const isFree = profile.plan === 'free'
-  const publishedCount = pageList.filter(p => p.status === 'published').length
-  const draftCount = pageList.filter(p => p.status === 'draft').length
+  const nonExitPages = pageList.filter(p => !isQuickExit(p))
+  const publishedCount = nonExitPages.filter(p => p.status === 'published').length
+  const draftCount     = nonExitPages.filter(p => p.status === 'draft').length
   const firstName = (profile.display_name ?? profile.email ?? 'creator').split(' ')[0]
   const publicUrl     = profile.username ? getPublicPageUrl(profile.username)     : null
   const publicDisplay = profile.username ? getPublicPageDisplay(profile.username) : null
@@ -285,15 +294,16 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
   }
 
   const filteredPages = pageList.filter(p => {
+    if (isQuickExit(p)) return false   // quick exits live in the widget, not the pages list
     if (activeFilter === 'published') return p.status === 'published'
     if (activeFilter === 'draft') return p.status === 'draft'
     return true
   })
 
   const filters: [string, string, number][] = [
-    ['all', 'Todas', pageList.length],
+    ['all',       'Todas',      nonExitPages.length],
     ['published', 'Publicadas', publishedCount],
-    ['draft', 'Borradores', draftCount],
+    ['draft',     'Borradores', draftCount],
   ]
 
   return (
@@ -400,7 +410,9 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
 
         {/* ── Widgets ── */}
         <div className="db-widgets">
-          <RescueWidget
+          <QuickExitWidget
+            initialExits={pageList.filter(isQuickExit)}
+            userId={profile.user_id}
             guides={analytics?.rescueGuides}
             opens={analytics?.rescueOpens}
             rate={analytics?.rescueRate}

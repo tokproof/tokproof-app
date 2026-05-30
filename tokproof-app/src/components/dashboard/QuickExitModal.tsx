@@ -1,0 +1,212 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { getPublicExitDisplay } from '@/lib/urls'
+import type { Page } from '@/types'
+import { X } from 'lucide-react'
+
+interface Props {
+  open: boolean
+  onClose: () => void
+  userId: string
+  /** Pass an existing page to edit it */
+  editing?: Page | null
+  onSaved: (page: Page) => void
+}
+
+type SlugStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid'
+
+function slugify(v: string) {
+  return v.toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 30)
+}
+
+export default function QuickExitModal({ open, onClose, userId, editing, onSaved }: Props) {
+  const isEditing = !!editing
+
+  const [name,        setName]        = useState('')
+  const [slug,        setSlug]        = useState('')
+  const [destUrl,     setDestUrl]     = useState('')
+  const [slugStatus,  setSlugStatus]  = useState<SlugStatus>('idle')
+  const [urlError,    setUrlError]    = useState('')
+  const [saving,      setSaving]      = useState(false)
+  const [slugTouched, setSlugTouched] = useState(false)
+
+  // Pre-fill when editing
+  useEffect(() => {
+    if (!open) return
+    if (editing) {
+      const cfg = (editing.settings as Record<string, unknown>)?._landingConfig as Record<string, unknown> | undefined
+      setName(editing.title ?? '')
+      setSlug(editing.username ?? '')
+      setDestUrl((cfg?.destinationUrl as string) ?? '')
+      setSlugStatus('available')
+      setSlugTouched(true)
+    } else {
+      setName(''); setSlug(''); setDestUrl('')
+      setSlugStatus('idle'); setSlugTouched(false); setUrlError('')
+    }
+  }, [open, editing])
+
+  // Slug availability check (debounced)
+  const checkSlug = useCallback(async (s: string) => {
+    if (!s || s.length < 2) { setSlugStatus('invalid'); return }
+    setSlugStatus('checking')
+    const supabase = createClient()
+    const query = supabase.from('pages').select('id').eq('username', s)
+    // When editing, exclude the current page
+    if (editing) query.neq('id', editing.id)
+    const { data } = await query.limit(1)
+    setSlugStatus(data && data.length > 0 ? 'taken' : 'available')
+  }, [editing])
+
+  useEffect(() => {
+    if (!slugTouched || isEditing) return
+    const t = setTimeout(() => checkSlug(slug), 500)
+    return () => clearTimeout(t)
+  }, [slug, slugTouched, checkSlug, isEditing])
+
+  // Auto-generate slug from name (only if user hasn't manually edited it)
+  function handleNameChange(v: string) {
+    setName(v)
+    if (!slugTouched) setSlug(slugify(v))
+  }
+
+  function handleSlugChange(v: string) {
+    setSlugTouched(true)
+    setSlug(slugify(v))
+  }
+
+  function validateUrl(v: string): boolean {
+    if (!v) { setUrlError('La URL es obligatoria'); return false }
+    if (!v.startsWith('https://') && !v.startsWith('http://')) {
+      setUrlError('La URL debe empezar por https://'); return false
+    }
+    setUrlError(''); return true
+  }
+
+  async function handleSave() {
+    if (!validateUrl(destUrl)) return
+    if (!slug || slug.length < 2) return
+    if (!isEditing && slugStatus !== 'available') return
+
+    setSaving(true)
+    const supabase = createClient()
+
+    const landingConfig = {
+      pageType: 'quick_exit',
+      title: name,
+      slug,
+      status: 'published',
+      destinationUrl: destUrl,
+      settings: {
+        enableBrowserGuide: true,
+        showTokproofBranding: true,
+        directExitUrl: destUrl,
+        enableTikTokRescue: true,
+        seoTitle: name,
+        seoDescription: '',
+      },
+    }
+
+    let page: Page | null = null
+
+    if (isEditing && editing) {
+      const { data } = await supabase.from('pages')
+        .update({ title: name, settings: { ...(editing.settings as object), _category: 'ecommerce', _pageType: 'quick_exit', _landingConfig: landingConfig } })
+        .eq('id', editing.id)
+        .select().single()
+      page = data as Page | null
+    } else {
+      const { data } = await supabase.from('pages')
+        .insert({ user_id: userId, username: slug, type: 'simple', status: 'published', title: name, settings: { _category: 'ecommerce', _pageType: 'quick_exit', _landingConfig: landingConfig } })
+        .select().single()
+      page = data as Page | null
+    }
+
+    setSaving(false)
+    if (page) { onSaved(page); onClose() }
+  }
+
+  if (!open) return null
+
+  const slugOk    = isEditing || slugStatus === 'available'
+  const canSubmit = name.trim() && slug.length >= 2 && slugOk && !saving
+
+  const slugColor = slugStatus === 'available' ? '#10B981' : slugStatus === 'taken' ? '#EF4444' : slugStatus === 'invalid' ? '#EF4444' : '#9CA3AF'
+  const slugMsg   = slugStatus === 'available' ? '✓ Disponible' : slugStatus === 'taken' ? '✕ No disponible' : slugStatus === 'checking' ? '…' : ''
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 9000, background: 'rgba(10,10,20,.55)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+      onClick={e => { if (e.currentTarget === e.target) onClose() }}>
+      <div style={{ background: '#fff', borderRadius: 20, padding: '28px 28px 24px', width: '100%', maxWidth: 460, boxShadow: '0 32px 80px rgba(10,10,30,.22)', animation: 'cmSlideUp .2s ease', fontFamily: 'Inter,system-ui,sans-serif' }}>
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+              <div style={{ width: 30, height: 30, borderRadius: 9, background: 'linear-gradient(135deg,#F647A9,#7B61FF)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: 14 }}>🛡️</span>
+              </div>
+              <h2 style={{ fontSize: 20, fontWeight: 800, color: '#111827', margin: 0, letterSpacing: '-.02em' }}>
+                {isEditing ? 'Editar Exit Rápido' : 'Crear Exit Rápido'}
+              </h2>
+            </div>
+            <p style={{ fontSize: 13, color: '#6B7280', margin: 0, lineHeight: 1.5 }}>
+              Pega la URL de tu producto o tienda y Tokproof generará un enlace preparado para TikTok.
+            </p>
+          </div>
+          <button onClick={onClose} style={{ width: 30, height: 30, borderRadius: 9, border: '1px solid #E4E7F0', background: '#F9FAFB', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF', flexShrink: 0, marginLeft: 12 }}>
+            <X size={14} />
+          </button>
+        </div>
+
+        {/* Name */}
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>Nombre</label>
+          <input value={name} onChange={e => handleNameChange(e.target.value)} placeholder="RevHair"
+            style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1.5px solid #E4E7F0', fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+        </div>
+
+        {/* Slug */}
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>Slug público</label>
+          <div style={{ position: 'relative' }}>
+            <div style={{ display: 'flex' }}>
+              <span style={{ padding: '9px 10px', background: '#F3F4F6', border: '1.5px solid #E4E7F0', borderRight: 'none', borderRadius: '10px 0 0 10px', fontSize: 13, color: '#9CA3AF', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center' }}>@</span>
+              <input value={slug} onChange={e => handleSlugChange(e.target.value)} placeholder="revhair" disabled={isEditing}
+                style={{ flex: 1, padding: '9px 12px', borderRadius: '0 10px 10px 0', border: '1.5px solid #E4E7F0', borderLeft: 'none', fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', background: isEditing ? '#F9FAFB' : '#fff' }} />
+            </div>
+            {slugMsg && <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 12, fontWeight: 700, color: slugColor }}>{slugMsg}</span>}
+          </div>
+          {/* Live URL preview */}
+          {slug && (
+            <div style={{ marginTop: 6, padding: '7px 12px', background: 'rgba(123,97,255,.06)', borderRadius: 8, fontSize: 12, color: '#7B61FF', fontFamily: 'monospace', fontWeight: 600 }}>
+              🔗 {getPublicExitDisplay(slug)}
+            </div>
+          )}
+        </div>
+
+        {/* Destination URL */}
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>URL de destino</label>
+          <input value={destUrl} onChange={e => { setDestUrl(e.target.value); if (urlError) validateUrl(e.target.value) }} onBlur={() => validateUrl(destUrl)}
+            placeholder="https://tu-tienda.com/products/producto" type="url"
+            style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: `1.5px solid ${urlError ? '#FCA5A5' : '#E4E7F0'}`, fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', background: urlError ? '#FFF5F5' : '#fff' }} />
+          {urlError && <p style={{ fontSize: 12, color: '#EF4444', marginTop: 5, marginBottom: 0 }}>{urlError}</p>}
+        </div>
+
+        {/* Buttons */}
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button onClick={onClose} style={{ flex: 1, height: 46, borderRadius: 12, border: '1.5px solid #E4E7F0', background: '#fff', color: '#6B7280', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+            Cancelar
+          </button>
+          <button onClick={handleSave} disabled={!canSubmit}
+            style={{ flex: 2, height: 46, borderRadius: 12, border: 'none', background: canSubmit ? 'linear-gradient(135deg,#F647A9,#7B61FF)' : '#E4E7F0', color: canSubmit ? '#fff' : '#9CA3AF', fontSize: 14, fontWeight: 700, cursor: canSubmit ? 'pointer' : 'not-allowed', fontFamily: 'inherit', boxShadow: canSubmit ? '0 8px 24px rgba(246,71,169,.3)' : 'none', transition: 'all .15s' }}>
+            {saving ? 'Guardando…' : isEditing ? 'Guardar cambios' : 'Crear Exit →'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}

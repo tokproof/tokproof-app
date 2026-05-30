@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import TrustPageRenderer from '@/components/public/TrustPageRenderer'
 import SimplePageRenderer from '@/components/public/SimplePageRenderer'
@@ -75,9 +75,12 @@ export default async function PublicPage({ params }: PublicPageProps) {
   }
 
   // If the page was built with the new editor, detect which renderer to use
-  const landingConfig = (page.settings as Record<string, unknown>)?._landingConfig as LandingConfig | undefined
+  const settings      = page.settings as Record<string, unknown>
+  const landingConfig = settings?._landingConfig as LandingConfig | undefined
   if (landingConfig && typeof landingConfig === 'object') {
-    const pt = landingConfig.pageType
+    const pt = landingConfig.pageType ?? (settings._pageType as string | undefined)
+    // Quick Exit: visiting /@slug redirects to /@slug/go (the exit guide)
+    if (pt === 'quick_exit') redirect(`/u/${params.username}/go`)
     if (pt === 'simple_page' || pt === 'creator_page' || landingConfig.simplePage) {
       return <SimplePagePublicRenderer config={landingConfig} />
     }

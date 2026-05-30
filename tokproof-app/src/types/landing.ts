@@ -307,8 +307,10 @@ export interface LandingConfig {
   theme: LandingTheme
   settings: LandingSettings
   blocks: LandingBlock[]
-  // Simple / Creator page extension (pageType distinguishes editor mode)
-  pageType?: 'trust_page' | 'simple_page' | 'creator_page'
+  // Page type discriminator
+  // trust_page / simple_page / creator_page = editor pages
+  // quick_exit = redirect-only, no editor, managed via widget
+  pageType?: 'trust_page' | 'simple_page' | 'creator_page' | 'quick_exit'
   simplePage?: SimplePageConfig
 }
 
