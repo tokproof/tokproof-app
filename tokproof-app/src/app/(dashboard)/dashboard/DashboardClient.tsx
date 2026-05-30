@@ -13,6 +13,7 @@ import CreatePersonalBrandModal from '@/components/dashboard/CreatePersonalBrand
 import QuickExitWidget from '@/components/dashboard/QuickExitWidget'
 import type { Page, Profile } from '@/types'
 import { getPublicPageUrl, getPublicExitUrl, getPublicPageDisplay, getPublicExitDisplay } from '@/lib/urls'
+import { getUserPlan, getPlanLimits } from '@/lib/plans'
 
 function isQuickExit(page: Page): boolean {
   const s = page.settings as Record<string, unknown>
@@ -274,8 +275,11 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
   const [upgradeOpen, setUpgradeOpen] = useState(false)
   const headerCopy = useCopy()
 
-  const isFree = profile.plan === 'free'
-  const nonExitPages = pageList.filter(p => !isQuickExit(p))
+  const plan       = getUserPlan(profile)
+  const limits     = getPlanLimits(plan)
+  const isFree     = plan === 'free'
+  const nonExitPages   = pageList.filter(p => !isQuickExit(p))
+  const quickExits     = pageList.filter(isQuickExit)
   const publishedCount = nonExitPages.filter(p => p.status === 'published').length
   const draftCount     = nonExitPages.filter(p => p.status === 'draft').length
   const firstName = (profile.display_name ?? profile.email ?? 'creator').split(' ')[0]
@@ -408,11 +412,47 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
           })}
         </div>
 
+        {/* ── Plan usage bar ── */}
+        {isFree && (
+          <div style={{ marginBottom: 18, padding: '12px 16px', background: '#fff', borderRadius: 14, border: '1px solid #E4E7F0', boxShadow: '0 1px 4px rgba(15,23,42,.04)', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexShrink: 0 }}>
+              <div style={{ width: 26, height: 26, borderRadius: 8, background: 'linear-gradient(135deg,#F647A9,#7B61FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13 }}>⚡</div>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#374151' }}>Plan Free</span>
+            </div>
+            <div style={{ display: 'flex', gap: 20, flex: 1, flexWrap: 'wrap' }}>
+              {/* Exits usage */}
+              <div style={{ display: 'flex', flex: 1, minWidth: 140, flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, color: '#6B7280' }}>
+                  <span>Exits Rápidos</span>
+                  <span style={{ fontWeight: 700, color: quickExits.length >= limits.maxQuickExits ? '#EF4444' : '#374151' }}>{quickExits.length} / {limits.maxQuickExits === Infinity ? '∞' : limits.maxQuickExits}</span>
+                </div>
+                <div style={{ height: 4, borderRadius: 999, background: '#F3F4F6', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', borderRadius: 999, background: quickExits.length >= limits.maxQuickExits ? '#EF4444' : 'linear-gradient(135deg,#F647A9,#7B61FF)', width: `${Math.min(100, (quickExits.length / (limits.maxQuickExits === Infinity ? 1 : limits.maxQuickExits)) * 100)}%`, transition: 'width .3s' }} />
+                </div>
+              </div>
+              {/* Pages usage */}
+              <div style={{ display: 'flex', flex: 1, minWidth: 140, flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, color: '#6B7280' }}>
+                  <span>Páginas publicadas</span>
+                  <span style={{ fontWeight: 700, color: publishedCount >= limits.maxPublishedPages ? '#EF4444' : '#374151' }}>{publishedCount} / {limits.maxPublishedPages === Infinity ? '∞' : limits.maxPublishedPages}</span>
+                </div>
+                <div style={{ height: 4, borderRadius: 999, background: '#F3F4F6', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', borderRadius: 999, background: publishedCount >= limits.maxPublishedPages ? '#EF4444' : 'linear-gradient(135deg,#F647A9,#7B61FF)', width: `${Math.min(100, (publishedCount / (limits.maxPublishedPages === Infinity ? 1 : limits.maxPublishedPages)) * 100)}%`, transition: 'width .3s' }} />
+                </div>
+              </div>
+            </div>
+            <a href="/dashboard/billing" style={{ fontSize: 12, fontWeight: 700, padding: '6px 14px', borderRadius: 9, background: 'linear-gradient(135deg,#F647A9,#7B61FF)', color: '#fff', textDecoration: 'none', flexShrink: 0, boxShadow: '0 4px 12px rgba(246,71,169,.25)' }}>
+              Upgrade Pro
+            </a>
+          </div>
+        )}
+
         {/* ── Widgets ── */}
         <div className="db-widgets">
           <QuickExitWidget
-            initialExits={pageList.filter(isQuickExit)}
+            initialExits={quickExits}
             userId={profile.user_id}
+            plan={plan}
             guides={analytics?.rescueGuides}
             opens={analytics?.rescueOpens}
             rate={analytics?.rescueRate}

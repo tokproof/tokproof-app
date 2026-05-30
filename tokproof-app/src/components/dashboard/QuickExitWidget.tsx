@@ -4,12 +4,15 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { ShieldCheck, Clock, ExternalLink, TrendingUp, Copy, Check, Pencil, Trash2, Plus } from 'lucide-react'
 import QuickExitModal from './QuickExitModal'
+import PlanLimitModal from '@/components/shared/PlanLimitModal'
 import type { Page } from '@/types'
 import { getPublicExitUrl, getPublicExitDisplay } from '@/lib/urls'
+import { getPlanLimits, type Plan } from '@/lib/plans'
 
 interface Props {
   initialExits: Page[]
   userId: string
+  plan: Plan
   guides?: string
   opens?: string
   rate?: string
@@ -30,17 +33,22 @@ function getDestUrl(page: Page): string {
   return (cfg?.destinationUrl as string) ?? ''
 }
 
-export default function QuickExitWidget({ initialExits, userId, guides, opens, rate }: Props) {
+export default function QuickExitWidget({ initialExits, userId, plan, guides, opens, rate }: Props) {
   const [exits,        setExits]        = useState<Page[]>(initialExits)
   const [modalOpen,    setModalOpen]    = useState(false)
+  const [limitOpen,    setLimitOpen]    = useState(false)
   const [editing,      setEditing]      = useState<Page | null>(null)
   const cp = useCopyFn()
 
+  const limits  = getPlanLimits(plan)
   const hasExits = exits.length > 0
-  // For now, show the first quick exit in the widget
-  const primary = exits[0] ?? null
+  const primary  = exits[0] ?? null
+  const atLimit  = exits.length >= limits.maxQuickExits
 
-  function openCreate() { setEditing(null); setModalOpen(true) }
+  function openCreate() {
+    if (atLimit) { setLimitOpen(true); return }
+    setEditing(null); setModalOpen(true)
+  }
   function openEdit(page: Page) { setEditing(page); setModalOpen(true) }
 
   function handleSaved(page: Page) {
@@ -139,8 +147,12 @@ export default function QuickExitWidget({ initialExits, userId, guides, opens, r
               ))}
             </div>
 
-            {/* Add another */}
-            {exits.length < 3 && (
+            {/* Add another / upgrade nudge */}
+            {atLimit ? (
+              <button onClick={() => setLimitOpen(true)} style={{ marginTop: 12, width: '100%', height: 34, borderRadius: 9, border: '1.5px dashed rgba(246,71,169,.3)', background: 'rgba(246,71,169,.04)', color: '#F647A9', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, fontFamily: 'inherit' }}>
+                ⚡ Crear más — Upgrade Pro
+              </button>
+            ) : (
               <button onClick={openCreate} style={{ marginTop: 12, width: '100%', height: 34, borderRadius: 9, border: '1.5px dashed rgba(123,97,255,.25)', background: 'transparent', color: '#7B61FF', fontSize: 12, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, fontFamily: 'inherit' }}>
                 <Plus size={12} /> Añadir otro Exit Rápido
               </button>
@@ -160,6 +172,12 @@ export default function QuickExitWidget({ initialExits, userId, guides, opens, r
         userId={userId}
         editing={editing}
         onSaved={handleSaved}
+      />
+      <PlanLimitModal
+        open={limitOpen}
+        onClose={() => setLimitOpen(false)}
+        title="Límite alcanzado"
+        description="Tu plan Free incluye 1 Exit Rápido activo. Actualiza a Pro para crear exits ilimitados."
       />
     </>
   )

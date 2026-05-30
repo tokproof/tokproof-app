@@ -312,6 +312,16 @@ export default function BrowserExitGuide({ destinationUrl, pageId, onClose }: Br
 
         </div>{/* /stack */}
 
+        {/* Branding — bottom of overlay, always visible */}
+        <div style={{
+          position: 'absolute', bottom: 16, left: 0, right: 0, zIndex: 7,
+          textAlign: 'center', pointerEvents: 'auto',
+        }}>
+          <a href="https://tokproof.com" target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: 'rgba(255,255,255,.4)', textDecoration: 'none', fontWeight: 500, letterSpacing: '.01em' }}>
+            Powered by <span style={{ fontWeight: 700, color: 'rgba(255,255,255,.6)' }}>Tokproof</span>
+          </a>
+        </div>
+
         {/* Close button */}
         {onClose && (
           <button

@@ -45,7 +45,7 @@ const BLOCK_ICONS: Record<string, string> = {
 }
 
 // ─── Block categories ─────────────────────────────────────────────────────────
-interface BlockDef { type: LandingBlock['type']; label: string; defaultData: LandingBlock['data'] }
+interface BlockDef { type: LandingBlock['type']; label: string; defaultData: LandingBlock['data']; isPremium?: boolean }
 const BLOCK_CATEGORIES: Array<{ label: string; blocks: BlockDef[] }> = [
   {
     label: 'General',
@@ -61,10 +61,10 @@ const BLOCK_CATEGORIES: Array<{ label: string; blocks: BlockDef[] }> = [
   {
     label: 'Ecommerce',
     blocks: [
-      { type: 'product_grid',  label: 'Product Grid',   defaultData: { title: 'Nuestros productos', subtitle: '', products: [{ id: `p_${Date.now()}`, imageUrl: '', title: 'Producto 1', price: '29.99€', compareAtPrice: '', url: '', badge: 'Nuevo', description: '' }] } },
-      { type: 'trust_badges',  label: 'Trust Badges',   defaultData: { badges: [{ id: 'tb1', icon: 'shipping', title: 'Envío gratis', description: 'En pedidos +20€', enabled: true }, { id: 'tb2', icon: 'secure', title: 'Pago seguro', description: 'SSL 256 bits', enabled: true }, { id: 'tb3', icon: 'guarantee', title: 'Garantía 30d', description: 'Sin preguntas', enabled: true }, { id: 'tb4', icon: 'returns', title: 'Devoluciones', description: 'Fáciles y gratis', enabled: true }] } },
-      { type: 'comparison',    label: 'Comparativa',    defaultData: { title: 'Por qué elegirnos', leftTitle: 'Otros', rightTitle: 'Nosotros', rows: [{ id: 'cr1', label: 'Calidad', leftValue: 'Media', rightValue: 'Premium', winner: 'right' }, { id: 'cr2', label: 'Precio', leftValue: 'Caro', rightValue: 'Justo', winner: 'right' }, { id: 'cr3', label: 'Soporte', leftValue: 'Limitado', rightValue: '24/7', winner: 'right' }] } },
-      { type: 'urgency_offer', label: 'Urgencia / Oferta', defaultData: { title: '¡Oferta limitada!', description: 'Solo por tiempo limitado.', badgeText: '🔥 Agotándose', countdownEnabled: false, countdownText: 'Quedan 2 horas', ctaText: '🛒 Aprovechar oferta', ctaUrl: '' } },
+      { type: 'product_grid',  label: 'Product Grid',       isPremium: true,  defaultData: { title: 'Nuestros productos', subtitle: '', products: [{ id: `p_${Date.now()}`, imageUrl: '', title: 'Producto 1', price: '29.99€', compareAtPrice: '', url: '', badge: 'Nuevo', description: '' }] } },
+      { type: 'trust_badges',  label: 'Trust Badges',       isPremium: true,  defaultData: { badges: [{ id: 'tb1', icon: 'shipping', title: 'Envío gratis', description: 'En pedidos +20€', enabled: true }, { id: 'tb2', icon: 'secure', title: 'Pago seguro', description: 'SSL 256 bits', enabled: true }, { id: 'tb3', icon: 'guarantee', title: 'Garantía 30d', description: 'Sin preguntas', enabled: true }, { id: 'tb4', icon: 'returns', title: 'Devoluciones', description: 'Fáciles y gratis', enabled: true }] } },
+      { type: 'comparison',    label: 'Comparativa',        isPremium: true,  defaultData: { title: 'Por qué elegirnos', leftTitle: 'Otros', rightTitle: 'Nosotros', rows: [{ id: 'cr1', label: 'Calidad', leftValue: 'Media', rightValue: 'Premium', winner: 'right' }, { id: 'cr2', label: 'Precio', leftValue: 'Caro', rightValue: 'Justo', winner: 'right' }, { id: 'cr3', label: 'Soporte', leftValue: 'Limitado', rightValue: '24/7', winner: 'right' }] } },
+      { type: 'urgency_offer', label: 'Urgencia / Oferta',  isPremium: true,  defaultData: { title: '¡Oferta limitada!', description: 'Solo por tiempo limitado.', badgeText: '🔥 Agotándose', countdownEnabled: false, countdownText: 'Quedan 2 horas', ctaText: '🛒 Aprovechar oferta', ctaUrl: '' } },
     ],
   },
   {
@@ -834,7 +834,11 @@ function AddBlockPicker({ onAdd }: { onAdd: (type: LandingBlock['type'], data: L
                       onClick={() => { onAdd(b.type, b.defaultData); setOpen(false) }}
                       style={{ width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: T.ink, fontSize: 12, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
                     >
-                      <span style={{ fontSize: 14 }}>{BLOCK_ICONS[b.type]}</span>{b.label}
+                      <span style={{ fontSize: 14 }}>{BLOCK_ICONS[b.type]}</span>
+                      <span style={{ flex: 1 }}>{b.label}</span>
+                      {b.isPremium && (
+                        <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 999, background: 'linear-gradient(135deg,#FFD700,#FF8C00)', color: '#fff', letterSpacing: '.03em', flexShrink: 0 }}>PRO</span>
+                      )}
                     </button>
                   ))}
                 </div>
