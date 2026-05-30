@@ -124,14 +124,13 @@ export type SafeExitEvent =
  */
 export function trackSafeExitEvent(pageId: string, event: SafeExitEvent): void {
   if (typeof window === 'undefined') return
-  fetch('/api/events', {
+  fetch('/api/track', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       pageId,
       eventType: event,
-      referrer: document.referrer,
-      userAgent: navigator.userAgent,
+      metadata: { referer: document.referrer },
     }),
   }).catch(() => {})
 }

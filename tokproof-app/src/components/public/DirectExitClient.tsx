@@ -15,11 +15,11 @@ interface DirectExitClientProps {
 // Fire-and-forget analytics — never blocks navigation.
 // Uses sendBeacon when available (survives page unload), falls back to fetch.
 function track(eventType: string, pageId: string) {
-  const body = JSON.stringify({ pageId, eventType, userAgent: navigator.userAgent })
+  const body = JSON.stringify({ pageId, eventType })
   if (navigator.sendBeacon) {
-    navigator.sendBeacon('/api/events', new Blob([body], { type: 'application/json' }))
+    navigator.sendBeacon('/api/track', new Blob([body], { type: 'application/json' }))
   } else {
-    fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body }).catch(() => {})
+    fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body }).catch(() => {})
   }
 }
 

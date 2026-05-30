@@ -25,24 +25,23 @@ export default function TrustPageRenderer({ data, preview = false }: Props) {
 
   useEffect(() => {
     if (preview) return
-    fetch('/api/events', {
+    fetch('/api/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         pageId: page.id,
         eventType: 'page_view',
-        referrer: document.referrer,
-        userAgent: navigator.userAgent,
+        metadata: { referer: document.referrer },
       }),
     }).catch(() => {})
   }, [page.id, preview])
 
   function trackShopifyClick() {
     if (!preview) {
-      fetch('/api/events', {
+      fetch('/api/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pageId: page.id, eventType: 'shopify_click', referrer: document.referrer, userAgent: navigator.userAgent }),
+        body: JSON.stringify({ pageId: page.id, eventType: 'shopify_click' }),
       }).catch(() => {})
     }
   }
@@ -105,10 +104,10 @@ export default function TrustPageRenderer({ data, preview = false }: Props) {
             className="pt-cta"
             style={{ background: `linear-gradient(135deg, ${brandColor}, ${accentColor})` }}
             onClick={() => {
-              fetch('/api/events', {
+              fetch('/api/track', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pageId: page.id, eventType: 'trust_page_cta_exit_triggered', userAgent: navigator.userAgent }),
+                body: JSON.stringify({ pageId: page.id, eventType: 'cta_click' }),
               }).catch(() => {})
               setShowExitGuide(true)
             }}
@@ -245,10 +244,10 @@ export default function TrustPageRenderer({ data, preview = false }: Props) {
             className="pt-cta"
             style={{ background: `linear-gradient(135deg, ${brandColor}, ${accentColor})`, margin: 0 }}
             onClick={() => {
-              fetch('/api/events', {
+              fetch('/api/track', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pageId: page.id, eventType: 'trust_page_cta_exit_triggered', userAgent: navigator.userAgent }),
+                body: JSON.stringify({ pageId: page.id, eventType: 'cta_click' }),
               }).catch(() => {})
               setShowExitGuide(true)
             }}

@@ -82,10 +82,10 @@ export default async function PublicPage({ params }: PublicPageProps) {
     // Quick Exit: visiting /@slug redirects to /@slug/go (the exit guide)
     if (pt === 'quick_exit') redirect(`/u/${params.username}/go`)
     if (pt === 'simple_page' || pt === 'creator_page' || landingConfig.simplePage) {
-      return <SimplePagePublicRenderer config={landingConfig} />
+      return <SimplePagePublicRenderer config={landingConfig} pageId={page.id} slug={params.username} />
     }
     if ('blocks' in landingConfig) {
-      return <LandingPageRenderer config={landingConfig as LandingConfig} />
+      return <LandingPageRenderer config={landingConfig as LandingConfig} pageId={page.id} slug={params.username} />
     }
   }
 

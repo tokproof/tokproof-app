@@ -16,19 +16,19 @@ export default function SimplePageRenderer({ data, preview = false }: Props) {
 
   useEffect(() => {
     if (preview) return
-    fetch('/api/events', {
+    fetch('/api/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pageId: page.id, eventType: 'page_view', referrer: document.referrer, userAgent: navigator.userAgent }),
+      body: JSON.stringify({ pageId: page.id, eventType: 'page_view', metadata: { referer: document.referrer } }),
     }).catch(() => {})
   }, [page.id, preview])
 
   function trackClick(buttonId: string) {
     if (!preview) {
-      fetch('/api/events', {
+      fetch('/api/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pageId: page.id, eventType: 'button_click', buttonId, referrer: document.referrer, userAgent: navigator.userAgent }),
+        body: JSON.stringify({ pageId: page.id, eventType: 'link_click', metadata: { buttonId } }),
       }).catch(() => {})
     }
   }

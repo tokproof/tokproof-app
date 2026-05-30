@@ -1,3 +1,6 @@
+'use client'
+
+import { useEffect } from 'react'
 import type { LandingConfig, SimplePageConfig, SimplePagePlatform } from '@/types/landing'
 import { getPageBackground, resolveBlockStyle } from '@/lib/blockStyle'
 import type { LandingBlock } from '@/types/landing'
@@ -18,9 +21,11 @@ interface Props {
   config: LandingConfig
   /** When true, renders without <html> wrapper (used inside editor preview) */
   preview?: boolean
+  pageId?: string
+  slug?: string
 }
 
-export default function SimplePagePublicRenderer({ config }: Props) {
+export default function SimplePagePublicRenderer({ config, preview, pageId, slug }: Props) {
   const sp: SimplePageConfig = config.simplePage ?? {
     profile: { avatarUrl: '', displayName: 'Tu Nombre', username: 'tuusuario', bio: '', verifiedBadge: false },
     socialLinks: [],
@@ -35,6 +40,33 @@ export default function SimplePagePublicRenderer({ config }: Props) {
 
   const activeSocials = sp.socialLinks.filter(s => s.enabled && s.url)
   const activeLinks   = sp.links.filter(l => l.enabled)
+
+  useEffect(() => {
+    if (preview || !pageId || !slug) return
+    fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pageId,
+        slug,
+        eventType: 'page_view',
+        metadata: { referer: document.referrer },
+      }),
+    }).catch(() => {})
+  }, [pageId, slug, preview])
+
+  function trackLinkClick(linkId: string, destinationUrl: string) {
+    if (preview || !pageId) return
+    fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pageId,
+        eventType: 'link_click',
+        metadata: { linkId, destinationUrl },
+      }),
+    }).catch(() => {})
+  }
 
   return (
     <div style={{
@@ -131,6 +163,7 @@ export default function SimplePagePublicRenderer({ config }: Props) {
             href={link.url || '#'}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackLinkClick(link.id, link.url || '')}
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               padding: '14px 20px', borderRadius: rs.btnR,
