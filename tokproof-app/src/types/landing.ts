@@ -186,6 +186,62 @@ export interface FooterLegalData {
   legalText?: string
 }
 
+// ─── Simple Page / Creator Page ──────────────────────────────────────────────
+export type SimplePagePlatform =
+  | 'instagram' | 'tiktok' | 'youtube' | 'website'
+  | 'whatsapp' | 'email' | 'x' | 'linkedin'
+
+export interface SimplePageSocialLink {
+  id: string
+  platform: SimplePagePlatform
+  url: string
+  enabled: boolean
+}
+
+export interface SimplePageLink {
+  id: string
+  title: string
+  url: string
+  description?: string
+  imageUrl?: string
+  enabled: boolean
+}
+
+export interface SimplePageProfile {
+  avatarUrl: string
+  displayName: string
+  username: string
+  bio: string
+  verifiedBadge: boolean
+}
+
+export interface SimplePageSettings {
+  enableBrowserGuide: boolean
+  destinationMode: 'direct' | 'guide'
+}
+
+export interface SimplePageConfig {
+  profile: SimplePageProfile
+  socialLinks: SimplePageSocialLink[]
+  links: SimplePageLink[]
+  settings: SimplePageSettings
+}
+
+export function makeDefaultSimplePageConfig(displayName = '', username = ''): SimplePageConfig {
+  return {
+    profile: { avatarUrl: '', displayName: displayName || 'Tu Nombre', username: username || 'tuusuario', bio: 'Creador de contenido 🌟', verifiedBadge: false },
+    socialLinks: [
+      { id: 'sl_tt', platform: 'tiktok',    url: '', enabled: true  },
+      { id: 'sl_ig', platform: 'instagram', url: '', enabled: true  },
+      { id: 'sl_yt', platform: 'youtube',   url: '', enabled: false },
+    ],
+    links: [
+      { id: 'link_1', title: 'Mi tienda', url: '', enabled: true },
+    ],
+    settings: { enableBrowserGuide: false, destinationMode: 'direct' },
+  }
+}
+
 // ─── Theme background ─────────────────────────────────────────────────────────
 export interface ThemeBackground {
   mode: 'solid' | 'gradient'
@@ -251,6 +307,9 @@ export interface LandingConfig {
   theme: LandingTheme
   settings: LandingSettings
   blocks: LandingBlock[]
+  // Simple / Creator page extension (pageType distinguishes editor mode)
+  pageType?: 'trust_page' | 'simple_page' | 'creator_page'
+  simplePage?: SimplePageConfig
 }
 
 // ─── Default factory ─────────────────────────────────────────────────────────
