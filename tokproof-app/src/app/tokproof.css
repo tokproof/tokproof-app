@@ -4501,3 +4501,11 @@ body { background: var(--bg); }
   .pm-table-header .pm-col-score, .pm-table-header .pm-col-date { display: none; }
   .pm-search-box { margin-left: 0; }
 }
+
+/* ── Analytics Dashboard KPI responsive grid ── */
+@media (max-width: 1180px) {
+  .kpi-analytics-grid { grid-template-columns: repeat(4, 1fr) !important; }
+}
+@media (max-width: 700px) {
+  .kpi-analytics-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
