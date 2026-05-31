@@ -121,8 +121,8 @@ const FunnelArrow = () => (
   </svg>
 )
 
-const Card = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => (
-  <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, ...style }}>
+const Card = ({ children, style, onClick }: { children: React.ReactNode; style?: React.CSSProperties; onClick?: () => void }) => (
+  <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, ...style }} onClick={onClick}>
     {children}
   </div>
 )
@@ -180,16 +180,23 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
   )
 }
 
-// ─── Pro gate overlay ─────────────────────────────────────────────────────────
-function ProGate({ onUpgrade }: { onUpgrade: () => void }) {
+// ─── Inline PRO badge ─────────────────────────────────────────────────────────
+const ProBadge = () => (
+  <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.04em', color: '#fff',
+    background: C.grad, padding: '2px 7px', borderRadius: 6, flexShrink: 0, lineHeight: 1.6 }}>
+    PRO
+  </span>
+)
+
+// ─── Section blur overlay (funnel / chart) ────────────────────────────────────
+function SectionBlurGate({ onUpgrade, children }: { onUpgrade: () => void; children?: React.ReactNode }) {
   return (
     <div style={{ position: 'absolute', inset: 0, borderRadius: 18,
-      background: 'rgba(255,255,255,.88)', backdropFilter: 'blur(4px)',
+      background: 'rgba(255,255,255,.38)', backdropFilter: 'blur(2px)',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
-      justifyContent: 'center', gap: 8, zIndex: 10, cursor: 'pointer' }}
+      justifyContent: 'center', gap: 12, zIndex: 10, cursor: 'pointer' }}
       onClick={onUpgrade}>
-      <span style={{ fontSize: 22 }}>🔒</span>
-      <span style={{ fontSize: 12, fontWeight: 700, color: C.violet }}>PRO</span>
+      {children}
     </div>
   )
 }
@@ -224,29 +231,54 @@ function KpiCard({ cfg, val, isPro, onUpgrade }: {
   const locked = cfg.locked && !isPro
   return (
     <Card style={{ padding: '16px 15px 15px', display: 'flex', flexDirection: 'column',
-      minHeight: 212, position: 'relative' }}>
-      {locked && <ProGate onUpgrade={onUpgrade} />}
+      minHeight: 212, cursor: locked ? 'pointer' : 'default' }}
+      onClick={locked ? onUpgrade : undefined}>
+
+      {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <div style={{ width: 40, height: 40, borderRadius: 11, background: t.bg, color: t.color,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ width: 40, height: 40, borderRadius: 11, flexShrink: 0,
+          background: locked ? '#F0F1F4' : t.bg, color: locked ? C.muted2 : t.color,
+          display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"
             dangerouslySetInnerHTML={{ __html: cfg.icoPath }} />
         </div>
-        <InfoIcon tip={TIPS[cfg.label]} />
+        {locked ? <ProBadge /> : <InfoIcon tip={TIPS[cfg.label]} />}
       </div>
+
+      {/* Label */}
       <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 500, marginTop: 13,
         lineHeight: 1.35, minHeight: 34 }}>{cfg.label}</div>
-      <div style={{ fontSize: 25, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 2 }}>
-        {locked ? '—' : val}
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12.5,
-        fontWeight: 700, color: C.green, marginTop: 9 }}>
-        <ArrowUp /><span style={{ color: C.muted2, fontSize: 12 }}>—</span>
-      </div>
-      <div style={{ fontSize: 11, color: C.muted2, marginTop: 2 }}>vs período anterior</div>
+
+      {locked ? (
+        /* Locked state */
+        <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 5 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 2 }}>
+            <span style={{ fontSize: 16 }}>🔒</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: C.violet }}>Disponible en Pro</span>
+          </div>
+          <a href="/dashboard/billing"
+            onClick={e => e.stopPropagation()}
+            style={{ fontSize: 11.5, color: C.violet, fontWeight: 600, textDecoration: 'none',
+              opacity: .75, marginTop: 2 }}>
+            Upgrade →
+          </a>
+        </div>
+      ) : (
+        /* Unlocked state */
+        <>
+          <div style={{ fontSize: 25, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 2 }}>{val}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12.5,
+            fontWeight: 700, color: C.green, marginTop: 9 }}>
+            <ArrowUp /><span style={{ color: C.muted2, fontSize: 12 }}>—</span>
+          </div>
+          <div style={{ fontSize: 11, color: C.muted2, marginTop: 2 }}>vs período anterior</div>
+        </>
+      )}
+
+      {/* Sparkline */}
       <svg viewBox="0 0 90 38" preserveAspectRatio="none"
-        style={{ marginTop: 'auto', width: '100%', height: 38 }}>
+        style={{ marginTop: 'auto', width: '100%', height: 38, opacity: locked ? 0.18 : 1 }}>
         <polyline points={sparkPoints(cfg.sparkSeed, 90, 38)}
           fill="none" stroke={locked ? C.muted2 : cfg.sparkColor}
           strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -272,22 +304,29 @@ function FunnelSection({ data, isPro, onUpgrade }: { data: FullAnalytics; isPro:
 
   return (
     <Card style={{ marginTop: 22, padding: '22px 24px', position: 'relative' }}>
-      {!isPro && <div style={{ position: 'absolute', inset: 0, borderRadius: 18,
-        background: 'rgba(255,255,255,.88)', backdropFilter: 'blur(4px)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        gap: 12, zIndex: 10, cursor: 'pointer' }} onClick={onUpgrade}>
-        <span style={{ fontSize: 28 }}>🔒</span>
-        <span style={{ fontSize: 14, fontWeight: 700, color: C.violet }}>Función PRO</span>
-        <a href="/dashboard/billing" onClick={e => e.stopPropagation()}
-          style={{ padding: '10px 24px', background: C.grad, color: '#fff',
-          borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
-          Upgrade a Pro →
-        </a>
-      </div>}
+      {!isPro && (
+        <SectionBlurGate onUpgrade={onUpgrade}>
+          <div style={{ background: 'rgba(255,255,255,.9)', borderRadius: 16,
+            padding: '16px 24px', textAlign: 'center',
+            boxShadow: '0 8px 32px rgba(124,58,237,.15)' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.violet, marginBottom: 8 }}>
+              🔒 Embudo TikTok Rescue — Función PRO
+            </div>
+            <a href="/dashboard/billing" onClick={e => e.stopPropagation()}
+              style={{ display: 'inline-block', padding: '9px 22px', background: C.grad,
+              color: '#fff', borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+              Upgrade a Pro →
+            </a>
+          </div>
+        </SectionBlurGate>
+      )}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8,
           fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em' }}>
-          Embudo TikTok Rescue <InfoIcon tip={TIPS['Embudo TikTok Rescue']} />
+          {!isPro && <span style={{ fontSize: 16 }}>🔒</span>}
+          Embudo TikTok Rescue
+          {!isPro && <ProBadge />}
+          <InfoIcon tip={!isPro ? 'Disponible en Tokproof Pro' : TIPS['Embudo TikTok Rescue']} />
         </div>
         <button style={{ display: 'flex', alignItems: 'center', gap: 7, background: '#F7F5FD',
           border: '1px solid #ECE7FA', color: C.violet, borderRadius: 10,
@@ -354,21 +393,48 @@ function FunnelSection({ data, isPro, onUpgrade }: { data: FullAnalytics; isPro:
 }
 
 // ─── Triple row ───────────────────────────────────────────────────────────────
-function ColCard({ title, tip, children, footBtn, onFootClick }:
-  { title: string; tip?: string; children: React.ReactNode; footBtn: string; onFootClick: () => void }) {
+function ColCard({ title, tip, children, footBtn, onFootClick, isPro, onUpgrade }:
+  { title: string; tip?: string; children: React.ReactNode; footBtn: string; onFootClick: () => void
+    isPro?: boolean; onUpgrade?: () => void }) {
+  const locked = isPro === false
   return (
-    <Card style={{ padding: '20px 20px 16px', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8,
+    <Card style={{ padding: '20px 20px 16px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {/* Title */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7,
         fontSize: 17, fontWeight: 700, letterSpacing: '-0.01em' }}>
-        {title} <InfoIcon tip={tip} />
+        {locked && <span style={{ fontSize: 15 }}>🔒</span>}
+        {title}
+        {locked && <ProBadge />}
+        <InfoIcon tip={locked ? 'Disponible en Tokproof Pro' : tip} />
       </div>
-      {children}
-      <div style={{ marginTop: 'auto', paddingTop: 16 }}>
-        <button onClick={onFootClick} style={{ width: '100%', border: 'none', borderRadius: 11, padding: 11,
+
+      {/* Content area — blurred when locked */}
+      <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column' }}>
+        {children}
+        {locked && (
+          <div style={{ position: 'absolute', inset: 0, borderRadius: 10,
+            backdropFilter: 'blur(3px)', background: 'rgba(255,255,255,.52)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            gap: 10, cursor: 'pointer', zIndex: 10 }} onClick={onUpgrade}>
+            <a href="/dashboard/billing" onClick={e => e.stopPropagation()}
+              style={{ padding: '9px 20px', background: C.grad, color: '#fff',
+              borderRadius: 10, fontSize: 12.5, fontWeight: 700, textDecoration: 'none',
+              whiteSpace: 'nowrap' }}>
+              Upgrade to Pro →
+            </a>
+          </div>
+        )}
+      </div>
+
+      {/* Footer button */}
+      <div style={{ paddingTop: 16 }}>
+        <button
+          onClick={locked ? onUpgrade : onFootClick}
+          style={{ width: '100%', border: 'none', borderRadius: 11, padding: 11,
           fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-          background: title === 'Top países' ? '#FDEAF2' : '#F2EEFB',
-          color: title === 'Top países' ? '#E0348F' : C.violet }}>
-          {footBtn}
+          background: locked ? C.grad : (title === 'Top países' ? '#FDEAF2' : '#F2EEFB'),
+          color: locked ? '#fff' : (title === 'Top países' ? '#E0348F' : C.violet) }}>
+          {locked ? 'Upgrade to Pro →' : footBtn}
         </button>
       </div>
     </Card>
@@ -384,10 +450,10 @@ function EmptyState({ msg }: { msg: string }) {
   )
 }
 
-function TopCountries({ data, onMore }: { data: FullAnalytics; onMore: () => void }) {
-  const maxPct = data.sources.length > 0 ? Math.max(...data.sources.map(s => s.pct)) : 1
+function TopCountries({ data, onMore, isPro, onUpgrade }: { data: FullAnalytics; onMore: () => void; isPro: boolean; onUpgrade: () => void }) {
   return (
-    <ColCard title="Top países" tip={TIPS['Top países']} footBtn="Ver todos los países" onFootClick={onMore}>
+    <ColCard title="Top países" tip={TIPS['Top países']} footBtn="Ver todos los países" onFootClick={onMore}
+      isPro={isPro} onUpgrade={onUpgrade}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 15, margin: '16px 0 4px', flex: 1 }}>
         {data.devices.length === 0
           ? <EmptyState msg="Sin datos de países todavía" />
@@ -428,7 +494,8 @@ function DevicesDonut({ data, onMore, isPro, onUpgrade }: {
   })
 
   return (
-    <ColCard title="Dispositivos" tip={TIPS['Dispositivos']} footBtn="Ver todos los dispositivos" onFootClick={onMore}>
+    <ColCard title="Dispositivos" tip={TIPS['Dispositivos']} footBtn="Ver todos los dispositivos" onFootClick={onMore}
+      isPro={isPro} onUpgrade={onUpgrade}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 18, margin: '10px 0 4px', flex: 1 }}>
         <div style={{ position: 'relative', width: 148, height: 148, flexShrink: 0 }}>
           <svg viewBox="0 0 42 42" width="148" height="148">
@@ -479,7 +546,8 @@ function TrafficSources({ data, onMore, isPro, onUpgrade }: {
 }) {
   const maxWidth = data.sources.length > 0 ? Math.max(...data.sources.map(s => s.barWidth)) : 1
   return (
-    <ColCard title="Fuentes de tráfico" tip={TIPS['Fuentes de tráfico']} footBtn="Ver todas las fuentes" onFootClick={onMore}>
+    <ColCard title="Fuentes de tráfico" tip={TIPS['Fuentes de tráfico']} footBtn="Ver todas las fuentes" onFootClick={onMore}
+      isPro={isPro} onUpgrade={onUpgrade}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 15, margin: '16px 0 4px', flex: 1 }}>
         {data.sources.length === 0
           ? <EmptyState msg="Sin datos de fuentes todavía" />
@@ -510,7 +578,7 @@ function TripleRow({ data, isPro, onMore, onUpgrade }: {
 }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginTop: 22 }}>
-      <TopCountries data={data} onMore={onMore} />
+      <TopCountries data={data} onMore={onMore} isPro={isPro} onUpgrade={onUpgrade} />
       <DevicesDonut data={data} onMore={onMore} isPro={isPro} onUpgrade={onUpgrade} />
       <TrafficSources data={data} onMore={onMore} isPro={isPro} onUpgrade={onUpgrade} />
     </div>
@@ -535,17 +603,29 @@ function PerformanceChart({ data, isPro, onUpgrade }: { data: FullAnalytics; isP
 
   return (
     <Card style={{ marginTop: 22, padding: '22px 24px', position: 'relative' }}>
-      {!isPro && <div style={{ position: 'absolute', inset: 0, borderRadius: 18,
-        background: 'rgba(255,255,255,.88)', backdropFilter: 'blur(4px)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        gap: 12, zIndex: 10, cursor: 'pointer' }} onClick={onUpgrade}>
-        <span style={{ fontSize: 28 }}>🔒</span>
-        <span style={{ fontSize: 14, fontWeight: 700, color: C.violet }}>Función PRO</span>
-      </div>}
+      {!isPro && (
+        <SectionBlurGate onUpgrade={onUpgrade}>
+          <div style={{ background: 'rgba(255,255,255,.9)', borderRadius: 16,
+            padding: '14px 22px', textAlign: 'center',
+            boxShadow: '0 8px 32px rgba(124,58,237,.15)' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.violet, marginBottom: 8 }}>
+              🔒 Evolución del rendimiento — Función PRO
+            </div>
+            <a href="/dashboard/billing" onClick={e => e.stopPropagation()}
+              style={{ display: 'inline-block', padding: '9px 22px', background: C.grad,
+              color: '#fff', borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+              Upgrade a Pro →
+            </a>
+          </div>
+        </SectionBlurGate>
+      )}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8,
           fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em' }}>
-          Evolución del rendimiento <InfoIcon tip={TIPS['Evolución del rendimiento']} />
+          {!isPro && <span style={{ fontSize: 16 }}>🔒</span>}
+          Evolución del rendimiento
+          {!isPro && <ProBadge />}
+          <InfoIcon tip={!isPro ? 'Disponible en Tokproof Pro' : TIPS['Evolución del rendimiento']} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff',
           border: `1px solid ${C.line}`, borderRadius: 10, padding: '8px 13px',
