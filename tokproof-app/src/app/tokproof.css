@@ -4509,3 +4509,9 @@ body { background: var(--bg); }
 @media (max-width: 700px) {
   .kpi-analytics-grid { grid-template-columns: repeat(2, 1fr) !important; }
 }
+
+/* ── Billing page responsive grids ── */
+@media (max-width: 1120px) {
+  .billing-plans-grid { grid-template-columns: 1fr !important; }
+  .billing-lower-grid { grid-template-columns: 1fr !important; }
+}
