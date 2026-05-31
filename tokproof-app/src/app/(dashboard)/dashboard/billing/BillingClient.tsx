@@ -230,11 +230,18 @@ export default function BillingClient({ isFree, username }: Props) {
             <span style={{ fontSize: 11, fontWeight: 700, padding: '5px 11px', borderRadius: 9,
               color: C.violet, background: '#EEE5FC' }}>POPULAR</span>
           </div>
-          <div style={{ fontSize: 50, fontWeight: 800, letterSpacing: '-0.03em', marginTop: 18,
-            lineHeight: 1, color: C.ink }}>
-            $19<span style={{ fontSize: 18, fontWeight: 600, color: C.muted2 }}>/mes</span>
+
+          {/* Subtitle */}
+          <div style={{ fontSize: 13.5, color: C.muted, marginTop: 10, lineHeight: 1.5, maxWidth: 240 }}>
+            Todo lo necesario para escalar tu tráfico de TikTok.
           </div>
-          <div style={{ fontSize: 14, color: C.muted, marginTop: 12, display: 'flex', alignItems: 'center', gap: 9 }}>
+
+          {/* Price — more prominent */}
+          <div style={{ marginTop: 16, display: 'flex', alignItems: 'flex-end', gap: 4, lineHeight: 1 }}>
+            <span style={{ fontSize: 56, fontWeight: 900, letterSpacing: '-0.04em', color: C.ink }}>$19</span>
+            <span style={{ fontSize: 17, fontWeight: 700, color: C.violet, marginBottom: 8 }}>/mes</span>
+          </div>
+          <div style={{ fontSize: 13.5, color: C.muted, marginTop: 8, display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap' }}>
             o $15/mes facturado anualmente{' '}
             <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 9px', borderRadius: 9,
               color: C.violet, background: '#EEE6FB', whiteSpace: 'nowrap' }}>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import type { FullAnalytics, PageMeta } from '@/lib/analytics'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
@@ -151,35 +152,6 @@ function ComingSoonModal({ onClose }: { onClose: () => void }) {
   )
 }
 
-// ─── Upgrade Pro modal ────────────────────────────────────────────────────────
-function UpgradeModal({ onClose }: { onClose: () => void }) {
-  return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.45)', zIndex: 200,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(3px)' }}
-      onClick={onClose}>
-      <div style={{ background: '#fff', borderRadius: 20, padding: '32px 28px', maxWidth: 380,
-        width: '90%', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,.16)' }}
-        onClick={e => e.stopPropagation()}>
-        <div style={{ fontSize: 32, marginBottom: 12 }}>🔒</div>
-        <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 8, color: C.ink }}>Función Pro</div>
-        <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.6 }}>
-          Esta métrica está disponible en el plan Pro. Desbloquea analytics avanzados, embudo TikTok Rescue, fuentes de tráfico y exportación CSV.
-        </p>
-        <a href="/dashboard/billing" style={{ display: 'block', marginTop: 20, padding: '11px 28px',
-          background: C.grad, color: '#fff', borderRadius: 12, textDecoration: 'none',
-          fontSize: 14, fontWeight: 700 }}>
-          Upgrade a Pro →
-        </a>
-        <button onClick={onClose} style={{ marginTop: 10, padding: '8px 16px', background: 'none',
-          border: 'none', color: C.muted, fontFamily: 'inherit', fontSize: 13,
-          cursor: 'pointer', fontWeight: 500 }}>
-          Ahora no
-        </button>
-      </div>
-    </div>
-  )
-}
-
 // ─── Inline PRO badge ─────────────────────────────────────────────────────────
 const ProBadge = () => (
   <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.04em', color: '#fff',
@@ -243,7 +215,13 @@ function KpiCard({ cfg, val, isPro, onUpgrade }: {
             stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"
             dangerouslySetInnerHTML={{ __html: cfg.icoPath }} />
         </div>
-        {locked ? <ProBadge /> : <InfoIcon tip={TIPS[cfg.label]} />}
+        {locked
+          ? <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <InfoIcon tip="Disponible en Tokproof Pro" />
+              <ProBadge />
+            </span>
+          : <InfoIcon tip={TIPS[cfg.label]} />
+        }
       </div>
 
       {/* Label */}
@@ -408,34 +386,30 @@ function ColCard({ title, tip, children, footBtn, onFootClick, isPro, onUpgrade 
         <InfoIcon tip={locked ? 'Disponible en Tokproof Pro' : tip} />
       </div>
 
-      {/* Content area — blurred when locked */}
+      {/* Content area — blurred when locked, clicking the whole card goes to billing */}
       <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column' }}>
         {children}
         {locked && (
-          <div style={{ position: 'absolute', inset: 0, borderRadius: 10,
-            backdropFilter: 'blur(3px)', background: 'rgba(255,255,255,.52)',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            gap: 10, cursor: 'pointer', zIndex: 10 }} onClick={onUpgrade}>
-            <a href="/dashboard/billing" onClick={e => e.stopPropagation()}
-              style={{ padding: '9px 20px', background: C.grad, color: '#fff',
-              borderRadius: 10, fontSize: 12.5, fontWeight: 700, textDecoration: 'none',
-              whiteSpace: 'nowrap' }}>
-              Upgrade to Pro →
-            </a>
-          </div>
+          <a href="/dashboard/billing" style={{ position: 'absolute', inset: 0, borderRadius: 10,
+            backdropFilter: 'blur(3px)', background: 'rgba(255,255,255,.48)', zIndex: 10 }} />
         )}
       </div>
 
-      {/* Footer button */}
+      {/* Footer: "Disponible en Pro" when locked, action button when unlocked */}
       <div style={{ paddingTop: 16 }}>
-        <button
-          onClick={locked ? onUpgrade : onFootClick}
-          style={{ width: '100%', border: 'none', borderRadius: 11, padding: 11,
-          fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-          background: locked ? C.grad : (title === 'Top países' ? '#FDEAF2' : '#F2EEFB'),
-          color: locked ? '#fff' : (title === 'Top países' ? '#E0348F' : C.violet) }}>
-          {locked ? 'Upgrade to Pro →' : footBtn}
-        </button>
+        {locked
+          ? <div style={{ textAlign: 'center', fontSize: 12.5, fontWeight: 600,
+              color: C.violet, padding: '10px 0', letterSpacing: '.01em' }}>
+              Disponible en Tokproof Pro
+            </div>
+          : <button onClick={onFootClick}
+              style={{ width: '100%', border: 'none', borderRadius: 11, padding: 11,
+              fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              background: title === 'Top países' ? '#FDEAF2' : '#F2EEFB',
+              color: title === 'Top países' ? '#E0348F' : C.violet }}>
+              {footBtn}
+            </button>
+        }
       </div>
     </Card>
   )
@@ -604,20 +578,8 @@ function PerformanceChart({ data, isPro, onUpgrade }: { data: FullAnalytics; isP
   return (
     <Card style={{ marginTop: 22, padding: '22px 24px', position: 'relative' }}>
       {!isPro && (
-        <SectionBlurGate onUpgrade={onUpgrade}>
-          <div style={{ background: 'rgba(255,255,255,.9)', borderRadius: 16,
-            padding: '14px 22px', textAlign: 'center',
-            boxShadow: '0 8px 32px rgba(124,58,237,.15)' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: C.violet, marginBottom: 8 }}>
-              🔒 Evolución del rendimiento — Función PRO
-            </div>
-            <a href="/dashboard/billing" onClick={e => e.stopPropagation()}
-              style={{ display: 'inline-block', padding: '9px 22px', background: C.grad,
-              color: '#fff', borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
-              Upgrade a Pro →
-            </a>
-          </div>
-        </SectionBlurGate>
+        <a href="/dashboard/billing" style={{ position: 'absolute', inset: 0, borderRadius: 18,
+          background: 'rgba(255,255,255,.36)', backdropFilter: 'blur(2px)', zIndex: 10 }} />
       )}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8,
@@ -778,6 +740,7 @@ const DATE_OPTIONS = [
 ]
 
 export default function AnalyticsDashboard({ initialData, pages, isPro }: Props) {
+  const router = useRouter()
   const [data,           setData]       = useState<FullAnalytics>(initialData)
   const [days,           setDays]       = useState(7)
   const [dateLabel,      setDateLabel]  = useState('Últimos 7 días')
@@ -786,7 +749,7 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
   const [loading,        setLoading]    = useState(false)
   const [showDateDrop,   setDateDrop]   = useState(false)
   const [showPageDrop,   setPageDrop]   = useState(false)
-  const [modal,          setModal]      = useState<'soon' | 'upgrade' | null>(null)
+  const [modal,          setModal]      = useState<'soon' | null>(null)
 
   const load = useCallback(async (d: number, pid: string | null) => {
     setLoading(true)
@@ -811,7 +774,7 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
   }
 
   function exportCSV() {
-    if (!isPro) { setModal('upgrade'); return }
+    if (!isPro) { router.push('/dashboard/billing'); return }
     const rows = [
       ['Fecha', 'Landing Views', 'Clicks', 'Open Browser Clicks'],
       ...data.timeSeries.map(p => [p.date, p.views, p.clicks, p.openBrowserClicks]),
@@ -824,7 +787,7 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
     document.body.removeChild(link); URL.revokeObjectURL(url)
   }
 
-  const onUpgrade = () => setModal('upgrade')
+  const onUpgrade = () => router.push('/dashboard/billing')
   const onSoon    = () => setModal('soon')
   const kpiVals   = kpiValues(data)
 
@@ -834,8 +797,7 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
       opacity: loading ? 0.65 : 1, transition: 'opacity .2s' }}>
 
       {/* Modals */}
-      {modal === 'soon'    && <ComingSoonModal onClose={() => setModal(null)} />}
-      {modal === 'upgrade' && <UpgradeModal    onClose={() => setModal(null)} />}
+      {modal === 'soon' && <ComingSoonModal onClose={() => setModal(null)} />}
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8,
