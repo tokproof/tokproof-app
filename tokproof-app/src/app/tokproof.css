@@ -4515,3 +4515,13 @@ body { background: var(--bg); }
   .billing-plans-grid { grid-template-columns: 1fr !important; }
   .billing-lower-grid { grid-template-columns: 1fr !important; }
 }
+
+/* ── Help / FAQ page responsive ── */
+@media (max-width: 1080px) {
+  .help-lower-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 860px) {
+  .help-cat-grid { grid-template-columns: repeat(3, 1fr) !important; }
+}
+/* Hover lift on category icons */
+.help-cat-item:hover .cat-ico { transform: translateY(-3px); }
