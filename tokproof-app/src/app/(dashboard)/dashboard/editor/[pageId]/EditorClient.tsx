@@ -11,8 +11,9 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { arrayMove } from '@dnd-kit/sortable'
-import type { LandingConfig, LandingBlock, LandingTheme, LandingSettings, BlockStyle } from '@/types/landing'
+import type { LandingConfig, LandingBlock, LandingTheme, LandingSettings, BlockStyle, TrafficSource } from '@/types/landing'
 import { makeDefaultConfig, makeDefaultBlocks } from '@/types/landing'
+import TrafficSourcesSection from '@/components/editor/TrafficSourcesSection'
 import { FONT_OPTIONS, getPageBackground } from '@/lib/blockStyle'
 import { getPublicPageUrl, getPublicPageDisplay } from '@/lib/urls'
 import { getUserPlan } from '@/lib/plans'
@@ -205,6 +206,11 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
     initial ? pageToLandingConfig(initial) : makeDefaultConfig()
   )
 
+  // ── Traffic sources (per-page, persisted inside _landingConfig) ──
+  const [trafficSources, setTrafficSources] = useState<TrafficSource[]>(() =>
+    (initial ? pageToLandingConfig(initial) : makeDefaultConfig()).trafficSources ?? []
+  )
+
   // ── UI state ──
   const [preview, setPreview]         = useState<'mobile' | 'desktop'>('mobile')
   const [focus, setFocus]             = useState(false)
@@ -216,8 +222,8 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
   const [focusCard, setFocusCard]     = useState(false)
 
   // ── Toast helper ──
-  function showToast(msg: string) {
-    setToast(msg); setTimeout(() => setToast(null), 2200)
+  function showToast(msg: string, ms = 2200) {
+    setToast(msg); setTimeout(() => setToast(null), ms)
   }
 
   function handleFocusToggle() {
@@ -296,26 +302,45 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
   }, [])
 
   // ─── Persistence ─────────────────────────────────────────────────────────
-  async function handleSave() {
-    if (isDemo) { alert('Modo demo — conecta Supabase para guardar.'); return }
-    setSaving(true)
+  async function _persistConfig(silent = false) {
     const supabase = createClient()
     await supabase.from('pages').update({
       title: landingConfig.title,
       settings: {
-        // Preserve any old settings keys, then embed the full config
         ...(initial?.page?.settings ?? {}),
-        _landingConfig: landingConfig,
+        _landingConfig: { ...landingConfig, trafficSources },
       },
     }).eq('id', pageId)
+    if (!silent) {
+      setSaved(true)
+      showToast('Cambios guardados')
+      setTimeout(() => setSaved(false), 2500)
+    }
+  }
+
+  async function handleSave() {
+    if (isDemo) { alert('Modo demo — conecta Supabase para guardar.'); return }
+    setSaving(true)
+    await _persistConfig(false)
     setSaving(false)
-    setSaved(true)
-    showToast('Cambios guardados')
-    setTimeout(() => setSaved(false), 2500)
   }
 
   async function handlePublish() {
     if (isDemo) { alert('Modo demo — conecta Supabase para publicar.'); return }
+
+    const validSources = trafficSources.filter(s => s.handle.trim())
+    if (validSources.length === 0) {
+      showToast(
+        'Antes de publicar, selecciona al menos una fuente de tráfico y añade el perfil donde compartirás esta página.',
+        5000,
+      )
+      setActiveTool('ajustes')
+      return
+    }
+
+    // Persist current state (including trafficSources) before publishing
+    await _persistConfig(true)
+
     const res = await fetch('/api/publish-page', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -573,7 +598,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                           style={{ width: '100%', padding: '7px 10px', borderRadius: 9, border: `1px solid ${T.border2}`, background: T.card, fontSize: 12, color: T.ink, outline: 'none', resize: 'vertical' }} />
                       </Fg>
                     </section>
-                    <section>
+                    <section style={{ marginBottom: 20 }}>
                       <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Opciones</div>
                       <Sw label="Mostrar badge Tokproof" checked={landingConfig.settings.showTokproofBranding} onChange={v => updateSettings({ showTokproofBranding: v })} />
                       <Sw label="Activar TikTok Rescue" checked={landingConfig.settings.enableTikTokRescue} onChange={v => updateSettings({ enableTikTokRescue: v })} />
@@ -582,6 +607,15 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                           <Fi type="url" value={landingConfig.settings.directExitUrl} placeholder="https://tu-tienda.com/producto" onChange={e => updateSettings({ directExitUrl: e.target.value })} />
                         </Fg>
                       )}
+                    </section>
+
+                    {/* ── Traffic sources ── */}
+                    <section>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Distribución</div>
+                      <TrafficSourcesSection
+                        sources={trafficSources}
+                        onChange={setTrafficSources}
+                      />
                     </section>
                   </div>
                 )}
@@ -760,7 +794,15 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
 
       {/* Toast */}
       {toast && (
-        <div style={{ position: 'fixed', bottom: 32, left: '50%', transform: 'translateX(-50%)', background: T.ink, color: 'white', borderRadius: 999, padding: '9px 22px', boxShadow: T.shadowPop, zIndex: 9999, fontSize: 13, fontWeight: 500, animation: 'edFadeIn .2s ease both', whiteSpace: 'nowrap' }}>
+        <div style={{
+          position: 'fixed', bottom: 32, left: '50%', transform: 'translateX(-50%)',
+          background: T.ink, color: 'white',
+          borderRadius: toast.length > 40 ? 14 : 999,
+          padding: toast.length > 40 ? '12px 20px' : '9px 22px',
+          boxShadow: T.shadowPop, zIndex: 9999, fontSize: 13, fontWeight: 500,
+          animation: 'edFadeIn .2s ease both',
+          maxWidth: 380, textAlign: 'center', lineHeight: 1.45,
+        }}>
           {toast}
         </div>
       )}

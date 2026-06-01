@@ -287,6 +287,17 @@ export interface LandingSettings {
   seoDescription: string
 }
 
+// ─── Traffic sources ──────────────────────────────────────────────────────────
+export type TrafficPlatform =
+  | 'tiktok' | 'instagram' | 'youtube'
+  | 'facebook' | 'pinterest' | 'amazon' | 'other'
+
+export interface TrafficSource {
+  platform:  TrafficPlatform
+  handle:    string
+  isPrimary: boolean
+}
+
 // ─── Template IDs ─────────────────────────────────────────────────────────────
 export type TemplateId =
   | 'trust_product'
@@ -312,6 +323,7 @@ export interface LandingConfig {
   // quick_exit = redirect-only, no editor, managed via widget
   pageType?: 'trust_page' | 'simple_page' | 'creator_page' | 'quick_exit'
   simplePage?: SimplePageConfig
+  trafficSources?: TrafficSource[]
 }
 
 // ─── Default factory ─────────────────────────────────────────────────────────

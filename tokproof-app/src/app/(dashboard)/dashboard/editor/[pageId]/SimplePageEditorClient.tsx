@@ -5,12 +5,13 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import {
   ArrowLeft, Pencil, ChevronDown, UploadCloud,
-  User, Share2, Link2, Palette, Shield,
+  User, Share2, Link2, Palette, Shield, Signal,
   Plus, Trash2, GripVertical, Eye, Monitor, Minus,
 } from 'lucide-react'
 import type { FullPage } from '@/types'
-import type { LandingTheme, LandingConfig, SimplePageConfig, SimplePageLink, SimplePagePlatform } from '@/types/landing'
+import type { LandingTheme, LandingConfig, SimplePageConfig, SimplePageLink, SimplePagePlatform, TrafficSource } from '@/types/landing'
 import { makeDefaultSimplePageConfig } from '@/types/landing'
+import TrafficSourcesSection from '@/components/editor/TrafficSourcesSection'
 import { FONT_OPTIONS, getPageBackground } from '@/lib/blockStyle'
 import { getPublicPageDisplay, getPublicExitDisplay } from '@/lib/urls'
 import SimplePagePublicRenderer from '@/components/public/SimplePagePublicRenderer'
@@ -104,14 +105,35 @@ const SH = ({ children }: { children: React.ReactNode }) => (
 )
 
 // ─── Initialise config from saved data or defaults ────────────────────────────
-function initConfig(fullPage: FullPage): { simpleConfig: SimplePageConfig; theme: LandingTheme; slug: string; title: string; status: 'draft' | 'published' } {
+function initConfig(fullPage: FullPage): {
+  simpleConfig:    SimplePageConfig
+  theme:           LandingTheme
+  slug:            string
+  title:           string
+  status:          'draft' | 'published'
+  trafficSources:  TrafficSource[]
+} {
   const saved = (fullPage.page.settings as Record<string, unknown>)?._landingConfig as LandingConfig | undefined
   const defaultTheme: LandingTheme = { primaryColor: '#F647A9', secondaryColor: '#7B61FF', backgroundColor: '#F5F3FF', textColor: '#1E1B4B', fontFamily: 'Nunito Sans', radius: 'soft', backgroundMode: 'gradient', gradientFrom: '#F5F3FF', gradientTo: '#EDE9FE', accentColor: '#7C3AED', secondaryTextColor: '#6D5C91', cardBackgroundColor: '#FFFFFF', elementBackgroundColor: '#EDE9FE', borderColor: '#C4B5FD', buttonTextColor: '#FFFFFF', buttonStyle: 'gradient', buttonGradientFrom: '#8B5CF6', buttonGradientTo: '#EC4899' }
 
   if (saved?.simplePage) {
-    return { simpleConfig: saved.simplePage, theme: saved.theme ?? defaultTheme, slug: saved.slug ?? fullPage.page.username ?? '', title: saved.title ?? fullPage.page.title ?? '', status: saved.status ?? fullPage.page.status as 'draft' | 'published' }
+    return {
+      simpleConfig:   saved.simplePage,
+      theme:          saved.theme ?? defaultTheme,
+      slug:           saved.slug ?? fullPage.page.username ?? '',
+      title:          saved.title ?? fullPage.page.title ?? '',
+      status:         saved.status ?? fullPage.page.status as 'draft' | 'published',
+      trafficSources: saved.trafficSources ?? [],
+    }
   }
-  return { simpleConfig: makeDefaultSimplePageConfig(fullPage.page.title ?? '', fullPage.page.username ?? ''), theme: defaultTheme, slug: fullPage.page.username ?? '', title: fullPage.page.title ?? 'Nueva Simple Page', status: fullPage.page.status as 'draft' | 'published' }
+  return {
+    simpleConfig:   makeDefaultSimplePageConfig(fullPage.page.title ?? '', fullPage.page.username ?? ''),
+    theme:          defaultTheme,
+    slug:           fullPage.page.username ?? '',
+    title:          fullPage.page.title ?? 'Nueva Simple Page',
+    status:         fullPage.page.status as 'draft' | 'published',
+    trafficSources: [],
+  }
 }
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -120,26 +142,27 @@ interface Props {
   pageType: 'simple_page' | 'creator_page'
 }
 
-type ActiveTool = 'perfil' | 'redes' | 'links' | 'estilos' | 'guia'
+type ActiveTool = 'perfil' | 'redes' | 'links' | 'estilos' | 'fuente' | 'guia'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function SimplePageEditorClient({ fullPage, pageType }: Props) {
   const pageId = fullPage.page.id
   const init = initConfig(fullPage)
 
-  const [simpleConfig, setSimpleConfig] = useState<SimplePageConfig>(init.simpleConfig)
-  const [theme,        setTheme]        = useState<LandingTheme>(init.theme)
-  const [slug,         setSlug]         = useState(init.slug)
-  const [title,        setTitle]        = useState(init.title)
-  const [status,       setStatus]       = useState(init.status)
-  const [activeTool,   setActiveTool]   = useState<ActiveTool>('perfil')
+  const [simpleConfig,    setSimpleConfig]    = useState<SimplePageConfig>(init.simpleConfig)
+  const [theme,           setTheme]           = useState<LandingTheme>(init.theme)
+  const [slug,            setSlug]            = useState(init.slug)
+  const [title,           setTitle]           = useState(init.title)
+  const [status,          setStatus]          = useState(init.status)
+  const [trafficSources,  setTrafficSources]  = useState<TrafficSource[]>(init.trafficSources)
+  const [activeTool,      setActiveTool]      = useState<ActiveTool>('perfil')
   const [saving,       setSaving]       = useState(false)
   const [saved,        setSaved]        = useState(false)
   const [toast,        setToast]        = useState<string | null>(null)
   const [preview,      setPreview]      = useState<'mobile' | 'desktop'>('mobile')
   const [zoom,         setZoom]         = useState(100)
 
-  function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 2200) }
+  function showToast(msg: string, ms = 2200) { setToast(msg); setTimeout(() => setToast(null), ms) }
 
   const updateProfile = useCallback((patch: Partial<SimplePageConfig['profile']>) => {
     setSimpleConfig(c => ({ ...c, profile: { ...c.profile, ...patch } }))
@@ -175,9 +198,10 @@ export default function SimplePageEditorClient({ fullPage, pageType }: Props) {
     blocks: [],
     pageType,
     simplePage: simpleConfig,
+    trafficSources,
   }
 
-  async function handleSave() {
+  async function handleSave(silent = false) {
     setSaving(true)
     const supabase = createClient()
     await supabase.from('pages').update({
@@ -187,12 +211,33 @@ export default function SimplePageEditorClient({ fullPage, pageType }: Props) {
         _landingConfig: liveConfig,
       },
     }).eq('id', pageId)
-    setSaving(false); setSaved(true); showToast('Cambios guardados')
-    setTimeout(() => setSaved(false), 2500)
+    setSaving(false)
+    if (!silent) {
+      setSaved(true)
+      showToast('Cambios guardados')
+      setTimeout(() => setSaved(false), 2500)
+    }
   }
 
   async function handlePublish() {
-    const res = await fetch('/api/publish-page', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pageId }) })
+    const validSources = trafficSources.filter(s => s.handle.trim())
+    if (validSources.length === 0) {
+      showToast(
+        'Antes de publicar, selecciona al menos una fuente de tráfico y añade el perfil donde compartirás esta página.',
+        5000,
+      )
+      setActiveTool('fuente')
+      return
+    }
+
+    // Persist current state (including trafficSources) before publishing
+    await handleSave(true)
+
+    const res = await fetch('/api/publish-page', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pageId }),
+    })
     if (res.ok) { setStatus('published'); showToast('Página publicada ✓') }
     else { const d = await res.json(); alert(d.error ?? 'Error al publicar') }
   }
@@ -202,13 +247,14 @@ export default function SimplePageEditorClient({ fullPage, pageType }: Props) {
   const exitDisplay   = slug ? getPublicExitDisplay(slug)  : 'tokproof.app/@tuusuario/go'
   const bgMode = theme.backgroundMode ?? 'solid'
 
-  // ── Rail items ──────────────────────────────────────────────────────────────
+  // ── Rail items (fuente between estilos and guia — publishing-related) ───────
   const railItems: Array<{ id: ActiveTool; icon: React.ReactNode; label: string }> = [
-    { id: 'perfil', icon: <User size={15} />,    label: 'Perfil'  },
-    { id: 'redes',  icon: <Share2 size={15} />,  label: 'Redes'   },
-    { id: 'links',  icon: <Link2 size={15} />,   label: 'Links'   },
-    { id: 'estilos',icon: <Palette size={15} />, label: 'Estilos' },
-    { id: 'guia',   icon: <Shield size={15} />,  label: 'Guía'    },
+    { id: 'perfil',  icon: <User size={15} />,    label: 'Perfil'  },
+    { id: 'redes',   icon: <Share2 size={15} />,  label: 'Redes'   },
+    { id: 'links',   icon: <Link2 size={15} />,   label: 'Links'   },
+    { id: 'estilos', icon: <Palette size={15} />, label: 'Estilos' },
+    { id: 'fuente',  icon: <Signal size={15} />,  label: 'Fuente'  },
+    { id: 'guia',    icon: <Shield size={15} />,  label: 'Guía'    },
   ]
 
   return (
@@ -224,7 +270,7 @@ export default function SimplePageEditorClient({ fullPage, pageType }: Props) {
             {/* Header */}
             <div style={{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: 13.5, fontWeight: 700, color: T.pink }}>
-                {activeTool === 'perfil' ? 'Perfil' : activeTool === 'redes' ? 'Redes sociales' : activeTool === 'links' ? 'Links' : activeTool === 'estilos' ? 'Estilos' : 'Guía navegador'}
+                {activeTool === 'perfil' ? 'Perfil' : activeTool === 'redes' ? 'Redes sociales' : activeTool === 'links' ? 'Links' : activeTool === 'estilos' ? 'Estilos' : activeTool === 'fuente' ? 'Fuente de tráfico' : 'Guía navegador'}
               </span>
               <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: isPublished ? T.greenBg : T.softPurple, color: isPublished ? T.green : T.purple }}>
                 {isPublished ? 'Publicada' : 'Borrador'}
@@ -389,6 +435,14 @@ export default function SimplePageEditorClient({ fullPage, pageType }: Props) {
                 </div>
               )}
 
+              {/* ── FUENTE DE TRÁFICO ── */}
+              {activeTool === 'fuente' && (
+                <TrafficSourcesSection
+                  sources={trafficSources}
+                  onChange={setTrafficSources}
+                />
+              )}
+
               {/* ── GUÍA ── */}
               {activeTool === 'guia' && (
                 <div>
@@ -415,7 +469,7 @@ export default function SimplePageEditorClient({ fullPage, pageType }: Props) {
 
             {/* Save / Publish footer */}
             <div style={{ padding: '10px 12px', borderTop: `1px solid ${T.border}`, flexShrink: 0, display: 'flex', gap: 8 }}>
-              <button onClick={handleSave} disabled={saving}
+              <button onClick={() => handleSave()} disabled={saving}
                 style={{ flex: 1, height: 38, borderRadius: 10, border: `1px solid ${T.border2}`, background: saved ? T.greenBg : T.card, color: saved ? T.green : T.ink, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .15s' }}>
                 {saving ? 'Guardando…' : saved ? '✓ Guardado' : 'Guardar'}
               </button>
@@ -492,7 +546,15 @@ export default function SimplePageEditorClient({ fullPage, pageType }: Props) {
 
       {/* Toast */}
       {toast && (
-        <div style={{ position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)', background: '#1a1a1a', color: '#fff', padding: '12px 22px', borderRadius: 999, fontSize: 14, fontWeight: 500, zIndex: 999, animation: 'spFadeUp .2s ease', boxShadow: '0 10px 30px rgba(0,0,0,.22)', whiteSpace: 'nowrap' }}>
+        <div style={{
+          position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)',
+          background: '#1a1a1a', color: '#fff',
+          borderRadius: toast.length > 40 ? 14 : 999,
+          padding: toast.length > 40 ? '12px 20px' : '12px 22px',
+          fontSize: 13, fontWeight: 500, zIndex: 999,
+          animation: 'spFadeUp .2s ease', boxShadow: '0 10px 30px rgba(0,0,0,.22)',
+          maxWidth: 380, textAlign: 'center', lineHeight: 1.45,
+        }}>
           {toast}
         </div>
       )}
