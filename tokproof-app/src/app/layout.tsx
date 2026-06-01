@@ -5,6 +5,7 @@ import {
   Poppins,
   Manrope,
   Playfair_Display,
+  Plus_Jakarta_Sans,
 } from 'next/font/google'
 import './globals.css'
 import './tokproof.css'
@@ -42,6 +43,13 @@ const playfair = Playfair_Display({
   display: 'swap',
 })
 
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-plus-jakarta',
+  display: 'swap',
+})
+
 export const metadata: Metadata = {
   title: 'Tokproof — Trust pages para TikTok → Shopify',
   description:
@@ -64,6 +72,7 @@ export default function RootLayout({
     poppins.variable,
     manrope.variable,
     playfair.variable,
+    plusJakarta.variable,
   ].join(' ')
 
   return (
