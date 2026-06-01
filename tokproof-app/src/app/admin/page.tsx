@@ -51,5 +51,5 @@ export default async function AdminPage() {
     })
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
-  return <AdminDashboard initialUsers={users} />
+  return <AdminDashboard initialUsers={users} adminEmail={user.email ?? ''} />
 }
