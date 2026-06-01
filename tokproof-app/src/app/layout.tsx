@@ -51,12 +51,16 @@ const plusJakarta = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Tokproof — Trust pages para TikTok → Shopify',
+  title: {
+    default: 'Tokproof — Trust Pages para TikTok, Instagram y redes sociales',
+    template: '%s | Tokproof',
+  },
   description:
-    'Crea trust pages mobile-first para convertir tráfico de TikTok en ventas reales de Shopify.',
+    'Convierte más tráfico social con Trust Pages, Quick Exits, Analytics y páginas optimizadas para vender desde TikTok, Instagram y cualquier red social.',
   openGraph: {
-    title: 'Tokproof',
-    description: 'Trust pages para TikTok → Shopify',
+    title: 'Tokproof — Trust Pages para TikTok, Instagram y redes sociales',
+    description:
+      'Convierte más tráfico social con Trust Pages, Quick Exits, Analytics y páginas optimizadas para vender desde TikTok, Instagram y cualquier red social.',
     type: 'website',
   },
 }
