@@ -14,8 +14,8 @@ const T = {
   ink:       '#1e2433',
   muted:     '#7b8194',
   line:      '#eef0f4',
-  cardLine:  '#f0e7ee',
-  softLine:  '#ecdfe8',
+  cardLine:  '#ebe8f0',
+  softLine:  '#e8e2ef',
   pink:      '#ec3b8e',
   pinkGrad:  'linear-gradient(135deg,#fb47a0 0%,#e0359a 60%,#d62f8f 100%)',
   purpGrad:  'linear-gradient(135deg,#a78bfa 0%,#8b6ff0 100%)',
@@ -23,111 +23,139 @@ const T = {
   green:     '#19c37d',
 }
 
+// ─── Hover styles injected once ─────────────────────────────────────────────────
+const hoverStyles = `
+  .tmpl-hover-card {
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .tmpl-hover-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 28px 56px -16px rgba(60,30,80,.28) !important;
+  }
+  .tmpl-cta-btn:hover:not(:disabled) {
+    filter: brightness(1.06);
+  }
+  .tmpl-ghost-btn:hover {
+    background: rgba(236,59,142,.06) !important;
+  }
+  .tmpl-primary-btn:hover {
+    filter: brightness(1.06);
+  }
+`
+
 // ─── Phone mockup previews ──────────────────────────────────────────────────────
 function PhoneMockup({ type }: { type: PreviewType }) {
   const base: React.CSSProperties = {
-    width: 158, flexShrink: 0, borderRadius: 22, border: '5px solid #14161d',
-    background: '#fff', overflow: 'hidden', fontSize: 8.5,
-    fontFamily: T.font, position: 'relative',
+    width: 158,
+    borderRadius: 22,
+    border: '5px solid #14161d',
+    background: '#fff',
+    overflow: 'hidden',
+    fontSize: 8.5,
+    fontFamily: T.font,
+    position: 'relative',
+    flex: 1,
   }
 
   const previews: Record<PreviewType, React.ReactNode> = {
     links: (
-      <div style={{ ...base, background: '#0f0f14', padding: '14px 10px', display: 'flex', flexDirection: 'column', gap: 7, minHeight: 220 }}>
-        <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#fb47a0,#a78bfa)', margin: '0 auto 6px' }} />
+      <div style={{ ...base, background: '#0f0f14', padding: '18px 10px', display: 'flex', flexDirection: 'column', gap: 8, minHeight: 300 }}>
+        <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg,#fb47a0,#a78bfa)', margin: '0 auto 8px' }} />
         <div style={{ height: 8, borderRadius: 4, background: 'rgba(255,255,255,.85)', width: '60%', margin: '0 auto' }} />
-        <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,.3)', width: '45%', margin: '0 auto 6px' }} />
-        {['rgba(255,255,255,.12)', 'rgba(255,255,255,.10)', 'rgba(255,255,255,.08)'].map((bg, i) => (
-          <div key={i} style={{ height: 26, borderRadius: 8, background: bg, border: '1px solid rgba(255,255,255,.1)', display: 'flex', alignItems: 'center', paddingLeft: 8, gap: 6 }}>
-            <div style={{ width: 12, height: 12, borderRadius: 3, background: 'rgba(255,255,255,.3)' }} />
+        <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,.3)', width: '45%', margin: '0 auto 8px' }} />
+        {['rgba(255,255,255,.12)', 'rgba(255,255,255,.10)', 'rgba(255,255,255,.08)', 'rgba(255,255,255,.06)'].map((bg, i) => (
+          <div key={i} style={{ height: 28, borderRadius: 9, background: bg, border: '1px solid rgba(255,255,255,.1)', display: 'flex', alignItems: 'center', paddingLeft: 10, gap: 7 }}>
+            <div style={{ width: 13, height: 13, borderRadius: 4, background: 'rgba(255,255,255,.3)' }} />
             <div style={{ height: 5, width: '55%', borderRadius: 3, background: 'rgba(255,255,255,.5)' }} />
           </div>
         ))}
       </div>
     ),
     shop: (
-      <div style={{ ...base, background: '#fff', minHeight: 220, padding: '10px 8px' }}>
-        <div style={{ height: 7, width: '50%', borderRadius: 3, background: '#1e2433', margin: '0 auto 8px', fontWeight: 800 }} />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+      <div style={{ ...base, background: '#fff', minHeight: 300, padding: '12px 10px' }}>
+        <div style={{ height: 7, width: '50%', borderRadius: 3, background: '#1e2433', margin: '0 auto 10px' }} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
           {[T.pinkGrad, 'linear-gradient(135deg,#a78bfa,#8b6ff0)', 'linear-gradient(135deg,#19c37d,#0ea5e9)', 'linear-gradient(135deg,#fb47a0,#e0359a)'].map((g, i) => (
-            <div key={i} style={{ borderRadius: 8, overflow: 'hidden', border: '1px solid #f0e7ee' }}>
-              <div style={{ height: 48, background: g }} />
-              <div style={{ padding: '4px 5px' }}>
+            <div key={i} style={{ borderRadius: 9, overflow: 'hidden', border: '1px solid #f0e7ee' }}>
+              <div style={{ height: 56, background: g }} />
+              <div style={{ padding: '5px 6px' }}>
                 <div style={{ height: 5, borderRadius: 2, background: '#1e2433', width: '70%', marginBottom: 3 }} />
-                <div style={{ height: 4, borderRadius: 2, background: '#7b8194', width: '45%' }} />
+                <div style={{ height: 4, borderRadius: 2, background: '#7b8194', width: '45%', marginBottom: 4 }} />
+                <div style={{ height: 14, borderRadius: 4, background: T.pinkGrad }} />
               </div>
             </div>
           ))}
         </div>
-        <div style={{ margin: '8px 0 0', height: 20, borderRadius: 6, background: T.pinkGrad }} />
+        <div style={{ margin: '10px 0 0', height: 22, borderRadius: 7, background: T.pinkGrad }} />
       </div>
     ),
     product: (
-      <div style={{ ...base, background: '#0f0f14', minHeight: 220, overflow: 'hidden' }}>
-        <div style={{ height: 120, background: 'linear-gradient(160deg,#2a0f1e,#1a0a2e)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: 60, height: 60, borderRadius: 14, background: T.pinkGrad, boxShadow: '0 8px 20px rgba(236,59,142,.4)' }} />
+      <div style={{ ...base, background: '#0f0f14', minHeight: 300, overflow: 'hidden' }}>
+        <div style={{ height: 148, background: 'linear-gradient(160deg,#2a0f1e,#1a0a2e)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 68, height: 68, borderRadius: 16, background: T.pinkGrad, boxShadow: '0 10px 24px rgba(236,59,142,.5)' }} />
         </div>
-        <div style={{ padding: '10px 10px 8px' }}>
-          <div style={{ height: 7, borderRadius: 3, background: 'rgba(255,255,255,.9)', width: '75%', marginBottom: 4 }} />
-          <div style={{ height: 5, borderRadius: 2, background: 'rgba(255,255,255,.4)', width: '55%', marginBottom: 8 }} />
-          <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
-            {['rgba(255,255,255,.1)', 'rgba(255,255,255,.1)', 'rgba(255,255,255,.1)'].map((bg, i) => (
-              <div key={i} style={{ flex: 1, height: 16, borderRadius: 4, background: bg, border: '1px solid rgba(255,255,255,.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ width: '60%', height: 3, borderRadius: 2, background: 'rgba(255,255,255,.5)' }} />
+        <div style={{ padding: '12px 12px 10px' }}>
+          <div style={{ height: 7, borderRadius: 3, background: 'rgba(255,255,255,.9)', width: '75%', marginBottom: 5 }} />
+          <div style={{ height: 5, borderRadius: 2, background: 'rgba(255,255,255,.4)', width: '55%', marginBottom: 10 }} />
+          <div style={{ display: 'flex', gap: 5, marginBottom: 10 }}>
+            {[0, 1, 2].map(i => (
+              <div key={i} style={{ flex: 1, height: 18, borderRadius: 5, background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.14)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '60%', height: 3, borderRadius: 2, background: 'rgba(255,255,255,.45)' }} />
               </div>
             ))}
           </div>
-          <div style={{ height: 22, borderRadius: 7, background: T.pinkGrad, boxShadow: '0 4px 10px rgba(236,59,142,.5)' }} />
+          <div style={{ height: 26, borderRadius: 8, background: T.pinkGrad, boxShadow: '0 4px 12px rgba(236,59,142,.5)' }} />
         </div>
       </div>
     ),
     profile: (
-      <div style={{ ...base, background: 'linear-gradient(160deg,#fbeef5,#f4ecfa)', padding: '14px 10px', minHeight: 220, display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <div style={{ width: 40, height: 40, borderRadius: '50%', background: T.pinkGrad, margin: '0 auto', border: '2px solid #fff', boxShadow: '0 4px 10px rgba(236,59,142,.35)' }} />
+      <div style={{ ...base, background: 'linear-gradient(160deg,#fbeef5,#f4ecfa)', padding: '18px 10px', minHeight: 300, display: 'flex', flexDirection: 'column', gap: 7 }}>
+        <div style={{ width: 44, height: 44, borderRadius: '50%', background: T.pinkGrad, margin: '0 auto', border: '2.5px solid #fff', boxShadow: '0 5px 12px rgba(236,59,142,.35)' }} />
         <div style={{ height: 7, borderRadius: 3, background: '#1e2433', width: '55%', margin: '0 auto' }} />
-        <div style={{ height: 5, borderRadius: 2, background: '#7b8194', width: '40%', margin: '0 auto 4px' }} />
-        {[T.pinkGrad, 'linear-gradient(135deg,#a78bfa,#8b6ff0)', 'rgba(0,0,0,.06)'].map((bg, i) => (
-          <div key={i} style={{ height: 22, borderRadius: 7, background: bg, display: 'flex', alignItems: 'center', paddingLeft: 8, gap: 5 }}>
-            <div style={{ width: 8, height: 8, borderRadius: 2, background: 'rgba(255,255,255,.6)' }} />
-            <div style={{ height: 4, width: '45%', borderRadius: 2, background: i === 2 ? '#7b8194' : 'rgba(255,255,255,.8)' }} />
+        <div style={{ height: 5, borderRadius: 2, background: '#7b8194', width: '40%', margin: '0 auto 6px' }} />
+        {[T.pinkGrad, 'linear-gradient(135deg,#a78bfa,#8b6ff0)', 'rgba(0,0,0,.06)', 'rgba(0,0,0,.04)'].map((bg, i) => (
+          <div key={i} style={{ height: 24, borderRadius: 8, background: bg, display: 'flex', alignItems: 'center', paddingLeft: 9, gap: 6 }}>
+            <div style={{ width: 9, height: 9, borderRadius: 2, background: i < 2 ? 'rgba(255,255,255,.6)' : '#ddd' }} />
+            <div style={{ height: 4, width: '45%', borderRadius: 2, background: i < 2 ? 'rgba(255,255,255,.8)' : '#ccc' }} />
           </div>
         ))}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 4 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 7, marginTop: 4 }}>
           {['#ec3b8e', '#a78bfa', '#19c37d', '#fb8500'].map(c => (
-            <div key={c} style={{ width: 16, height: 16, borderRadius: 5, background: c }} />
+            <div key={c} style={{ width: 18, height: 18, borderRadius: 6, background: c }} />
           ))}
         </div>
       </div>
     ),
     'links-dark': (
-      <div style={{ ...base, background: '#0f0f14', padding: '14px 10px', minHeight: 220 }}>
-        <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg,#fb47a0,#a78bfa)', margin: '0 auto 5px', border: '1.5px solid rgba(255,255,255,.2)' }} />
-        <div style={{ height: 7, borderRadius: 3, background: 'rgba(255,255,255,.9)', width: '50%', margin: '0 auto 3px' }} />
-        <div style={{ height: 5, borderRadius: 2, background: 'rgba(255,255,255,.35)', width: '65%', margin: '0 auto 10px' }} />
-        {[T.pinkGrad, 'linear-gradient(135deg,#a78bfa,#8b6ff0)', 'rgba(255,255,255,.08)', 'rgba(255,255,255,.06)'].map((bg, i) => (
-          <div key={i} style={{ height: 24, borderRadius: 8, background: bg, marginBottom: 5, border: i > 1 ? '1px solid rgba(255,255,255,.1)' : 'none', display: 'flex', alignItems: 'center', paddingLeft: 9, gap: 6 }}>
-            <div style={{ width: 10, height: 10, borderRadius: 3, background: i > 1 ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.5)' }} />
+      <div style={{ ...base, background: '#0f0f14', padding: '18px 10px', minHeight: 300 }}>
+        <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#fb47a0,#a78bfa)', margin: '0 auto 6px', border: '1.5px solid rgba(255,255,255,.2)' }} />
+        <div style={{ height: 7, borderRadius: 3, background: 'rgba(255,255,255,.9)', width: '50%', margin: '0 auto 4px' }} />
+        <div style={{ height: 5, borderRadius: 2, background: 'rgba(255,255,255,.35)', width: '65%', margin: '0 auto 12px' }} />
+        {[T.pinkGrad, 'linear-gradient(135deg,#a78bfa,#8b6ff0)', 'rgba(255,255,255,.09)', 'rgba(255,255,255,.07)'].map((bg, i) => (
+          <div key={i} style={{ height: 26, borderRadius: 9, background: bg, marginBottom: 6, border: i > 1 ? '1px solid rgba(255,255,255,.1)' : 'none', display: 'flex', alignItems: 'center', paddingLeft: 10, gap: 7 }}>
+            <div style={{ width: 11, height: 11, borderRadius: 3, background: i > 1 ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.5)' }} />
             <div style={{ height: 4, width: '45%', borderRadius: 2, background: i > 1 ? 'rgba(255,255,255,.4)' : 'rgba(255,255,255,.85)' }} />
           </div>
         ))}
       </div>
     ),
     creator: (
-      <div style={{ ...base, background: '#0f0f14', minHeight: 220 }}>
-        <div style={{ height: 100, background: 'linear-gradient(160deg,#1a0f2e,#0d1a2a)', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: 26, height: 26, borderRadius: '50%', border: '2px solid rgba(255,255,255,.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ width: 0, height: 0, borderTop: '5px solid transparent', borderBottom: '5px solid transparent', borderLeft: '8px solid rgba(255,255,255,.8)', marginLeft: 2 }} />
+      <div style={{ ...base, background: '#0f0f14', minHeight: 300 }}>
+        <div style={{ height: 120, background: 'linear-gradient(160deg,#1a0f2e,#0d1a2a)', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 30, height: 30, borderRadius: '50%', border: '2px solid rgba(255,255,255,.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 0, height: 0, borderTop: '6px solid transparent', borderBottom: '6px solid transparent', borderLeft: '9px solid rgba(255,255,255,.8)', marginLeft: 2 }} />
           </div>
-          <div style={{ position: 'absolute', bottom: 6, left: 8, display: 'flex', gap: 4 }}>
+          <div style={{ position: 'absolute', bottom: 8, left: 10, display: 'flex', gap: 5 }}>
             {['#ec3b8e', '#a78bfa', '#19c37d'].map(c => (
-              <div key={c} style={{ width: 14, height: 14, borderRadius: 4, background: c }} />
+              <div key={c} style={{ width: 16, height: 16, borderRadius: 5, background: c }} />
             ))}
           </div>
         </div>
-        <div style={{ padding: '8px 10px' }}>
-          <div style={{ height: 6, borderRadius: 2, background: 'rgba(255,255,255,.85)', width: '65%', marginBottom: 4 }} />
-          <div style={{ height: 5, borderRadius: 2, background: 'rgba(255,255,255,.35)', width: '50%', marginBottom: 8 }} />
-          <div style={{ height: 22, borderRadius: 7, background: T.pinkGrad }} />
+        <div style={{ padding: '10px 12px' }}>
+          <div style={{ height: 6, borderRadius: 2, background: 'rgba(255,255,255,.85)', width: '65%', marginBottom: 5 }} />
+          <div style={{ height: 5, borderRadius: 2, background: 'rgba(255,255,255,.35)', width: '50%', marginBottom: 10 }} />
+          <div style={{ height: 26, borderRadius: 8, background: T.pinkGrad, marginBottom: 6 }} />
+          <div style={{ height: 22, borderRadius: 8, background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.1)' }} />
         </div>
       </div>
     ),
@@ -141,10 +169,11 @@ function BadgeChip({ badge }: { badge: Badge }) {
   const meta = BADGE_META[badge]
   return (
     <span style={{
-      fontSize: 10, fontWeight: 800, letterSpacing: '.05em',
-      padding: '3px 8px', borderRadius: 6,
+      fontSize: 11, fontWeight: 800, letterSpacing: '.05em',
+      padding: '5px 12px', borderRadius: 7,
       background: meta.bg, color: meta.text,
       textTransform: 'uppercase',
+      border: `1px solid ${meta.text}22`,
     }}>
       {meta.label}
     </span>
@@ -155,10 +184,10 @@ function BadgeChip({ badge }: { badge: Badge }) {
 function TemplateCard({ tmpl, onUse, loading }: {
   tmpl: Template; onUse: (t: Template) => void; loading: boolean
 }) {
-  const catMeta = CATEGORY_META[tmpl.category]
-  const btnGrad = tmpl.btnVariant === 'pink' ? T.pinkGrad
-                : tmpl.btnVariant === 'purple' ? T.purpGrad
-                : T.greenGrad
+  const catMeta  = CATEGORY_META[tmpl.category]
+  const btnGrad  = tmpl.btnVariant === 'pink' ? T.pinkGrad
+                 : tmpl.btnVariant === 'purple' ? T.purpGrad
+                 : T.greenGrad
   const btnShadow = tmpl.btnVariant === 'pink'
     ? '0 10px 22px -8px rgba(224,53,154,.65)'
     : tmpl.btnVariant === 'green'
@@ -167,49 +196,65 @@ function TemplateCard({ tmpl, onUse, loading }: {
   const checkBg = tmpl.checkColor === 'green' ? T.green : T.pink
 
   return (
-    <div style={{
-      position: 'relative',
-      background: '#fff',
-      border: `1px solid ${tmpl.featured ? '#f6dcec' : T.cardLine}`,
-      borderRadius: 18, padding: 18,
-      boxShadow: tmpl.featured
-        ? '0 26px 50px -20px rgba(190,60,140,.45)'
-        : '0 14px 34px -22px rgba(60,30,60,.4)',
-      display: 'flex', gap: 16, alignItems: 'flex-start',
-      transition: 'transform .18s, box-shadow .18s',
-      fontFamily: T.font,
-    }} className="tmpl-hover-card">
+    <div
+      className="tmpl-hover-card"
+      style={{
+        position: 'relative',
+        background: '#fff',
+        border: `1px solid ${tmpl.featured ? '#f0d8ea' : T.cardLine}`,
+        borderRadius: 20, padding: 18,
+        boxShadow: tmpl.featured
+          ? '0 20px 48px -16px rgba(190,60,140,.38)'
+          : '0 8px 30px -10px rgba(60,30,80,.13)',
+        display: 'flex', gap: 16, alignItems: 'stretch',
+        fontFamily: T.font,
+        minHeight: 380,
+      }}>
 
       {/* Coming soon overlay */}
       {tmpl.comingSoon && (
         <div style={{
-          position: 'absolute', inset: 0, borderRadius: 18,
-          background: 'rgba(255,255,255,.86)', backdropFilter: 'blur(3px)',
+          position: 'absolute', inset: 0, borderRadius: 20,
+          background: 'rgba(251,249,252,.9)', backdropFilter: 'blur(4px)',
           display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', gap: 10,
+          alignItems: 'center', justifyContent: 'center', gap: 12,
           zIndex: 2,
         }}>
           <div style={{
-            width: 44, height: 44, borderRadius: 14, background: '#f5f3ff',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
+            width: 52, height: 52, borderRadius: 16,
+            background: 'linear-gradient(135deg,#ece1fb,#f5f3ff)',
+            border: '1px solid #ddd5f8',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
           }}>🔒</div>
-          <span style={{ fontSize: 14, fontWeight: 800, color: T.ink }}>Próximamente</span>
-          <span style={{ fontSize: 12, color: T.muted, textAlign: 'center', maxWidth: 130, lineHeight: 1.4 }}>
-            En desarrollo para Tokproof Pro
-          </span>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: T.ink, marginBottom: 4 }}>
+              {tmpl.title}
+            </div>
+            <div style={{ fontSize: 12.5, fontWeight: 600, color: '#8b5cf6', marginBottom: 8 }}>
+              Próximamente
+            </div>
+            <div style={{ fontSize: 12, color: T.muted, maxWidth: 150, lineHeight: 1.5 }}>
+              Disponible en futuras actualizaciones de Tokproof
+            </div>
+          </div>
         </div>
       )}
 
       {/* Phone mockup */}
-      <div style={{ marginTop: tmpl.featured ? -26 : 0, flexShrink: 0 }}>
+      <div style={{
+        marginTop: tmpl.featured ? -28 : 0,
+        flexShrink: 0,
+        display: 'flex',
+        alignSelf: 'flex-start',
+      }}>
         <PhoneMockup type={tmpl.previewType} />
       </div>
 
       {/* Info panel */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
 
         {/* Category + badge row */}
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', alignItems: 'center' }}>
           <span style={{
             fontSize: 10.5, fontWeight: 800, letterSpacing: '.07em',
             padding: '4px 10px', borderRadius: 7,
@@ -221,23 +266,27 @@ function TemplateCard({ tmpl, onUse, loading }: {
         </div>
 
         {/* Title */}
-        <h3 style={{ fontSize: 18.5, fontWeight: 800, letterSpacing: '-.02em',
-          lineHeight: 1.15, color: T.ink, marginTop: 10 }}>
+        <h3 style={{
+          fontSize: 18, fontWeight: 800, letterSpacing: '-.02em',
+          lineHeight: 1.2, color: T.ink, marginTop: 11,
+        }}>
           {tmpl.title}
         </h3>
 
         {/* Description */}
-        <p style={{ fontSize: 13.5, color: T.muted, lineHeight: 1.5, fontWeight: 500,
-          marginTop: 9 }}>
+        <p style={{
+          fontSize: 13.5, color: T.muted, lineHeight: 1.55, fontWeight: 500,
+          marginTop: 8,
+        }}>
           {tmpl.description}
         </p>
 
         {/* Features */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 11, marginTop: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
           {tmpl.features.map(f => (
             <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
               <span style={{
-                width: 19, height: 19, borderRadius: 6, background: checkBg,
+                width: 20, height: 20, borderRadius: 7, background: checkBg,
                 flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
@@ -245,45 +294,57 @@ function TemplateCard({ tmpl, onUse, loading }: {
                   <polyline points="5 12 10 17 19 7"/>
                 </svg>
               </span>
-              <span style={{ fontSize: 13.5, fontWeight: 600, color: '#3f4453' }}>{f}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#3f4453' }}>{f}</span>
             </div>
           ))}
         </div>
 
-        {/* CTA */}
-        {!tmpl.comingSoon ? (
-          <button
-            onClick={() => onUse(tmpl)}
-            disabled={loading}
-            style={{
-              marginTop: 'auto', paddingTop: 20, width: '100%', border: 'none',
-              borderRadius: 12, padding: 13, fontFamily: T.font,
-              fontSize: 14, fontWeight: 700, color: '#fff', cursor: loading ? 'wait' : 'pointer',
-              background: loading ? '#ccc' : btnGrad,
-              boxShadow: loading ? 'none' : btnShadow,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              transition: 'filter .15s',
+        {/* CTA — visually separated from features */}
+        <div style={{
+          marginTop: 'auto',
+          paddingTop: 20,
+          borderTop: `1px solid ${T.line}`,
+        }}>
+          {!tmpl.comingSoon ? (
+            <button
+              className="tmpl-cta-btn"
+              onClick={() => onUse(tmpl)}
+              disabled={loading}
+              style={{
+                width: '100%', border: 'none',
+                borderRadius: 12, padding: '13px 16px', fontFamily: T.font,
+                fontSize: 14, fontWeight: 700, color: '#fff',
+                cursor: loading ? 'wait' : 'pointer',
+                background: loading ? '#d0cdd8' : btnGrad,
+                boxShadow: loading ? 'none' : btnShadow,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              }}>
+              {loading ? 'Creando...' : 'Usar template'}
+              {!loading && (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="4" y1="12" x2="20" y2="12"/>
+                  <polyline points="14 6 20 12 14 18"/>
+                </svg>
+              )}
+            </button>
+          ) : (
+            <button disabled style={{
+              width: '100%', border: `1px solid ${T.line}`,
+              borderRadius: 12, padding: '13px 16px',
+              fontFamily: T.font, fontSize: 13.5, fontWeight: 700, color: T.muted,
+              cursor: 'not-allowed', background: '#faf9fc',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
             }}>
-            {loading ? 'Creando...' : 'Usar template'}
-            {!loading && (
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="4" y1="12" x2="20" y2="12"/>
-                <polyline points="14 6 20 12 14 18"/>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
               </svg>
-            )}
-          </button>
-        ) : (
-          <button disabled style={{
-            marginTop: 'auto', paddingTop: 20, width: '100%',
-            border: `1px solid ${T.line}`, borderRadius: 12, padding: 13,
-            fontFamily: T.font, fontSize: 14, fontWeight: 700, color: T.muted,
-            cursor: 'not-allowed', background: '#fafafa',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          }}>
-            Disponible pronto
-          </button>
-        )}
+              Disponible pronto
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -296,16 +357,20 @@ function FeaturedSection({ templates, onUse, loading }: {
   loading: string | null
 }) {
   if (templates.length === 0) return null
+  const cols = templates.length === 1 ? '1fr' : 'repeat(2,1fr)'
   return (
-    <div style={{ marginBottom: 44 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-        <span style={{ fontSize: 18 }}>⭐</span>
-        <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: '.09em', color: T.pink, textTransform: 'uppercase' }}>
+    <div style={{ marginBottom: 48 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 22 }}>
+        <span style={{ fontSize: 17 }}>⭐</span>
+        <span style={{
+          fontSize: 11.5, fontWeight: 800, letterSpacing: '.09em',
+          color: T.pink, textTransform: 'uppercase',
+        }}>
           Destacadas
         </span>
         <div style={{ flex: 1, height: 1, background: T.cardLine }} />
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 22 }}
+      <div style={{ display: 'grid', gridTemplateColumns: cols, gap: 22 }}
         className="tmpl-grid">
         {templates.map(t => (
           <TemplateCard key={t.id} tmpl={t} onUse={onUse} loading={loading === t.id} />
@@ -325,14 +390,17 @@ function CategorySection({ category, templates, onUse, loading }: {
   if (templates.length === 0) return null
   const meta = CATEGORY_META[category]
   return (
-    <div style={{ marginBottom: 44 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-        <span style={{ fontSize: 18 }}>{meta.icon}</span>
-        <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: '.09em', color: meta.text, textTransform: 'uppercase' }}>
+    <div style={{ marginBottom: 48 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 22 }}>
+        <span style={{ fontSize: 17 }}>{meta.icon}</span>
+        <span style={{
+          fontSize: 11.5, fontWeight: 800, letterSpacing: '.09em',
+          color: meta.text, textTransform: 'uppercase',
+        }}>
           {meta.label}
         </span>
         <span style={{
-          fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6,
+          fontSize: 10.5, fontWeight: 800, padding: '3px 9px', borderRadius: 6,
           background: meta.bg, color: meta.text,
         }}>
           {templates.length}
@@ -387,183 +455,203 @@ export default function TemplatesClient() {
   }
 
   return (
-    <div style={{
-      padding: '30px 40px 38px',
-      background: `radial-gradient(1200px 500px at 80% -5%,#f7e6f5 0%,transparent 55%),
-                   linear-gradient(160deg,#fbeef5 0%,#f4ecfa 100%)`,
-      minHeight: '100%',
-      fontFamily: T.font,
-    }}>
+    <>
+      <style>{hoverStyles}</style>
 
-      {/* ── Header ── */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <div>
-          <h1 style={{ fontSize: 33, fontWeight: 800, letterSpacing: '-.03em', color: T.ink, fontFamily: T.font }}>
-            Templates
-          </h1>
-          <p style={{ fontSize: 15, fontWeight: 500, color: T.muted, marginTop: 6 }}>
-            Empieza con un diseño probado y personalízalo en minutos.
-          </p>
-        </div>
+      <div style={{
+        padding: '32px 40px 48px',
+        background: '#FBF9FC',
+        minHeight: '100%',
+        fontFamily: T.font,
+      }}>
 
-        <div style={{ display: 'flex', gap: 13, paddingTop: 4 }}>
-          <button style={{
-            display: 'inline-flex', alignItems: 'center', gap: 9,
-            background: '#fff', border: `1px solid ${T.softLine}`, borderRadius: 13,
-            padding: '13px 22px', fontSize: 14.5, fontWeight: 700, color: '#3a4051',
-            cursor: 'pointer', fontFamily: T.font,
-            boxShadow: '0 4px 12px -6px rgba(0,0,0,.08)',
-            transition: 'background .15s',
-          }}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
-            </svg>
-            Ver ejemplos
-          </button>
+        {/* ── Header ── */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
+          <div>
+            <h1 style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-.03em', color: T.ink, fontFamily: T.font }}>
+              Templates
+            </h1>
+            <p style={{ fontSize: 15, fontWeight: 500, color: T.muted, marginTop: 5 }}>
+              Empieza con un diseño probado y personalízalo en minutos.
+            </p>
+          </div>
 
-          <button
-            onClick={() => router.push('/dashboard/editor/new')}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 9,
-              border: 'none', borderRadius: 13, padding: '13px 22px',
-              fontSize: 14.5, fontWeight: 700, color: '#fff', cursor: 'pointer',
-              background: T.pinkGrad, fontFamily: T.font,
-              boxShadow: '0 12px 24px -10px rgba(224,53,154,.7)',
-              transition: 'filter .15s',
-            }}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/>
-              <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            Nueva plantilla
-          </button>
-        </div>
-      </div>
-
-      {/* ── Search bar — future-ready ── */}
-      <div style={{ marginTop: 22, position: 'relative' }}>
-        <div style={{
-          position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)',
-          pointerEvents: 'none',
-        }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={T.muted}
-            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"/>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-        </div>
-        <input
-          type="text"
-          disabled
-          placeholder="Buscar templates... (próximamente)"
-          style={{
-            width: '100%', boxSizing: 'border-box',
-            padding: '13px 16px 13px 44px',
-            background: 'rgba(255,255,255,.7)',
-            border: `1px solid ${T.line}`,
-            borderRadius: 13, fontSize: 14.5, fontFamily: T.font,
-            color: T.ink, outline: 'none', cursor: 'not-allowed', opacity: 0.6,
-          }}
-        />
-      </div>
-
-      {/* ── Filter tabs ── */}
-      <div style={{ display: 'flex', gap: 11, margin: '20px 0 32px', flexWrap: 'wrap' }}>
-        {FILTERS.map(f => {
-          const isActive = active === f.key
-          const catMeta  = f.key !== 'all' ? CATEGORY_META[f.key as Category] : null
-          return (
-            <button key={f.key} onClick={() => setActive(f.key)}
+          <div style={{ display: 'flex', gap: 12, paddingTop: 4 }}>
+            {/* Ghost: "Ver demos" */}
+            <button
+              className="tmpl-ghost-btn"
               style={{
-                border: isActive ? 'none' : `1px solid ${T.softLine}`,
-                borderRadius: 11, padding: '11px 20px',
-                fontSize: 14, fontWeight: 700, cursor: 'pointer',
-                fontFamily: T.font, transition: 'all .15s',
-                background: isActive ? (catMeta?.gradient ?? T.pinkGrad) : '#fff',
-                color: isActive ? '#fff' : '#5d6376',
-                boxShadow: isActive ? '0 10px 20px -9px rgba(100,60,160,.4)' : 'none',
-                display: 'flex', alignItems: 'center', gap: 6,
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                background: '#fff', border: `1px solid ${T.softLine}`, borderRadius: 13,
+                padding: '12px 22px', fontSize: 14, fontWeight: 700, color: '#4a4560',
+                cursor: 'pointer', fontFamily: T.font,
+                boxShadow: '0 2px 8px -4px rgba(0,0,0,.07)',
+                transition: 'background .15s',
               }}>
-              {f.key !== 'all' && catMeta && (
-                <span style={{ fontSize: 15 }}>{catMeta.icon}</span>
-              )}
-              {f.label}
-              <span style={{
-                fontSize: 11, fontWeight: 800,
-                background: isActive ? 'rgba(255,255,255,.25)' : T.line,
-                color: isActive ? '#fff' : T.muted,
-                borderRadius: 5, padding: '1px 6px',
-              }}>
-                {counts[f.key]}
-              </span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+              </svg>
+              Ver demos
             </button>
-          )
-        })}
-      </div>
 
-      {/* ── Content ── */}
-      {active === 'all' ? (
-        <>
-          <FeaturedSection
-            templates={TEMPLATES.filter(t => t.featured)}
-            onUse={handleUse}
-            loading={loading}
+            {/* Primary: "Nueva plantilla" */}
+            <button
+              className="tmpl-primary-btn"
+              onClick={() => router.push('/dashboard/editor/new')}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                border: 'none', borderRadius: 13, padding: '12px 22px',
+                fontSize: 14, fontWeight: 700, color: '#fff', cursor: 'pointer',
+                background: T.pinkGrad, fontFamily: T.font,
+                boxShadow: '0 10px 24px -8px rgba(224,53,154,.65)',
+                transition: 'filter .15s',
+              }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Nueva plantilla
+            </button>
+          </div>
+        </div>
+
+        {/* ── Search bar — future-ready ── */}
+        <div style={{ position: 'relative', marginBottom: 20 }}>
+          <div style={{
+            position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)',
+            pointerEvents: 'none',
+          }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={T.muted}
+              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </div>
+          <input
+            type="text"
+            disabled
+            placeholder="Buscar templates… (próximamente)"
+            style={{
+              width: '100%', boxSizing: 'border-box',
+              padding: '12px 16px 12px 42px',
+              background: '#fff', border: `1px solid ${T.line}`,
+              borderRadius: 12, fontSize: 14, fontFamily: T.font,
+              color: T.ink, outline: 'none', cursor: 'not-allowed', opacity: 0.55,
+            }}
           />
-          {CATEGORY_ORDER.map(cat => (
-            <CategorySection
-              key={cat}
-              category={cat}
-              templates={TEMPLATES.filter(t => t.category === cat)}
+        </div>
+
+        {/* ── Filter tabs ── */}
+        <div style={{ display: 'flex', gap: 10, marginBottom: 36, flexWrap: 'wrap' }}>
+          {FILTERS.map(f => {
+            const isActive = active === f.key
+            const catMeta  = f.key !== 'all' ? CATEGORY_META[f.key as Category] : null
+            return (
+              <button key={f.key} onClick={() => setActive(f.key)}
+                style={{
+                  border: isActive ? 'none' : `1px solid ${T.softLine}`,
+                  borderRadius: 11, padding: '10px 20px',
+                  fontSize: 13.5, fontWeight: 700, cursor: 'pointer',
+                  fontFamily: T.font, transition: 'all .15s',
+                  background: isActive ? (catMeta?.gradient ?? T.pinkGrad) : '#fff',
+                  color: isActive ? '#fff' : '#5d6376',
+                  boxShadow: isActive ? '0 8px 18px -8px rgba(100,60,160,.45)' : 'none',
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                }}>
+                {f.key !== 'all' && catMeta && (
+                  <span style={{ fontSize: 14 }}>{catMeta.icon}</span>
+                )}
+                {f.label}
+                <span style={{
+                  fontSize: 10.5, fontWeight: 800,
+                  background: isActive ? 'rgba(255,255,255,.3)' : T.line,
+                  color: isActive ? '#fff' : T.muted,
+                  borderRadius: 5, padding: '2px 7px',
+                  lineHeight: 1.4,
+                }}>
+                  {counts[f.key]}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* ── Content ── */}
+        {active === 'all' ? (
+          <>
+            <FeaturedSection
+              templates={TEMPLATES.filter(t => t.featured)}
               onUse={handleUse}
               loading={loading}
             />
-          ))}
-        </>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 22 }}
-          className="tmpl-grid">
-          {TEMPLATES.filter(t => t.category === active).map(t => (
-            <TemplateCard key={t.id} tmpl={t} onUse={handleUse} loading={loading === t.id} />
-          ))}
-        </div>
-      )}
+            {CATEGORY_ORDER.map(cat => (
+              <CategorySection
+                key={cat}
+                category={cat}
+                templates={TEMPLATES.filter(t => t.category === cat)}
+                onUse={handleUse}
+                loading={loading}
+              />
+            ))}
+          </>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 22 }}
+            className="tmpl-grid">
+            {TEMPLATES.filter(t => t.category === active).map(t => (
+              <TemplateCard key={t.id} tmpl={t} onUse={handleUse} loading={loading === t.id} />
+            ))}
+          </div>
+        )}
 
-      {/* ── Bottom banner ── */}
-      <div style={{
-        marginTop: 24,
-        background: 'linear-gradient(100deg,#fde7f1 0%,#f6e8fa 100%)',
-        border: '1px solid #f6dcec', borderRadius: 18, padding: '22px 28px',
-        display: 'flex', alignItems: 'center', gap: 16,
-      }}>
+        {/* ── Bottom banner ── */}
         <div style={{
-          width: 38, height: 38, borderRadius: 10, background: '#fff', flexShrink: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 4px 12px rgba(236,59,142,.15)', fontSize: 18,
+          marginTop: 32,
+          background: '#fff',
+          border: `1px solid ${T.cardLine}`,
+          borderRadius: 20, padding: '28px 36px',
+          display: 'flex', alignItems: 'center', gap: 20,
+          boxShadow: '0 4px 20px -8px rgba(120,80,160,.1)',
         }}>
-          ✦
-        </div>
-        <div>
-          <div style={{ fontSize: 15.5, fontWeight: 800, color: T.ink }}>
-            ¿No encuentras lo que buscas?
-          </div>
-          <div style={{ fontSize: 13.5, color: T.muted, marginTop: 3 }}>
-            Crea tu template desde cero con nuestro editor visual.
-          </div>
-        </div>
-        <button
-          onClick={() => router.push('/dashboard/editor/new')}
-          style={{
-            marginLeft: 'auto', flexShrink: 0, background: '#fff',
-            border: '1px solid #f6cfe3', borderRadius: 12, padding: '13px 22px',
-            fontSize: 14, fontWeight: 800, color: T.pink, cursor: 'pointer',
-            fontFamily: T.font, transition: 'background .15s', whiteSpace: 'nowrap',
+          <div style={{
+            width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+            background: 'linear-gradient(135deg,#fde7f1,#ede3fd)',
+            border: `1px solid ${T.cardLine}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
           }}>
-          Crear desde cero
-        </button>
+            ✦
+          </div>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: T.ink, marginBottom: 4 }}>
+              ¿No encuentras lo que buscas?
+            </div>
+            <div style={{ fontSize: 13.5, color: T.muted, lineHeight: 1.5 }}>
+              Crea tu propia plantilla desde cero con el editor visual de Tokproof.
+            </div>
+          </div>
+          <button
+            onClick={() => router.push('/dashboard/editor/new')}
+            className="tmpl-primary-btn"
+            style={{
+              marginLeft: 'auto', flexShrink: 0,
+              background: T.pinkGrad, border: 'none',
+              borderRadius: 13, padding: '14px 28px',
+              fontSize: 14, fontWeight: 700, color: '#fff', cursor: 'pointer',
+              fontFamily: T.font, transition: 'filter .15s',
+              boxShadow: '0 10px 24px -8px rgba(224,53,154,.55)',
+              whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 8,
+            }}>
+            Crear desde cero
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="4" y1="12" x2="20" y2="12"/>
+              <polyline points="14 6 20 12 14 18"/>
+            </svg>
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
