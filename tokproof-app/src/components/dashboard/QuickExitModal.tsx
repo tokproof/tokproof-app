@@ -24,13 +24,15 @@ function slugify(v: string) {
 export default function QuickExitModal({ open, onClose, userId, editing, onSaved }: Props) {
   const isEditing = !!editing
 
-  const [name,        setName]        = useState('')
-  const [slug,        setSlug]        = useState('')
-  const [destUrl,     setDestUrl]     = useState('')
-  const [slugStatus,  setSlugStatus]  = useState<SlugStatus>('idle')
-  const [urlError,    setUrlError]    = useState('')
-  const [saving,      setSaving]      = useState(false)
-  const [slugTouched, setSlugTouched] = useState(false)
+  const [name,          setName]          = useState('')
+  const [slug,          setSlug]          = useState('')
+  const [destUrl,       setDestUrl]       = useState('')
+  const [tiktokProfile, setTiktokProfile] = useState('')
+  const [slugStatus,    setSlugStatus]    = useState<SlugStatus>('idle')
+  const [urlError,      setUrlError]      = useState('')
+  const [tiktokError,   setTiktokError]   = useState('')
+  const [saving,        setSaving]        = useState(false)
+  const [slugTouched,   setSlugTouched]   = useState(false)
 
   // Pre-fill when editing
   useEffect(() => {
@@ -40,11 +42,13 @@ export default function QuickExitModal({ open, onClose, userId, editing, onSaved
       setName(editing.title ?? '')
       setSlug(editing.username ?? '')
       setDestUrl((cfg?.destinationUrl as string) ?? '')
+      setTiktokProfile((cfg?.tiktokProfile as string) ?? '')
       setSlugStatus('available')
       setSlugTouched(true)
+      setTiktokError('')
     } else {
-      setName(''); setSlug(''); setDestUrl('')
-      setSlugStatus('idle'); setSlugTouched(false); setUrlError('')
+      setName(''); setSlug(''); setDestUrl(''); setTiktokProfile('')
+      setSlugStatus('idle'); setSlugTouched(false); setUrlError(''); setTiktokError('')
     }
   }, [open, editing])
 
@@ -85,13 +89,24 @@ export default function QuickExitModal({ open, onClose, userId, editing, onSaved
     setUrlError(''); return true
   }
 
+  function validateTikTok(v: string): boolean {
+    if (!v.replace(/^@/, '').trim()) {
+      setTiktokError('No puedes publicar este Quick Exit sin indicar la cuenta de TikTok donde se utilizará.')
+      return false
+    }
+    setTiktokError(''); return true
+  }
+
   async function handleSave() {
     if (!validateUrl(destUrl)) return
+    if (!validateTikTok(tiktokProfile)) return
     if (!slug || slug.length < 2) return
     if (!isEditing && slugStatus !== 'available') return
 
     setSaving(true)
     const supabase = createClient()
+
+    const cleanHandle = tiktokProfile.replace(/^@/, '').trim()
 
     const landingConfig = {
       pageType: 'quick_exit',
@@ -99,6 +114,7 @@ export default function QuickExitModal({ open, onClose, userId, editing, onSaved
       slug,
       status: 'published',
       destinationUrl: destUrl,
+      tiktokProfile: cleanHandle,
       settings: {
         enableBrowserGuide: true,
         showTokproofBranding: true,
@@ -131,7 +147,8 @@ export default function QuickExitModal({ open, onClose, userId, editing, onSaved
   if (!open) return null
 
   const slugOk    = isEditing || slugStatus === 'available'
-  const canSubmit = name.trim() && slug.length >= 2 && slugOk && !saving
+  const tikOk     = tiktokProfile.replace(/^@/, '').trim().length > 0
+  const canSubmit = name.trim() && slug.length >= 2 && slugOk && tikOk && !saving
 
   const slugColor = slugStatus === 'available' ? '#10B981' : slugStatus === 'taken' ? '#EF4444' : slugStatus === 'invalid' ? '#EF4444' : '#9CA3AF'
   const slugMsg   = slugStatus === 'available' ? '✓ Disponible' : slugStatus === 'taken' ? '✕ No disponible' : slugStatus === 'checking' ? '…' : ''
@@ -194,6 +211,27 @@ export default function QuickExitModal({ open, onClose, userId, editing, onSaved
             placeholder="https://tu-tienda.com/products/producto" type="url"
             style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: `1.5px solid ${urlError ? '#FCA5A5' : '#E4E7F0'}`, fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', background: urlError ? '#FFF5F5' : '#fff' }} />
           {urlError && <p style={{ fontSize: 12, color: '#EF4444', marginTop: 5, marginBottom: 0 }}>{urlError}</p>}
+        </div>
+
+        {/* TikTok Profile */}
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>
+            Cuenta de TikTok
+          </label>
+          <div style={{ display: 'flex' }}>
+            <span style={{ padding: '9px 10px', background: '#F3F4F6', border: `1.5px solid ${tiktokError ? '#FCA5A5' : '#E4E7F0'}`, borderRight: 'none', borderRadius: '10px 0 0 10px', fontSize: 13, fontWeight: 600, color: '#9CA3AF', display: 'flex', alignItems: 'center', flexShrink: 0 }}>@</span>
+            <input
+              value={tiktokProfile}
+              onChange={e => { setTiktokProfile(e.target.value.replace(/^@+/, '')); if (tiktokError) setTiktokError('') }}
+              onBlur={() => { if (tiktokProfile) validateTikTok(tiktokProfile) }}
+              placeholder="gemaferrero"
+              style={{ flex: 1, padding: '9px 12px', borderRadius: '0 10px 10px 0', border: `1.5px solid ${tiktokError ? '#FCA5A5' : '#E4E7F0'}`, borderLeft: 'none', fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', background: tiktokError ? '#FFF5F5' : '#fff' }}
+            />
+          </div>
+          {tiktokError
+            ? <p style={{ fontSize: 12, color: '#EF4444', marginTop: 5, marginBottom: 0, lineHeight: 1.45 }}>{tiktokError}</p>
+            : <p style={{ fontSize: 11.5, color: '#9CA3AF', marginTop: 5, marginBottom: 0 }}>Perfil donde compartirás este enlace</p>
+          }
         </div>
 
         {/* Buttons */}

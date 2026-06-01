@@ -324,6 +324,7 @@ export interface LandingConfig {
   pageType?: 'trust_page' | 'simple_page' | 'creator_page' | 'quick_exit'
   simplePage?: SimplePageConfig
   trafficSources?: TrafficSource[]
+  tiktokProfile?: string
 }
 
 // ─── Default factory ─────────────────────────────────────────────────────────
