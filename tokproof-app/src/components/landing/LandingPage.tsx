@@ -236,7 +236,8 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
         <div className="nav-in">
           <Link className="brand" href="/">
             <span className="mk">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/assets/tokproof-isotipo.png" alt="Tokproof" width={22} height={22} style={{ width: 22, height: 22, objectFit: 'contain', display: 'block' }} />
             </span>
             Tokproof
           </Link>
@@ -585,7 +586,11 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
             <div style={{ position: 'relative' }}>
               <div className="ed-win">
                 <div className="ed-bar">
-                  <div className="brand2"><span className="mk2"/>&nbsp;Tokproof</div>
+                  <div className="brand2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/assets/tokproof-isotipo.png" alt="" width={16} height={16} style={{ width: 16, height: 16, objectFit: 'contain', borderRadius: 4, display: 'inline-block', verticalAlign: 'middle' }} />
+                    &nbsp;Tokproof
+                  </div>
                   <div className="crumb"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Crema Hidratante Premium</div>
                   <div className="pub">+ Publicar cambios</div>
                 </div>
@@ -839,7 +844,10 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
         <div className="footer-in">
           <div>
             <Link className="brand" href="/">
-              <span className="mk"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+              <span className="mk">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/assets/tokproof-isotipo.png" alt="Tokproof" width={22} height={22} style={{ width: 22, height: 22, objectFit: 'contain', display: 'block' }} />
+              </span>
               Tokproof
             </Link>
             <p className="fdesc">La plataforma todo en uno para vender de forma segura en redes sociales y hacer crecer tu negocio.</p>
