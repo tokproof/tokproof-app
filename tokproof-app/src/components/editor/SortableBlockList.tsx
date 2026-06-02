@@ -69,7 +69,7 @@ const BLOCKS_CATALOG: CatalogEntry[] = [
   { type: 'featured_product', label: 'Product Showcase',   tag: 'pro',  desc: 'Destaca tu producto estrella con imagen, precio y CTA.', defaultData: { imageUrl: '', badgeText: 'Más vendido 🔥', productName: 'Hair Growth Serum', description: 'Fórmula avanzada con ingredientes naturales para fortalecer el cabello desde la raíz.', rating: 4.9, reviewCount: '2.4K', price: '$29.99', compareAtPrice: '$39.99', discountText: '-25%', benefits: ['Estimula el crecimiento capilar', 'Ingredientes 100% naturales', 'Resultados visibles en 7 días'], buttonText: 'Ver producto', buttonUrl: '', showBadge: true, showRating: true, showReviews: true, showPrice: true, showCompareAtPrice: true, showDiscount: true, showBenefits: true, layout: 'card', colorTheme: 'light', buttonStyle: 'filled' } },
   { type: 'testimonials',   label: 'Testimonials',         tag: 'soon', desc: 'Carrusel de reseñas reales de clientes.' },
   { type: 'video_featured', label: 'YouTube Featured',     tag: 'soon', desc: 'Video de YouTube incrustado en la página.' },
-  { type: 'partner_discounts', label: 'Partner Discounts', tag: 'pro', desc: 'Muestra códigos de descuento y ofertas exclusivas de tus partners.', defaultData: { title: 'Descuentos de nuestros partners', subtitle: 'Ahorra en tus marcas favoritas con códigos exclusivos. 🎁', badgeText: '♦ Ofertas exclusivas', footerText: 'Nuevas ofertas cada semana', layout: 'compact', showLogos: true, showDescriptions: false, showCopyButton: true, showExternalButton: true, showFooterText: true, discounts: [{ id: 'pd1', brandName: 'Gymshark', storeUrl: 'https://gymshark.com', logoUrl: '', description: 'En toda la tienda.', discountText: '15% OFF', code: 'GYM15', buttonText: 'Ver oferta', buttonUrl: 'https://gymshark.com', isPopular: true, enabled: true }, { id: 'pd2', brandName: 'LSKD', storeUrl: 'https://lskd.co', logoUrl: '', description: 'En pedidos superiores a $100.', discountText: '20% OFF', code: 'LSKD20', buttonText: 'Ver oferta', buttonUrl: 'https://lskd.co', isPopular: false, enabled: true }, { id: 'pd3', brandName: 'Alo Yoga', storeUrl: 'https://aloyoga.com', logoUrl: '', description: 'En toda la tienda.', discountText: '10% OFF', code: 'ALO10', buttonText: 'Ver oferta', buttonUrl: 'https://aloyoga.com', isPopular: false, enabled: true }] } },
+  { type: 'partner_discounts', label: 'Partner Discounts', tag: 'free', desc: 'Muestra códigos de descuento y ofertas exclusivas de tus partners.', defaultData: { title: 'Descuentos de nuestros partners', subtitle: 'Ahorra en tus marcas favoritas con códigos exclusivos. 🎁', badgeText: '♦ Ofertas exclusivas', footerText: 'Nuevas ofertas cada semana', layout: 'compact', showLogos: true, showDescriptions: false, showCopyButton: true, showExternalButton: true, showFooterText: true, discounts: [{ id: 'pd1', brandName: 'Gymshark', storeUrl: 'https://gymshark.com', logoUrl: '', description: 'En toda la tienda.', discountText: '15% OFF', code: 'GYM15', buttonText: 'Ver oferta', buttonUrl: 'https://gymshark.com', isPopular: true, enabled: true }, { id: 'pd2', brandName: 'LSKD', storeUrl: 'https://lskd.co', logoUrl: '', description: 'En pedidos superiores a $100.', discountText: '20% OFF', code: 'LSKD20', buttonText: 'Ver oferta', buttonUrl: 'https://lskd.co', isPopular: false, enabled: true }, { id: 'pd3', brandName: 'Alo Yoga', storeUrl: 'https://aloyoga.com', logoUrl: '', description: 'En toda la tienda.', discountText: '10% OFF', code: 'ALO10', buttonText: 'Ver oferta', buttonUrl: 'https://aloyoga.com', isPopular: false, enabled: true }] } },
 ]
 
 // ─── Small badge for catalog cards ────────────────────────────────────────────
@@ -326,7 +326,7 @@ const BLOCK_CATEGORIES: Array<{ label: string; blocks: BlockDef[] }> = [
       { type: 'trust_badges',  label: 'Trust Badges',       isPremium: true,  defaultData: { badges: [{ id: 'tb1', icon: 'shipping', title: 'Envío gratis', description: 'En pedidos +20€', enabled: true }, { id: 'tb2', icon: 'secure', title: 'Pago seguro', description: 'SSL 256 bits', enabled: true }, { id: 'tb3', icon: 'guarantee', title: 'Garantía 30d', description: 'Sin preguntas', enabled: true }, { id: 'tb4', icon: 'returns', title: 'Devoluciones', description: 'Fáciles y gratis', enabled: true }] } },
       { type: 'comparison',    label: 'Comparativa',        isPremium: true,  defaultData: { title: 'Por qué elegirnos', leftTitle: 'Otros', rightTitle: 'Nosotros', rows: [{ id: 'cr1', label: 'Calidad', leftValue: 'Media', rightValue: 'Premium', winner: 'right' }, { id: 'cr2', label: 'Precio', leftValue: 'Caro', rightValue: 'Justo', winner: 'right' }, { id: 'cr3', label: 'Soporte', leftValue: 'Limitado', rightValue: '24/7', winner: 'right' }] } },
       { type: 'urgency_offer',    label: 'Urgencia / Oferta',  isPremium: true, defaultData: { title: '¡Oferta limitada!', description: 'Solo por tiempo limitado.', badgeText: '🔥 Agotándose', countdownEnabled: false, countdownText: 'Quedan 2 horas', ctaText: '🛒 Aprovechar oferta', ctaUrl: '' } },
-      { type: 'partner_discounts', label: 'Partner Discounts', isPremium: true, defaultData: { title: 'Descuentos de nuestros partners', subtitle: 'Ahorra en tus marcas favoritas con códigos exclusivos. 🎁', badgeText: '♦ Ofertas exclusivas', footerText: 'Nuevas ofertas cada semana', layout: 'compact', showLogos: true, showDescriptions: false, showCopyButton: true, showExternalButton: true, showFooterText: true, discounts: [{ id: 'pd1', brandName: 'Gymshark', storeUrl: 'https://gymshark.com', logoUrl: '', description: 'En toda la tienda.', discountText: '15% OFF', code: 'GYM15', buttonText: 'Ver oferta', buttonUrl: 'https://gymshark.com', isPopular: true, enabled: true }] } },
+      { type: 'partner_discounts', label: 'Partner Discounts', defaultData: { title: 'Descuentos de nuestros partners', subtitle: 'Ahorra en tus marcas favoritas con códigos exclusivos. 🎁', badgeText: '♦ Ofertas exclusivas', footerText: 'Nuevas ofertas cada semana', layout: 'compact', showLogos: true, showDescriptions: false, showCopyButton: true, showExternalButton: true, showFooterText: true, discounts: [{ id: 'pd1', brandName: 'Gymshark', storeUrl: 'https://gymshark.com', logoUrl: '', description: 'En toda la tienda.', discountText: '15% OFF', code: 'GYM15', buttonText: 'Ver oferta', buttonUrl: 'https://gymshark.com', isPopular: true, enabled: true }] } },
     ],
   },
   {
@@ -436,10 +436,11 @@ function SortableItem({
       {expanded && (
         <div style={{ background: T.bg }}>
           {block.type === 'partner_discounts' ? (
-            /* Partner Discounts has its own 3-tab layout (Contenido/Estilo/Avanzado) */
+            /* Partner Discounts has its own 2-tab layout (Contenido/Estilo) */
             <PartnerDiscountsEditor
               block={block}
               onUpdate={(data) => onUpdateBlock(block.id, data)}
+              onUpdateStyle={(patch) => onUpdateBlockStyle(block.id, patch)}
               plan={plan}
               theme={theme}
             />
@@ -1421,7 +1422,7 @@ function FeaturedProductEditor({ block, onUpdate, plan }: {
   )
 }
 
-// ─── Partner Discounts editor helpers ────────────────────────────────────────
+// ─── Partner Discounts editor ─────────────────────────────────────────────────
 
 /* Logo preview in the editor item list — auto-detects from storeUrl via Clearbit */
 function PDLogo({ storeUrl, logoUrl, brandName }: { storeUrl: string; logoUrl: string; brandName: string }) {
@@ -1463,17 +1464,18 @@ function PDToggle({ label, value, onChange }: { label: string; value: boolean; o
 }
 
 // ─── Partner Discounts editor (3 tabs: Contenido / Estilo / Avanzado) ─────────
-function PartnerDiscountsEditor({ block, onUpdate, plan, theme }: {
+function PartnerDiscountsEditor({ block, onUpdate, onUpdateStyle, plan, theme }: {
   block: LandingBlock
   onUpdate: (d: Partial<LandingBlock['data']>) => void
+  onUpdateStyle: (patch: Partial<BlockStyle>) => void
   plan: Plan
   theme: LandingTheme
 }) {
   const d = block.data as unknown as PartnerDiscountsData
-  const [tab, setTab]                 = useState<'content' | 'style' | 'advanced'>('content')
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
+  const [tab, setTab]                   = useState<'content' | 'style'>('content')
+  const [expandedIds, setExpandedIds]   = useState<Set<string>>(new Set())
   const [uploadOpenId, setUploadOpenId] = useState<string | null>(null)
-  const [upgradeOpen, setUpgradeOpen] = useState(false)
+  const [upgradeOpen, setUpgradeOpen]   = useState(false)
 
   const isPro      = plan === 'pro'
   const discounts: PartnerDiscount[] = Array.isArray(d.discounts) ? d.discounts : []
@@ -1508,13 +1510,13 @@ function PartnerDiscountsEditor({ block, onUpdate, plan, theme }: {
     setExpandedIds(prev => { const s = new Set(Array.from(prev)); s.add(id); return s })
   }
 
-  const tabLabels: Record<typeof tab, string> = { content: 'Contenido', style: 'Estilo', advanced: 'Avanzado' }
+  const tabLabels: Record<typeof tab, string> = { content: 'Contenido', style: 'Estilo' }
 
   return (
     <>
-      {/* ── Tab bar (spans full width) ── */}
+      {/* ── Tab bar (spans full width, no outer padding) ── */}
       <div style={{ display: 'flex', borderBottom: `1px solid ${T.border}`, background: T.card }}>
-        {(['content', 'style', 'advanced'] as const).map(t => (
+        {(['content', 'style'] as const).map(t => (
           <button key={t} onClick={() => setTab(t)} style={{
             flex: 1, padding: '7px 0', border: 'none', background: 'none', cursor: 'pointer',
             fontSize: 11.5, fontWeight: 600,
@@ -1531,6 +1533,24 @@ function PartnerDiscountsEditor({ block, onUpdate, plan, theme }: {
         {/* ══ CONTENIDO ══ */}
         {tab === 'content' && (
           <div>
+            {/* Block text fields */}
+            <FG>
+              <FL>Título</FL>
+              <FI value={d.title ?? ''} onChange={e => onUpdate({ title: e.target.value })} />
+            </FG>
+            <FG>
+              <FL>Subtítulo</FL>
+              <FTA value={d.subtitle ?? ''} onChange={e => onUpdate({ subtitle: e.target.value })} style={{ minHeight: 44 }} />
+            </FG>
+            <FG>
+              <FL>Texto del badge</FL>
+              <FI value={d.badgeText ?? ''} placeholder="♦ Ofertas exclusivas" onChange={e => onUpdate({ badgeText: e.target.value })} />
+            </FG>
+            <FG mb={14}>
+              <FL>Texto del footer</FL>
+              <FI value={d.footerText ?? ''} placeholder="Nuevas ofertas cada semana" onChange={e => onUpdate({ footerText: e.target.value })} />
+            </FG>
+
             {/* Section header */}
             <div style={{ fontSize: 10, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>
               Descuentos
@@ -1585,13 +1605,7 @@ function PartnerDiscountsEditor({ block, onUpdate, plan, theme }: {
                           <FI type="url" value={dc.storeUrl} placeholder="https://gymshark.com" onChange={e => updDiscount(dc.id, { storeUrl: e.target.value })} />
                         </FG>
 
-                        {/* Logo URL manual */}
-                        <FG>
-                          <FL>Logo URL (opcional)</FL>
-                          <FI type="url" value={dc.logoUrl} placeholder="https://cdn.marca.com/logo.png" onChange={e => updDiscount(dc.id, { logoUrl: e.target.value })} />
-                        </FG>
-
-                        {/* Upload custom logo — Pro gated */}
+                        {/* Upload custom logo — Pro gated (no manual logoUrl input) */}
                         {isPro ? (
                           <>
                             <button
@@ -1674,32 +1688,18 @@ function PartnerDiscountsEditor({ block, onUpdate, plan, theme }: {
 
             <AddBtn onClick={addDiscount} label="Añadir descuento" />
 
-            {/* Ajustes section */}
+            {/* Ajustes del bloque */}
             <div style={{ marginTop: 14 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>Ajustes</div>
-              <PDToggle label="Mostrar logos"                  value={d.showLogos        ?? true}  onChange={v => onUpdate({ showLogos: v })} />
-              <PDToggle label="Mostrar descripción"            value={d.showDescriptions ?? false} onChange={v => onUpdate({ showDescriptions: v })} />
-              <PDToggle label='Mostrar botón "Copiar código"'  value={d.showCopyButton   ?? true}  onChange={v => onUpdate({ showCopyButton: v })} />
+              <div style={{ fontSize: 10, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>Ajustes del bloque</div>
+              <PDToggle label="Mostrar logos"                  value={d.showLogos          ?? true}  onChange={v => onUpdate({ showLogos: v })} />
+              <PDToggle label="Mostrar descripción"            value={d.showDescriptions   ?? false} onChange={v => onUpdate({ showDescriptions: v })} />
+              <PDToggle label='Mostrar botón "Copiar código"'  value={d.showCopyButton     ?? true}  onChange={v => onUpdate({ showCopyButton: v })} />
+              <PDToggle label="Mostrar botón externo"          value={d.showExternalButton ?? true}  onChange={v => onUpdate({ showExternalButton: v })} />
+              <PDToggle label="Mostrar footer"                 value={d.showFooterText     ?? true}  onChange={v => onUpdate({ showFooterText: v })} />
             </div>
 
-            {/* Upgrade banner (Free users) */}
-            {!isPro && (
-              <div style={{ marginTop: 14, padding: '12px', borderRadius: 10, background: '#FFFBF0', border: '1px solid #FDE68A' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
-                  <span style={{ fontSize: 15 }}>👑</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: T.ink }}>Disponible en Pro</span>
-                </div>
-                <p style={{ margin: '0 0 8px', fontSize: 11, color: T.ink2, lineHeight: 1.4 }}>
-                  Desbloquea descuentos ilimitados y más opciones de personalización.
-                </p>
-                <button onClick={() => setUpgradeOpen(true)} style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${T.purple}`, background: 'none', color: T.purple, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-                  Actualizar a Pro
-                </button>
-              </div>
-            )}
-
             {upgradeOpen && (
-              <UpgradeProModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} title="Partner Discounts" description="Sube logos personalizados y accede a todas las opciones de personalización con el plan Pro." />
+              <UpgradeProModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} title="Logos personalizados" description="Sube logos personalizados para tus partners con el plan Pro." />
             )}
           </div>
         )}
@@ -1707,8 +1707,8 @@ function PartnerDiscountsEditor({ block, onUpdate, plan, theme }: {
         {/* ══ ESTILO ══ */}
         {tab === 'style' && (
           <div>
-            {/* Layout */}
-            <FG>
+            {/* Layout selector */}
+            <FG mb={14}>
               <FL>Layout</FL>
               <div style={{ display: 'flex', gap: 6 }}>
                 {(['compact', 'detailed'] as const).map(v => (
@@ -1722,79 +1722,16 @@ function PartnerDiscountsEditor({ block, onUpdate, plan, theme }: {
                   </button>
                 ))}
               </div>
-              <p style={{ margin: '4px 0 0', fontSize: 10, color: T.ink3, lineHeight: 1.4 }}>
-                Compact: tarjetas compactas con código. Detailed: descripción y botón visible.
+              <p style={{ margin: '5px 0 0', fontSize: 10, color: T.ink3, lineHeight: 1.4 }}>
+                Compact: tarjetas compactas. Detailed: descripción + botón visible.
               </p>
             </FG>
 
-            <FG>
-              <FL>Título</FL>
-              <FI value={d.title ?? ''} onChange={e => onUpdate({ title: e.target.value })} />
-            </FG>
-            <FG>
-              <FL>Subtítulo</FL>
-              <FTA value={d.subtitle ?? ''} onChange={e => onUpdate({ subtitle: e.target.value })} style={{ minHeight: 44 }} />
-            </FG>
-            <FG>
-              <FL>Texto del badge</FL>
-              <FI value={d.badgeText ?? ''} onChange={e => onUpdate({ badgeText: e.target.value })} />
-            </FG>
-            <FG>
-              <FL>Texto del footer</FL>
-              <FI value={d.footerText ?? ''} onChange={e => onUpdate({ footerText: e.target.value })} />
-            </FG>
+            {/* Separator */}
+            <div style={{ height: 1, background: T.border, margin: '0 0 14px' }} />
 
-            <div style={{ marginTop: 4 }}>
-              <PDToggle label="Mostrar logos"          value={d.showLogos          ?? true}  onChange={v => onUpdate({ showLogos: v })} />
-              <PDToggle label="Mostrar descripciones"  value={d.showDescriptions   ?? false} onChange={v => onUpdate({ showDescriptions: v })} />
-              <PDToggle label="Mostrar copiar código"  value={d.showCopyButton     ?? true}  onChange={v => onUpdate({ showCopyButton: v })} />
-              <PDToggle label="Mostrar botón externo"  value={d.showExternalButton ?? true}  onChange={v => onUpdate({ showExternalButton: v })} />
-              <PDToggle label="Mostrar footer"         value={d.showFooterText     ?? true}  onChange={v => onUpdate({ showFooterText: v })} />
-            </div>
-
-            {/* Accent color */}
-            <FG mb={0}>
-              <FL>Color de acento</FL>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input type="color" value={d.accentColor || theme.primaryColor || '#F647A9'} onChange={e => onUpdate({ accentColor: e.target.value })} style={{ width: 26, height: 26, border: 'none', borderRadius: 6, cursor: 'pointer', padding: 2, background: 'none', flexShrink: 0 }} />
-                <span style={{ fontSize: 11, fontFamily: 'monospace', color: T.ink2 }}>{(d.accentColor || theme.primaryColor || '#F647A9').toUpperCase()}</span>
-                {d.accentColor && (
-                  <button onClick={() => onUpdate({ accentColor: undefined })} style={{ width: 18, height: 18, borderRadius: 4, border: 'none', background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}>
-                    <RotateCcw size={10} />
-                  </button>
-                )}
-              </div>
-            </FG>
-          </div>
-        )}
-
-        {/* ══ AVANZADO ══ */}
-        {tab === 'advanced' && (
-          <div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <FG style={{ flex: 1 }}>
-                <FL>Margin top (px)</FL>
-                <FI type="number" value={d.marginTop ?? ''} placeholder="0" min={0} onChange={e => onUpdate({ marginTop: parseInt(e.target.value) || undefined })} />
-              </FG>
-              <FG style={{ flex: 1 }}>
-                <FL>Margin bottom (px)</FL>
-                <FI type="number" value={d.marginBottom ?? ''} placeholder="0" min={0} onChange={e => onUpdate({ marginBottom: parseInt(e.target.value) || undefined })} />
-              </FG>
-            </div>
-            <FG>
-              <FL>Custom Anchor ID</FL>
-              <FI value={d.customAnchorId ?? ''} placeholder="mi-seccion-descuentos" onChange={e => onUpdate({ customAnchorId: e.target.value || undefined })} />
-            </FG>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
-                <input type="checkbox" checked={d.hideOnMobile ?? false} onChange={e => onUpdate({ hideOnMobile: e.target.checked || undefined })} />
-                Ocultar en móvil
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
-                <input type="checkbox" checked={d.hideOnDesktop ?? false} onChange={e => onUpdate({ hideOnDesktop: e.target.checked || undefined })} />
-                Ocultar en escritorio
-              </label>
-            </div>
+            {/* Standard design controls (colors, typography, borders, spacing) */}
+            <DesignEditor block={block} theme={theme} onUpdateStyle={onUpdateStyle} />
           </div>
         )}
 
