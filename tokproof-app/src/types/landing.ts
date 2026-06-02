@@ -37,6 +37,7 @@ export type BlockType =
   | 'footer_legal'
   | 'featured_product'
   | 'partner_discounts'
+  | 'before_after'
 
 export interface LandingBlock {
   id: string
@@ -269,6 +270,42 @@ export interface PartnerDiscountsData {
   shadowIntensity?: 'none' | 'soft' | 'medium'
   hideOnMobile?: boolean
   hideOnDesktop?: boolean
+}
+
+export interface BeforeAfterColors {
+  backgroundColor?: string
+  cardBackgroundColor?: string
+  titleColor?: string
+  subtitleColor?: string
+  badgeBackgroundColor?: string
+  badgeTextColor?: string
+  labelBeforeBackground?: string
+  labelAfterBackground?: string
+  labelTextColor?: string
+  buttonBackgroundColor?: string
+  buttonTextColor?: string
+}
+
+export interface BeforeAfterData {
+  title: string
+  subtitle: string
+  badgeText: string
+  mode: 'cards' | 'slider'
+  beforeImageUrl: string
+  afterImageUrl: string
+  beforeLabel: string
+  afterLabel: string
+  beforeDescription: string
+  afterDescription: string
+  showBadge: boolean
+  showSubtitle: boolean
+  showDescriptions: boolean
+  showCTA: boolean
+  buttonText: string
+  buttonUrl: string
+  borderRadius: 'square' | 'soft' | 'medium' | 'round'
+  shadowIntensity: 'none' | 'soft' | 'medium'
+  colors?: BeforeAfterColors
 }
 
 export interface FooterLegalData {

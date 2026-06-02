@@ -520,6 +520,52 @@ function PartnerDiscountsThumb({ size }: { size: ThumbSize }) {
   )
 }
 
+// ─── before_after ─────────────────────────────────────────────────────────────
+function BeforeAfterThumb({ size }: { size: ThumbSize }) {
+  if (size === 'popover') return (
+    <div style={W('100%', 140, 12, '#ffffff', { display: 'flex', flexDirection: 'column', padding: '10px 12px', gap: 6 })}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ display: 'inline-block', background: '#fce7f3', color: '#db2777', fontSize: 7.5, fontWeight: 700, padding: '2px 8px', borderRadius: 999, marginBottom: 4 }}>
+          Transformación real
+        </div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: '#1f2430' }}>Resultados que puedes ver</div>
+        <div style={{ fontSize: 8, color: '#6b7280', marginTop: 2 }}>Mira la diferencia real después de usar nuestro producto.</div>
+      </div>
+      <div style={{ display: 'flex', gap: 6 }}>
+        <div style={{ flex: 1, borderRadius: 7, background: '#f3f4f6', overflow: 'hidden' }}>
+          <div style={{ height: 46, background: 'linear-gradient(135deg,#fca5a5,#ef4444)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, position: 'relative' }}>
+            😔
+            <span style={{ position: 'absolute', top: 4, left: 4, background: '#ef4444', color: '#fff', fontSize: 6.5, fontWeight: 700, padding: '1.5px 5px', borderRadius: 999 }}>Antes</span>
+          </div>
+          <div style={{ padding: '4px 6px', fontSize: 7.5, color: '#6b7280', lineHeight: 1.3 }}>Cabello seco, sin brillo y con frizz.</div>
+        </div>
+        <div style={{ flex: 1, borderRadius: 7, background: '#f3f4f6', overflow: 'hidden' }}>
+          <div style={{ height: 46, background: 'linear-gradient(135deg,#a7f3d0,#10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, position: 'relative' }}>
+            😊
+            <span style={{ position: 'absolute', top: 4, left: 4, background: '#10b981', color: '#fff', fontSize: 6.5, fontWeight: 700, padding: '1.5px 5px', borderRadius: 999 }}>Después</span>
+          </div>
+          <div style={{ padding: '4px 6px', fontSize: 7.5, color: '#6b7280', lineHeight: 1.3 }}>Cabello hidratado, brillante y saludable.</div>
+        </div>
+      </div>
+    </div>
+  )
+  const [w, h] = size === 'card' ? [52, 78] : [40, 56]
+  return (
+    <div style={W(w, h, 8, '#ffffff', { padding: '4px 5px', display: 'flex', flexDirection: 'column', gap: 3 })}>
+      <div style={{ height: 3, borderRadius: 2, background: '#db2777', width: '48%', marginBottom: 1 }} />
+      <div style={{ height: 3.5, borderRadius: 2, background: '#1f2430', width: '68%' }} />
+      <div style={{ display: 'flex', gap: 3, flex: 1, marginTop: 2 }}>
+        <div style={{ flex: 1, borderRadius: 4, background: 'linear-gradient(135deg,#fca5a5,#ef4444)', overflow: 'hidden', position: 'relative', display: 'flex', alignItems: 'flex-start', padding: '2px' }}>
+          <span style={{ fontSize: 4.5, background: '#ef4444', color: '#fff', padding: '1px 3px', borderRadius: 2, fontWeight: 700, lineHeight: 1.2 }}>Before</span>
+        </div>
+        <div style={{ flex: 1, borderRadius: 4, background: 'linear-gradient(135deg,#a7f3d0,#10b981)', overflow: 'hidden', position: 'relative', display: 'flex', alignItems: 'flex-start', padding: '2px' }}>
+          <span style={{ fontSize: 4.5, background: '#10b981', color: '#fff', padding: '1px 3px', borderRadius: 2, fontWeight: 700, lineHeight: 1.2 }}>After</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Generic fallback ─────────────────────────────────────────────────────────
 function GenericThumb({ size }: { size: ThumbSize }) {
   const [w, h] = size === 'popover' ? [300, 140] : size === 'card' ? [52, 78] : [40, 56]
@@ -543,6 +589,7 @@ export function GlowThumb({ type, size = 'card' }: { type: string; size?: ThumbS
     case 'footer_legal':     return <FooterThumb size={size} />
     case 'featured_product':    return <FeaturedProductThumb size={size} />
     case 'partner_discounts':   return <PartnerDiscountsThumb size={size} />
+    case 'before_after':        return <BeforeAfterThumb      size={size} />
     default:                    return <GenericThumb size={size} />
   }
 }

@@ -15,7 +15,7 @@ import {
   GripVertical, Eye, EyeOff, Copy, Trash2, ChevronDown, Plus, RotateCcw,
   X, Search, Lock,
   Tag, Star, HelpCircle, ShoppingCart, Link2, User, Share2,
-  LayoutGrid, Shield, BarChart2, Zap, FileText, Package, Info, Gift,
+  LayoutGrid, Shield, BarChart2, Zap, FileText, Package, Info, Gift, Layers,
 } from 'lucide-react'
 import type {
   LandingBlock, LandingTheme, BlockStyle,
@@ -34,6 +34,8 @@ import type {
   PartnerDiscountsData,
   PartnerDiscount,
   PDColors,
+  BeforeAfterData,
+  BeforeAfterColors,
 } from '@/types/landing'
 import { FONT_OPTIONS } from '@/lib/blockStyle'
 
@@ -71,6 +73,7 @@ const BLOCKS_CATALOG: CatalogEntry[] = [
   { type: 'testimonials',   label: 'Testimonials',         tag: 'soon', desc: 'Carrusel de reseñas reales de clientes.' },
   { type: 'video_featured', label: 'YouTube Featured',     tag: 'soon', desc: 'Video de YouTube incrustado en la página.' },
   { type: 'partner_discounts', label: 'Partner Discounts', tag: 'free', desc: 'Muestra códigos de descuento y ofertas exclusivas de tus partners.', defaultData: { title: 'Descuentos de nuestros partners', subtitle: 'Ahorra en tus marcas favoritas con códigos exclusivos. 🎁', badgeText: '♦ Ofertas exclusivas', footerText: 'Nuevas ofertas cada semana', layout: 'compact', showLogos: true, showDescriptions: false, showCopyButton: true, showExternalButton: true, showFooterText: true, discounts: [{ id: 'pd1', brandName: 'Gymshark', storeUrl: 'https://gymshark.com', logoUrl: '', description: 'En toda la tienda.', discountText: '15% OFF', code: 'GYM15', buttonText: 'Ver oferta', buttonUrl: 'https://gymshark.com', isPopular: true, enabled: true }, { id: 'pd2', brandName: 'LSKD', storeUrl: 'https://lskd.co', logoUrl: '', description: 'En pedidos superiores a $100.', discountText: '20% OFF', code: 'LSKD20', buttonText: 'Ver oferta', buttonUrl: 'https://lskd.co', isPopular: false, enabled: true }, { id: 'pd3', brandName: 'Alo Yoga', storeUrl: 'https://aloyoga.com', logoUrl: '', description: 'En toda la tienda.', discountText: '10% OFF', code: 'ALO10', buttonText: 'Ver oferta', buttonUrl: 'https://aloyoga.com', isPopular: false, enabled: true }] } },
+  { type: 'before_after', label: 'Before / After', tag: 'free', desc: 'Muestra transformaciones reales antes y después.', defaultData: { title: 'Resultados que puedes ver', subtitle: 'Mira la diferencia real después de usar nuestro producto.', badgeText: 'Transformación real', mode: 'cards', beforeImageUrl: '', afterImageUrl: '', beforeLabel: 'Antes', afterLabel: 'Después', beforeDescription: 'Cabello seco, sin brillo y con frizz.', afterDescription: 'Cabello hidratado, brillante y saludable.', showBadge: true, showSubtitle: true, showDescriptions: true, showCTA: false, buttonText: 'Ver producto', buttonUrl: 'https://tutienda.com/producto', borderRadius: 'soft', shadowIntensity: 'soft' } },
 ]
 
 // ─── Small badge for catalog cards ────────────────────────────────────────────
@@ -158,6 +161,7 @@ const CATALOG_DESC_LONG: Record<string, string> = {
   testimonials:   'Carrusel de reseñas reales para reforzar la prueba social de tu marca.',
   video_featured: 'Incrusta tu mejor video de YouTube para generar confianza al instante.',
   partner_discounts: 'Muestra códigos de descuento y ofertas exclusivas de tus partners. Ideal para afiliados, e-commerce e influencers.',
+  before_after: 'Enseña el impacto visual de tu producto con un bloque antes/después. Modo Cards (Free) o Slider interactivo (Pro).',
 }
 const CATALOG_IDEAL: Record<string, string[]> = {
   hero_product:   ['E-commerce', 'Marcas', 'Dropshipping'],
@@ -176,6 +180,7 @@ const CATALOG_IDEAL: Record<string, string[]> = {
   testimonials:   ['E-commerce', 'Servicios', 'Marcas'],
   video_featured: ['Creadores', 'Educadores', 'Marcas'],
   partner_discounts: ['E-commerce', 'Afiliados', 'Creadores', 'Fitness', 'Beauty'],
+  before_after: ['Beauty', 'Hair care', 'Skincare', 'Fitness', 'E-commerce'],
 }
 
 function BlockPreviewPopover({ entry, top, left, onClose, onAdd, onMouseEnter, onMouseLeave, plan, onUpgrade }: {
@@ -284,6 +289,7 @@ const BLOCK_ICONS: Record<string, string> = {
   trust_badges: '🛡️', comparison: '⚖️', urgency_offer: '🔥', footer_legal: '📋',
   featured_product: '🌟',
   partner_discounts: '🏷️',
+  before_after: '↔️',
 }
 
 // ─── Lucide icons por tipo de bloque (sin fondo, color alterno rosa/lila) ────
@@ -302,6 +308,7 @@ const BLOCK_LUCIDE: Record<string, React.ElementType> = {
   footer_legal:    FileText,
   featured_product:   Package,
   partner_discounts:  Gift,
+  before_after:       Layers,
 }
 const ACCENT = ['#F647A9', '#8B5CF6'] // rosa, lila — alternan por índice
 
@@ -444,6 +451,13 @@ function SortableItem({
               onUpdateStyle={(patch) => onUpdateBlockStyle(block.id, patch)}
               plan={plan}
               theme={theme}
+            />
+          ) : block.type === 'before_after' ? (
+            /* Before / After has its own 2-tab layout (Contenido/Estilo) */
+            <BeforeAfterEditor
+              block={block}
+              onUpdate={(data) => onUpdateBlock(block.id, data)}
+              plan={plan}
             />
           ) : (
             <>
@@ -686,6 +700,7 @@ function BlockEditor({ block, onUpdate, plan }: {
     case 'footer_legal':     return <FooterLegalEditor     block={block} onUpdate={onUpdate} />
     case 'featured_product':  return <FeaturedProductEditor  block={block} onUpdate={onUpdate} plan={plan} />
     case 'partner_discounts': return null // handled directly in SortableItem with its own 3-tab layout
+    case 'before_after':      return null // handled directly in SortableItem with its own 2-tab layout
     default:
       return <p style={{ fontSize: 11, color: T.ink3, fontStyle: 'italic' }}>Editor próximamente.</p>
   }
@@ -1541,6 +1556,337 @@ const PD_PRESETS: Record<PresetName, PDColors> = {
   },
 }
 const PRESET_LABELS: Record<PresetName, string> = { light: 'Light', pink: 'Pink', purple: 'Purple', dark: 'Dark' }
+
+// ─── Before / After editor (2 tabs: Contenido / Estilo) ──────────────────────
+type BAPreset = 'light' | 'pink' | 'purple' | 'dark'
+const BA_PRESETS: Record<BAPreset, BeforeAfterColors> = {
+  light: {
+    backgroundColor: '#ffffff', cardBackgroundColor: '#f9fafb',
+    titleColor: '#111827', subtitleColor: '#6b7280',
+    badgeBackgroundColor: '#fdf2f8', badgeTextColor: '#db2777',
+    labelBeforeBackground: '#ef4444', labelAfterBackground: '#22c55e', labelTextColor: '#ffffff',
+    buttonBackgroundColor: '#111827', buttonTextColor: '#ffffff',
+  },
+  pink: {
+    backgroundColor: '#fdf2f8', cardBackgroundColor: '#ffffff',
+    titleColor: '#831843', subtitleColor: '#9d174d',
+    badgeBackgroundColor: '#fce7f3', badgeTextColor: '#be185d',
+    labelBeforeBackground: '#db2777', labelAfterBackground: '#ec4899', labelTextColor: '#ffffff',
+    buttonBackgroundColor: '#ec4899', buttonTextColor: '#ffffff',
+  },
+  purple: {
+    backgroundColor: '#f5f3ff', cardBackgroundColor: '#ffffff',
+    titleColor: '#3b0764', subtitleColor: '#6b21a8',
+    badgeBackgroundColor: '#ede9fe', badgeTextColor: '#6d28d9',
+    labelBeforeBackground: '#7c3aed', labelAfterBackground: '#8b5cf6', labelTextColor: '#ffffff',
+    buttonBackgroundColor: '#7c3aed', buttonTextColor: '#ffffff',
+  },
+  dark: {
+    backgroundColor: '#0f0f10', cardBackgroundColor: 'rgba(255,255,255,0.08)',
+    titleColor: '#ffffff', subtitleColor: 'rgba(255,255,255,0.55)',
+    badgeBackgroundColor: 'rgba(246,71,169,0.15)', badgeTextColor: '#F647A9',
+    labelBeforeBackground: '#ef4444', labelAfterBackground: '#F647A9', labelTextColor: '#ffffff',
+    buttonBackgroundColor: '#F647A9', buttonTextColor: '#ffffff',
+  },
+}
+const BA_PRESET_LABELS: Record<BAPreset, string> = { light: 'Light', pink: 'Pink', purple: 'Purple', dark: 'Dark' }
+
+function BeforeAfterEditor({ block, onUpdate, plan }: {
+  block: LandingBlock
+  onUpdate: (d: Partial<LandingBlock['data']>) => void
+  plan: Plan
+}) {
+  const d = block.data as unknown as BeforeAfterData
+  const [tab, setTab]                   = useState<'content' | 'style'>('content')
+  const [upgradeOpen, setUpgradeOpen]   = useState(false)
+  const [uploadingBefore, setUploadingBefore] = useState(false)
+  const [uploadingAfter,  setUploadingAfter]  = useState(false)
+
+  const isPro   = plan === 'pro'
+  const colors  = d.colors ?? {}
+  const mode    = d.mode ?? 'cards'
+
+  function setColor(key: keyof BeforeAfterColors, val: string) {
+    onUpdate({ colors: { ...colors, [key]: val } })
+  }
+  function resetColor(key: keyof BeforeAfterColors) {
+    const next = { ...colors }; delete next[key]
+    onUpdate({ colors: Object.keys(next).length > 0 ? next : undefined })
+  }
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>, field: 'beforeImageUrl' | 'afterImageUrl') {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (field === 'beforeImageUrl') setUploadingBefore(true)
+    else setUploadingAfter(true)
+    let url: string | null = null
+    try {
+      const { createClient } = await import('@/lib/supabase/client')
+      const sb = createClient()
+      const path = `before-after/${Date.now()}_${file.name.replace(/\s+/g, '_')}`
+      const { error } = await sb.storage.from('uploads').upload(path, file)
+      if (!error) url = sb.storage.from('uploads').getPublicUrl(path).data.publicUrl
+    } catch { /* fallback */ }
+    onUpdate({ [field]: url ?? URL.createObjectURL(file) })
+    if (field === 'beforeImageUrl') setUploadingBefore(false)
+    else setUploadingAfter(false)
+  }
+
+  return (
+    <>
+      {/* ── Tab bar ── */}
+      <div style={{ display: 'flex', borderBottom: `1px solid ${T.border}`, background: T.card }}>
+        {(['content', 'style'] as const).map(t => (
+          <button key={t} onClick={() => setTab(t)} style={{
+            flex: 1, padding: '7px 0', border: 'none', background: 'none', cursor: 'pointer',
+            fontSize: 11.5, fontWeight: 600,
+            color: tab === t ? T.pink : T.ink3,
+            borderBottom: tab === t ? `2px solid ${T.pink}` : '2px solid transparent',
+          }}>
+            {t === 'content' ? 'Contenido' : 'Estilo'}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ padding: '12px 14px 16px' }}>
+
+        {/* ══ CONTENIDO ══ */}
+        {tab === 'content' && (
+          <div>
+            <FG>
+              <FL>Título</FL>
+              <FI value={d.title ?? ''} onChange={e => onUpdate({ title: e.target.value })} />
+            </FG>
+
+            <ToggleSection label="Badge" enabled={d.showBadge ?? true} onToggle={v => onUpdate({ showBadge: v })}>
+              <FI value={d.badgeText ?? ''} placeholder="Transformación real" onChange={e => onUpdate({ badgeText: e.target.value })} />
+            </ToggleSection>
+
+            <ToggleSection label="Subtítulo" enabled={d.showSubtitle ?? true} onToggle={v => onUpdate({ showSubtitle: v })}>
+              <FTA value={d.subtitle ?? ''} onChange={e => onUpdate({ subtitle: e.target.value })} style={{ minHeight: 44 }} />
+            </ToggleSection>
+
+            {/* Mode selector */}
+            <FG mb={4}>
+              <FL>Modo</FL>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button
+                  onClick={() => onUpdate({ mode: 'cards' })}
+                  style={{ flex: 1, padding: '7px 0', borderRadius: 8, cursor: 'pointer', fontSize: 11.5, fontWeight: 600, border: `1.5px solid ${mode === 'cards' ? T.purple : T.border2}`, background: mode === 'cards' ? '#f3effe' : T.card, color: mode === 'cards' ? T.purple : T.ink2 }}>
+                  Cards
+                </button>
+                {isPro ? (
+                  <button
+                    onClick={() => onUpdate({ mode: 'slider' })}
+                    style={{ flex: 1, padding: '7px 0', borderRadius: 8, cursor: 'pointer', fontSize: 11.5, fontWeight: 600, border: `1.5px solid ${mode === 'slider' ? T.purple : T.border2}`, background: mode === 'slider' ? '#f3effe' : T.card, color: mode === 'slider' ? T.purple : T.ink2 }}>
+                    Slider
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setUpgradeOpen(true)}
+                    style={{ flex: 1, padding: '7px 0', borderRadius: 8, cursor: 'pointer', fontSize: 11.5, fontWeight: 600, border: `1.5px solid ${T.border2}`, background: T.card, color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                    <Lock size={10} />
+                    Slider
+                    <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1px 5px', borderRadius: 4 }}>Pro</span>
+                  </button>
+                )}
+              </div>
+            </FG>
+            {!isPro && mode === 'slider' && (
+              <div style={{ marginBottom: 12, padding: '8px 10px', borderRadius: 8, background: '#FFFBF0', border: '1px solid #FDE68A' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                  <Lock size={11} color="#d97706" />
+                  <span style={{ fontSize: 11, fontWeight: 700, color: T.ink }}>Before / After Slider is available on Pro</span>
+                </div>
+                <button onClick={() => setUpgradeOpen(true)} style={{ padding: '5px 14px', borderRadius: 7, border: 'none', background: 'linear-gradient(135deg,#FFD700,#FF8C00)', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                  Upgrade to Pro
+                </button>
+              </div>
+            )}
+
+            {/* Images */}
+            <div style={{ fontSize: 10, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8, marginTop: 4 }}>Imágenes</div>
+
+            <FG mb={12}>
+              <FL>Before image URL</FL>
+              <FI type="url" value={d.beforeImageUrl ?? ''} placeholder="https://..." onChange={e => onUpdate({ beforeImageUrl: e.target.value })} />
+              {isPro ? (
+                <label style={{ display: 'block', marginTop: 6, cursor: 'pointer' }}>
+                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleImageUpload(e, 'beforeImageUrl')} />
+                  <div style={{ padding: '6px 0', borderRadius: 7, border: `1.5px dashed ${T.purple}`, background: '#f3effe', color: T.purple, fontSize: 11, fontWeight: 600, textAlign: 'center' }}>
+                    {uploadingBefore ? '⏳ Subiendo...' : '🖼️ Subir imagen Before'}
+                  </div>
+                </label>
+              ) : (
+                <button onClick={() => setUpgradeOpen(true)} style={{ width: '100%', marginTop: 6, padding: '6px 0', borderRadius: 7, border: `1.5px dashed ${T.border2}`, background: '#fafbfc', color: '#9CA3AF', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                  <Lock size={10} /> Subir imagen <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1px 5px', borderRadius: 4 }}>Pro</span>
+                </button>
+              )}
+            </FG>
+
+            <FG mb={14}>
+              <FL>After image URL</FL>
+              <FI type="url" value={d.afterImageUrl ?? ''} placeholder="https://..." onChange={e => onUpdate({ afterImageUrl: e.target.value })} />
+              {isPro ? (
+                <label style={{ display: 'block', marginTop: 6, cursor: 'pointer' }}>
+                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleImageUpload(e, 'afterImageUrl')} />
+                  <div style={{ padding: '6px 0', borderRadius: 7, border: `1.5px dashed ${T.purple}`, background: '#f3effe', color: T.purple, fontSize: 11, fontWeight: 600, textAlign: 'center' }}>
+                    {uploadingAfter ? '⏳ Subiendo...' : '🖼️ Subir imagen After'}
+                  </div>
+                </label>
+              ) : (
+                <button onClick={() => setUpgradeOpen(true)} style={{ width: '100%', marginTop: 6, padding: '6px 0', borderRadius: 7, border: `1.5px dashed ${T.border2}`, background: '#fafbfc', color: '#9CA3AF', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                  <Lock size={10} /> Subir imagen <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1px 5px', borderRadius: 4 }}>Pro</span>
+                </button>
+              )}
+            </FG>
+
+            {/* Labels */}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <FG style={{ flex: 1, marginBottom: 14 }}>
+                <FL>Label Before</FL>
+                <FI value={d.beforeLabel ?? 'Antes'} onChange={e => onUpdate({ beforeLabel: e.target.value })} />
+              </FG>
+              <FG style={{ flex: 1, marginBottom: 14 }}>
+                <FL>Label After</FL>
+                <FI value={d.afterLabel ?? 'Después'} onChange={e => onUpdate({ afterLabel: e.target.value })} />
+              </FG>
+            </div>
+
+            <ToggleSection label="Descriptions" enabled={d.showDescriptions ?? true} onToggle={v => onUpdate({ showDescriptions: v })}>
+              <FG mb={8}>
+                <FL>Before description</FL>
+                <FTA value={d.beforeDescription ?? ''} onChange={e => onUpdate({ beforeDescription: e.target.value })} style={{ minHeight: 44 }} />
+              </FG>
+              <FG mb={0}>
+                <FL>After description</FL>
+                <FTA value={d.afterDescription ?? ''} onChange={e => onUpdate({ afterDescription: e.target.value })} style={{ minHeight: 44 }} />
+              </FG>
+            </ToggleSection>
+
+            <ToggleSection label="CTA" enabled={d.showCTA ?? false} onToggle={v => onUpdate({ showCTA: v })}>
+              <FG mb={8}>
+                <FL>Button text</FL>
+                <FI value={d.buttonText ?? 'Ver producto'} onChange={e => onUpdate({ buttonText: e.target.value })} />
+              </FG>
+              <FG mb={0}>
+                <FL>Button URL</FL>
+                <FI type="url" value={d.buttonUrl ?? ''} placeholder="https://tutienda.com/producto" onChange={e => onUpdate({ buttonUrl: e.target.value })} />
+              </FG>
+            </ToggleSection>
+          </div>
+        )}
+
+        {/* ══ ESTILO ══ */}
+        {tab === 'style' && (
+          <div>
+            {/* Presets */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 9.5, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 7 }}>Presets</div>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {(Object.keys(BA_PRESETS) as BAPreset[]).map(name => (
+                  <button key={name} onClick={() => onUpdate({ colors: BA_PRESETS[name] })} style={{
+                    flex: 1, padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`,
+                    background: T.card, fontSize: 11, fontWeight: 600, color: T.ink2, cursor: 'pointer',
+                  }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#f3effe')}
+                    onMouseLeave={e => (e.currentTarget.style.background = T.card)}
+                  >
+                    {BA_PRESET_LABELS[name]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ height: 1, background: T.border, margin: '0 0 12px' }} />
+
+            <PDColorSection label="Sección">
+              <PDColorRow label="Fondo"     value={colors.backgroundColor}    onChange={v => setColor('backgroundColor', v)}    onReset={() => resetColor('backgroundColor')} />
+              <PDColorRow label="Título"    value={colors.titleColor}          onChange={v => setColor('titleColor', v)}          onReset={() => resetColor('titleColor')} />
+              <PDColorRow label="Subtítulo" value={colors.subtitleColor}       onChange={v => setColor('subtitleColor', v)}       onReset={() => resetColor('subtitleColor')} />
+            </PDColorSection>
+
+            <PDColorSection label="Badge">
+              <PDColorRow label="Fondo badge" value={colors.badgeBackgroundColor} onChange={v => setColor('badgeBackgroundColor', v)} onReset={() => resetColor('badgeBackgroundColor')} />
+              <PDColorRow label="Texto badge" value={colors.badgeTextColor}       onChange={v => setColor('badgeTextColor', v)}       onReset={() => resetColor('badgeTextColor')} />
+            </PDColorSection>
+
+            <PDColorSection label="Cards">
+              <PDColorRow label="Fondo card" value={colors.cardBackgroundColor} onChange={v => setColor('cardBackgroundColor', v)} onReset={() => resetColor('cardBackgroundColor')} />
+            </PDColorSection>
+
+            <PDColorSection label="Labels">
+              <PDColorRow label="Before (fondo)" value={colors.labelBeforeBackground} onChange={v => setColor('labelBeforeBackground', v)} onReset={() => resetColor('labelBeforeBackground')} />
+              <PDColorRow label="After (fondo)"  value={colors.labelAfterBackground}  onChange={v => setColor('labelAfterBackground', v)}  onReset={() => resetColor('labelAfterBackground')} />
+              <PDColorRow label="Texto labels"   value={colors.labelTextColor}         onChange={v => setColor('labelTextColor', v)}         onReset={() => resetColor('labelTextColor')} />
+            </PDColorSection>
+
+            <PDColorSection label="Botón CTA">
+              <PDColorRow label="Fondo" value={colors.buttonBackgroundColor} onChange={v => setColor('buttonBackgroundColor', v)} onReset={() => resetColor('buttonBackgroundColor')} />
+              <PDColorRow label="Texto" value={colors.buttonTextColor}       onChange={v => setColor('buttonTextColor', v)}       onReset={() => resetColor('buttonTextColor')} />
+            </PDColorSection>
+
+            {/* Border radius */}
+            <FG mb={12}>
+              <FL>Border radius</FL>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {(['square', 'soft', 'medium', 'round'] as const).map(v => {
+                  const active = (d.borderRadius ?? 'soft') === v
+                  return (
+                    <button key={v} onClick={() => onUpdate({ borderRadius: v })} style={{
+                      flex: 1, padding: '5px 0', borderRadius: 6, cursor: 'pointer', fontSize: 10, fontWeight: 600,
+                      border: `1.5px solid ${active ? T.purple : T.border2}`,
+                      background: active ? '#f3effe' : T.card,
+                      color: active ? T.purple : T.ink2,
+                    }}>
+                      {v === 'square' ? 'Sq' : v === 'soft' ? 'Soft' : v === 'medium' ? 'Med' : 'Rnd'}
+                    </button>
+                  )
+                })}
+              </div>
+            </FG>
+
+            {/* Shadow */}
+            <FG mb={12}>
+              <FL>Shadow</FL>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {(['none', 'soft', 'medium'] as const).map(v => {
+                  const active = (d.shadowIntensity ?? 'soft') === v
+                  return (
+                    <button key={v} onClick={() => onUpdate({ shadowIntensity: v })} style={{
+                      flex: 1, padding: '6px 0', borderRadius: 7, cursor: 'pointer', fontSize: 11, fontWeight: 600,
+                      border: `1.5px solid ${active ? T.purple : T.border2}`,
+                      background: active ? '#f3effe' : T.card,
+                      color: active ? T.purple : T.ink2,
+                    }}>
+                      {v === 'none' ? 'None' : v === 'soft' ? 'Soft' : 'Medium'}
+                    </button>
+                  )
+                })}
+              </div>
+            </FG>
+
+            {Object.keys(colors).length > 0 && (
+              <button onClick={() => onUpdate({ colors: undefined })} style={{ width: '100%', padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`, background: 'none', color: T.ink3, fontSize: 11, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                <RotateCcw size={11} /> Restablecer colores
+              </button>
+            )}
+          </div>
+        )}
+
+      </div>
+
+      {upgradeOpen && (
+        <UpgradeProModal
+          open={upgradeOpen}
+          onClose={() => setUpgradeOpen(false)}
+          title="Función Pro"
+          description="El modo Slider y la subida de imágenes están disponibles en el plan Pro."
+        />
+      )}
+    </>
+  )
+}
 
 // ─── Partner Discounts editor (2 tabs: Contenido / Estilo) ────────────────────
 function PartnerDiscountsEditor({ block, onUpdate, onUpdateStyle, plan, theme }: {

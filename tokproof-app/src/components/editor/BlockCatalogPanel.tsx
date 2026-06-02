@@ -127,6 +127,25 @@ const CATALOG: CatalogBlock[] = [
     ideal: ['Todos', 'E-commerce', 'Negocios'],
     defaultData: { brandName: 'Mi Marca', contactEmail: 'hola@mimarca.com', privacyUrl: '', termsUrl: '', showTokproofBranding: true, legalText: '' },
   },
+  {
+    type: 'before_after', label: 'Before / After', tag: 'free',
+    desc: 'Muestra transformaciones reales antes y después.',
+    long: 'Enseña el impacto visual de tu producto con un bloque antes/después. Ideal para beauty, hair care, skincare, fitness y más.',
+    ideal: ['Beauty', 'Hair care', 'Skincare', 'Fitness'],
+    defaultData: {
+      title: 'Resultados que puedes ver',
+      subtitle: 'Mira la diferencia real después de usar nuestro producto.',
+      badgeText: 'Transformación real',
+      mode: 'cards',
+      beforeImageUrl: '', afterImageUrl: '',
+      beforeLabel: 'Antes', afterLabel: 'Después',
+      beforeDescription: 'Cabello seco, sin brillo y con frizz.',
+      afterDescription: 'Cabello hidratado, brillante y saludable.',
+      showBadge: true, showSubtitle: true, showDescriptions: true, showCTA: false,
+      buttonText: 'Ver producto', buttonUrl: 'https://tutienda.com/producto',
+      borderRadius: 'soft', shadowIntensity: 'soft',
+    },
+  },
 ]
 
 // ─── Badge ────────────────────────────────────────────────────────────────────
