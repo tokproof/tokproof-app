@@ -15,7 +15,7 @@ import {
   GripVertical, Eye, EyeOff, Copy, Trash2, ChevronDown, Plus, RotateCcw,
   X, Search, Lock,
   Tag, Star, HelpCircle, ShoppingCart, Link2, User, Share2,
-  LayoutGrid, Shield, BarChart2, Zap, FileText,
+  LayoutGrid, Shield, BarChart2, Zap, FileText, Package,
 } from 'lucide-react'
 import type {
   LandingBlock, LandingTheme, BlockStyle,
@@ -30,6 +30,7 @@ import type {
   ComparisonData, ComparisonRow,
   UrgencyOfferData,
   FooterLegalData,
+  FeaturedProductData,
 } from '@/types/landing'
 import { FONT_OPTIONS } from '@/lib/blockStyle'
 
@@ -63,6 +64,7 @@ const BLOCKS_CATALOG: CatalogEntry[] = [
   { type: 'trust_badges',   label: 'Trust Badges',         tag: 'pro',  desc: 'Badges de confianza y garantías.',             defaultData: { badges: [{ id: 'tb1', icon: 'shipping' as const, title: 'Envío gratis', description: 'En pedidos +20€', enabled: true }, { id: 'tb2', icon: 'secure' as const, title: 'Pago seguro', description: 'SSL 256 bits', enabled: true }] } },
   { type: 'comparison',     label: 'Comparativa',          tag: 'pro',  desc: 'Tabla comparativa vs competidores.',           defaultData: { title: 'Por qué elegirnos', leftTitle: 'Otros', rightTitle: 'Nosotros', rows: [{ id: 'cr1', label: 'Calidad', leftValue: 'Media', rightValue: 'Premium', winner: 'right' as const }] } },
   { type: 'urgency_offer',  label: 'Urgencia / Oferta',    tag: 'pro',  desc: 'Banner de urgencia con oferta limitada.',      defaultData: { title: '¡Oferta limitada!', description: 'Solo por tiempo limitado.', badgeText: '🔥 Agotándose', countdownEnabled: false, countdownText: 'Quedan 2 horas', ctaText: '🛒 Aprovechar oferta', ctaUrl: '' } },
+  { type: 'featured_product', label: 'Product Showcase',   tag: 'pro',  desc: 'Destaca tu producto estrella con imagen, precio y CTA.', defaultData: { imageUrl: '', badgeText: 'Más vendido 🔥', productName: 'Hair Growth Serum', description: 'Fórmula avanzada con ingredientes naturales para fortalecer el cabello desde la raíz.', rating: 4.9, reviewCount: '2.4K', price: '$29.99', compareAtPrice: '$39.99', discountText: '-25%', benefits: ['Estimula el crecimiento capilar', 'Ingredientes 100% naturales', 'Resultados visibles en 7 días'], buttonText: 'Ver producto', buttonUrl: '', showBadge: true, showRating: true, showReviews: true, showPrice: true, showCompareAtPrice: true, showDiscount: true, showBenefits: true, layout: 'card', colorTheme: 'light', buttonStyle: 'filled' } },
   { type: 'testimonials',   label: 'Testimonials',         tag: 'soon', desc: 'Carrusel de reseñas reales de clientes.' },
   { type: 'video_featured', label: 'YouTube Featured',     tag: 'soon', desc: 'Video de YouTube incrustado en la página.' },
   { type: 'partner_discounts', label: 'Partner Discounts', tag: 'soon', desc: 'Códigos de descuento de marcas asociadas.' },
@@ -149,6 +151,7 @@ const CATALOG_DESC_LONG: Record<string, string> = {
   trust_badges:   'Refuerza la confianza con badges de envío gratis, pago seguro, garantía y devoluciones.',
   comparison:     'Muestra por qué tu producto es mejor con una comparativa visual que destaca tus ventajas.',
   urgency_offer:  'Crea urgencia con un banner de oferta limitada y badge para impulsar la decisión de compra.',
+  featured_product: 'Destaca un producto estrella con imagen, precio, reseñas, beneficios y botón de compra.',
   testimonials:   'Carrusel de reseñas reales para reforzar la prueba social de tu marca.',
   video_featured: 'Incrusta tu mejor video de YouTube para generar confianza al instante.',
   partner_discounts: 'Muestra códigos de descuento copiables de marcas asociadas.',
@@ -166,6 +169,7 @@ const CATALOG_IDEAL: Record<string, string[]> = {
   trust_badges:   ['E-commerce', 'Tiendas', 'SaaS'],
   comparison:     ['E-commerce', 'SaaS', 'Servicios'],
   urgency_offer:  ['E-commerce', 'Flash sales', 'Promociones'],
+  featured_product: ['E-commerce', 'Afiliados', 'Beauty', 'Fitness'],
   testimonials:   ['E-commerce', 'Servicios', 'Marcas'],
   video_featured: ['Creadores', 'Educadores', 'Marcas'],
   partner_discounts: ['E-commerce', 'Afiliados', 'Creadores'],
@@ -275,6 +279,7 @@ const BLOCK_ICONS: Record<string, string> = {
   reviews: '⭐', faq: '❓', cta: '🛒', link_list: '🔗',
   profile_header: '👤', social_links: '📱', product_grid: '📦',
   trust_badges: '🛡️', comparison: '⚖️', urgency_offer: '🔥', footer_legal: '📋',
+  featured_product: '🌟',
 }
 
 // ─── Lucide icons por tipo de bloque (sin fondo, color alterno rosa/lila) ────
@@ -289,8 +294,9 @@ const BLOCK_LUCIDE: Record<string, React.ElementType> = {
   product_grid:   LayoutGrid,
   trust_badges:   Shield,
   comparison:     BarChart2,
-  urgency_offer:  Zap,
-  footer_legal:   FileText,
+  urgency_offer:   Zap,
+  footer_legal:    FileText,
+  featured_product: Package,
 }
 const ACCENT = ['#F647A9', '#8B5CF6'] // rosa, lila — alternan por índice
 
@@ -311,6 +317,7 @@ const BLOCK_CATEGORIES: Array<{ label: string; blocks: BlockDef[] }> = [
   {
     label: 'Ecommerce',
     blocks: [
+      { type: 'featured_product', label: 'Product Showcase', isPremium: true, defaultData: { imageUrl: '', badgeText: 'Más vendido 🔥', productName: 'Hair Growth Serum', description: 'Fórmula avanzada con ingredientes naturales para fortalecer el cabello desde la raíz.', rating: 4.9, reviewCount: '2.4K', price: '$29.99', compareAtPrice: '$39.99', discountText: '-25%', benefits: ['Estimula el crecimiento capilar', 'Ingredientes 100% naturales', 'Resultados visibles en 7 días'], buttonText: 'Ver producto', buttonUrl: '', showBadge: true, showRating: true, showReviews: true, showPrice: true, showCompareAtPrice: true, showDiscount: true, showBenefits: true, layout: 'card', colorTheme: 'light', buttonStyle: 'filled' } },
       { type: 'product_grid',  label: 'Product Grid',       isPremium: true,  defaultData: { title: 'Nuestros productos', subtitle: '', products: [{ id: `p_${Date.now()}`, imageUrl: '', title: 'Producto 1', price: '29.99€', compareAtPrice: '', url: '', badge: 'Nuevo', description: '' }] } },
       { type: 'trust_badges',  label: 'Trust Badges',       isPremium: true,  defaultData: { badges: [{ id: 'tb1', icon: 'shipping', title: 'Envío gratis', description: 'En pedidos +20€', enabled: true }, { id: 'tb2', icon: 'secure', title: 'Pago seguro', description: 'SSL 256 bits', enabled: true }, { id: 'tb3', icon: 'guarantee', title: 'Garantía 30d', description: 'Sin preguntas', enabled: true }, { id: 'tb4', icon: 'returns', title: 'Devoluciones', description: 'Fáciles y gratis', enabled: true }] } },
       { type: 'comparison',    label: 'Comparativa',        isPremium: true,  defaultData: { title: 'Por qué elegirnos', leftTitle: 'Otros', rightTitle: 'Nosotros', rows: [{ id: 'cr1', label: 'Calidad', leftValue: 'Media', rightValue: 'Premium', winner: 'right' }, { id: 'cr2', label: 'Precio', leftValue: 'Caro', rightValue: 'Justo', winner: 'right' }, { id: 'cr3', label: 'Soporte', leftValue: 'Limitado', rightValue: '24/7', winner: 'right' }] } },
@@ -656,8 +663,9 @@ function BlockEditor({ block, onUpdate }: {
     case 'product_grid':   return <ProductGridEditor   block={block} onUpdate={onUpdate} />
     case 'trust_badges':   return <TrustBadgesEditor   block={block} onUpdate={onUpdate} />
     case 'comparison':     return <ComparisonEditor    block={block} onUpdate={onUpdate} />
-    case 'urgency_offer':  return <UrgencyOfferEditor  block={block} onUpdate={onUpdate} />
-    case 'footer_legal':   return <FooterLegalEditor   block={block} onUpdate={onUpdate} />
+    case 'urgency_offer':    return <UrgencyOfferEditor    block={block} onUpdate={onUpdate} />
+    case 'footer_legal':     return <FooterLegalEditor     block={block} onUpdate={onUpdate} />
+    case 'featured_product': return <FeaturedProductEditor block={block} onUpdate={onUpdate} />
     default:
       return <p style={{ fontSize: 11, color: T.ink3, fontStyle: 'italic' }}>Editor próximamente.</p>
   }
@@ -1078,6 +1086,97 @@ function FooterLegalEditor({ block, onUpdate }: { block: LandingBlock; onUpdate:
           Mostrar &quot;Powered by Tokproof&quot;
         </label>
       </FG>
+    </>
+  )
+}
+
+// ─── Featured Product editor ──────────────────────────────────────────────────
+function FeaturedProductEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Partial<LandingBlock['data']>) => void }) {
+  const d = block.data as unknown as FeaturedProductData
+  const benefits: string[] = Array.isArray(d.benefits) ? d.benefits : ['Estimula el crecimiento capilar', 'Ingredientes 100% naturales', 'Resultados visibles en 7 días']
+
+  const updBenefit = (i: number, val: string) => {
+    const arr = [...benefits]; arr[i] = val; onUpdate({ benefits: arr })
+  }
+
+  return (
+    <>
+      <FG><FL>URL de imagen</FL><FI type="url" value={d.imageUrl ?? ''} placeholder="https://cdn.tumarca.com/producto.jpg" onChange={e => onUpdate({ imageUrl: e.target.value })} /></FG>
+      <FG><FL>Nombre del producto</FL><FI value={d.productName ?? ''} onChange={e => onUpdate({ productName: e.target.value })} /></FG>
+      <FG><FL>Descripción</FL><FTA value={d.description ?? ''} onChange={e => onUpdate({ description: e.target.value })} style={{ minHeight: 52 }} /></FG>
+      <FG><FL>Badge</FL><FI value={d.badgeText ?? ''} placeholder="Más vendido 🔥" onChange={e => onUpdate({ badgeText: e.target.value })} /></FG>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <FG style={{ flex: 1, marginBottom: 10 }}><FL>Rating</FL><FI type="number" value={d.rating ?? 4.9} step="0.1" min="0" max="5" onChange={e => onUpdate({ rating: parseFloat(e.target.value) || 0 })} /></FG>
+        <FG style={{ flex: 1, marginBottom: 10 }}><FL>Nº reseñas</FL><FI value={d.reviewCount ?? ''} placeholder="2.4K" onChange={e => onUpdate({ reviewCount: e.target.value })} /></FG>
+      </div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <FG style={{ flex: 1, marginBottom: 10 }}><FL>Precio</FL><FI value={d.price ?? ''} placeholder="$29.99" onChange={e => onUpdate({ price: e.target.value })} /></FG>
+        <FG style={{ flex: 1, marginBottom: 10 }}><FL>Precio anterior</FL><FI value={d.compareAtPrice ?? ''} placeholder="$39.99" onChange={e => onUpdate({ compareAtPrice: e.target.value })} /></FG>
+      </div>
+      <FG><FL>Texto descuento</FL><FI value={d.discountText ?? ''} placeholder="-25%" onChange={e => onUpdate({ discountText: e.target.value })} /></FG>
+
+      {/* Benefits */}
+      <div style={{ marginBottom: 4 }}><FL>Beneficios</FL></div>
+      {benefits.map((b, i) => (
+        <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+          <FI value={b} onChange={e => updBenefit(i, e.target.value)} placeholder={`Beneficio ${i + 1}`} style={{ flex: 1 }} />
+          <DelBtn onClick={() => onUpdate({ benefits: benefits.filter((_, j) => j !== i) })} />
+        </div>
+      ))}
+      <AddBtn onClick={() => onUpdate({ benefits: [...benefits, 'Nuevo beneficio'] })} label="Añadir beneficio" />
+
+      <div style={{ marginTop: 10 }}>
+        <FG><FL>Texto del botón</FL><FI value={d.buttonText ?? ''} onChange={e => onUpdate({ buttonText: e.target.value })} /></FG>
+        <FG mb={0}><FL>URL del botón</FL><FI type="url" value={d.buttonUrl ?? ''} placeholder="https://tutienda.com/producto" onChange={e => onUpdate({ buttonUrl: e.target.value })} /></FG>
+      </div>
+
+      {/* Layout / style */}
+      <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px solid ${T.border}` }}>
+        <FL>Layout</FL>
+        <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+          {(['card', 'minimal'] as const).map(v => (
+            <button key={v} onClick={() => onUpdate({ layout: v })} style={{
+              flex: 1, padding: '6px 0', borderRadius: 8, cursor: 'pointer',
+              border: `1.5px solid ${d.layout === v ? T.purple : T.border2}`,
+              background: d.layout === v ? '#f3effe' : T.card,
+              color: d.layout === v ? T.purple : T.ink2, fontSize: 11.5, fontWeight: 600,
+            }}>
+              {v === 'card' ? 'Card' : 'Minimal'}
+            </button>
+          ))}
+        </div>
+        <FL>Estilo botón</FL>
+        <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+          {(['filled', 'outline'] as const).map(v => (
+            <button key={v} onClick={() => onUpdate({ buttonStyle: v })} style={{
+              flex: 1, padding: '6px 0', borderRadius: 8, cursor: 'pointer',
+              border: `1.5px solid ${d.buttonStyle === v ? T.purple : T.border2}`,
+              background: d.buttonStyle === v ? '#f3effe' : T.card,
+              color: d.buttonStyle === v ? T.purple : T.ink2, fontSize: 11.5, fontWeight: 600,
+            }}>
+              {v === 'filled' ? 'Filled' : 'Outline'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Visibility toggles */}
+      <div style={{ paddingTop: 10, borderTop: `1px solid ${T.border}` }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>Visibilidad</div>
+        {([
+          ['showBadge',          'Mostrar badge'],
+          ['showRating',         'Mostrar rating'],
+          ['showPrice',          'Mostrar precio'],
+          ['showBenefits',       'Mostrar beneficios'],
+          ['showCompareAtPrice', 'Precio anterior'],
+          ['showDiscount',       'Badge descuento'],
+        ] as [string, string][]).map(([key, label]) => (
+          <label key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2, marginBottom: 6 }}>
+            <input type="checkbox" checked={!!(d as unknown as Record<string, unknown>)[key]} onChange={e => onUpdate({ [key]: e.target.checked })} />
+            {label}
+          </label>
+        ))}
+      </div>
     </>
   )
 }
