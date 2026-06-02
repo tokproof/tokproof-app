@@ -235,10 +235,8 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
       <nav className="nav">
         <div className="nav-in">
           <Link className="brand" href="/">
-            <span className="mk">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/assets/tokproof-isotipo.png" alt="Tokproof" width={22} height={22} style={{ width: 22, height: 22, objectFit: 'contain', display: 'block' }} />
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/assets/tokproof-isotipo.png" alt="Tokproof" width={34} height={34} style={{ width: 34, height: 34, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
             Tokproof
           </Link>
           <div className="nav-links">
@@ -844,10 +842,8 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
         <div className="footer-in">
           <div>
             <Link className="brand" href="/">
-              <span className="mk">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/assets/tokproof-isotipo.png" alt="Tokproof" width={22} height={22} style={{ width: 22, height: 22, objectFit: 'contain', display: 'block' }} />
-              </span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/assets/tokproof-isotipo.png" alt="Tokproof" width={34} height={34} style={{ width: 34, height: 34, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
               Tokproof
             </Link>
             <p className="fdesc">La plataforma todo en uno para vender de forma segura en redes sociales y hacer crecer tu negocio.</p>
