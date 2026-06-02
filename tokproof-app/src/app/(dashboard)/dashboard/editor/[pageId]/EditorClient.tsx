@@ -271,10 +271,30 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
   }, [])
 
   const addBlock = useCallback((type: LandingBlock['type'], defaultData: LandingBlock['data']) => {
+    const LABEL: Partial<Record<LandingBlock['type'], string>> = {
+      hero_product:    'Hero del producto',
+      benefits:        'Beneficios',
+      tiktok_comments: 'Comentarios TikTok',
+      reviews:         'Reviews',
+      faq:             'Preguntas frecuentes',
+      cta:             'Botón CTA',
+      link_list:       'Lista de links',
+      profile_header:  'Profile Header',
+      social_links:    'Redes Sociales',
+      product_grid:    'Product Grid',
+      trust_badges:    'Trust Badges',
+      comparison:      'Comparativa',
+      urgency_offer:   'Urgencia / Oferta',
+      footer_legal:    'Footer Legal',
+      featured_product:  'Product Showcase',
+      partner_discounts: 'Partner Discounts',
+    }
     const newBlock: LandingBlock = {
       id: `block_${type}_${Date.now()}`,
-      type, label: type.replace(/_/g, ' '),
-      visible: true, data: defaultData,
+      type,
+      label: LABEL[type] ?? type.replace(/_/g, ' '),
+      visible: true,
+      data: defaultData,
     }
     setLandingConfig(prev => ({ ...prev, blocks: [...prev.blocks, newBlock] }))
   }, [])

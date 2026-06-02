@@ -11,7 +11,8 @@ import TrustBadgesBlock  from './blocks/TrustBadgesBlock'
 import ComparisonBlock   from './blocks/ComparisonBlock'
 import UrgencyOfferBlock    from './blocks/UrgencyOfferBlock'
 import FooterLegalBlock      from './blocks/FooterLegalBlock'
-import FeaturedProductBlock  from './blocks/FeaturedProductBlock'
+import FeaturedProductBlock   from './blocks/FeaturedProductBlock'
+import PartnerDiscountsBlock  from './blocks/PartnerDiscountsBlock'
 
 interface Props {
   block: LandingBlock
@@ -32,7 +33,8 @@ export default function BlockRenderer({ block, theme }: Props) {
     case 'comparison':     return <ComparisonBlock    block={block} theme={theme} />
     case 'urgency_offer':    return <UrgencyOfferBlock    block={block} theme={theme} />
     case 'footer_legal':     return <FooterLegalBlock     block={block} theme={theme} />
-    case 'featured_product': return <FeaturedProductBlock block={block} theme={theme} />
+    case 'featured_product':   return <FeaturedProductBlock   block={block} theme={theme} />
+    case 'partner_discounts':  return <PartnerDiscountsBlock  block={block} theme={theme} />
     // Stubs for future blocks
     case 'tiktok_comments':
     case 'reviews':

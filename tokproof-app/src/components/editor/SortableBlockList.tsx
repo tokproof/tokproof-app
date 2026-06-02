@@ -15,7 +15,7 @@ import {
   GripVertical, Eye, EyeOff, Copy, Trash2, ChevronDown, Plus, RotateCcw,
   X, Search, Lock,
   Tag, Star, HelpCircle, ShoppingCart, Link2, User, Share2,
-  LayoutGrid, Shield, BarChart2, Zap, FileText, Package, Info,
+  LayoutGrid, Shield, BarChart2, Zap, FileText, Package, Info, Gift,
 } from 'lucide-react'
 import type {
   LandingBlock, LandingTheme, BlockStyle,
@@ -31,6 +31,8 @@ import type {
   UrgencyOfferData,
   FooterLegalData,
   FeaturedProductData,
+  PartnerDiscountsData,
+  PartnerDiscount,
 } from '@/types/landing'
 import { FONT_OPTIONS } from '@/lib/blockStyle'
 
@@ -67,7 +69,7 @@ const BLOCKS_CATALOG: CatalogEntry[] = [
   { type: 'featured_product', label: 'Product Showcase',   tag: 'pro',  desc: 'Destaca tu producto estrella con imagen, precio y CTA.', defaultData: { imageUrl: '', badgeText: 'Más vendido 🔥', productName: 'Hair Growth Serum', description: 'Fórmula avanzada con ingredientes naturales para fortalecer el cabello desde la raíz.', rating: 4.9, reviewCount: '2.4K', price: '$29.99', compareAtPrice: '$39.99', discountText: '-25%', benefits: ['Estimula el crecimiento capilar', 'Ingredientes 100% naturales', 'Resultados visibles en 7 días'], buttonText: 'Ver producto', buttonUrl: '', showBadge: true, showRating: true, showReviews: true, showPrice: true, showCompareAtPrice: true, showDiscount: true, showBenefits: true, layout: 'card', colorTheme: 'light', buttonStyle: 'filled' } },
   { type: 'testimonials',   label: 'Testimonials',         tag: 'soon', desc: 'Carrusel de reseñas reales de clientes.' },
   { type: 'video_featured', label: 'YouTube Featured',     tag: 'soon', desc: 'Video de YouTube incrustado en la página.' },
-  { type: 'partner_discounts', label: 'Partner Discounts', tag: 'soon', desc: 'Códigos de descuento de marcas asociadas.' },
+  { type: 'partner_discounts', label: 'Partner Discounts', tag: 'pro', desc: 'Muestra códigos de descuento y ofertas exclusivas de tus partners.', defaultData: { title: 'Descuentos de nuestros partners', subtitle: 'Ahorra en tus marcas favoritas con códigos exclusivos. 🎁', badgeText: '♦ Ofertas exclusivas', footerText: 'Nuevas ofertas cada semana', layout: 'compact', showLogos: true, showDescriptions: false, showCopyButton: true, showExternalButton: true, showFooterText: true, discounts: [{ id: 'pd1', brandName: 'Gymshark', storeUrl: 'https://gymshark.com', logoUrl: '', description: 'En toda la tienda.', discountText: '15% OFF', code: 'GYM15', buttonText: 'Ver oferta', buttonUrl: 'https://gymshark.com', isPopular: true, enabled: true }, { id: 'pd2', brandName: 'LSKD', storeUrl: 'https://lskd.co', logoUrl: '', description: 'En pedidos superiores a $100.', discountText: '20% OFF', code: 'LSKD20', buttonText: 'Ver oferta', buttonUrl: 'https://lskd.co', isPopular: false, enabled: true }, { id: 'pd3', brandName: 'Alo Yoga', storeUrl: 'https://aloyoga.com', logoUrl: '', description: 'En toda la tienda.', discountText: '10% OFF', code: 'ALO10', buttonText: 'Ver oferta', buttonUrl: 'https://aloyoga.com', isPopular: false, enabled: true }] } },
 ]
 
 // ─── Small badge for catalog cards ────────────────────────────────────────────
@@ -154,7 +156,7 @@ const CATALOG_DESC_LONG: Record<string, string> = {
   featured_product: 'Destaca un producto estrella con imagen, precio, reseñas, beneficios y botón de compra.',
   testimonials:   'Carrusel de reseñas reales para reforzar la prueba social de tu marca.',
   video_featured: 'Incrusta tu mejor video de YouTube para generar confianza al instante.',
-  partner_discounts: 'Muestra códigos de descuento copiables de marcas asociadas.',
+  partner_discounts: 'Muestra códigos de descuento y ofertas exclusivas de tus partners. Ideal para afiliados, e-commerce e influencers.',
 }
 const CATALOG_IDEAL: Record<string, string[]> = {
   hero_product:   ['E-commerce', 'Marcas', 'Dropshipping'],
@@ -172,7 +174,7 @@ const CATALOG_IDEAL: Record<string, string[]> = {
   featured_product: ['E-commerce', 'Afiliados', 'Beauty', 'Fitness'],
   testimonials:   ['E-commerce', 'Servicios', 'Marcas'],
   video_featured: ['Creadores', 'Educadores', 'Marcas'],
-  partner_discounts: ['E-commerce', 'Afiliados', 'Creadores'],
+  partner_discounts: ['E-commerce', 'Afiliados', 'Creadores', 'Fitness', 'Beauty'],
 }
 
 function BlockPreviewPopover({ entry, top, left, onClose, onAdd, onMouseEnter, onMouseLeave, plan, onUpgrade }: {
@@ -280,6 +282,7 @@ const BLOCK_ICONS: Record<string, string> = {
   profile_header: '👤', social_links: '📱', product_grid: '📦',
   trust_badges: '🛡️', comparison: '⚖️', urgency_offer: '🔥', footer_legal: '📋',
   featured_product: '🌟',
+  partner_discounts: '🏷️',
 }
 
 // ─── Lucide icons por tipo de bloque (sin fondo, color alterno rosa/lila) ────
@@ -296,7 +299,8 @@ const BLOCK_LUCIDE: Record<string, React.ElementType> = {
   comparison:     BarChart2,
   urgency_offer:   Zap,
   footer_legal:    FileText,
-  featured_product: Package,
+  featured_product:   Package,
+  partner_discounts:  Gift,
 }
 const ACCENT = ['#F647A9', '#8B5CF6'] // rosa, lila — alternan por índice
 
@@ -321,7 +325,8 @@ const BLOCK_CATEGORIES: Array<{ label: string; blocks: BlockDef[] }> = [
       { type: 'product_grid',  label: 'Product Grid',       isPremium: true,  defaultData: { title: 'Nuestros productos', subtitle: '', products: [{ id: `p_${Date.now()}`, imageUrl: '', title: 'Producto 1', price: '29.99€', compareAtPrice: '', url: '', badge: 'Nuevo', description: '' }] } },
       { type: 'trust_badges',  label: 'Trust Badges',       isPremium: true,  defaultData: { badges: [{ id: 'tb1', icon: 'shipping', title: 'Envío gratis', description: 'En pedidos +20€', enabled: true }, { id: 'tb2', icon: 'secure', title: 'Pago seguro', description: 'SSL 256 bits', enabled: true }, { id: 'tb3', icon: 'guarantee', title: 'Garantía 30d', description: 'Sin preguntas', enabled: true }, { id: 'tb4', icon: 'returns', title: 'Devoluciones', description: 'Fáciles y gratis', enabled: true }] } },
       { type: 'comparison',    label: 'Comparativa',        isPremium: true,  defaultData: { title: 'Por qué elegirnos', leftTitle: 'Otros', rightTitle: 'Nosotros', rows: [{ id: 'cr1', label: 'Calidad', leftValue: 'Media', rightValue: 'Premium', winner: 'right' }, { id: 'cr2', label: 'Precio', leftValue: 'Caro', rightValue: 'Justo', winner: 'right' }, { id: 'cr3', label: 'Soporte', leftValue: 'Limitado', rightValue: '24/7', winner: 'right' }] } },
-      { type: 'urgency_offer', label: 'Urgencia / Oferta',  isPremium: true,  defaultData: { title: '¡Oferta limitada!', description: 'Solo por tiempo limitado.', badgeText: '🔥 Agotándose', countdownEnabled: false, countdownText: 'Quedan 2 horas', ctaText: '🛒 Aprovechar oferta', ctaUrl: '' } },
+      { type: 'urgency_offer',    label: 'Urgencia / Oferta',  isPremium: true, defaultData: { title: '¡Oferta limitada!', description: 'Solo por tiempo limitado.', badgeText: '🔥 Agotándose', countdownEnabled: false, countdownText: 'Quedan 2 horas', ctaText: '🛒 Aprovechar oferta', ctaUrl: '' } },
+      { type: 'partner_discounts', label: 'Partner Discounts', isPremium: true, defaultData: { title: 'Descuentos de nuestros partners', subtitle: 'Ahorra en tus marcas favoritas con códigos exclusivos. 🎁', badgeText: '♦ Ofertas exclusivas', footerText: 'Nuevas ofertas cada semana', layout: 'compact', showLogos: true, showDescriptions: false, showCopyButton: true, showExternalButton: true, showFooterText: true, discounts: [{ id: 'pd1', brandName: 'Gymshark', storeUrl: 'https://gymshark.com', logoUrl: '', description: 'En toda la tienda.', discountText: '15% OFF', code: 'GYM15', buttonText: 'Ver oferta', buttonUrl: 'https://gymshark.com', isPopular: true, enabled: true }] } },
     ],
   },
   {
@@ -427,27 +432,39 @@ function SortableItem({
         </div>
       </div>
 
-      {/* ── Expanded editor (tabs: Contenido / Diseño) ── */}
+      {/* ── Expanded editor ── */}
       {expanded && (
         <div style={{ background: T.bg }}>
-          <div style={{ display: 'flex', borderBottom: `1px solid ${T.border}`, background: T.card }}>
-            {(['content', 'design'] as const).map(key => (
-              <button key={key} onClick={() => setTab(key)} style={{
-                flex: 1, padding: '7px 0', border: 'none', background: 'none', cursor: 'pointer',
-                fontSize: 11.5, fontWeight: 600,
-                color: tab === key ? T.pink : T.ink3,
-                borderBottom: tab === key ? `2px solid ${T.pink}` : '2px solid transparent',
-              }}>
-                {key === 'content' ? 'Contenido' : 'Diseño'}
-              </button>
-            ))}
-          </div>
-          <div style={{ padding: '12px 14px 16px' }}>
-            {tab === 'content'
-              ? <BlockEditor block={block} onUpdate={(data) => onUpdateBlock(block.id, data)} plan={plan} />
-              : <DesignEditor block={block} theme={theme} onUpdateStyle={(patch) => onUpdateBlockStyle(block.id, patch)} />
-            }
-          </div>
+          {block.type === 'partner_discounts' ? (
+            /* Partner Discounts has its own 3-tab layout (Contenido/Estilo/Avanzado) */
+            <PartnerDiscountsEditor
+              block={block}
+              onUpdate={(data) => onUpdateBlock(block.id, data)}
+              plan={plan}
+              theme={theme}
+            />
+          ) : (
+            <>
+              <div style={{ display: 'flex', borderBottom: `1px solid ${T.border}`, background: T.card }}>
+                {(['content', 'design'] as const).map(key => (
+                  <button key={key} onClick={() => setTab(key)} style={{
+                    flex: 1, padding: '7px 0', border: 'none', background: 'none', cursor: 'pointer',
+                    fontSize: 11.5, fontWeight: 600,
+                    color: tab === key ? T.pink : T.ink3,
+                    borderBottom: tab === key ? `2px solid ${T.pink}` : '2px solid transparent',
+                  }}>
+                    {key === 'content' ? 'Contenido' : 'Diseño'}
+                  </button>
+                ))}
+              </div>
+              <div style={{ padding: '12px 14px 16px' }}>
+                {tab === 'content'
+                  ? <BlockEditor block={block} onUpdate={(data) => onUpdateBlock(block.id, data)} plan={plan} />
+                  : <DesignEditor block={block} theme={theme} onUpdateStyle={(patch) => onUpdateBlockStyle(block.id, patch)} />
+                }
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -665,7 +682,8 @@ function BlockEditor({ block, onUpdate, plan }: {
     case 'comparison':     return <ComparisonEditor    block={block} onUpdate={onUpdate} />
     case 'urgency_offer':    return <UrgencyOfferEditor    block={block} onUpdate={onUpdate} />
     case 'footer_legal':     return <FooterLegalEditor     block={block} onUpdate={onUpdate} />
-    case 'featured_product': return <FeaturedProductEditor block={block} onUpdate={onUpdate} plan={plan} />
+    case 'featured_product':  return <FeaturedProductEditor  block={block} onUpdate={onUpdate} plan={plan} />
+    case 'partner_discounts': return null // handled directly in SortableItem with its own 3-tab layout
     default:
       return <p style={{ fontSize: 11, color: T.ink3, fontStyle: 'italic' }}>Editor próximamente.</p>
   }
@@ -1093,17 +1111,34 @@ function FooterLegalEditor({ block, onUpdate }: { block: LandingBlock; onUpdate:
 // ─── Featured Product — editor helper components ──────────────────────────────
 
 function FPInfoTooltip({ text }: { text: string }) {
-  const [vis, setVis] = useState(false)
+  const [vis, setVis]       = useState(false)
+  const [coords, setCoords] = useState({ top: 0, left: 0 })
+  const iconRef             = useRef<HTMLSpanElement>(null)
+
+  const handleEnter = () => {
+    if (iconRef.current) {
+      const r = iconRef.current.getBoundingClientRect()
+      /* position to the right of the icon, vertically centered */
+      setCoords({ top: r.top - 4, left: r.right + 10 })
+    }
+    setVis(true)
+  }
+
   return (
-    <span
-      style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', cursor: 'help', marginLeft: 4, verticalAlign: 'middle' }}
-      onMouseEnter={() => setVis(true)}
-      onMouseLeave={() => setVis(false)}
-    >
-      <Info size={11} color="#9CA3AF" />
+    <>
+      <span
+        ref={iconRef}
+        style={{ display: 'inline-flex', alignItems: 'center', cursor: 'help', marginLeft: 4, verticalAlign: 'middle' }}
+        onMouseEnter={handleEnter}
+        onMouseLeave={() => setVis(false)}
+      >
+        <Info size={11} color="#9CA3AF" />
+      </span>
+      {/* position:fixed escapes any overflow:hidden ancestor */}
       {vis && (
         <div style={{
-          position: 'absolute', left: 18, top: -6, width: 210, zIndex: 9999,
+          position: 'fixed', top: coords.top, left: coords.left,
+          width: 210, zIndex: 99999,
           background: '#1f2430', color: '#fff', fontSize: 11, lineHeight: 1.5,
           padding: '8px 10px', borderRadius: 9,
           boxShadow: '0 4px 16px rgba(0,0,0,.28)', pointerEvents: 'none',
@@ -1112,7 +1147,7 @@ function FPInfoTooltip({ text }: { text: string }) {
           {text}
         </div>
       )}
-    </span>
+    </>
   )
 }
 
@@ -1167,7 +1202,8 @@ function FeaturedProductEditor({ block, onUpdate, plan }: {
   plan: Plan
 }) {
   const d = block.data as unknown as FeaturedProductData
-  const [upgradeOpen, setUpgradeOpen] = useState(false)
+  const [upgradeOpen, setUpgradeOpen]     = useState(false)
+  const [uploadNotice, setUploadNotice]   = useState(false)
 
   const benefits: string[] = Array.isArray(d.benefits)
     ? d.benefits
@@ -1200,23 +1236,37 @@ function FeaturedProductEditor({ block, onUpdate, plan }: {
 
         {/* Upload — Pro-gated */}
         {isPro ? (
-          <button
-            style={{
-              width: '100%', padding: '8px 0', borderRadius: 8, marginBottom: 10,
-              border: `1.5px dashed ${T.border2}`, background: 'transparent',
-              color: T.purple, fontSize: 11.5, fontWeight: 600, cursor: 'not-allowed',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
-            }}
-          >
-            📷 Subir imagen personalizada
-            <span style={{ fontSize: 9.5, fontWeight: 700, color: '#9CA3AF', marginLeft: 2 }}>— Función próximamente</span>
-          </button>
+          <>
+            <button
+              onClick={() => setUploadNotice(n => !n)}
+              style={{
+                width: '100%', padding: '8px 0', borderRadius: 8, marginBottom: uploadNotice ? 6 : 10,
+                border: `1.5px dashed ${T.purple}`, background: '#f3effe',
+                color: T.purple, fontSize: 11.5, fontWeight: 600, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = '#ede7fd')}
+              onMouseLeave={e => (e.currentTarget.style.background = '#f3effe')}
+            >
+              📷 Subir imagen personalizada
+            </button>
+            {uploadNotice && (
+              <div style={{
+                marginBottom: 10, padding: '8px 10px', borderRadius: 8,
+                background: '#faf7ff', border: `1px solid ${T.border2}`,
+                fontSize: 11, color: T.ink2, lineHeight: 1.5,
+              }}>
+                La subida de imágenes desde el editor estará disponible próximamente.
+                Por ahora puedes pegar la URL de tu imagen en el campo de arriba.
+              </div>
+            )}
+          </>
         ) : (
           <>
             <button
               onClick={() => setUpgradeOpen(true)}
               style={{
-                width: '100%', padding: '8px 0', borderRadius: 8, marginBottom: 6,
+                width: '100%', padding: '8px 0', borderRadius: 8, marginBottom: 4,
                 border: `1.5px dashed ${T.border2}`, background: '#fafbfc',
                 color: '#9CA3AF', fontSize: 11.5, fontWeight: 600, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -1367,6 +1417,388 @@ function FeaturedProductEditor({ block, onUpdate, plan }: {
           </label>
         </FG>
       </FPSection>
+    </>
+  )
+}
+
+// ─── Partner Discounts editor helpers ────────────────────────────────────────
+
+/* Logo preview in the editor item list — auto-detects from storeUrl via Clearbit */
+function PDLogo({ storeUrl, logoUrl, brandName }: { storeUrl: string; logoUrl: string; brandName: string }) {
+  const [failed, setFailed] = useState(false)
+  const domain = storeUrl ? (() => {
+    try {
+      const u = new URL(storeUrl.startsWith('http') ? storeUrl : `https://${storeUrl}`)
+      return u.hostname.replace(/^www\./, '')
+    } catch { return '' }
+  })() : ''
+  const src = logoUrl || (domain ? `https://logo.clearbit.com/${domain}` : '')
+  const initials = brandName.split(/\s+/).map(w => w[0] ?? '').join('').slice(0, 2).toUpperCase() || '?'
+  return (
+    <div style={{ width: 36, height: 36, borderRadius: 8, background: '#F4F4F6', border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+      {src && !failed ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img key={src} src={src} alt={brandName} onError={() => setFailed(true)} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+      ) : (
+        <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280' }}>{initials}</span>
+      )}
+    </div>
+  )
+}
+
+/* Inline toggle row */
+function PDToggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+      <span style={{ fontSize: 12, fontWeight: 500, color: T.ink2 }}>{label}</span>
+      <button onClick={() => onChange(!value)} style={{
+        width: 34, height: 18, borderRadius: 999, border: 'none', padding: 2, cursor: 'pointer', flexShrink: 0,
+        background: value ? T.purple : '#D1D5DB', transition: 'background .15s',
+        display: 'flex', alignItems: 'center', justifyContent: value ? 'flex-end' : 'flex-start',
+      }}>
+        <div style={{ width: 14, height: 14, borderRadius: 999, background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.2)' }} />
+      </button>
+    </div>
+  )
+}
+
+// ─── Partner Discounts editor (3 tabs: Contenido / Estilo / Avanzado) ─────────
+function PartnerDiscountsEditor({ block, onUpdate, plan, theme }: {
+  block: LandingBlock
+  onUpdate: (d: Partial<LandingBlock['data']>) => void
+  plan: Plan
+  theme: LandingTheme
+}) {
+  const d = block.data as unknown as PartnerDiscountsData
+  const [tab, setTab]                 = useState<'content' | 'style' | 'advanced'>('content')
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
+  const [uploadOpenId, setUploadOpenId] = useState<string | null>(null)
+  const [upgradeOpen, setUpgradeOpen] = useState(false)
+
+  const isPro      = plan === 'pro'
+  const discounts: PartnerDiscount[] = Array.isArray(d.discounts) ? d.discounts : []
+  const layout     = d.layout ?? 'compact'
+
+  function toggleExpand(id: string) {
+    setExpandedIds(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s })
+  }
+
+  function updDiscount(id: string, patch: Partial<PartnerDiscount>) {
+    onUpdate({ discounts: discounts.map(dc => dc.id === id ? { ...dc, ...patch } : dc) })
+  }
+
+  function deleteDiscount(id: string) {
+    onUpdate({ discounts: discounts.filter(dc => dc.id !== id) })
+  }
+
+  function duplicateDiscount(id: string) {
+    const dc = discounts.find(dc => dc.id === id)
+    if (!dc) return
+    const idx = discounts.findIndex(dc => dc.id === id)
+    const newDc: PartnerDiscount = { ...dc, id: `pd_${Date.now()}` }
+    const next = [...discounts]; next.splice(idx + 1, 0, newDc)
+    onUpdate({ discounts: next })
+    setExpandedIds(prev => { const s = new Set(Array.from(prev)); s.add(newDc.id); return s })
+  }
+
+  function addDiscount() {
+    const id = `pd_${Date.now()}`
+    const newDc: PartnerDiscount = { id, brandName: 'Nueva Marca', storeUrl: '', logoUrl: '', description: '', discountText: '10% OFF', code: 'CODIGO10', buttonText: 'Ver oferta', buttonUrl: '', isPopular: false, enabled: true }
+    onUpdate({ discounts: [...discounts, newDc] })
+    setExpandedIds(prev => { const s = new Set(Array.from(prev)); s.add(id); return s })
+  }
+
+  const tabLabels: Record<typeof tab, string> = { content: 'Contenido', style: 'Estilo', advanced: 'Avanzado' }
+
+  return (
+    <>
+      {/* ── Tab bar (spans full width) ── */}
+      <div style={{ display: 'flex', borderBottom: `1px solid ${T.border}`, background: T.card }}>
+        {(['content', 'style', 'advanced'] as const).map(t => (
+          <button key={t} onClick={() => setTab(t)} style={{
+            flex: 1, padding: '7px 0', border: 'none', background: 'none', cursor: 'pointer',
+            fontSize: 11.5, fontWeight: 600,
+            color: tab === t ? T.pink : T.ink3,
+            borderBottom: tab === t ? `2px solid ${T.pink}` : '2px solid transparent',
+          }}>
+            {tabLabels[t]}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ padding: '12px 14px 16px' }}>
+
+        {/* ══ CONTENIDO ══ */}
+        {tab === 'content' && (
+          <div>
+            {/* Section header */}
+            <div style={{ fontSize: 10, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>
+              Descuentos
+            </div>
+
+            {/* Discount items */}
+            {discounts.map(dc => {
+              const isOpen = expandedIds.has(dc.id)
+              return (
+                <div key={dc.id} style={{ marginBottom: 8, borderRadius: 10, border: `1px solid ${T.border2}`, background: T.card, overflow: 'hidden' }}>
+                  {/* Collapsed header row */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px' }}>
+                    <GripVertical size={13} color={T.ink3} style={{ flexShrink: 0 }} />
+                    <PDLogo storeUrl={dc.storeUrl} logoUrl={dc.logoUrl} brandName={dc.brandName} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: isOpen ? 0 : 2 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: T.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{dc.brandName || 'Sin nombre'}</span>
+                        {dc.isPopular && <span style={{ fontSize: 9, fontWeight: 700, color: T.pink, background: '#FFE3F1', padding: '1.5px 6px', borderRadius: 999, flexShrink: 0 }}>♦ Popular</span>}
+                      </div>
+                      {!isOpen && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                          {dc.discountText && <span style={{ fontSize: 10, fontWeight: 700, color: T.pink, background: '#FFE3F1', padding: '1px 6px', borderRadius: 5 }}>{dc.discountText}</span>}
+                          {dc.code && <span style={{ fontSize: 10, fontWeight: 600, color: T.ink2, background: '#F4F4F6', padding: '1px 6px', borderRadius: 5 }}>{dc.code}</span>}
+                        </div>
+                      )}
+                    </div>
+                    {/* Enabled toggle */}
+                    <button onClick={() => updDiscount(dc.id, { enabled: !dc.enabled })} style={{ width: 32, height: 17, borderRadius: 999, border: 'none', padding: 2, flexShrink: 0, background: dc.enabled ? T.purple : '#D1D5DB', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: dc.enabled ? 'flex-end' : 'flex-start' }}>
+                      <div style={{ width: 13, height: 13, borderRadius: 999, background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.22)' }} />
+                    </button>
+                    {/* Expand chevron */}
+                    <button onClick={() => toggleExpand(dc.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', alignItems: 'center', color: T.ink3 }}>
+                      <ChevronDown size={14} style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+                    </button>
+                  </div>
+
+                  {/* Expanded fields */}
+                  {isOpen && (
+                    <div style={{ padding: '0 10px 10px', borderTop: `1px solid ${T.border}` }}>
+                      <div style={{ marginTop: 10 }}>
+                        <FG>
+                          <FL>Nombre del partner</FL>
+                          <FI value={dc.brandName} onChange={e => updDiscount(dc.id, { brandName: e.target.value })} />
+                        </FG>
+
+                        {/* Store URL with tooltip */}
+                        <FG>
+                          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                            <FL>Store URL</FL>
+                            <FPInfoTooltip text="Pega la URL de la tienda o partner. Tokproof intentará detectar automáticamente el logo desde el dominio." />
+                          </div>
+                          <FI type="url" value={dc.storeUrl} placeholder="https://gymshark.com" onChange={e => updDiscount(dc.id, { storeUrl: e.target.value })} />
+                        </FG>
+
+                        {/* Logo URL manual */}
+                        <FG>
+                          <FL>Logo URL (opcional)</FL>
+                          <FI type="url" value={dc.logoUrl} placeholder="https://cdn.marca.com/logo.png" onChange={e => updDiscount(dc.id, { logoUrl: e.target.value })} />
+                        </FG>
+
+                        {/* Upload custom logo — Pro gated */}
+                        {isPro ? (
+                          <>
+                            <button
+                              onClick={() => setUploadOpenId(uploadOpenId === dc.id ? null : dc.id)}
+                              style={{ width: '100%', padding: '7px 0', borderRadius: 8, marginBottom: uploadOpenId === dc.id ? 6 : 10, border: `1.5px dashed ${T.purple}`, background: '#f3effe', color: T.purple, fontSize: 11.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                              onMouseEnter={e => (e.currentTarget.style.background = '#ede7fd')}
+                              onMouseLeave={e => (e.currentTarget.style.background = '#f3effe')}
+                            >
+                              🖼️ Subir logo personalizado
+                            </button>
+                            {uploadOpenId === dc.id && (
+                              <div style={{ marginBottom: 10, padding: '8px 10px', borderRadius: 8, background: '#faf7ff', border: `1px solid ${T.border2}`, fontSize: 11, color: T.ink2, lineHeight: 1.5 }}>
+                                La subida de imágenes estará disponible próximamente. Por ahora pega la URL del logo en el campo de arriba.
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => setUpgradeOpen(true)}
+                              style={{ width: '100%', padding: '7px 0', borderRadius: 8, marginBottom: 4, border: `1.5px dashed ${T.border2}`, background: '#fafbfc', color: '#9CA3AF', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                            >
+                              <Lock size={11} /> Subir logo personalizado
+                              <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1px 5px', borderRadius: 4 }}>Pro</span>
+                            </button>
+                            <p style={{ fontSize: 10.5, color: T.ink3, margin: '0 0 10px', textAlign: 'center' }}>Disponible en Pro</p>
+                          </>
+                        )}
+
+                        {/* Code + Discount row */}
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <FG style={{ flex: 1, marginBottom: 10 }}>
+                            <FL>Código de descuento</FL>
+                            <FI value={dc.code} placeholder="GYM15" onChange={e => updDiscount(dc.id, { code: e.target.value.toUpperCase() })} />
+                          </FG>
+                          <FG style={{ flex: 1, marginBottom: 10 }}>
+                            <FL>Descuento</FL>
+                            <FI value={dc.discountText} placeholder="15% OFF" onChange={e => updDiscount(dc.id, { discountText: e.target.value })} />
+                          </FG>
+                        </div>
+
+                        {/* Popular toggle */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                          <span style={{ fontSize: 12, fontWeight: 500, color: T.ink2 }}>Popular</span>
+                          <button onClick={() => updDiscount(dc.id, { isPopular: !dc.isPopular })} style={{ width: 32, height: 17, borderRadius: 999, border: 'none', padding: 2, background: dc.isPopular ? T.pink : '#D1D5DB', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: dc.isPopular ? 'flex-end' : 'flex-start' }}>
+                            <div style={{ width: 13, height: 13, borderRadius: 999, background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.22)' }} />
+                          </button>
+                        </div>
+
+                        <FG>
+                          <FL>Descripción (opcional)</FL>
+                          <FTA value={dc.description} placeholder="En toda la tienda. No acumulable con otras ofertas." onChange={e => updDiscount(dc.id, { description: e.target.value })} style={{ minHeight: 44 }} />
+                        </FG>
+
+                        <FG>
+                          <FL>Enlace del botón</FL>
+                          <FI type="url" value={dc.buttonUrl || dc.storeUrl} placeholder="https://gymshark.com" onChange={e => updDiscount(dc.id, { buttonUrl: e.target.value })} />
+                        </FG>
+
+                        <FG mb={12}>
+                          <FL>Texto del botón</FL>
+                          <FI value={dc.buttonText} placeholder="Ver oferta" onChange={e => updDiscount(dc.id, { buttonText: e.target.value })} />
+                        </FG>
+
+                        {/* Actions */}
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button onClick={() => duplicateDiscount(dc.id)} style={{ flex: 1, padding: '6px 0', borderRadius: 8, border: `1px solid ${T.border2}`, background: 'none', color: T.ink2, fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                            <Copy size={11} /> Duplicar
+                          </button>
+                          <button onClick={() => deleteDiscount(dc.id)} style={{ flex: 1, padding: '6px 0', borderRadius: 8, border: `1px solid ${T.redBorder}`, background: T.redBg, color: T.red, fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                            <Trash2 size={11} /> Eliminar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+
+            <AddBtn onClick={addDiscount} label="Añadir descuento" />
+
+            {/* Ajustes section */}
+            <div style={{ marginTop: 14 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>Ajustes</div>
+              <PDToggle label="Mostrar logos"                  value={d.showLogos        ?? true}  onChange={v => onUpdate({ showLogos: v })} />
+              <PDToggle label="Mostrar descripción"            value={d.showDescriptions ?? false} onChange={v => onUpdate({ showDescriptions: v })} />
+              <PDToggle label='Mostrar botón "Copiar código"'  value={d.showCopyButton   ?? true}  onChange={v => onUpdate({ showCopyButton: v })} />
+            </div>
+
+            {/* Upgrade banner (Free users) */}
+            {!isPro && (
+              <div style={{ marginTop: 14, padding: '12px', borderRadius: 10, background: '#FFFBF0', border: '1px solid #FDE68A' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                  <span style={{ fontSize: 15 }}>👑</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: T.ink }}>Disponible en Pro</span>
+                </div>
+                <p style={{ margin: '0 0 8px', fontSize: 11, color: T.ink2, lineHeight: 1.4 }}>
+                  Desbloquea descuentos ilimitados y más opciones de personalización.
+                </p>
+                <button onClick={() => setUpgradeOpen(true)} style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${T.purple}`, background: 'none', color: T.purple, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                  Actualizar a Pro
+                </button>
+              </div>
+            )}
+
+            {upgradeOpen && (
+              <UpgradeProModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} title="Partner Discounts" description="Sube logos personalizados y accede a todas las opciones de personalización con el plan Pro." />
+            )}
+          </div>
+        )}
+
+        {/* ══ ESTILO ══ */}
+        {tab === 'style' && (
+          <div>
+            {/* Layout */}
+            <FG>
+              <FL>Layout</FL>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {(['compact', 'detailed'] as const).map(v => (
+                  <button key={v} onClick={() => onUpdate({ layout: v })} style={{
+                    flex: 1, padding: '7px 0', borderRadius: 8, cursor: 'pointer', fontSize: 11.5, fontWeight: 600,
+                    border: `1.5px solid ${layout === v ? T.purple : T.border2}`,
+                    background: layout === v ? '#f3effe' : T.card,
+                    color: layout === v ? T.purple : T.ink2,
+                  }}>
+                    {v === 'compact' ? 'Compact' : 'Detailed'}
+                  </button>
+                ))}
+              </div>
+              <p style={{ margin: '4px 0 0', fontSize: 10, color: T.ink3, lineHeight: 1.4 }}>
+                Compact: tarjetas compactas con código. Detailed: descripción y botón visible.
+              </p>
+            </FG>
+
+            <FG>
+              <FL>Título</FL>
+              <FI value={d.title ?? ''} onChange={e => onUpdate({ title: e.target.value })} />
+            </FG>
+            <FG>
+              <FL>Subtítulo</FL>
+              <FTA value={d.subtitle ?? ''} onChange={e => onUpdate({ subtitle: e.target.value })} style={{ minHeight: 44 }} />
+            </FG>
+            <FG>
+              <FL>Texto del badge</FL>
+              <FI value={d.badgeText ?? ''} onChange={e => onUpdate({ badgeText: e.target.value })} />
+            </FG>
+            <FG>
+              <FL>Texto del footer</FL>
+              <FI value={d.footerText ?? ''} onChange={e => onUpdate({ footerText: e.target.value })} />
+            </FG>
+
+            <div style={{ marginTop: 4 }}>
+              <PDToggle label="Mostrar logos"          value={d.showLogos          ?? true}  onChange={v => onUpdate({ showLogos: v })} />
+              <PDToggle label="Mostrar descripciones"  value={d.showDescriptions   ?? false} onChange={v => onUpdate({ showDescriptions: v })} />
+              <PDToggle label="Mostrar copiar código"  value={d.showCopyButton     ?? true}  onChange={v => onUpdate({ showCopyButton: v })} />
+              <PDToggle label="Mostrar botón externo"  value={d.showExternalButton ?? true}  onChange={v => onUpdate({ showExternalButton: v })} />
+              <PDToggle label="Mostrar footer"         value={d.showFooterText     ?? true}  onChange={v => onUpdate({ showFooterText: v })} />
+            </div>
+
+            {/* Accent color */}
+            <FG mb={0}>
+              <FL>Color de acento</FL>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input type="color" value={d.accentColor || theme.primaryColor || '#F647A9'} onChange={e => onUpdate({ accentColor: e.target.value })} style={{ width: 26, height: 26, border: 'none', borderRadius: 6, cursor: 'pointer', padding: 2, background: 'none', flexShrink: 0 }} />
+                <span style={{ fontSize: 11, fontFamily: 'monospace', color: T.ink2 }}>{(d.accentColor || theme.primaryColor || '#F647A9').toUpperCase()}</span>
+                {d.accentColor && (
+                  <button onClick={() => onUpdate({ accentColor: undefined })} style={{ width: 18, height: 18, borderRadius: 4, border: 'none', background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}>
+                    <RotateCcw size={10} />
+                  </button>
+                )}
+              </div>
+            </FG>
+          </div>
+        )}
+
+        {/* ══ AVANZADO ══ */}
+        {tab === 'advanced' && (
+          <div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <FG style={{ flex: 1 }}>
+                <FL>Margin top (px)</FL>
+                <FI type="number" value={d.marginTop ?? ''} placeholder="0" min={0} onChange={e => onUpdate({ marginTop: parseInt(e.target.value) || undefined })} />
+              </FG>
+              <FG style={{ flex: 1 }}>
+                <FL>Margin bottom (px)</FL>
+                <FI type="number" value={d.marginBottom ?? ''} placeholder="0" min={0} onChange={e => onUpdate({ marginBottom: parseInt(e.target.value) || undefined })} />
+              </FG>
+            </div>
+            <FG>
+              <FL>Custom Anchor ID</FL>
+              <FI value={d.customAnchorId ?? ''} placeholder="mi-seccion-descuentos" onChange={e => onUpdate({ customAnchorId: e.target.value || undefined })} />
+            </FG>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
+                <input type="checkbox" checked={d.hideOnMobile ?? false} onChange={e => onUpdate({ hideOnMobile: e.target.checked || undefined })} />
+                Ocultar en móvil
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
+                <input type="checkbox" checked={d.hideOnDesktop ?? false} onChange={e => onUpdate({ hideOnDesktop: e.target.checked || undefined })} />
+                Ocultar en escritorio
+              </label>
+            </div>
+          </div>
+        )}
+
+      </div>
     </>
   )
 }

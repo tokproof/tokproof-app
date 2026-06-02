@@ -36,6 +36,7 @@ export type BlockType =
   | 'urgency_offer'
   | 'footer_legal'
   | 'featured_product'
+  | 'partner_discounts'
 
 export interface LandingBlock {
   id: string
@@ -208,6 +209,40 @@ export interface FeaturedProductData {
   marginBottom?: number
   customAnchorId?: string
   openInNewTab?: boolean
+  hideOnMobile?: boolean
+  hideOnDesktop?: boolean
+}
+
+export interface PartnerDiscount {
+  id: string
+  brandName: string
+  storeUrl: string
+  logoUrl: string
+  description: string
+  discountText: string
+  code: string
+  buttonText: string
+  buttonUrl: string
+  isPopular: boolean
+  enabled: boolean
+}
+
+export interface PartnerDiscountsData {
+  title: string
+  subtitle: string
+  badgeText: string
+  footerText: string
+  layout: 'compact' | 'detailed'
+  accentColor?: string
+  showLogos: boolean
+  showDescriptions: boolean
+  showCopyButton: boolean
+  showExternalButton: boolean
+  showFooterText: boolean
+  discounts: PartnerDiscount[]
+  marginTop?: number
+  marginBottom?: number
+  customAnchorId?: string
   hideOnMobile?: boolean
   hideOnDesktop?: boolean
 }

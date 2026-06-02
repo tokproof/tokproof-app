@@ -480,6 +480,46 @@ function FeaturedProductThumb({ size }: { size: ThumbSize }) {
   )
 }
 
+// ─── partner_discounts ────────────────────────────────────────────────────────
+function PartnerDiscountsThumb({ size }: { size: ThumbSize }) {
+  const brands = [
+    { name: 'Gymshark', init: 'GS', code: 'GYM15', disc: '15% OFF', popular: true },
+    { name: 'LSKD',     init: 'LS', code: 'LSKD20', disc: '20% OFF', popular: false },
+    { name: 'Alo Yoga', init: 'AY', code: 'ALO10',  disc: '10% OFF', popular: false },
+  ]
+  if (size === 'popover') return (
+    <div style={W('100%', 140, 12, '#0F0F11', { padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 5 })}>
+      <span style={{ fontSize: 8, fontWeight: 700, color: '#F647A9' }}>♦ Ofertas exclusivas</span>
+      <div style={{ fontSize: 10.5, fontWeight: 800, color: '#fff', lineHeight: 1.15, marginBottom: 3 }}>
+        Descuentos de nuestros <span style={{ color: '#F647A9' }}>partners</span>
+      </div>
+      {brands.map((b, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, borderRadius: 7, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.10)', padding: '5px 7px' }}>
+          <div style={{ width: 22, height: 22, borderRadius: 5, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <span style={{ fontSize: 6.5, fontWeight: 800, color: '#fff' }}>{b.init}</span>
+          </div>
+          <span style={{ flex: 1, fontSize: 8.5, fontWeight: 700, color: '#fff' }}>{b.name}</span>
+          <span style={{ fontSize: 7.5, fontWeight: 700, color: '#F647A9', background: 'rgba(246,71,169,0.16)', padding: '1.5px 5px', borderRadius: 4 }}>{b.disc}</span>
+          <span style={{ fontSize: 7.5, fontWeight: 600, color: 'rgba(255,255,255,0.65)', background: 'rgba(255,255,255,0.07)', padding: '1.5px 5px', borderRadius: 4 }}>{b.code}</span>
+        </div>
+      ))}
+    </div>
+  )
+  const [w, h] = size === 'card' ? [52, 78] : [40, 56]
+  return (
+    <div style={W(w, h, 8, '#0F0F11', { padding: '4px 5px', display: 'flex', flexDirection: 'column', gap: 3 })}>
+      <div style={{ height: 3.5, borderRadius: 2, background: '#F647A9', width: '65%', marginBottom: 2 }} />
+      {brands.map((_, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 3, borderRadius: 3, background: 'rgba(255,255,255,0.08)', padding: '2px 3px', height: size === 'card' ? 13 : 11 }}>
+          <div style={{ width: size === 'card' ? 9 : 7, height: size === 'card' ? 9 : 7, borderRadius: 2, background: 'rgba(255,255,255,0.22)', flexShrink: 0 }} />
+          <div style={{ height: 2.5, borderRadius: 1, background: 'rgba(255,255,255,0.45)', flex: 1 }} />
+          <div style={{ height: 2.5, width: 10, borderRadius: 1, background: 'rgba(246,71,169,0.55)' }} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ─── Generic fallback ─────────────────────────────────────────────────────────
 function GenericThumb({ size }: { size: ThumbSize }) {
   const [w, h] = size === 'popover' ? [300, 140] : size === 'card' ? [52, 78] : [40, 56]
@@ -501,7 +541,8 @@ export function GlowThumb({ type, size = 'card' }: { type: string; size?: ThumbS
     case 'comparison':    return <ComparisonThumb size={size} />
     case 'urgency_offer':    return <UrgencyThumb size={size} />
     case 'footer_legal':     return <FooterThumb size={size} />
-    case 'featured_product': return <FeaturedProductThumb size={size} />
-    default:                 return <GenericThumb size={size} />
+    case 'featured_product':    return <FeaturedProductThumb size={size} />
+    case 'partner_discounts':   return <PartnerDiscountsThumb size={size} />
+    default:                    return <GenericThumb size={size} />
   }
 }
