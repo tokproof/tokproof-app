@@ -14,6 +14,8 @@ import { CSS } from '@dnd-kit/utilities'
 import {
   GripVertical, Eye, EyeOff, Copy, Trash2, ChevronDown, Plus, RotateCcw,
   X, Search, Lock,
+  Tag, Star, HelpCircle, ShoppingCart, Link2, User, Share2,
+  LayoutGrid, Shield, BarChart2, Zap, FileText,
 } from 'lucide-react'
 import type {
   LandingBlock, LandingTheme, BlockStyle,
@@ -275,21 +277,22 @@ const BLOCK_ICONS: Record<string, string> = {
   trust_badges: '🛡️', comparison: '⚖️', urgency_offer: '🔥', footer_legal: '📋',
 }
 
-// ─── Card icon config (emoji + bg color) para bloques ya añadidos ─────────────
-const BLOCK_CARD: Record<string, { emoji: string; bg: string }> = {
-  hero_product:   { emoji: '🏷️', bg: '#FDE8EE' },
-  benefits:       { emoji: '✨', bg: '#EDE7FF' },
-  faq:            { emoji: '❓', bg: '#FEE8E8' },
-  cta:            { emoji: '🛒', bg: '#EDE7FF' },
-  link_list:      { emoji: '🔗', bg: '#DBEAFE' },
-  profile_header: { emoji: '👤', bg: '#DBEAFE' },
-  social_links:   { emoji: '📱', bg: '#F3E5F5' },
-  product_grid:   { emoji: '📦', bg: '#FEF9C3' },
-  trust_badges:   { emoji: '🛡️', bg: '#DCFCE7' },
-  comparison:     { emoji: '⚖️', bg: '#DBEAFE' },
-  urgency_offer:  { emoji: '🔥', bg: '#FFEDD5' },
-  footer_legal:   { emoji: '📋', bg: '#F3F4F6' },
+// ─── Lucide icons por tipo de bloque (sin fondo, color alterno rosa/lila) ────
+const BLOCK_LUCIDE: Record<string, React.ElementType> = {
+  hero_product:   Tag,
+  benefits:       Star,
+  faq:            HelpCircle,
+  cta:            ShoppingCart,
+  link_list:      Link2,
+  profile_header: User,
+  social_links:   Share2,
+  product_grid:   LayoutGrid,
+  trust_badges:   Shield,
+  comparison:     BarChart2,
+  urgency_offer:  Zap,
+  footer_legal:   FileText,
 }
+const ACCENT = ['#F647A9', '#8B5CF6'] // rosa, lila — alternan por índice
 
 // ─── Block categories ─────────────────────────────────────────────────────────
 interface BlockDef { type: LandingBlock['type']; label: string; defaultData: LandingBlock['data']; isPremium?: boolean }
@@ -339,10 +342,10 @@ interface Props {
 
 // ─── Sortable item ────────────────────────────────────────────────────────────
 function SortableItem({
-  block, theme, highlighted,
+  block, theme, highlighted, idx,
   onUpdateBlock, onUpdateBlockStyle, onToggleVisibility, onDelete, onDuplicate,
 }: {
-  block: LandingBlock; theme: LandingTheme; highlighted?: boolean
+  block: LandingBlock; theme: LandingTheme; highlighted?: boolean; idx: number
   onUpdateBlock: (id: string, data: Partial<LandingBlock['data']>) => void
   onUpdateBlockStyle: (id: string, style: Partial<BlockStyle>) => void
   onToggleVisibility: (id: string) => void
@@ -355,53 +358,47 @@ function SortableItem({
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.id })
   const dragStyle: React.CSSProperties = {
     transform: CSS.Transform.toString(transform), transition,
-    opacity: isDragging ? 0.45 : 1, zIndex: isDragging ? 100 : 'auto',
+    zIndex: isDragging ? 100 : 'auto',
   }
 
-  const cardEmoji = BLOCK_CARD[block.type]?.emoji ?? BLOCK_ICONS[block.type] ?? '▪️'
-  const cardBg    = BLOCK_CARD[block.type]?.bg    ?? '#F4F0FF'
+  const accent   = ACCENT[idx % 2]
+  const BlockIcon = BLOCK_LUCIDE[block.type]
 
   return (
     <div ref={setNodeRef} style={{
       ...dragStyle,
-      marginBottom: 8,
-      borderRadius: 14,
+      marginBottom: 6,
+      borderRadius: 12,
       overflow: 'hidden',
       background: T.card,
-      border: highlighted
-        ? '1.5px solid #8b5cf6'
-        : '1px solid rgba(0,0,0,.08)',
-      boxShadow: highlighted
-        ? '0 0 0 3px rgba(139,92,246,.13)'
-        : '0 1px 4px rgba(0,0,0,.05)',
-      opacity: isDragging ? 0.45 : (block.visible ? 1 : 0.52),
-      transition: 'border-color .18s, box-shadow .18s',
+      border: highlighted ? `1.5px solid #8b5cf6` : '1px solid rgba(0,0,0,.08)',
+      boxShadow: highlighted ? '0 0 0 3px rgba(139,92,246,.12)' : 'none',
+      opacity: isDragging ? 0.45 : (block.visible ? 1 : 0.48),
+      transition: 'border-color .18s, box-shadow .18s, opacity .15s',
     }}>
       {/* ── Header ── */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 10,
-        padding: '11px 10px 11px 8px',
-        background: expanded ? '#F9F9FB' : T.card,
+        display: 'flex', alignItems: 'center', gap: 8,
+        padding: '8px 8px 8px 6px',
+        background: expanded ? '#F8F8FA' : T.card,
         borderBottom: expanded ? `1px solid ${T.border}` : 'none',
       }}>
         {/* Grip */}
         <button {...attributes} {...listeners}
-          style={{ cursor: isDragging ? 'grabbing' : 'grab', padding: '2px 3px', background: 'none', border: 'none', color: '#CBD5E1', flexShrink: 0, display: 'flex', touchAction: 'none' }}>
-          <GripVertical size={15} />
+          style={{ cursor: isDragging ? 'grabbing' : 'grab', padding: '2px 3px', background: 'none', border: 'none', color: '#C8D0DB', flexShrink: 0, display: 'flex', touchAction: 'none' }}>
+          <GripVertical size={14} />
         </button>
 
-        {/* Emoji icon + name */}
+        {/* Icono sin fondo + nombre */}
         <button onClick={() => setExpanded(e => !e)}
-          style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0, minWidth: 0 }}>
-          <div style={{
-            width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-            background: cardBg,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 19, lineHeight: 1,
-          }}>
-            {cardEmoji}
+          style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0, minWidth: 0 }}>
+          <div style={{ width: 28, height: 28, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {BlockIcon
+              ? <BlockIcon size={19} color={accent} strokeWidth={1.9} />
+              : <span style={{ fontSize: 17, color: accent }}>{BLOCK_ICONS[block.type] ?? '▪️'}</span>
+            }
           </div>
-          <span style={{ fontSize: 14, fontWeight: 700, color: T.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-.01em' }}>
+          <span style={{ fontSize: 13.5, fontWeight: 700, color: T.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-.01em' }}>
             {block.label}
           </span>
         </button>
@@ -409,16 +406,16 @@ function SortableItem({
         {/* Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
           <IconBtn title={block.visible ? 'Ocultar' : 'Mostrar'} onClick={() => onToggleVisibility(block.id)}>
-            {block.visible ? <Eye size={15} /> : <EyeOff size={15} />}
+            {block.visible ? <Eye size={14} /> : <EyeOff size={14} />}
           </IconBtn>
           <IconBtn title="Duplicar" onClick={() => onDuplicate(block.id)} disabled={!!block.locked}>
-            <Copy size={14} />
+            <Copy size={13} />
           </IconBtn>
           <IconBtn title="Eliminar" onClick={() => onDelete(block.id)} disabled={!!block.locked} danger>
-            <Trash2 size={14} />
+            <Trash2 size={13} />
           </IconBtn>
-          <ChevronDown size={14} color={T.ink3}
-            style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform .2s', cursor: 'pointer', flexShrink: 0, marginLeft: 2 }}
+          <ChevronDown size={13} color={T.ink3}
+            style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform .2s', cursor: 'pointer', flexShrink: 0, marginLeft: 1 }}
             onClick={() => setExpanded(e => !e)} />
         </div>
       </div>
@@ -1204,10 +1201,11 @@ export default function SortableBlockList({
         >
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={blocks.map(b => b.id)} strategy={verticalListSortingStrategy}>
-              {blocks.map(block => (
+              {blocks.map((block, idx) => (
                 <div key={block.id} data-block-id={block.id}>
                   <SortableItem
                     block={block} theme={theme}
+                    idx={idx}
                     highlighted={lastAddedId === block.id}
                     onUpdateBlock={onUpdateBlock}
                     onUpdateBlockStyle={onUpdateBlockStyle}
