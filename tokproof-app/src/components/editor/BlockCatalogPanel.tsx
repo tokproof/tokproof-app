@@ -105,6 +105,22 @@ const CATALOG: CatalogBlock[] = [
     defaultData: { title: '¡Oferta limitada!', description: 'Solo por tiempo limitado.', badgeText: '🔥 Agotándose', countdownEnabled: false, countdownText: 'Quedan 2 horas', ctaText: '🛒 Aprovechar oferta', ctaUrl: '' },
   },
   {
+    type: 'featured_product', label: 'Product Showcase', tag: 'pro',
+    desc: 'Destaca tu producto estrella con imagen, precio y CTA.',
+    long: 'Destaca un producto estrella con imagen, precio, reseñas, beneficios y botón de compra.',
+    ideal: ['E-commerce', 'Afiliados', 'Beauty', 'Fitness'],
+    defaultData: {
+      imageUrl: '', badgeText: 'Más vendido 🔥', productName: 'Hair Growth Serum',
+      description: 'Fórmula avanzada con ingredientes naturales para fortalecer el cabello desde la raíz.',
+      rating: 4.9, reviewCount: '2.4K', price: '$29.99', compareAtPrice: '$39.99', discountText: '-25%',
+      benefits: ['Estimula el crecimiento capilar', 'Ingredientes 100% naturales', 'Resultados visibles en 7 días'],
+      buttonText: 'Ver producto', buttonUrl: '',
+      showBadge: true, showRating: true, showReviews: true, showPrice: true,
+      showCompareAtPrice: true, showDiscount: true, showBenefits: true,
+      layout: 'card', colorTheme: 'light', buttonStyle: 'filled',
+    },
+  },
+  {
     type: 'footer_legal', label: 'Footer Legal', tag: 'free',
     desc: 'Footer con información legal y contacto.',
     long: 'Añade un pie de página profesional con links a política de privacidad, términos y email de contacto.',

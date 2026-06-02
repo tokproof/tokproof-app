@@ -408,6 +408,78 @@ function FooterThumb({ size }: { size: ThumbSize }) {
   )
 }
 
+// ─── featured_product ─────────────────────────────────────────────────────────
+function FeaturedProductThumb({ size }: { size: ThumbSize }) {
+  const benefits = ['Estimula el crecimiento capilar', 'Ingredientes 100% naturales', 'Resultados en 7 días']
+  if (size === 'popover') return (
+    <div style={W('100%', 140, 12, '#fff', { display: 'flex', flexDirection: 'column', overflow: 'hidden' })}>
+      {/* image area */}
+      <div style={{ height: 52, background: 'linear-gradient(145deg,#fce4d6 0%,#f9c5b8 40%,#f0a496 70%,#e08880 100%)', position: 'relative', flexShrink: 0 }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,rgba(255,255,255,.2) 0%,transparent 60%)' }} />
+        <div style={{ position: 'absolute', top: 7, left: 8, background: 'rgba(0,0,0,.65)', color: '#fff', fontSize: 7, fontWeight: 700, padding: '3px 7px', borderRadius: 999 }}>Más vendido 🔥</div>
+        <div style={{ position: 'absolute', left: '50%', bottom: 8, transform: 'translateX(-50%)', width: 22, height: 40, background: 'rgba(255,255,255,.55)', borderRadius: '5px 5px 7px 7px' }} />
+      </div>
+      {/* body */}
+      <div style={{ padding: '7px 10px 9px', flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {/* stars */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <span style={{ color: '#f59e0b', fontSize: 8, letterSpacing: .5 }}>★★★★★</span>
+          <span style={{ fontSize: 7.5, fontWeight: 700, color: '#1f2430' }}>4.9</span>
+          <span style={{ fontSize: 7, color: '#9ca3af' }}>(2.4K)</span>
+        </div>
+        {/* title */}
+        <div style={{ fontSize: 10, fontWeight: 800, color: '#1f2430', lineHeight: 1.2 }}>Hair Growth Serum</div>
+        {/* benefits */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          {benefits.map((b, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div style={{ width: 8, height: 8, borderRadius: 999, background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span style={{ color: '#fff', fontSize: 5.5, fontWeight: 800, lineHeight: 1 }}>✓</span>
+              </div>
+              <span style={{ fontSize: 7.5, color: '#374151', fontWeight: 500, lineHeight: 1.2 }}>{b}</span>
+            </div>
+          ))}
+        </div>
+        {/* price row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 1 }}>
+          <span style={{ fontSize: 11, fontWeight: 800, color: '#1f2430' }}>$29.99</span>
+          <span style={{ fontSize: 8, color: '#9ca3af', textDecoration: 'line-through' }}>$39.99</span>
+          <span style={{ fontSize: 7.5, fontWeight: 700, color: '#dc2626', background: '#fee2e2', padding: '1px 5px', borderRadius: 4 }}>-25%</span>
+        </div>
+        {/* button */}
+        <div style={{ borderRadius: 6, padding: '5px 0', background: 'linear-gradient(180deg,#8b5cf6,#7c3aed)', color: '#fff', fontSize: 8.5, fontWeight: 700, textAlign: 'center', marginTop: 'auto' }}>
+          Ver producto
+        </div>
+      </div>
+    </div>
+  )
+  const [w, h] = size === 'card' ? [52, 78] : [40, 56]
+  return (
+    <div style={W(w, h, 8, '#fff', { display: 'flex', flexDirection: 'column' })}>
+      <div style={{ height: h * 0.38, background: 'linear-gradient(145deg,#fce4d6,#f0a496)', flexShrink: 0, position: 'relative' }}>
+        <div style={{ position: 'absolute', top: 3, left: 3, background: 'rgba(0,0,0,.6)', borderRadius: 999, padding: '1.5px 4px', fontSize: 4, color: '#fff', fontWeight: 700 }}>🔥 Top</div>
+      </div>
+      <div style={{ padding: '3px 4px', flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <div style={{ display: 'flex', gap: 1 }}>{[0,1,2,3,4].map(i => <div key={i} style={{ width: 3.5, height: 3.5, background: '#f59e0b', clipPath: 'polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)' }} />)}</div>
+        <div style={{ height: 4, borderRadius: 2, background: '#1f2430', width: '75%' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          {[0, 1, 2].map(i => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <div style={{ width: 3.5, height: 3.5, borderRadius: 999, background: '#22c55e', flexShrink: 0 }} />
+              <div style={{ height: 2.5, borderRadius: 1, background: '#e5e7eb', flex: 1 }} />
+            </div>
+          ))}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2.5, marginTop: 1 }}>
+          <div style={{ height: 6, width: 14, borderRadius: 1.5, background: '#111' }} />
+          <div style={{ height: 4, width: 10, borderRadius: 1.5, background: '#e5e7eb' }} />
+        </div>
+        <div style={{ marginTop: 'auto', height: 9, borderRadius: 4, background: 'linear-gradient(180deg,#8b5cf6,#7c3aed)' }} />
+      </div>
+    </div>
+  )
+}
+
 // ─── Generic fallback ─────────────────────────────────────────────────────────
 function GenericThumb({ size }: { size: ThumbSize }) {
   const [w, h] = size === 'popover' ? [300, 140] : size === 'card' ? [52, 78] : [40, 56]
@@ -427,8 +499,9 @@ export function GlowThumb({ type, size = 'card' }: { type: string; size?: ThumbS
     case 'product_grid':  return <ProductGridThumb size={size} />
     case 'trust_badges':  return <TrustThumb size={size} />
     case 'comparison':    return <ComparisonThumb size={size} />
-    case 'urgency_offer': return <UrgencyThumb size={size} />
-    case 'footer_legal':  return <FooterThumb size={size} />
-    default:              return <GenericThumb size={size} />
+    case 'urgency_offer':    return <UrgencyThumb size={size} />
+    case 'footer_legal':     return <FooterThumb size={size} />
+    case 'featured_product': return <FeaturedProductThumb size={size} />
+    default:                 return <GenericThumb size={size} />
   }
 }

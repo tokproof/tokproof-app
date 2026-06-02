@@ -35,6 +35,7 @@ export type BlockType =
   | 'comparison'
   | 'urgency_offer'
   | 'footer_legal'
+  | 'featured_product'
 
 export interface LandingBlock {
   id: string
@@ -175,6 +176,38 @@ export interface UrgencyOfferData {
   countdownText?: string
   ctaText?: string
   ctaUrl?: string
+}
+
+export interface FeaturedProductData {
+  imageUrl: string
+  badgeText: string
+  productName: string
+  description: string
+  rating: number
+  reviewCount: string
+  price: string
+  compareAtPrice: string
+  discountText: string
+  benefits: string[]
+  buttonText: string
+  buttonUrl: string
+  showBadge: boolean
+  showRating: boolean
+  showReviews: boolean
+  showPrice: boolean
+  showCompareAtPrice: boolean
+  showDiscount: boolean
+  showBenefits: boolean
+  layout: 'card' | 'minimal'
+  colorTheme: 'light' | 'dark'
+  accentColor?: string
+  buttonStyle: 'filled' | 'outline'
+  marginTop?: number
+  marginBottom?: number
+  customAnchorId?: string
+  openInNewTab?: boolean
+  hideOnMobile?: boolean
+  hideOnDesktop?: boolean
 }
 
 export interface FooterLegalData {

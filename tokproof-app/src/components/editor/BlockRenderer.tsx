@@ -9,8 +9,9 @@ import SocialLinksBlock  from './blocks/SocialLinksBlock'
 import ProductGridBlock  from './blocks/ProductGridBlock'
 import TrustBadgesBlock  from './blocks/TrustBadgesBlock'
 import ComparisonBlock   from './blocks/ComparisonBlock'
-import UrgencyOfferBlock from './blocks/UrgencyOfferBlock'
-import FooterLegalBlock  from './blocks/FooterLegalBlock'
+import UrgencyOfferBlock    from './blocks/UrgencyOfferBlock'
+import FooterLegalBlock      from './blocks/FooterLegalBlock'
+import FeaturedProductBlock  from './blocks/FeaturedProductBlock'
 
 interface Props {
   block: LandingBlock
@@ -29,8 +30,9 @@ export default function BlockRenderer({ block, theme }: Props) {
     case 'product_grid':   return <ProductGridBlock   block={block} theme={theme} />
     case 'trust_badges':   return <TrustBadgesBlock   block={block} theme={theme} />
     case 'comparison':     return <ComparisonBlock    block={block} theme={theme} />
-    case 'urgency_offer':  return <UrgencyOfferBlock  block={block} theme={theme} />
-    case 'footer_legal':   return <FooterLegalBlock   block={block} theme={theme} />
+    case 'urgency_offer':    return <UrgencyOfferBlock    block={block} theme={theme} />
+    case 'footer_legal':     return <FooterLegalBlock     block={block} theme={theme} />
+    case 'featured_product': return <FeaturedProductBlock block={block} theme={theme} />
     // Stubs for future blocks
     case 'tiktok_comments':
     case 'reviews':
