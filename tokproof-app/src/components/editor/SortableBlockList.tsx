@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { Plan } from '@/lib/plans'
+import { GlowThumb } from '@/components/editor/GlowThumb'
 import {
   DndContext, PointerSensor, useSensor, useSensors, closestCenter, type DragEndEvent,
 } from '@dnd-kit/core'
@@ -117,20 +118,21 @@ function SortableItem({
     <div ref={setNodeRef} style={dragStyle}>
       {/* Header row */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 6,
-        padding: '8px 12px 8px 6px', borderBottom: `1px solid ${T.border}`,
-        background: expanded ? T.bg : T.card, opacity: block.visible ? 1 : 0.45,
+        display: 'flex', alignItems: 'center', gap: 8,
+        padding: '8px 10px 8px 6px', borderBottom: `1px solid ${T.border}`,
+        background: expanded ? T.bg : T.card, opacity: block.visible ? 1 : 0.5,
       }}>
         <button {...attributes} {...listeners}
           style={{ cursor: isDragging ? 'grabbing' : 'grab', padding: '2px 4px', background: 'none', border: 'none', color: T.ink3, flexShrink: 0, display: 'flex', touchAction: 'none' }}>
-          <GripVertical size={15} />
+          <GripVertical size={14} />
         </button>
         <button onClick={() => setExpanded(e => !e)}
-          style={{ display: 'flex', alignItems: 'center', gap: 7, flex: 1, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0, minWidth: 0 }}>
-          <span style={{ fontSize: 15, flexShrink: 0 }}>{BLOCK_ICONS[block.type] ?? '▪️'}</span>
+          style={{ display: 'flex', alignItems: 'center', gap: 9, flex: 1, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0, minWidth: 0 }}>
+          {/* Thumbnail — misma visual que las cards del catálogo */}
+          <GlowThumb type={block.type} size="list" />
           <span style={{ fontSize: 12.5, fontWeight: 600, color: T.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{block.label}</span>
         </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
           <IconBtn title={block.visible ? 'Ocultar' : 'Mostrar'} onClick={() => onToggleVisibility(block.id)}>
             {block.visible ? <Eye size={13} /> : <EyeOff size={13} />}
           </IconBtn>
