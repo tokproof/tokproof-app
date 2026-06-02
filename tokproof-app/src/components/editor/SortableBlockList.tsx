@@ -1847,67 +1847,86 @@ function PartnerDiscountsEditor({ block, onUpdate, onUpdateStyle, plan, theme }:
 
             <div style={{ height: 1, background: T.border, margin: '0 0 12px' }} />
 
-            {/* Presets */}
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 9.5, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 7 }}>Presets</div>
-              <div style={{ display: 'flex', gap: 5 }}>
-                {(Object.keys(PD_PRESETS) as PresetName[]).map(name => (
-                  <button key={name} onClick={() => onUpdate({ colors: PD_PRESETS[name] })} style={{
-                    flex: 1, padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`,
-                    background: T.card, fontSize: 11, fontWeight: 600, color: T.ink2, cursor: 'pointer',
-                  }}
-                    onMouseEnter={e => (e.currentTarget.style.background = '#f3effe')}
-                    onMouseLeave={e => (e.currentTarget.style.background = T.card)}
-                  >
-                    {PRESET_LABELS[name]}
+            {/* Presets + Colors — Pro only */}
+            {isPro ? (
+              <>
+                {/* Presets */}
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 9.5, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 7 }}>Presets</div>
+                  <div style={{ display: 'flex', gap: 5 }}>
+                    {(Object.keys(PD_PRESETS) as PresetName[]).map(name => (
+                      <button key={name} onClick={() => onUpdate({ colors: PD_PRESETS[name] })} style={{
+                        flex: 1, padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`,
+                        background: T.card, fontSize: 11, fontWeight: 600, color: T.ink2, cursor: 'pointer',
+                      }}
+                        onMouseEnter={e => (e.currentTarget.style.background = '#f3effe')}
+                        onMouseLeave={e => (e.currentTarget.style.background = T.card)}
+                      >
+                        {PRESET_LABELS[name]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Color grid */}
+                <PDColorSection label="Sección">
+                  <PDColorRow label="Fondo sección"  value={colors.sectionBg}      onChange={v => setColor('sectionBg', v)}      onReset={() => resetColor('sectionBg')} />
+                  <PDColorRow label="Título"         value={colors.titleColor}     onChange={v => setColor('titleColor', v)}     onReset={() => resetColor('titleColor')} />
+                  <PDColorRow label="Subtítulo"      value={colors.subtitleColor}  onChange={v => setColor('subtitleColor', v)}  onReset={() => resetColor('subtitleColor')} />
+                </PDColorSection>
+
+                <PDColorSection label="Badge">
+                  <PDColorRow label="Fondo badge"  value={colors.badgeBg}   onChange={v => setColor('badgeBg', v)}   onReset={() => resetColor('badgeBg')} />
+                  <PDColorRow label="Texto badge"  value={colors.badgeText} onChange={v => setColor('badgeText', v)} onReset={() => resetColor('badgeText')} />
+                </PDColorSection>
+
+                <PDColorSection label="Tarjetas">
+                  <PDColorRow label="Fondo card"    value={colors.cardBg}          onChange={v => setColor('cardBg', v)}          onReset={() => resetColor('cardBg')} />
+                  <PDColorRow label="Borde card"    value={colors.cardBorder}      onChange={v => setColor('cardBorder', v)}      onReset={() => resetColor('cardBorder')} />
+                  <PDColorRow label="Nombre marca"  value={colors.brandColor}      onChange={v => setColor('brandColor', v)}      onReset={() => resetColor('brandColor')} />
+                  <PDColorRow label="Descripción"   value={colors.descriptionColor}onChange={v => setColor('descriptionColor', v)}onReset={() => resetColor('descriptionColor')} />
+                </PDColorSection>
+
+                <PDColorSection label="Chips">
+                  <PDColorRow label="Descuento fondo"  value={colors.discountBg}   onChange={v => setColor('discountBg', v)}   onReset={() => resetColor('discountBg')} />
+                  <PDColorRow label="Descuento texto"  value={colors.discountText} onChange={v => setColor('discountText', v)} onReset={() => resetColor('discountText')} />
+                  <PDColorRow label="Código fondo"     value={colors.codeBg}       onChange={v => setColor('codeBg', v)}       onReset={() => resetColor('codeBg')} />
+                  <PDColorRow label="Código texto"     value={colors.codeText}     onChange={v => setColor('codeText', v)}     onReset={() => resetColor('codeText')} />
+                  <PDColorRow label="Copiar fondo"     value={colors.copyBg}       onChange={v => setColor('copyBg', v)}       onReset={() => resetColor('copyBg')} />
+                  <PDColorRow label="Copiar icono"     value={colors.copyText}     onChange={v => setColor('copyText', v)}     onReset={() => resetColor('copyText')} />
+                </PDColorSection>
+
+                <PDColorSection label="Botón externo (Detailed)">
+                  <PDColorRow label="Fondo botón"  value={colors.ctaBg}   onChange={v => setColor('ctaBg', v)}   onReset={() => resetColor('ctaBg')} />
+                  <PDColorRow label="Texto botón"  value={colors.ctaText} onChange={v => setColor('ctaText', v)} onReset={() => resetColor('ctaText')} />
+                </PDColorSection>
+
+                <PDColorSection label="Footer">
+                  <PDColorRow label="Fondo footer"  value={colors.footerBg}        onChange={v => setColor('footerBg', v)}        onReset={() => resetColor('footerBg')} />
+                  <PDColorRow label="Texto footer"  value={colors.footerTextColor} onChange={v => setColor('footerTextColor', v)} onReset={() => resetColor('footerTextColor')} />
+                </PDColorSection>
+
+                {Object.keys(colors).length > 0 && (
+                  <button onClick={() => onUpdate({ colors: undefined })} style={{ marginTop: 4, width: '100%', padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`, background: 'none', color: T.ink3, fontSize: 11, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                    <RotateCcw size={11} /> Restablecer colores
                   </button>
-                ))}
+                )}
+              </>
+            ) : (
+              /* Upgrade prompt for Free users */
+              <div style={{ padding: '14px', borderRadius: 10, background: '#FFFBF0', border: '1px solid #FDE68A', textAlign: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 5 }}>
+                  <Lock size={13} color="#d97706" />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: T.ink }}>Colores y Presets</span>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: '#92400e', background: '#FEF3C7', padding: '1.5px 6px', borderRadius: 4 }}>Pro</span>
+                </div>
+                <p style={{ margin: '0 0 10px', fontSize: 11, color: T.ink2, lineHeight: 1.4 }}>
+                  Personaliza colores, presets y el estilo visual completo del bloque.
+                </p>
+                <button onClick={() => setUpgradeOpen(true)} style={{ padding: '7px 18px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg,#FFD700,#FF8C00)', color: '#fff', fontSize: 11.5, fontWeight: 700, cursor: 'pointer' }}>
+                  Actualizar a Pro
+                </button>
               </div>
-            </div>
-
-            {/* Color grid */}
-            <PDColorSection label="Sección">
-              <PDColorRow label="Fondo sección"  value={colors.sectionBg}      onChange={v => setColor('sectionBg', v)}      onReset={() => resetColor('sectionBg')} />
-              <PDColorRow label="Título"         value={colors.titleColor}     onChange={v => setColor('titleColor', v)}     onReset={() => resetColor('titleColor')} />
-              <PDColorRow label="Subtítulo"      value={colors.subtitleColor}  onChange={v => setColor('subtitleColor', v)}  onReset={() => resetColor('subtitleColor')} />
-            </PDColorSection>
-
-            <PDColorSection label="Badge &quot;Ofertas exclusivas&quot;">
-              <PDColorRow label="Fondo badge"  value={colors.badgeBg}   onChange={v => setColor('badgeBg', v)}   onReset={() => resetColor('badgeBg')} />
-              <PDColorRow label="Texto badge"  value={colors.badgeText} onChange={v => setColor('badgeText', v)} onReset={() => resetColor('badgeText')} />
-            </PDColorSection>
-
-            <PDColorSection label="Tarjetas">
-              <PDColorRow label="Fondo card"    value={colors.cardBg}          onChange={v => setColor('cardBg', v)}          onReset={() => resetColor('cardBg')} />
-              <PDColorRow label="Borde card"    value={colors.cardBorder}      onChange={v => setColor('cardBorder', v)}      onReset={() => resetColor('cardBorder')} />
-              <PDColorRow label="Nombre marca"  value={colors.brandColor}      onChange={v => setColor('brandColor', v)}      onReset={() => resetColor('brandColor')} />
-              <PDColorRow label="Descripción"   value={colors.descriptionColor}onChange={v => setColor('descriptionColor', v)}onReset={() => resetColor('descriptionColor')} />
-            </PDColorSection>
-
-            <PDColorSection label="Chips">
-              <PDColorRow label="Descuento fondo"  value={colors.discountBg}   onChange={v => setColor('discountBg', v)}   onReset={() => resetColor('discountBg')} />
-              <PDColorRow label="Descuento texto"  value={colors.discountText} onChange={v => setColor('discountText', v)} onReset={() => resetColor('discountText')} />
-              <PDColorRow label="Código fondo"     value={colors.codeBg}       onChange={v => setColor('codeBg', v)}       onReset={() => resetColor('codeBg')} />
-              <PDColorRow label="Código texto"     value={colors.codeText}     onChange={v => setColor('codeText', v)}     onReset={() => resetColor('codeText')} />
-              <PDColorRow label="Copiar fondo"     value={colors.copyBg}       onChange={v => setColor('copyBg', v)}       onReset={() => resetColor('copyBg')} />
-              <PDColorRow label="Copiar icono"     value={colors.copyText}     onChange={v => setColor('copyText', v)}     onReset={() => resetColor('copyText')} />
-            </PDColorSection>
-
-            <PDColorSection label="Botón externo (Detailed)">
-              <PDColorRow label="Fondo botón"  value={colors.ctaBg}   onChange={v => setColor('ctaBg', v)}   onReset={() => resetColor('ctaBg')} />
-              <PDColorRow label="Texto botón"  value={colors.ctaText} onChange={v => setColor('ctaText', v)} onReset={() => resetColor('ctaText')} />
-            </PDColorSection>
-
-            <PDColorSection label="Footer">
-              <PDColorRow label="Fondo footer"  value={colors.footerBg}        onChange={v => setColor('footerBg', v)}        onReset={() => resetColor('footerBg')} />
-              <PDColorRow label="Texto footer"  value={colors.footerTextColor} onChange={v => setColor('footerTextColor', v)} onReset={() => resetColor('footerTextColor')} />
-            </PDColorSection>
-
-            {/* Reset all colors */}
-            {Object.keys(colors).length > 0 && (
-              <button onClick={() => onUpdate({ colors: undefined })} style={{ marginTop: 6, width: '100%', padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`, background: 'none', color: T.ink3, fontSize: 11, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                <RotateCcw size={11} /> Restablecer todos los colores
-              </button>
             )}
           </div>
         )}

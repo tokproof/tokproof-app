@@ -98,7 +98,7 @@ export default function LoginPage() {
       <div className="reg-wrap">
         <div className="reg-logo">
           <Link href="/" className="tb-logo" style={{ fontSize: 18, textDecoration: 'none' }}>
-            <img className="tb-logo-img" style={{ width: 44, height: 44 }} src="/assets/tokproof-logo.png" alt="Tokproof" />
+            <img className="tb-logo-img" style={{ width: 44, height: 44 }} src="/assets/tokproof-isotipo.png" alt="Tokproof" />
             Tokproof
           </Link>
         </div>

@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  Home, BarChart3, LayoutGrid, ShieldCheck,
+  Home, BarChart3, LayoutGrid,
   CreditCard, Settings, HelpCircle, LogOut, ArrowRight, Crown,
   PanelLeftClose, PanelLeft, ShoppingBag, User,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/types'
+import TokproofLogo from '@/components/shared/TokproofLogo'
 
 const NAV_MAIN = [
   { href: '/dashboard',                  label: 'Dashboard',      Icon: Home,        exact: true  },
@@ -97,9 +98,7 @@ export default function AppShell({ children, profile }: AppShellProps) {
             className="nav-logo"
             onClick={() => setMobileOpen(false)}
           >
-            <div className="nav-logo-mark">
-              <ShieldCheck size={18} color="white" strokeWidth={2} />
-            </div>
+            <TokproofLogo size="sm" />
             {!collapsed && <span>Tokproof</span>}
           </Link>
 
@@ -266,7 +265,7 @@ export default function AppShell({ children, profile }: AppShellProps) {
         <div className="app-topbar" style={{ display: 'none' }} id="mobile-topbar">
           <button className="nav-mobile-toggle" onClick={() => setMobileOpen(v => !v)}>☰</button>
           <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 900, fontSize: 15, color: 'var(--text)' }}>
-            <div className="nav-logo-mark" style={{ width: 24, height: 24 }}>T</div>
+            <TokproofLogo size="xs" />
             Tokproof
           </Link>
         </div>

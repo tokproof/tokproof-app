@@ -202,11 +202,14 @@ function CompactCard({ dc, d, rs, C: colors, shadow }: {
                 </span>
               )}
             </div>
-            {/* Row 2: Discount + Code + Copy */}
+            {/* Row 2: Chips + Ver oferta */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
               {dc.discountText && <DiscountChip text={dc.discountText} C={colors} rs={rs} />}
               {dc.code && <CodeChip code={dc.code} C={colors} rs={rs} />}
               {d.showCopyButton && dc.code && <CopyBtn code={dc.code} C={colors} />}
+              <span style={{ marginLeft: 'auto', fontSize: rs.sub, fontWeight: 700, color: colors.ctaBg, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                Ver oferta →
+              </span>
             </div>
           </div>
         </div>
@@ -225,10 +228,11 @@ function DetailedCard({ dc, d, rs, C: colors, shadow }: {
       border: `1px solid ${colors.cardBorder}`, boxShadow: shadow,
       padding: `${rs.gap + 4}px ${rs.gap + 4}px`,
     }}>
-      {/* Header: logo + brand + description */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: rs.gap + 2 }}>
-        {d.showLogos && <PartnerLogo discount={dc} C={colors} size={58} radius={11} />}
+      {/* Logo (left) + right column: brand, description, chips */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 13, marginBottom: rs.gap + 2 }}>
+        {d.showLogos && <PartnerLogo discount={dc} C={colors} size={62} radius={12} />}
         <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Brand + Popular */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, flexWrap: 'wrap' }}>
             <span style={{ fontSize: rs.body + 2, fontWeight: 700, color: colors.brand, lineHeight: 1.2 }}>
               {dc.brandName}
@@ -239,19 +243,19 @@ function DetailedCard({ dc, d, rs, C: colors, shadow }: {
               </span>
             )}
           </div>
-          {d.showDescriptions && dc.description && (
-            <p style={{ margin: 0, fontSize: rs.sub, color: colors.description, lineHeight: 1.45 }}>
+          {/* Description — always visible in detailed layout */}
+          {dc.description && (
+            <p style={{ margin: '0 0 8px', fontSize: rs.sub, color: colors.description, lineHeight: 1.45 }}>
               {dc.description}
             </p>
           )}
+          {/* Chips — inside right column, close to logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
+            {dc.discountText && <DiscountChip text={dc.discountText} C={colors} rs={rs} />}
+            {dc.code && <CodeChip code={dc.code} C={colors} rs={rs} />}
+            {d.showCopyButton && dc.code && <CopyBtn code={dc.code} C={colors} />}
+          </div>
         </div>
-      </div>
-
-      {/* Chips */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap', marginBottom: rs.gap + 2 }}>
-        {dc.discountText && <DiscountChip text={dc.discountText} C={colors} rs={rs} />}
-        {dc.code && <CodeChip code={dc.code} C={colors} rs={rs} />}
-        {d.showCopyButton && dc.code && <CopyBtn code={dc.code} C={colors} />}
       </div>
 
       {/* CTA button */}
