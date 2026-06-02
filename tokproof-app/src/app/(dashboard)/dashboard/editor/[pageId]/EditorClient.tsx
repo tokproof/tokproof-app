@@ -121,6 +121,7 @@ function applyPreset(preset: ThemePreset): Partial<LandingTheme> {
 }
 import BlockRenderer from '@/components/editor/BlockRenderer'
 import SortableBlockList from '@/components/editor/SortableBlockList'
+import BlockCatalogPanel from '@/components/editor/BlockCatalogPanel'
 
 // ─── Design tokens ───────────────────────────────────────────────────────────
 const T = {
@@ -220,6 +221,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
   const [saved, setSaved]             = useState(false)
   const [toast, setToast]             = useState<string | null>(null)
   const [focusCard, setFocusCard]     = useState(false)
+  const [isAddingBlock, setIsAddingBlock] = useState(false)
 
   // ── Toast helper ──
   function showToast(msg: string, ms = 2200) {
@@ -379,7 +381,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
         {/* ═══ SECTIONS PANEL ════════════════════════════════════════════════ */}
         {!focus && (
           <div style={{ position: 'relative', flexShrink: 0 }}>
-            <div style={{ width: 290, height: '100vh', background: T.card, borderRight: `1px solid ${T.border2}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div style={{ width: 290, height: '100vh', background: T.card, borderRight: `1px solid ${T.border2}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 1 }}>
 
               {/* Panel header */}
               <div style={{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -420,6 +422,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                     onDuplicate={duplicateBlock}
                     onMove={moveBlock}
                     onAdd={addBlock}
+                    onOpenCatalog={() => setIsAddingBlock(true)}
                   />
                 )}
 
@@ -623,8 +626,8 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
               </div>
             </div>
 
-            {/* ── MINI-RAIL ── */}
-            <div style={{ position: 'absolute', top: 96, right: -74, background: T.card, borderRadius: 18, padding: '8px 6px', boxShadow: T.shadowPop, display: 'flex', flexDirection: 'column', gap: 2, width: 64, zIndex: 10 }}>
+            {/* ── MINI-RAIL — oculto cuando el catálogo está abierto ── */}
+            {!isAddingBlock && <div style={{ position: 'absolute', top: 96, right: -74, background: T.card, borderRadius: 18, padding: '8px 6px', boxShadow: T.shadowPop, display: 'flex', flexDirection: 'column', gap: 2, width: 64, zIndex: 10 }}>
               {([
                 { id: 'secciones', icon: LayoutGrid, label: 'Secciones' },
                 { id: 'estilos',   icon: Palette,    label: 'Estilos'   },
@@ -640,8 +643,18 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                   </button>
                 )
               })}
-            </div>
+            </div>}
           </div>
+        )}
+
+        {/* ═══ CATALOG PANEL — solo cuando isAddingBlock && !focus ═══════════ */}
+        {isAddingBlock && !focus && (
+          <BlockCatalogPanel
+            plan={plan}
+            panelLeftEdge={290}
+            onAdd={(type, data) => { addBlock(type, data); setIsAddingBlock(false) }}
+            onClose={() => setIsAddingBlock(false)}
+          />
         )}
 
         {/* ═══ MAIN ══════════════════════════════════════════════════════════ */}
