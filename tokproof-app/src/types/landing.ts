@@ -272,6 +272,52 @@ export interface PartnerDiscountsData {
   hideOnDesktop?: boolean
 }
 
+export interface TikTokComment {
+  id: string
+  avatarUrl: string
+  username: string
+  verified: boolean
+  text: string
+  imageUrl: string
+  likes: string
+  date: string
+  replies: string
+  showReply: boolean
+  showLikes: boolean
+  showReplies: boolean
+}
+
+export interface TikTokCommentsColors {
+  sectionBg?: string
+  cardBg?: string
+  nameColor?: string
+  textColor?: string
+  likesColor?: string
+  linkColor?: string
+  badgeColor?: string
+  verifiedColor?: string
+  separatorColor?: string
+}
+
+export interface TikTokCommentsData {
+  title: string
+  subtitle: string
+  badgeText: string
+  showTitle: boolean
+  showSubtitle: boolean
+  showBadge: boolean
+  layout: 'feed' | 'carousel'
+  comments: TikTokComment[]
+  showArrows: boolean
+  showDots: boolean
+  autoplay: boolean
+  autoplaySpeed: number
+  borderRadius: 'square' | 'soft' | 'medium' | 'round'
+  shadowIntensity: 'none' | 'soft' | 'medium'
+  spacing: 'compact' | 'normal' | 'airy'
+  colors?: TikTokCommentsColors
+}
+
 export interface BeforeAfterColors {
   backgroundColor?: string
   cardBackgroundColor?: string
@@ -284,6 +330,7 @@ export interface BeforeAfterColors {
   labelTextColor?: string
   buttonBackgroundColor?: string
   buttonTextColor?: string
+  borderColor?: string
 }
 
 export interface BeforeAfterData {

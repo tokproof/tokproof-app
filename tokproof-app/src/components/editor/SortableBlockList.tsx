@@ -15,7 +15,7 @@ import {
   GripVertical, Eye, EyeOff, Copy, Trash2, ChevronDown, Plus, RotateCcw,
   X, Search, Lock,
   Tag, Star, HelpCircle, ShoppingCart, Link2, User, Share2,
-  LayoutGrid, Shield, BarChart2, Zap, FileText, Package, Info, Gift, Layers,
+  LayoutGrid, Shield, BarChart2, Zap, FileText, Package, Info, Gift, Layers, MessageCircle,
 } from 'lucide-react'
 import type {
   LandingBlock, LandingTheme, BlockStyle,
@@ -36,6 +36,9 @@ import type {
   PDColors,
   BeforeAfterData,
   BeforeAfterColors,
+  TikTokCommentsData,
+  TikTokComment,
+  TikTokCommentsColors,
 } from '@/types/landing'
 import { FONT_OPTIONS } from '@/lib/blockStyle'
 
@@ -73,6 +76,7 @@ const BLOCKS_CATALOG: CatalogEntry[] = [
   { type: 'testimonials',   label: 'Testimonials',         tag: 'soon', desc: 'Carrusel de reseñas reales de clientes.' },
   { type: 'video_featured', label: 'YouTube Featured',     tag: 'soon', desc: 'Video de YouTube incrustado en la página.' },
   { type: 'partner_discounts', label: 'Partner Discounts', tag: 'free', desc: 'Muestra códigos de descuento y ofertas exclusivas de tus partners.', defaultData: { title: 'Descuentos de nuestros partners', subtitle: 'Ahorra en tus marcas favoritas con códigos exclusivos. 🎁', badgeText: '♦ Ofertas exclusivas', footerText: 'Nuevas ofertas cada semana', layout: 'compact', showLogos: true, showDescriptions: false, showCopyButton: true, showExternalButton: true, showFooterText: true, discounts: [{ id: 'pd1', brandName: 'Gymshark', storeUrl: 'https://gymshark.com', logoUrl: '', description: 'En toda la tienda.', discountText: '15% OFF', code: 'GYM15', buttonText: 'Ver oferta', buttonUrl: 'https://gymshark.com', isPopular: true, enabled: true }, { id: 'pd2', brandName: 'LSKD', storeUrl: 'https://lskd.co', logoUrl: '', description: 'En pedidos superiores a $100.', discountText: '20% OFF', code: 'LSKD20', buttonText: 'Ver oferta', buttonUrl: 'https://lskd.co', isPopular: false, enabled: true }, { id: 'pd3', brandName: 'Alo Yoga', storeUrl: 'https://aloyoga.com', logoUrl: '', description: 'En toda la tienda.', discountText: '10% OFF', code: 'ALO10', buttonText: 'Ver oferta', buttonUrl: 'https://aloyoga.com', isPopular: false, enabled: true }] } },
+  { type: 'tiktok_comments', label: 'TikTok Comments', tag: 'free', desc: 'Comentarios estilo TikTok para generar confianza y conversiones.', defaultData: { title: '', subtitle: '', badgeText: '', showTitle: false, showSubtitle: false, showBadge: false, layout: 'feed', comments: [{ id: 'tc1', avatarUrl: '', username: 'Tri G🌸🥰👣', verified: true, text: 'Quiero ver donde le entregan el pan🥰', imageUrl: '', likes: '13', date: '3 h', replies: '1', showReply: true, showLikes: true, showReplies: true }, { id: 'tc2', avatarUrl: '', username: 'Mira que bonito', verified: false, text: 'Mira que bonito se le ven esos zapatitoosss', imageUrl: '', likes: '24.7 mil', date: '1 d', replies: '32', showReply: true, showLikes: true, showReplies: true }, { id: 'tc3', avatarUrl: '', username: 'Antoni ⺣', verified: false, text: 'Necesito uno para mi michi 🤣', imageUrl: '', likes: '824', date: '2 d', replies: '0', showReply: true, showLikes: true, showReplies: false }], showArrows: true, showDots: true, autoplay: false, autoplaySpeed: 3, borderRadius: 'soft', shadowIntensity: 'soft', spacing: 'normal' } },
   { type: 'before_after', label: 'Before / After', tag: 'free', desc: 'Muestra transformaciones reales antes y después.', defaultData: { title: 'Resultados que puedes ver', subtitle: 'Mira la diferencia real después de usar nuestro producto.', badgeText: 'Transformación real', mode: 'cards', beforeImageUrl: '', afterImageUrl: '', beforeLabel: 'Antes', afterLabel: 'Después', beforeDescription: 'Cabello seco, sin brillo y con frizz.', afterDescription: 'Cabello hidratado, brillante y saludable.', showBadge: true, showSubtitle: true, showDescriptions: true, showCTA: false, buttonText: 'Ver producto', buttonUrl: 'https://tutienda.com/producto', borderRadius: 'soft', shadowIntensity: 'soft' } },
 ]
 
@@ -162,6 +166,7 @@ const CATALOG_DESC_LONG: Record<string, string> = {
   video_featured: 'Incrusta tu mejor video de YouTube para generar confianza al instante.',
   partner_discounts: 'Muestra códigos de descuento y ofertas exclusivas de tus partners. Ideal para afiliados, e-commerce e influencers.',
   before_after: 'Enseña el impacto visual de tu producto con un bloque antes/después. Modo Cards (Free) o Slider interactivo (Pro).',
+  tiktok_comments: 'Feed de comentarios auténticos al estilo TikTok. Genera más confianza que los testimonios clásicos. Feed vertical (Free) o Carousel (Pro).',
 }
 const CATALOG_IDEAL: Record<string, string[]> = {
   hero_product:   ['E-commerce', 'Marcas', 'Dropshipping'],
@@ -181,6 +186,7 @@ const CATALOG_IDEAL: Record<string, string[]> = {
   video_featured: ['Creadores', 'Educadores', 'Marcas'],
   partner_discounts: ['E-commerce', 'Afiliados', 'Creadores', 'Fitness', 'Beauty'],
   before_after: ['Beauty', 'Hair care', 'Skincare', 'Fitness', 'E-commerce'],
+  tiktok_comments: ['Beauty', 'E-commerce', 'Ropa', 'Mascotas', 'Viral'],
 }
 
 function BlockPreviewPopover({ entry, top, left, onClose, onAdd, onMouseEnter, onMouseLeave, plan, onUpgrade }: {
@@ -309,6 +315,7 @@ const BLOCK_LUCIDE: Record<string, React.ElementType> = {
   featured_product:   Package,
   partner_discounts:  Gift,
   before_after:       Layers,
+  tiktok_comments:    MessageCircle,
 }
 const ACCENT = ['#F647A9', '#8B5CF6'] // rosa, lila — alternan por índice
 
@@ -451,6 +458,13 @@ function SortableItem({
               onUpdateStyle={(patch) => onUpdateBlockStyle(block.id, patch)}
               plan={plan}
               theme={theme}
+            />
+          ) : block.type === 'tiktok_comments' ? (
+            /* TikTok Comments has its own 2-tab layout (Contenido/Estilo) */
+            <TikTokCommentsEditor
+              block={block}
+              onUpdate={(data) => onUpdateBlock(block.id, data)}
+              plan={plan}
             />
           ) : block.type === 'before_after' ? (
             /* Before / After has its own 2-tab layout (Contenido/Estilo) */
@@ -701,6 +715,7 @@ function BlockEditor({ block, onUpdate, plan }: {
     case 'featured_product':  return <FeaturedProductEditor  block={block} onUpdate={onUpdate} plan={plan} />
     case 'partner_discounts': return null // handled directly in SortableItem with its own 3-tab layout
     case 'before_after':      return null // handled directly in SortableItem with its own 2-tab layout
+    case 'tiktok_comments':   return null // handled directly in SortableItem with its own 2-tab layout
     default:
       return <p style={{ fontSize: 11, color: T.ink3, fontStyle: 'italic' }}>Editor próximamente.</p>
   }
@@ -1557,36 +1572,420 @@ const PD_PRESETS: Record<PresetName, PDColors> = {
 }
 const PRESET_LABELS: Record<PresetName, string> = { light: 'Light', pink: 'Pink', purple: 'Purple', dark: 'Dark' }
 
+// ─── TikTok Comments editor (2 tabs: Contenido / Estilo) ─────────────────────
+function TikTokAvatar({ url, name, size = 28 }: { url: string; name: string; size?: number }) {
+  const bgs = ['#F647A9','#7B61FF','#0EA5E9','#10B981','#F59E0B','#EF4444']
+  const bg  = bgs[name.charCodeAt(0) % bgs.length] ?? '#F647A9'
+  const init = name.slice(0, 1).toUpperCase() || '?'
+  return (
+    <div style={{ width: size, height: size, borderRadius: '50%', flexShrink: 0, background: url ? 'transparent' : bg, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0,0,0,0.07)' }}>
+      {url
+        // eslint-disable-next-line @next/next/no-img-element
+        ? <img src={url} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        : <span style={{ color: '#fff', fontSize: size * 0.36, fontWeight: 700, lineHeight: 1 }}>{init}</span>
+      }
+    </div>
+  )
+}
+
+function TikTokCommentsEditor({ block, onUpdate, plan }: {
+  block: LandingBlock
+  onUpdate: (d: Partial<LandingBlock['data']>) => void
+  plan: Plan
+}) {
+  const d = block.data as unknown as TikTokCommentsData
+  const [tab, setTab]                       = useState<'content' | 'style'>('content')
+  const [expandedIds, setExpandedIds]       = useState<Set<string>>(new Set())
+  const [upgradeOpen, setUpgradeOpen]       = useState(false)
+  const [uploadingAvatarId, setUpAvatarId]  = useState<string | null>(null)
+  const [uploadingImageId,  setUpImageId]   = useState<string | null>(null)
+
+  const isPro     = plan === 'pro'
+  const comments: TikTokComment[] = Array.isArray(d.comments) ? d.comments : []
+  const colors    = d.colors ?? {}
+  const layout    = d.layout ?? 'feed'
+
+  function setColor(key: keyof TikTokCommentsColors, val: string) {
+    onUpdate({ colors: { ...colors, [key]: val } })
+  }
+  function resetColor(key: keyof TikTokCommentsColors) {
+    const next = { ...colors }; delete next[key]
+    onUpdate({ colors: Object.keys(next).length > 0 ? next : undefined })
+  }
+
+  function updComment(id: string, patch: Partial<TikTokComment>) {
+    onUpdate({ comments: comments.map(c => c.id === id ? { ...c, ...patch } : c) })
+  }
+  function deleteComment(id: string) { onUpdate({ comments: comments.filter(c => c.id !== id) }) }
+  function addComment() {
+    const id = `tc_${Date.now()}`
+    const newC: TikTokComment = { id, avatarUrl: '', username: 'Usuario TikTok', verified: false, text: 'Este producto es increíble 🔥', imageUrl: '', likes: '42', date: '1 h', replies: '0', showReply: true, showLikes: true, showReplies: false }
+    onUpdate({ comments: [...comments, newC] })
+    setExpandedIds(prev => { const s = new Set(Array.from(prev)); s.add(id); return s })
+  }
+  function toggleExpand(id: string) {
+    setExpandedIds(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s })
+  }
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>, id: string, field: 'avatarUrl' | 'imageUrl') {
+    const file = e.target.files?.[0]; if (!file) return
+    if (field === 'avatarUrl') setUpAvatarId(id); else setUpImageId(id)
+    let url: string | null = null
+    try {
+      const { createClient } = await import('@/lib/supabase/client')
+      const sb = createClient()
+      const folder = field === 'avatarUrl' ? 'tiktok-avatars' : 'tiktok-images'
+      const path = `${folder}/${Date.now()}_${file.name.replace(/\s+/g,'_')}`
+      const { error } = await sb.storage.from('uploads').upload(path, file)
+      if (!error) url = sb.storage.from('uploads').getPublicUrl(path).data.publicUrl
+    } catch { /* fallback */ }
+    updComment(id, { [field]: url ?? URL.createObjectURL(file) })
+    if (field === 'avatarUrl') setUpAvatarId(null); else setUpImageId(null)
+  }
+
+  function InlineToggle({ enabled, onChange }: { enabled: boolean; onChange: (v: boolean) => void }) {
+    return (
+      <button onClick={() => onChange(!enabled)} style={{ width: 32, height: 17, borderRadius: 999, border: 'none', padding: 2, flexShrink: 0, background: enabled ? T.purple : '#D1D5DB', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: enabled ? 'flex-end' : 'flex-start' }}>
+        <div style={{ width: 13, height: 13, borderRadius: 999, background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.22)' }} />
+      </button>
+    )
+  }
+
+  return (
+    <>
+      {/* Tab bar */}
+      <div style={{ display: 'flex', borderBottom: `1px solid ${T.border}`, background: T.card }}>
+        {(['content', 'style'] as const).map(t => (
+          <button key={t} onClick={() => setTab(t)} style={{ flex: 1, padding: '7px 0', border: 'none', background: 'none', cursor: 'pointer', fontSize: 11.5, fontWeight: 600, color: tab === t ? T.pink : T.ink3, borderBottom: tab === t ? `2px solid ${T.pink}` : '2px solid transparent' }}>
+            {t === 'content' ? 'Contenido' : 'Estilo'}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ padding: '12px 14px 16px' }}>
+
+        {/* ══ CONTENIDO ══ */}
+        {tab === 'content' && (
+          <div>
+            <FG><FL>Título</FL><FI value={d.title ?? ''} onChange={e => onUpdate({ title: e.target.value })} /></FG>
+
+            <ToggleSection label="Subtítulo" enabled={d.showSubtitle ?? false} onToggle={v => onUpdate({ showSubtitle: v })}>
+              <FTA value={d.subtitle ?? ''} onChange={e => onUpdate({ subtitle: e.target.value })} style={{ minHeight: 40 }} />
+            </ToggleSection>
+
+            <ToggleSection label="Badge" enabled={d.showBadge ?? false} onToggle={v => onUpdate({ showBadge: v })}>
+              <FI value={d.badgeText ?? ''} placeholder="💬 Comentarios reales" onChange={e => onUpdate({ badgeText: e.target.value })} />
+            </ToggleSection>
+
+            {/* Comments list */}
+            <div style={{ fontSize: 10, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8, marginTop: 4 }}>
+              Comentarios · {comments.length}
+            </div>
+
+            {comments.map(c => {
+              const isOpen = expandedIds.has(c.id)
+              return (
+                <div key={c.id} style={{ marginBottom: 8, borderRadius: 10, border: `1px solid ${T.border2}`, background: T.card, overflow: 'hidden' }}>
+                  {/* Collapsed header */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px' }}>
+                    <TikTokAvatar url={c.avatarUrl} name={c.username} size={28} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: T.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.username}</span>
+                        {c.verified && <div style={{ width: 11, height: 11, borderRadius: '50%', background: '#20d5ec', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><span style={{ color: '#fff', fontSize: 7, fontWeight: 900 }}>✓</span></div>}
+                      </div>
+                      {!isOpen && <span style={{ fontSize: 10.5, color: T.ink2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{c.text}</span>}
+                    </div>
+                    <InlineToggle enabled={true} onChange={() => {}} />
+                    <button onClick={() => toggleExpand(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', alignItems: 'center', color: T.ink3 }}>
+                      <ChevronDown size={14} style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+                    </button>
+                  </div>
+
+                  {/* Expanded fields */}
+                  {isOpen && (
+                    <div style={{ padding: '0 10px 10px', borderTop: `1px solid ${T.border}` }}>
+                      <div style={{ marginTop: 10 }}>
+                        {/* Username */}
+                        <FG><FL>Nombre</FL><FI value={c.username} onChange={e => updComment(c.id, { username: e.target.value })} /></FG>
+
+                        {/* Comment text */}
+                        <FG><FL>Comentario</FL><FTA value={c.text} onChange={e => updComment(c.id, { text: e.target.value })} style={{ minHeight: 52 }} /></FG>
+
+                        {/* Avatar */}
+                        <FG mb={10}>
+                          <FL>Avatar URL</FL>
+                          <FI type="url" value={c.avatarUrl} placeholder="https://..." onChange={e => updComment(c.id, { avatarUrl: e.target.value })} />
+                          {isPro ? (
+                            <label style={{ display: 'block', marginTop: 6, cursor: 'pointer' }}>
+                              <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleUpload(e, c.id, 'avatarUrl')} />
+                              <div style={{ padding: '5px 0', borderRadius: 7, border: `1.5px dashed ${T.purple}`, background: '#f3effe', color: T.purple, fontSize: 11, fontWeight: 600, textAlign: 'center' }}>
+                                {uploadingAvatarId === c.id ? '⏳ Subiendo...' : '🖼️ Subir avatar'}
+                              </div>
+                            </label>
+                          ) : (
+                            <button onClick={() => setUpgradeOpen(true)} style={{ width: '100%', marginTop: 6, padding: '5px 0', borderRadius: 7, border: `1.5px dashed ${T.border2}`, background: '#fafbfc', color: '#9CA3AF', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                              <Lock size={10} /> Subir avatar <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1px 5px', borderRadius: 4 }}>Pro</span>
+                            </button>
+                          )}
+                        </FG>
+
+                        {/* Image */}
+                        <FG mb={10}>
+                          <FL>Imagen en comentario (URL)</FL>
+                          <FI type="url" value={c.imageUrl} placeholder="https://..." onChange={e => updComment(c.id, { imageUrl: e.target.value })} />
+                          {isPro ? (
+                            <label style={{ display: 'block', marginTop: 6, cursor: 'pointer' }}>
+                              <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleUpload(e, c.id, 'imageUrl')} />
+                              <div style={{ padding: '5px 0', borderRadius: 7, border: `1.5px dashed ${T.purple}`, background: '#f3effe', color: T.purple, fontSize: 11, fontWeight: 600, textAlign: 'center' }}>
+                                {uploadingImageId === c.id ? '⏳ Subiendo...' : '🖼️ Subir imagen'}
+                              </div>
+                            </label>
+                          ) : (
+                            <button onClick={() => setUpgradeOpen(true)} style={{ width: '100%', marginTop: 6, padding: '5px 0', borderRadius: 7, border: `1.5px dashed ${T.border2}`, background: '#fafbfc', color: '#9CA3AF', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                              <Lock size={10} /> Subir imagen <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1px 5px', borderRadius: 4 }}>Pro</span>
+                            </button>
+                          )}
+                        </FG>
+
+                        {/* Likes + Date row */}
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <FG style={{ flex: 1, marginBottom: 10 }}>
+                            <FL>Likes</FL>
+                            <FI value={c.likes} placeholder="13" onChange={e => updComment(c.id, { likes: e.target.value })} />
+                          </FG>
+                          <FG style={{ flex: 1, marginBottom: 10 }}>
+                            <FL>Fecha</FL>
+                            <FI value={c.date} placeholder="3 h" onChange={e => updComment(c.id, { date: e.target.value })} />
+                          </FG>
+                        </div>
+
+                        {/* Replies */}
+                        <FG mb={10}>
+                          <FL>Nº respuestas</FL>
+                          <FI value={c.replies} placeholder="0" onChange={e => updComment(c.id, { replies: e.target.value })} />
+                        </FG>
+
+                        {/* Toggles */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+                          {([
+                            { key: 'verified',    label: 'Verificado' },
+                            { key: 'showReply',   label: 'Mostrar botón Responder' },
+                            { key: 'showLikes',   label: 'Mostrar likes' },
+                            { key: 'showReplies', label: 'Mostrar respuestas' },
+                          ] as { key: keyof TikTokComment; label: string }[]).map(({ key, label }) => (
+                            <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <span style={{ fontSize: 11.5, color: T.ink2 }}>{label}</span>
+                              <InlineToggle enabled={!!c[key]} onChange={v => updComment(c.id, { [key]: v })} />
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Delete */}
+                        <button onClick={() => deleteComment(c.id)} style={{ width: '100%', padding: '6px 0', borderRadius: 8, border: `1px solid ${T.redBorder}`, background: T.redBg, color: T.red, fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                          <Trash2 size={11} /> Eliminar comentario
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+
+            <AddBtn onClick={addComment} label="Añadir comentario" />
+          </div>
+        )}
+
+        {/* ══ ESTILO ══ */}
+        {tab === 'style' && (
+          <div>
+
+            {/* Layout */}
+            <FG mb={14}>
+              <FL>Layout</FL>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button onClick={() => onUpdate({ layout: 'feed' })} style={{ flex: 1, padding: '8px 0', borderRadius: 8, cursor: 'pointer', fontSize: 11.5, fontWeight: 600, border: `1.5px solid ${layout === 'feed' ? T.purple : T.border2}`, background: layout === 'feed' ? '#f3effe' : T.card, color: layout === 'feed' ? T.purple : T.ink2 }}>
+                  Feed Vertical
+                </button>
+                {isPro ? (
+                  <button onClick={() => onUpdate({ layout: 'carousel' })} style={{ flex: 1, padding: '8px 0', borderRadius: 8, cursor: 'pointer', fontSize: 11.5, fontWeight: 600, border: `1.5px solid ${layout === 'carousel' ? T.purple : T.border2}`, background: layout === 'carousel' ? '#f3effe' : T.card, color: layout === 'carousel' ? T.purple : T.ink2 }}>
+                    Carousel
+                  </button>
+                ) : (
+                  <button onClick={() => setUpgradeOpen(true)} style={{ flex: 1, padding: '8px 0', borderRadius: 8, cursor: 'pointer', fontSize: 11.5, fontWeight: 600, border: `1.5px solid ${T.border2}`, background: T.card, color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                    <Lock size={10} /> Carousel <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1px 5px', borderRadius: 4 }}>Pro</span>
+                  </button>
+                )}
+              </div>
+              {!isPro && layout === 'carousel' && (
+                <div style={{ marginTop: 8, padding: '8px 10px', borderRadius: 8, background: '#FFFBF0', border: '1px solid #FDE68A' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                    <Lock size={11} color="#d97706" />
+                    <span style={{ fontSize: 11, fontWeight: 700, color: T.ink }}>Carousel is available on Pro</span>
+                  </div>
+                  <button onClick={() => setUpgradeOpen(true)} style={{ padding: '5px 14px', borderRadius: 7, border: 'none', background: 'linear-gradient(135deg,#FFD700,#FF8C00)', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Upgrade to Pro</button>
+                </div>
+              )}
+            </FG>
+
+            {/* Carousel options */}
+            {layout === 'carousel' && isPro && (
+              <div style={{ marginBottom: 14, padding: '10px 10px 8px', borderRadius: 8, border: `1px solid ${T.border2}`, background: '#fafbff' }}>
+                <div style={{ fontSize: 9.5, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>Opciones Carousel</div>
+                {([
+                  { key: 'showArrows', label: 'Mostrar flechas' },
+                  { key: 'showDots',   label: 'Mostrar dots' },
+                ] as { key: 'showArrows' | 'showDots'; label: string }[]).map(({ key, label }) => (
+                  <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
+                    <span style={{ fontSize: 11.5, color: T.ink2 }}>{label}</span>
+                    <button onClick={() => onUpdate({ [key]: !((d as unknown as Record<string, unknown>)[key] ?? true) })} style={{ width: 32, height: 17, borderRadius: 999, border: 'none', padding: 2, background: (d[key] ?? true) ? T.pink : '#D1D5DB', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: (d[key] ?? true) ? 'flex-end' : 'flex-start' }}>
+                      <div style={{ width: 13, height: 13, borderRadius: 999, background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.22)' }} />
+                    </button>
+                  </div>
+                ))}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <span style={{ fontSize: 11.5, color: T.ink2 }}>Autoplay</span>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1.5px 5px', borderRadius: 4 }}>Pro</span>
+                  </div>
+                  <button onClick={() => onUpdate({ autoplay: !d.autoplay })} style={{ width: 32, height: 17, borderRadius: 999, border: 'none', padding: 2, background: d.autoplay ? T.pink : '#D1D5DB', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: d.autoplay ? 'flex-end' : 'flex-start' }}>
+                    <div style={{ width: 13, height: 13, borderRadius: 999, background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.22)' }} />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Border radius */}
+            <FG mb={12}>
+              <FL>Border radius</FL>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {(['square','soft','medium','round'] as const).map(v => {
+                  const active = (d.borderRadius ?? 'soft') === v
+                  return <button key={v} onClick={() => onUpdate({ borderRadius: v })} style={{ flex: 1, padding: '5px 0', borderRadius: 6, cursor: 'pointer', fontSize: 10, fontWeight: 600, border: `1.5px solid ${active ? T.purple : T.border2}`, background: active ? '#f3effe' : T.card, color: active ? T.purple : T.ink2 }}>
+                    {v === 'square' ? 'Sq' : v === 'soft' ? 'Soft' : v === 'medium' ? 'Med' : 'Rnd'}
+                  </button>
+                })}
+              </div>
+            </FG>
+
+            {/* Shadow */}
+            <FG mb={12}>
+              <FL>Shadow</FL>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {(['none','soft','medium'] as const).map(v => {
+                  const active = (d.shadowIntensity ?? 'soft') === v
+                  return <button key={v} onClick={() => onUpdate({ shadowIntensity: v })} style={{ flex: 1, padding: '6px 0', borderRadius: 7, cursor: 'pointer', fontSize: 11, fontWeight: 600, border: `1.5px solid ${active ? T.purple : T.border2}`, background: active ? '#f3effe' : T.card, color: active ? T.purple : T.ink2 }}>
+                    {v === 'none' ? 'None' : v === 'soft' ? 'Soft' : 'Medium'}
+                  </button>
+                })}
+              </div>
+            </FG>
+
+            {/* Spacing */}
+            <FG mb={14}>
+              <FL>Espaciado</FL>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {(['compact','normal','airy'] as const).map(v => {
+                  const active = (d.spacing ?? 'normal') === v
+                  return <button key={v} onClick={() => onUpdate({ spacing: v })} style={{ flex: 1, padding: '6px 0', borderRadius: 7, cursor: 'pointer', fontSize: 11, fontWeight: 600, border: `1.5px solid ${active ? T.purple : T.border2}`, background: active ? '#f3effe' : T.card, color: active ? T.purple : T.ink2 }}>
+                    {v === 'compact' ? 'Compact' : v === 'normal' ? 'Normal' : 'Airy'}
+                  </button>
+                })}
+              </div>
+            </FG>
+
+            <div style={{ height: 1, background: T.border, margin: '0 0 12px' }} />
+
+            {/* Colors */}
+            <div style={{ fontSize: 9.5, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>Colores</div>
+
+            <PDColorSection label="Fondo">
+              <PDColorRow label="Fondo sección" value={colors.sectionBg}      onChange={v => setColor('sectionBg', v)}      onReset={() => resetColor('sectionBg')} />
+              <PDColorRow label="Fondo card"    value={colors.cardBg}         onChange={v => setColor('cardBg', v)}         onReset={() => resetColor('cardBg')} />
+            </PDColorSection>
+
+            <PDColorSection label="Texto">
+              <PDColorRow label="Nombre"     value={colors.nameColor}  onChange={v => setColor('nameColor', v)}  onReset={() => resetColor('nameColor')} />
+              <PDColorRow label="Comentario" value={colors.textColor}  onChange={v => setColor('textColor', v)}  onReset={() => resetColor('textColor')} />
+              <PDColorRow label="Likes"      value={colors.likesColor} onChange={v => setColor('likesColor', v)} onReset={() => resetColor('likesColor')} />
+              <PDColorRow label="Enlaces"    value={colors.linkColor}  onChange={v => setColor('linkColor', v)}  onReset={() => resetColor('linkColor')} />
+            </PDColorSection>
+
+            <PDColorSection label="Badges">
+              <PDColorRow label="Badge accent" value={colors.badgeColor}    onChange={v => setColor('badgeColor', v)}    onReset={() => resetColor('badgeColor')} />
+              <PDColorRow label="Verificado"   value={colors.verifiedColor} onChange={v => setColor('verifiedColor', v)} onReset={() => resetColor('verifiedColor')} />
+              <PDColorRow label="Separador"    value={colors.separatorColor} onChange={v => setColor('separatorColor', v)} onReset={() => resetColor('separatorColor')} />
+            </PDColorSection>
+
+            {Object.keys(colors).length > 0 && (
+              <button onClick={() => onUpdate({ colors: undefined })} style={{ width: '100%', padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`, background: 'none', color: T.ink3, fontSize: 11, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                <RotateCcw size={11} /> Restablecer colores
+              </button>
+            )}
+          </div>
+        )}
+
+      </div>
+
+      {upgradeOpen && (
+        <UpgradeProModal
+          open={upgradeOpen}
+          onClose={() => setUpgradeOpen(false)}
+          title="Función Pro"
+          description="El Carousel, subida de imágenes y Autoplay están disponibles en el plan Pro."
+        />
+      )}
+    </>
+  )
+}
+
 // ─── Before / After editor (2 tabs: Contenido / Estilo) ──────────────────────
 type BAPreset = 'light' | 'pink' | 'purple' | 'dark'
-const BA_PRESETS: Record<BAPreset, BeforeAfterColors> = {
+interface BAPresetFull {
+  colors: BeforeAfterColors
+  borderRadius: 'square' | 'soft' | 'medium' | 'round'
+  shadowIntensity: 'none' | 'soft' | 'medium'
+}
+const BA_PRESETS: Record<BAPreset, BAPresetFull> = {
   light: {
-    backgroundColor: '#ffffff', cardBackgroundColor: '#f9fafb',
-    titleColor: '#111827', subtitleColor: '#6b7280',
-    badgeBackgroundColor: '#fdf2f8', badgeTextColor: '#db2777',
-    labelBeforeBackground: '#ef4444', labelAfterBackground: '#22c55e', labelTextColor: '#ffffff',
-    buttonBackgroundColor: '#111827', buttonTextColor: '#ffffff',
+    colors: {
+      backgroundColor: '#ffffff', cardBackgroundColor: '#f9fafb',
+      titleColor: '#111827', subtitleColor: '#6b7280',
+      badgeBackgroundColor: '#fce7f3', badgeTextColor: '#db2777',
+      labelBeforeBackground: '#374151', labelAfterBackground: '#16a34a', labelTextColor: '#ffffff',
+      buttonBackgroundColor: '#111827', buttonTextColor: '#ffffff', borderColor: '#e5e7eb',
+    },
+    borderRadius: 'soft', shadowIntensity: 'soft',
   },
   pink: {
-    backgroundColor: '#fdf2f8', cardBackgroundColor: '#ffffff',
-    titleColor: '#831843', subtitleColor: '#9d174d',
-    badgeBackgroundColor: '#fce7f3', badgeTextColor: '#be185d',
-    labelBeforeBackground: '#db2777', labelAfterBackground: '#ec4899', labelTextColor: '#ffffff',
-    buttonBackgroundColor: '#ec4899', buttonTextColor: '#ffffff',
+    colors: {
+      backgroundColor: '#fdf2f8', cardBackgroundColor: '#ffffff',
+      titleColor: '#831843', subtitleColor: '#9d174d',
+      badgeBackgroundColor: '#fce7f3', badgeTextColor: '#be185d',
+      labelBeforeBackground: '#9d174d', labelAfterBackground: '#ec4899', labelTextColor: '#ffffff',
+      buttonBackgroundColor: '#db2777', buttonTextColor: '#ffffff', borderColor: '#fbcfe8',
+    },
+    borderRadius: 'soft', shadowIntensity: 'soft',
   },
   purple: {
-    backgroundColor: '#f5f3ff', cardBackgroundColor: '#ffffff',
-    titleColor: '#3b0764', subtitleColor: '#6b21a8',
-    badgeBackgroundColor: '#ede9fe', badgeTextColor: '#6d28d9',
-    labelBeforeBackground: '#7c3aed', labelAfterBackground: '#8b5cf6', labelTextColor: '#ffffff',
-    buttonBackgroundColor: '#7c3aed', buttonTextColor: '#ffffff',
+    colors: {
+      backgroundColor: '#f5f3ff', cardBackgroundColor: '#ffffff',
+      titleColor: '#3b0764', subtitleColor: '#6b21a8',
+      badgeBackgroundColor: '#ede9fe', badgeTextColor: '#6d28d9',
+      labelBeforeBackground: '#6d28d9', labelAfterBackground: '#7c3aed', labelTextColor: '#ffffff',
+      buttonBackgroundColor: '#7c3aed', buttonTextColor: '#ffffff', borderColor: '#ddd6fe',
+    },
+    borderRadius: 'medium', shadowIntensity: 'medium',
   },
   dark: {
-    backgroundColor: '#0f0f10', cardBackgroundColor: 'rgba(255,255,255,0.08)',
-    titleColor: '#ffffff', subtitleColor: 'rgba(255,255,255,0.55)',
-    badgeBackgroundColor: 'rgba(246,71,169,0.15)', badgeTextColor: '#F647A9',
-    labelBeforeBackground: '#ef4444', labelAfterBackground: '#F647A9', labelTextColor: '#ffffff',
-    buttonBackgroundColor: '#F647A9', buttonTextColor: '#ffffff',
+    colors: {
+      backgroundColor: '#0f0f10', cardBackgroundColor: 'rgba(255,255,255,0.07)',
+      titleColor: '#ffffff', subtitleColor: 'rgba(255,255,255,0.60)',
+      badgeBackgroundColor: 'rgba(246,71,169,0.18)', badgeTextColor: '#F647A9',
+      labelBeforeBackground: '#374151', labelAfterBackground: '#F647A9', labelTextColor: '#ffffff',
+      buttonBackgroundColor: '#F647A9', buttonTextColor: '#ffffff', borderColor: 'rgba(255,255,255,0.10)',
+    },
+    borderRadius: 'soft', shadowIntensity: 'none',
   },
 }
 const BA_PRESET_LABELS: Record<BAPreset, string> = { light: 'Light', pink: 'Pink', purple: 'Purple', dark: 'Dark' }
@@ -1780,53 +2179,8 @@ function BeforeAfterEditor({ block, onUpdate, plan }: {
         {/* ══ ESTILO ══ */}
         {tab === 'style' && (
           <div>
-            {/* Presets */}
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 9.5, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 7 }}>Presets</div>
-              <div style={{ display: 'flex', gap: 5 }}>
-                {(Object.keys(BA_PRESETS) as BAPreset[]).map(name => (
-                  <button key={name} onClick={() => onUpdate({ colors: BA_PRESETS[name] })} style={{
-                    flex: 1, padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`,
-                    background: T.card, fontSize: 11, fontWeight: 600, color: T.ink2, cursor: 'pointer',
-                  }}
-                    onMouseEnter={e => (e.currentTarget.style.background = '#f3effe')}
-                    onMouseLeave={e => (e.currentTarget.style.background = T.card)}
-                  >
-                    {BA_PRESET_LABELS[name]}
-                  </button>
-                ))}
-              </div>
-            </div>
 
-            <div style={{ height: 1, background: T.border, margin: '0 0 12px' }} />
-
-            <PDColorSection label="Sección">
-              <PDColorRow label="Fondo"     value={colors.backgroundColor}    onChange={v => setColor('backgroundColor', v)}    onReset={() => resetColor('backgroundColor')} />
-              <PDColorRow label="Título"    value={colors.titleColor}          onChange={v => setColor('titleColor', v)}          onReset={() => resetColor('titleColor')} />
-              <PDColorRow label="Subtítulo" value={colors.subtitleColor}       onChange={v => setColor('subtitleColor', v)}       onReset={() => resetColor('subtitleColor')} />
-            </PDColorSection>
-
-            <PDColorSection label="Badge">
-              <PDColorRow label="Fondo badge" value={colors.badgeBackgroundColor} onChange={v => setColor('badgeBackgroundColor', v)} onReset={() => resetColor('badgeBackgroundColor')} />
-              <PDColorRow label="Texto badge" value={colors.badgeTextColor}       onChange={v => setColor('badgeTextColor', v)}       onReset={() => resetColor('badgeTextColor')} />
-            </PDColorSection>
-
-            <PDColorSection label="Cards">
-              <PDColorRow label="Fondo card" value={colors.cardBackgroundColor} onChange={v => setColor('cardBackgroundColor', v)} onReset={() => resetColor('cardBackgroundColor')} />
-            </PDColorSection>
-
-            <PDColorSection label="Labels">
-              <PDColorRow label="Before (fondo)" value={colors.labelBeforeBackground} onChange={v => setColor('labelBeforeBackground', v)} onReset={() => resetColor('labelBeforeBackground')} />
-              <PDColorRow label="After (fondo)"  value={colors.labelAfterBackground}  onChange={v => setColor('labelAfterBackground', v)}  onReset={() => resetColor('labelAfterBackground')} />
-              <PDColorRow label="Texto labels"   value={colors.labelTextColor}         onChange={v => setColor('labelTextColor', v)}         onReset={() => resetColor('labelTextColor')} />
-            </PDColorSection>
-
-            <PDColorSection label="Botón CTA">
-              <PDColorRow label="Fondo" value={colors.buttonBackgroundColor} onChange={v => setColor('buttonBackgroundColor', v)} onReset={() => resetColor('buttonBackgroundColor')} />
-              <PDColorRow label="Texto" value={colors.buttonTextColor}       onChange={v => setColor('buttonTextColor', v)}       onReset={() => resetColor('buttonTextColor')} />
-            </PDColorSection>
-
-            {/* Border radius */}
+            {/* ── Free: Border radius + Shadow ── */}
             <FG mb={12}>
               <FL>Border radius</FL>
               <div style={{ display: 'flex', gap: 5 }}>
@@ -1846,8 +2200,7 @@ function BeforeAfterEditor({ block, onUpdate, plan }: {
               </div>
             </FG>
 
-            {/* Shadow */}
-            <FG mb={12}>
+            <FG mb={14}>
               <FL>Shadow</FL>
               <div style={{ display: 'flex', gap: 5 }}>
                 {(['none', 'soft', 'medium'] as const).map(v => {
@@ -1866,11 +2219,86 @@ function BeforeAfterEditor({ block, onUpdate, plan }: {
               </div>
             </FG>
 
-            {Object.keys(colors).length > 0 && (
-              <button onClick={() => onUpdate({ colors: undefined })} style={{ width: '100%', padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`, background: 'none', color: T.ink3, fontSize: 11, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                <RotateCcw size={11} /> Restablecer colores
-              </button>
+            <div style={{ height: 1, background: T.border, margin: '0 0 14px' }} />
+
+            {/* ── Pro: Presets + Custom Colors ── */}
+            {isPro ? (
+              <>
+                {/* Presets */}
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 9.5, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 7 }}>Presets</div>
+                  <div style={{ display: 'flex', gap: 5 }}>
+                    {(Object.keys(BA_PRESETS) as BAPreset[]).map(name => {
+                      const p = BA_PRESETS[name]
+                      return (
+                        <button key={name}
+                          onClick={() => onUpdate({ colors: p.colors, borderRadius: p.borderRadius, shadowIntensity: p.shadowIntensity })}
+                          style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`, background: T.card, fontSize: 11, fontWeight: 600, color: T.ink2, cursor: 'pointer' }}
+                          onMouseEnter={e => (e.currentTarget.style.background = '#f3effe')}
+                          onMouseLeave={e => (e.currentTarget.style.background = T.card)}
+                        >
+                          {BA_PRESET_LABELS[name]}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                <div style={{ height: 1, background: T.border, margin: '0 0 12px' }} />
+
+                {/* Custom Colors */}
+                <div style={{ fontSize: 9.5, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>Custom Colors</div>
+
+                <PDColorSection label="Sección">
+                  <PDColorRow label="Background" value={colors.backgroundColor}    onChange={v => setColor('backgroundColor', v)}    onReset={() => resetColor('backgroundColor')} />
+                  <PDColorRow label="Título"      value={colors.titleColor}          onChange={v => setColor('titleColor', v)}          onReset={() => resetColor('titleColor')} />
+                  <PDColorRow label="Subtítulo"   value={colors.subtitleColor}       onChange={v => setColor('subtitleColor', v)}       onReset={() => resetColor('subtitleColor')} />
+                </PDColorSection>
+
+                <PDColorSection label="Badge">
+                  <PDColorRow label="Badge background" value={colors.badgeBackgroundColor} onChange={v => setColor('badgeBackgroundColor', v)} onReset={() => resetColor('badgeBackgroundColor')} />
+                  <PDColorRow label="Badge text"       value={colors.badgeTextColor}       onChange={v => setColor('badgeTextColor', v)}       onReset={() => resetColor('badgeTextColor')} />
+                </PDColorSection>
+
+                <PDColorSection label="Cards">
+                  <PDColorRow label="Card color"   value={colors.cardBackgroundColor} onChange={v => setColor('cardBackgroundColor', v)} onReset={() => resetColor('cardBackgroundColor')} />
+                  <PDColorRow label="Border color" value={colors.borderColor}         onChange={v => setColor('borderColor', v)}         onReset={() => resetColor('borderColor')} />
+                </PDColorSection>
+
+                <PDColorSection label="Labels">
+                  <PDColorRow label="Before label bg" value={colors.labelBeforeBackground} onChange={v => setColor('labelBeforeBackground', v)} onReset={() => resetColor('labelBeforeBackground')} />
+                  <PDColorRow label="After label bg"  value={colors.labelAfterBackground}  onChange={v => setColor('labelAfterBackground', v)}  onReset={() => resetColor('labelAfterBackground')} />
+                  <PDColorRow label="Label text"      value={colors.labelTextColor}         onChange={v => setColor('labelTextColor', v)}         onReset={() => resetColor('labelTextColor')} />
+                </PDColorSection>
+
+                <PDColorSection label="Botón CTA">
+                  <PDColorRow label="Button background" value={colors.buttonBackgroundColor} onChange={v => setColor('buttonBackgroundColor', v)} onReset={() => resetColor('buttonBackgroundColor')} />
+                  <PDColorRow label="Button text"       value={colors.buttonTextColor}       onChange={v => setColor('buttonTextColor', v)}       onReset={() => resetColor('buttonTextColor')} />
+                </PDColorSection>
+
+                {Object.keys(colors).length > 0 && (
+                  <button onClick={() => onUpdate({ colors: undefined })} style={{ width: '100%', padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`, background: 'none', color: T.ink3, fontSize: 11, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                    <RotateCcw size={11} /> Restablecer colores
+                  </button>
+                )}
+              </>
+            ) : (
+              /* Lock for Free users */
+              <div style={{ padding: '14px', borderRadius: 10, background: '#FFFBF0', border: '1px solid #FDE68A', textAlign: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 5 }}>
+                  <Lock size={13} color="#d97706" />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: T.ink }}>Presets & Custom Colors</span>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: '#92400e', background: '#FEF3C7', padding: '1.5px 6px', borderRadius: 4 }}>Pro</span>
+                </div>
+                <p style={{ margin: '0 0 10px', fontSize: 11, color: T.ink2, lineHeight: 1.4 }}>
+                  Personaliza colores, presets y el estilo visual completo del bloque.
+                </p>
+                <button onClick={() => setUpgradeOpen(true)} style={{ padding: '7px 18px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg,#FFD700,#FF8C00)', color: '#fff', fontSize: 11.5, fontWeight: 700, cursor: 'pointer' }}>
+                  Actualizar a Pro
+                </button>
+              </div>
             )}
+
           </div>
         )}
 

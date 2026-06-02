@@ -128,6 +128,24 @@ const CATALOG: CatalogBlock[] = [
     defaultData: { brandName: 'Mi Marca', contactEmail: 'hola@mimarca.com', privacyUrl: '', termsUrl: '', showTokproofBranding: true, legalText: '' },
   },
   {
+    type: 'tiktok_comments', label: 'TikTok Comments', tag: 'free',
+    desc: 'Comentarios estilo TikTok para generar confianza y conversiones.',
+    long: 'Muestra un feed de comentarios auténticos al estilo TikTok. Genera más confianza que los testimonios clásicos. Feed vertical (Free) o Carousel interactivo (Pro).',
+    ideal: ['Beauty', 'E-commerce', 'Ropa', 'Mascotas', 'Viral'],
+    defaultData: {
+      title: '', subtitle: '', badgeText: '',
+      showTitle: false, showSubtitle: false, showBadge: false,
+      layout: 'feed',
+      comments: [
+        { id: 'tc1', avatarUrl: '', username: 'Tri G🌸🥰👣', verified: true,  text: 'Quiero ver donde le entregan el pan🥰',         imageUrl: '', likes: '13',       date: '3 h', replies: '1',  showReply: true, showLikes: true, showReplies: true  },
+        { id: 'tc2', avatarUrl: '', username: 'Mira que bonito',  verified: false, text: 'Mira que bonito se le ven esos zapatitoosss', imageUrl: '', likes: '24.7 mil', date: '1 d', replies: '32', showReply: true, showLikes: true, showReplies: true  },
+        { id: 'tc3', avatarUrl: '', username: 'Antoni ⺣',         verified: false, text: 'Necesito uno para mi michi 🤣',              imageUrl: '', likes: '824',      date: '2 d', replies: '0',  showReply: true, showLikes: true, showReplies: false },
+      ],
+      showArrows: true, showDots: true, autoplay: false, autoplaySpeed: 3,
+      borderRadius: 'soft', shadowIntensity: 'soft', spacing: 'normal',
+    },
+  },
+  {
     type: 'before_after', label: 'Before / After', tag: 'free',
     desc: 'Muestra transformaciones reales antes y después.',
     long: 'Enseña el impacto visual de tu producto con un bloque antes/después. Ideal para beauty, hair care, skincare, fitness y más.',

@@ -520,6 +520,75 @@ function PartnerDiscountsThumb({ size }: { size: ThumbSize }) {
   )
 }
 
+// ─── tiktok_comments ──────────────────────────────────────────────────────────
+const TC_AVATARS = [
+  { init: 'TG', bg: '#F647A9' },
+  { init: 'MB', bg: '#7B61FF' },
+  { init: 'AN', bg: '#10B981' },
+]
+const TC_ROWS = [
+  { name: 'Tri G🌸', verified: true,  text: 'Quiero ver donde le entregan el pan🥰', likes: '13',       date: '3 h' },
+  { name: 'Mira que bonito', verified: false, text: 'Mira que bonito se le ven esos zapatitos', likes: '24.7 mil', date: '1 d' },
+  { name: 'Antoni ⺣',        verified: false, text: 'Necesito uno para mi michi 🤣',             likes: '824',      date: '2 d' },
+]
+
+function TikTokCommentsThumb({ size }: { size: ThumbSize }) {
+  if (size === 'popover') return (
+    <div style={W('100%', 140, 12, '#ffffff', { padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 0 })}>
+      {TC_ROWS.slice(0, 3).map((c, i) => (
+        <div key={i}>
+          <div style={{ display: 'flex', gap: 8, paddingTop: 6, paddingBottom: 6, alignItems: 'flex-start' }}>
+            <div style={{ width: 28, height: 28, borderRadius: '50%', background: TC_AVATARS[i]?.bg ?? '#ccc', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: '#fff', fontSize: 9, fontWeight: 700 }}>{TC_AVATARS[i]?.init}</span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: '#161823' }}>{c.name}</span>
+                  {c.verified && <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#20d5ec', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ color: '#fff', fontSize: 5.5, fontWeight: 900 }}>✓</span></div>}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <span style={{ fontSize: 8, color: '#161823' }}>♡</span>
+                  <span style={{ fontSize: 7.5, color: '#6b7280' }}>{c.likes}</span>
+                </div>
+              </div>
+              <p style={{ margin: '0 0 3px', fontSize: 8.5, color: '#161823', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.text}</p>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <span style={{ fontSize: 7, color: '#6b7280' }}>{c.date}</span>
+                <span style={{ fontSize: 7, color: '#6b7280', fontWeight: 600 }}>Responder</span>
+              </div>
+            </div>
+          </div>
+          {i < 2 && <div style={{ height: 1, background: '#f1f1f2', marginLeft: 36 }} />}
+        </div>
+      ))}
+    </div>
+  )
+  const [w, h] = size === 'card' ? [52, 78] : [40, 56]
+  const rows   = size === 'card' ? TC_ROWS.slice(0, 3) : TC_ROWS.slice(0, 2)
+  return (
+    <div style={W(w, h, 8, '#ffffff', { padding: '4px 5px', display: 'flex', flexDirection: 'column', gap: 0 })}>
+      {rows.map((_, i) => (
+        <div key={i}>
+          <div style={{ display: 'flex', gap: 3, paddingTop: 3, paddingBottom: 3, alignItems: 'flex-start' }}>
+            <div style={{ width: size === 'card' ? 12 : 10, height: size === 'card' ? 12 : 10, borderRadius: '50%', background: TC_AVATARS[i]?.bg ?? '#ccc', flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ height: 2.5, borderRadius: 1, background: '#1f2430', width: '55%', marginBottom: 1.5 }} />
+              <div style={{ height: 2, borderRadius: 1, background: '#9ca3af', width: '80%', marginBottom: 1.5 }} />
+              <div style={{ height: 2, borderRadius: 1, background: '#e5e7eb', width: '45%' }} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+              <div style={{ fontSize: size === 'card' ? 6 : 5, color: '#161823', lineHeight: 1 }}>♡</div>
+              <div style={{ height: 2, width: size === 'card' ? 10 : 8, borderRadius: 1, background: '#e5e7eb' }} />
+            </div>
+          </div>
+          {i < rows.length - 1 && <div style={{ height: 1, background: '#f1f1f2', marginLeft: size === 'card' ? 15 : 13 }} />}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ─── before_after ─────────────────────────────────────────────────────────────
 function BeforeAfterThumb({ size }: { size: ThumbSize }) {
   if (size === 'popover') return (
@@ -589,6 +658,7 @@ export function GlowThumb({ type, size = 'card' }: { type: string; size?: ThumbS
     case 'footer_legal':     return <FooterThumb size={size} />
     case 'featured_product':    return <FeaturedProductThumb size={size} />
     case 'partner_discounts':   return <PartnerDiscountsThumb size={size} />
+    case 'tiktok_comments':     return <TikTokCommentsThumb   size={size} />
     case 'before_after':        return <BeforeAfterThumb      size={size} />
     default:                    return <GenericThumb size={size} />
   }

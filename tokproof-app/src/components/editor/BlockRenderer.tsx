@@ -14,6 +14,7 @@ import FooterLegalBlock      from './blocks/FooterLegalBlock'
 import FeaturedProductBlock   from './blocks/FeaturedProductBlock'
 import PartnerDiscountsBlock  from './blocks/PartnerDiscountsBlock'
 import BeforeAfterBlock       from './blocks/BeforeAfterBlock'
+import TikTokCommentsBlock    from './blocks/TikTokCommentsBlock'
 
 interface Props {
   block: LandingBlock
@@ -37,8 +38,8 @@ export default function BlockRenderer({ block, theme }: Props) {
     case 'featured_product':   return <FeaturedProductBlock   block={block} theme={theme} />
     case 'partner_discounts':  return <PartnerDiscountsBlock  block={block} theme={theme} />
     case 'before_after':       return <BeforeAfterBlock       block={block} theme={theme} />
+    case 'tiktok_comments':    return <TikTokCommentsBlock    block={block} theme={theme} />
     // Stubs for future blocks
-    case 'tiktok_comments':
     case 'reviews':
       return (
         <div style={{ padding: '16px 18px', background: theme.backgroundColor, textAlign: 'center' }}>

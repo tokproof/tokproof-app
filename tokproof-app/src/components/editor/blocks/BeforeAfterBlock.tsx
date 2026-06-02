@@ -34,21 +34,21 @@ const RADIUS_MAP: Record<string, number> = {
   square: 0, soft: 8, medium: 14, round: 20,
 }
 
-function resolveColors(d: BeforeAfterData, theme: LandingTheme) {
+function resolveColors(d: BeforeAfterData, _theme: LandingTheme) {
   const c = d.colors ?? {}
-  const accent = theme.primaryColor ?? '#F647A9'
   return {
-    bg:          c.backgroundColor       ?? theme.backgroundColor ?? '#ffffff',
-    cardBg:      c.cardBackgroundColor   ?? (theme.cardBackgroundColor ?? '#f9fafb'),
-    title:       c.titleColor            ?? theme.textColor ?? '#111111',
-    subtitle:    c.subtitleColor         ?? (theme.secondaryTextColor ?? '#6b7280'),
-    badgeBg:     c.badgeBackgroundColor  ?? `${accent}20`,
-    badgeText:   c.badgeTextColor        ?? accent,
-    labelBefore: c.labelBeforeBackground ?? '#ef4444',
-    labelAfter:  c.labelAfterBackground  ?? accent,
+    bg:          c.backgroundColor       ?? '#ffffff',
+    cardBg:      c.cardBackgroundColor   ?? '#f9fafb',
+    title:       c.titleColor            ?? '#111827',
+    subtitle:    c.subtitleColor         ?? '#6b7280',
+    badgeBg:     c.badgeBackgroundColor  ?? '#fce7f3',
+    badgeText:   c.badgeTextColor        ?? '#db2777',
+    labelBefore: c.labelBeforeBackground ?? '#374151',
+    labelAfter:  c.labelAfterBackground  ?? '#16a34a',
     labelText:   c.labelTextColor        ?? '#ffffff',
-    btnBg:       c.buttonBackgroundColor ?? (theme.buttonColor ?? accent),
-    btnText:     c.buttonTextColor       ?? (theme.buttonTextColor ?? '#ffffff'),
+    btnBg:       c.buttonBackgroundColor ?? '#111827',
+    btnText:     c.buttonTextColor       ?? '#ffffff',
+    border:      c.borderColor           ?? '#e5e7eb',
   }
 }
 
@@ -71,7 +71,7 @@ function CardsView({ d, C, shadow, radius }: { d: BeforeAfterData; C: C; shadow:
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
       {cards.map(({ imageUrl, label, desc, labelBg }) => (
-        <div key={label} style={{ borderRadius: radius, background: C.cardBg, boxShadow: shadow, overflow: 'hidden' }}>
+        <div key={label} style={{ borderRadius: radius, background: C.cardBg, boxShadow: shadow, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
           <div style={{ position: 'relative', paddingBottom: '100%', background: '#e5e7eb' }}>
             <div style={{ position: 'absolute', inset: 0 }}>
               {imageUrl
