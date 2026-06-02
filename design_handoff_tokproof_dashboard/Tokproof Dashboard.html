@@ -7,7 +7,122 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
 <style>
+  /* ===== Modal Crear Página ===== */
+  .mp-overlay{
+    display:none;position:fixed;inset:0;z-index:9999;
+    background:rgba(18,16,26,.65);backdrop-filter:blur(4px);
+    align-items:center;justify-content:center;
+    font-family:'Poppins',system-ui,sans-serif;
+  }
+  .mp-overlay.open{display:flex;}
+  .mp-overlay .mp-modal{
+    position:relative;width:980px;max-width:calc(100vw - 64px);
+    overflow:hidden;background:linear-gradient(180deg,#ffffff 0%,#fdfbfe 60%,#faf6fd 100%);
+    border-radius:24px;padding:32px 32px 24px;
+    box-shadow:0 40px 90px -20px rgba(20,10,40,.55);
+    animation:mpIn .22s ease;
+  }
+  @keyframes mpIn{from{opacity:0;transform:scale(.96) translateY(8px);}to{opacity:1;transform:none;}}
+  .mp-overlay .mp-close{
+    position:absolute;top:26px;right:28px;width:30px;height:30px;border:none;background:transparent;
+    color:#9aa0ac;cursor:pointer;display:grid;place-items:center;border-radius:8px;transition:.15s;
+  }
+  .mp-overlay .mp-close:hover{background:#f1eef5;color:#5d6473;}
+  .mp-overlay .mp-close svg{width:22px;height:22px;}
+  .mp-overlay .mp-head{display:flex;align-items:center;gap:13px;margin-bottom:11px;}
+  .mp-overlay .mp-spark{width:32px;height:32px;flex:none;}
+  .mp-overlay .mp-h1{font-size:28px;font-weight:600;letter-spacing:-.01em;color:#161a23;margin:0;}
+  .mp-overlay .mp-sub{font-size:15px;line-height:1.5;color:#4f5563;max-width:540px;font-weight:400;}
+  .mp-overlay .mp-sub b{font-weight:600;color:#db2777;}
+  .mp-overlay .mp-grid{
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:20px;width:100%;margin-top:22px;
+  }
+  .mp-overlay .mp-card{
+    border-radius:20px;padding:28px;cursor:pointer;position:relative;
+    transition:transform .18s ease,box-shadow .18s ease;
+    min-width:0;max-width:100%;overflow:hidden;height:340px;
+  }
+  .mp-overlay .mp-card.mp-trust{
+    background:linear-gradient(160deg,#fdeef5 0%,#fbe3ef 100%);
+    border:2px solid #f4a8cf;
+  }
+  .mp-overlay .mp-card.mp-links{
+    background:linear-gradient(160deg,#f6f1fd 0%,#efe6fb 100%);
+    border:2px solid #e3d6f7;
+  }
+  .mp-overlay .mp-card:hover{transform:translateY(-2px);}
+  .mp-overlay .mp-card.mp-trust:hover{box-shadow:0 20px 40px -18px rgba(236,72,153,.5);}
+  .mp-overlay .mp-card.mp-links:hover{box-shadow:0 20px 40px -18px rgba(168,85,247,.45);}
+  .mp-overlay .mp-card-row{display:block;}
+  .mp-overlay .mp-card-left{max-width:calc(100% - 175px);min-width:0;}
+  .mp-overlay .mp-badge-icon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;margin-bottom:12px;}
+  .mp-overlay .mp-badge-icon svg{width:21px;height:21px;color:#fff;}
+  .mp-overlay .mp-trust .mp-badge-icon{background:linear-gradient(150deg,#f472b6,#db2777);box-shadow:0 8px 18px -6px rgba(219,39,119,.6);}
+  .mp-overlay .mp-links .mp-badge-icon{background:linear-gradient(150deg,#c084fc,#9333ea);box-shadow:0 8px 18px -6px rgba(147,51,234,.55);}
+  .mp-overlay .mp-card h2{font-size:19px;font-weight:600;color:#1c2029;letter-spacing:-.02em;margin:0;}
+  .mp-overlay .mp-rec{
+    display:inline-block;margin-top:8px;font-size:12px;font-weight:600;color:#c026a8;
+    background:#fbd7ee;padding:4px 12px;border-radius:999px;
+  }
+  .mp-overlay .mp-desc{margin-top:11px;font-size:12px;line-height:1.45;color:#5b6171;font-weight:400;}
+  .mp-overlay ul.mp-feats{list-style:none;margin-top:14px;display:flex;flex-direction:column;gap:11px;padding:0;}
+  .mp-overlay ul.mp-feats li{display:flex;align-items:flex-start;gap:8px;font-size:11px;line-height:1.3;color:#3f4452;font-weight:400;}
+  .mp-overlay .mp-chk{width:17px;height:17px;border-radius:50%;flex:none;display:grid;place-items:center;margin-top:1px;}
+  .mp-overlay .mp-chk svg{width:10px;height:10px;color:#fff;}
+  .mp-overlay .mp-trust .mp-chk{background:#ec4899;}
+  .mp-overlay .mp-links .mp-chk{background:#a855f7;}
+  /* phone */
+  .mp-overlay .mp-phone{
+    width:145px;border-radius:27px;padding:5px;
+    background:linear-gradient(160deg,#2a2a2e,#0e0e10);
+    box-shadow:0 16px 32px -14px rgba(20,10,40,.5);
+    position:absolute;right:18px;top:50%;transform:translateY(-50%);
+  }
+  .mp-overlay .mp-screen{border-radius:23px;overflow:hidden;position:relative;height:280px;}
+  .mp-overlay .mp-notch{position:absolute;top:7px;left:50%;transform:translateX(-50%);width:54px;height:15px;background:#0e0e10;border-radius:10px;z-index:5;}
+  .mp-overlay .mp-statusbar{position:absolute;top:0;left:0;right:0;height:22px;display:flex;justify-content:space-between;align-items:center;padding:6px 12px 0;z-index:4;}
+  .mp-overlay .mp-sb-dots{display:flex;gap:2px;}
+  .mp-overlay .mp-sb-dots i{display:block;width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.65;}
+  .mp-overlay .mp-sb-r{display:flex;gap:3px;align-items:center;}
+  .mp-overlay .mp-sb-r i{display:block;width:5px;height:5px;border-radius:1px;background:currentColor;opacity:.65;}
+  /* trust screen */
+  .mp-overlay .mp-scr-trust{background:linear-gradient(180deg,#fde6f0 0%,#fbdbe9 100%);height:100%;color:#3f4452;display:flex;flex-direction:column;}
+  .mp-overlay .mp-scr-trust .mp-brandbar{height:24px;flex:none;}
+  .mp-overlay .mp-scr-trust .mp-body{padding:4px 9px 0;text-align:center;}
+  .mp-overlay .mp-scr-trust .mp-th{font-size:12.5px;line-height:1.05;font-weight:700;color:#e0397f;letter-spacing:-.02em;margin-top:2px;}
+  .mp-overlay .mp-scr-trust .mp-ttag{font-size:7.5px;line-height:1.3;color:#5b6171;margin-top:5px;padding:0 4px;}
+  .mp-overlay .mp-scr-trust .mp-pimg{margin-top:6px;height:58px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,#f8cfe0,#f4a8cc);}
+  .mp-overlay .mp-scr-trust .mp-pimg img{width:100%;height:100%;object-fit:cover;}
+  .mp-overlay .mp-scr-trust .mp-stars{display:flex;align-items:center;justify-content:flex-start;gap:3px;margin-top:6px;font-size:7px;color:#7a7f8c;}
+  .mp-overlay .mp-scr-trust .mp-stars .mp-s{color:#f5b301;font-size:8px;letter-spacing:-1px;}
+  .mp-overlay .mp-scr-trust .mp-q{text-align:left;font-size:8.5px;font-weight:600;color:#3f4452;margin-top:6px;}
+  .mp-overlay .mp-scr-trust .mp-mini{list-style:none;margin-top:5px;display:flex;flex-direction:column;gap:4px;padding:0;}
+  .mp-overlay .mp-scr-trust .mp-mini li{display:flex;align-items:center;gap:5px;font-size:7.5px;color:#5b6171;}
+  .mp-overlay .mp-scr-trust .mp-mini i{width:8px;height:8px;border-radius:50%;background:#ec4899;flex:none;}
+  .mp-overlay .mp-scr-trust .mp-buy{margin:auto 9px 10px;height:26px;border-radius:10px;background:linear-gradient(90deg,#f9388f,#e0266f);color:#fff;font-size:9px;font-weight:600;display:grid;place-items:center;}
+  /* links screen */
+  .mp-overlay .mp-scr-links{background:linear-gradient(180deg,#9b6cf0 0%,#b388f4 55%,#e9dcfb 100%);height:100%;color:#fff;text-align:center;padding:22px 11px 0;}
+  .mp-overlay .mp-scr-links .mp-lavatar{width:44px;height:44px;border-radius:50%;margin:5px auto 0;overflow:hidden;border:2px solid rgba(255,255,255,.55);background:#cbb6ee;}
+  .mp-overlay .mp-scr-links .mp-lavatar img{width:100%;height:100%;object-fit:cover;object-position:center 30%;}
+  .mp-overlay .mp-scr-links .mp-user{font-size:11px;font-weight:700;margin-top:6px;}
+  .mp-overlay .mp-scr-links .mp-bio{font-size:7px;opacity:.85;margin-top:2px;}
+  .mp-overlay .mp-scr-links .mp-socials{display:flex;justify-content:center;gap:9px;margin-top:6px;}
+  .mp-overlay .mp-scr-links .mp-socials svg{width:12px;height:12px;color:#fff;opacity:.95;}
+  .mp-overlay .mp-scr-links .mp-lnk{margin-top:7px;background:rgba(255,255,255,.92);color:#7c3aed;font-size:7.5px;font-weight:600;border-radius:9px;height:22px;display:grid;place-items:center;box-shadow:0 4px 10px -4px rgba(80,30,140,.4);}
+  /* actions */
+  .mp-overlay .mp-actions{display:grid;grid-template-columns:1fr 1.6fr;gap:18px;margin-top:24px;}
+  .mp-overlay .mp-btn{height:56px;border-radius:18px;font-family:'Poppins',system-ui,sans-serif;font-size:17px;font-weight:600;cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:.16s;}
+  .mp-overlay .mp-btn-cancel{background:#fff;border:1.5px solid #e6e2ee;color:#3f4452;}
+  .mp-overlay .mp-btn-cancel:hover{background:#f7f5fb;}
+  .mp-overlay .mp-btn-create{background:linear-gradient(90deg,#f0339a 0%,#c43cd6 55%,#9b53f0 100%);color:#fff;box-shadow:0 16px 30px -12px rgba(180,40,190,.6);}
+  .mp-overlay .mp-btn-create:hover{filter:brightness(1.04);transform:translateY(-1px);}
+  .mp-overlay .mp-foot{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;font-size:13.5px;color:#6a7080;font-weight:400;}
+  .mp-overlay .mp-foot svg{width:16px;height:16px;color:#a855f7;flex:none;}
+  .mp-overlay .mp-foot b{color:#db2777;font-weight:600;}
+</style>
   :root {
     --bg: #FBF9FC;
     --card: #FFFFFF;
@@ -876,6 +991,126 @@
 
 <div class="toast" id="toast">Copiado al portapapeles</div>
 
+<!-- ===== Modal Crear Página ===== -->
+<div class="mp-overlay" id="mpOverlay" role="dialog" aria-modal="true" aria-labelledby="mp-title">
+  <div class="mp-modal">
+    <button class="mp-close" id="mpClose" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>
+    </button>
+
+    <div class="mp-head">
+      <svg class="mp-spark" viewBox="0 0 24 24" fill="none">
+        <defs><linearGradient id="mpSg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ec4899"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs>
+        <path d="M12 2c.5 4.5 2.5 6.5 7 7-4.5.5-6.5 2.5-7 7-.5-4.5-2.5-6.5-7-7 4.5-.5 6.5-2.5 7-7z" fill="url(#mpSg)"/>
+        <path d="M19 3c.2 1.6.9 2.3 2.5 2.5C19.9 5.7 19.2 6.4 19 8c-.2-1.6-.9-2.3-2.5-2.5C18.1 5.3 18.8 4.6 19 3z" fill="url(#mpSg)"/>
+      </svg>
+      <h2 class="mp-h1" id="mp-title">Crear nueva página</h2>
+    </div>
+    <p class="mp-sub">Elige el formato que mejor se adapta a tu objetivo. Todas las páginas incluyen nuestra <b>guía para abrir en navegador</b> desde TikTok.</p>
+
+    <div class="mp-grid">
+      <!-- TRUST -->
+      <div class="mp-card mp-trust" data-mpcard="trust">
+        <div class="mp-card-row">
+          <div class="mp-card-left">
+            <div class="mp-badge-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg>
+            </div>
+            <h2>Página de Confianza</h2>
+            <div class="mp-rec">Recomendada</div>
+            <p class="mp-desc">Crea una mini landing completa y optimizada para generar confianza y convertir más.</p>
+            <ul class="mp-feats">
+              <li><span class="mp-chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Diseño completo y personalizable</li>
+              <li><span class="mp-chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Reviews, FAQ y beneficios</li>
+              <li><span class="mp-chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Ideal para productos físicos</li>
+              <li><span class="mp-chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Incluye apertura en navegador</li>
+            </ul>
+          </div>
+          <!-- phone trust -->
+          <div class="mp-phone">
+            <div class="mp-screen">
+              <div class="mp-notch"></div>
+              <div class="mp-statusbar" style="color:#3f4452;">
+                <span class="mp-sb-dots"><i></i><i></i><i></i></span>
+                <span class="mp-sb-r"><i></i><i></i><i style="width:8px;"></i></span>
+              </div>
+              <div class="mp-scr-trust">
+                <div class="mp-brandbar"></div>
+                <div class="mp-body">
+                  <div class="mp-th">Descubre tu mejor<br/>versión ✨</div>
+                  <div class="mp-ttag">Skincare coreano para una piel saludable y radiante.</div>
+                  <div class="mp-pimg"><img src="../design_handoff_modal_crear_pagina/assets/product.png" alt="producto" /></div>
+                  <div class="mp-stars"><span class="mp-s">★★★★★</span> 4.8 (128 reseñas)</div>
+                  <div class="mp-q">¿Por qué te encantará?</div>
+                  <ul class="mp-mini">
+                    <li><i></i>Ingredientes naturales</li>
+                    <li><i></i>Resultados visibles</li>
+                    <li><i></i>Envío rápido y seguro</li>
+                  </ul>
+                </div>
+                <div class="mp-buy">Comprar ahora</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LINKS -->
+      <div class="mp-card mp-links" data-mpcard="links">
+        <div class="mp-card-row">
+          <div class="mp-card-left">
+            <div class="mp-badge-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1.5-1.5"/></svg>
+            </div>
+            <h2>Página de Links</h2>
+            <p class="mp-desc" style="margin-top:16px;">Crea una página simple con enlaces directos para enviar tráfico rápidamente a tu web o redes sociales.</p>
+            <ul class="mp-feats">
+              <li><span class="mp-chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Enlaces ilimitados</li>
+              <li><span class="mp-chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Diseño limpio y rápido</li>
+              <li><span class="mp-chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Ideal para creadores y marcas</li>
+              <li><span class="mp-chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></span>Incluye exit para abrir en navegador</li>
+            </ul>
+          </div>
+          <!-- phone links -->
+          <div class="mp-phone">
+            <div class="mp-screen">
+              <div class="mp-notch"></div>
+              <div class="mp-statusbar" style="color:#fff;">
+                <span class="mp-sb-dots"><i></i><i></i><i></i></span>
+                <span class="mp-sb-r"><i></i><i></i><i style="width:8px;"></i></span>
+              </div>
+              <div class="mp-scr-links">
+                <div class="mp-lavatar"><img src="../design_handoff_modal_crear_pagina/assets/avatar.png" alt="perfil" /></div>
+                <div class="mp-user">@tuusuario</div>
+                <div class="mp-bio">Creadora de contenido | Belleza | Lifestyle</div>
+                <div class="mp-socials">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 3v3.2a4.8 4.8 0 003.5 1.6V11a8 8 0 01-3.6-.9v5.5a5.6 5.6 0 11-5.6-5.6c.3 0 .6 0 .9.1v3.3a2.4 2.4 0 102.4 2.4V3H16z"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 8.2a3 3 0 00-2.1-2.1C18 5.6 12 5.6 12 5.6s-6 0-7.9.5A3 3 0 002 8.2 31 31 0 002 12a31 31 0 00.1 3.8 3 3 0 002.1 2.1c1.9.5 7.9.5 7.9.5s6 0 7.9-.5a3 3 0 002.1-2.1A31 31 0 0022 12a31 31 0 00-.1-3.8zM10 15V9l5 3-5 3z"/></svg>
+                </div>
+                <div class="mp-lnk">Mi tienda</div>
+                <div class="mp-lnk">Productos favoritos</div>
+                <div class="mp-lnk">Descuentos exclusivos</div>
+                <div class="mp-lnk">Sígueme en TikTok</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mp-actions">
+      <button class="mp-btn mp-btn-cancel" id="mpCancel">Cancelar</button>
+      <button class="mp-btn mp-btn-create" id="mpCreate">Crear página <span aria-hidden="true">→</span></button>
+    </div>
+
+    <div class="mp-foot">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z"/></svg>
+      <span>Todas las páginas incluyen nuestra <b>guía para abrir en navegador</b> desde TikTok.</span>
+    </div>
+  </div>
+</div>
+
 <script>
   // Copy buttons
   function showToast(msg) {
@@ -919,6 +1154,63 @@
     on = !on;
     sw.classList.toggle('off', !on);
     showToast(on ? 'Exit Guide activado' : 'Exit Guide desactivado');
+  });
+
+  // ===== Modal Crear Página =====
+  const mpOverlay = document.getElementById('mpOverlay');
+
+  function mpOpen() {
+    mpOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    mpSyncBorders();
+  }
+  function mpClose() {
+    mpOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+    // reset create button
+    document.getElementById('mpCreate').innerHTML = 'Crear página <span aria-hidden="true">→</span>';
+  }
+
+  // Open on "Nueva landing" button
+  document.querySelector('.btn.btn-primary').addEventListener('click', mpOpen);
+
+  // Close buttons
+  document.getElementById('mpClose').addEventListener('click', mpClose);
+  document.getElementById('mpCancel').addEventListener('click', mpClose);
+
+  // Close on backdrop click
+  mpOverlay.addEventListener('click', (e) => {
+    if (e.target === mpOverlay) mpClose();
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && mpOverlay.classList.contains('open')) mpClose();
+  });
+
+  // Card selection
+  let mpSelected = 'trust';
+  function mpSyncBorders() {
+    document.querySelectorAll('.mp-card').forEach(c => {
+      const isSel = c.dataset.mpcard === mpSelected;
+      if (c.classList.contains('mp-trust')) {
+        c.style.borderColor = isSel ? '#f4a8cf' : 'transparent';
+        c.style.boxShadow = isSel ? '0 14px 34px -18px rgba(236,72,153,.45)' : 'none';
+      } else {
+        c.style.borderColor = isSel ? '#c9aef0' : 'transparent';
+        c.style.boxShadow = isSel ? '0 14px 34px -18px rgba(168,85,247,.4)' : 'none';
+      }
+    });
+  }
+  document.querySelectorAll('.mp-card').forEach(c => {
+    c.addEventListener('click', () => { mpSelected = c.dataset.mpcard; mpSyncBorders(); });
+  });
+
+  // Create button
+  document.getElementById('mpCreate').addEventListener('click', () => {
+    const b = document.getElementById('mpCreate');
+    b.innerHTML = mpSelected === 'trust' ? 'Creando Página de Confianza…' : 'Creando Página de Links…';
+    setTimeout(mpClose, 1800);
   });
 </script>
 </body>
