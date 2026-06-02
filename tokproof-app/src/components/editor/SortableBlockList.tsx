@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import type { Plan } from '@/lib/plans'
 import { GlowThumb } from '@/components/editor/GlowThumb'
+import UpgradeProModal from '@/components/shared/UpgradeProModal'
 import {
   DndContext, PointerSensor, useSensor, useSensors, closestCenter, type DragEndEvent,
 } from '@dnd-kit/core'
@@ -12,6 +13,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import {
   GripVertical, Eye, EyeOff, Copy, Trash2, ChevronDown, Plus, RotateCcw,
+  X, Search, Lock,
 } from 'lucide-react'
 import type {
   LandingBlock, LandingTheme, BlockStyle,
@@ -37,6 +39,93 @@ const T = {
   softPink2: '#FFE3F1', card: '#FFFFFF', bg: '#FEFBFF',
   red: '#EF4444', redBg: 'rgba(239,68,68,.06)', redBorder: 'rgba(239,68,68,.2)',
 } as const
+
+// ─── Inline block catalog ─────────────────────────────────────────────────────
+interface CatalogEntry {
+  type: string
+  label: string
+  desc: string
+  tag: 'free' | 'pro' | 'soon'
+  defaultData?: LandingBlock['data']
+}
+const BLOCKS_CATALOG: CatalogEntry[] = [
+  { type: 'hero_product',   label: 'Hero del producto',    tag: 'free', desc: 'Imagen, titular y descripción del producto.',  defaultData: { headline: 'Nuevo titular', subheadline: '', description: '', imageUrl: '', badgeText: '★ 4.9/5', showBadge: true, showRating: true, rating: '4.9' } },
+  { type: 'benefits',       label: 'Beneficios',           tag: 'free', desc: 'Lista de ventajas con iconos y texto.',         defaultData: { title: 'Por qué elegirlo', items: [{ icon: '✨', title: 'Beneficio 1', description: 'Descripción.' }] } },
+  { type: 'cta',            label: 'Botón CTA',            tag: 'free', desc: 'Botón de llamada a la acción con URL.',         defaultData: { text: '🛒 Comprar ahora', subtext: '', url: '', style: 'gradient' } },
+  { type: 'link_list',      label: 'Lista de links',       tag: 'free', desc: 'Múltiples botones de enlace en columna.',       defaultData: { title: 'Links', links: [{ id: 'link_new', label: 'Mi link', url: '', visible: true }] } },
+  { type: 'faq',            label: 'Preguntas frecuentes', tag: 'free', desc: 'Acordeón de FAQ para resolver dudas.',          defaultData: { title: 'Preguntas frecuentes', items: [{ id: 'faq_new', question: '¿Pregunta?', answer: 'Respuesta.' }] } },
+  { type: 'profile_header', label: 'Profile Header',       tag: 'free', desc: 'Avatar, nombre y bio de creador.',             defaultData: { avatarUrl: '', displayName: 'Tu Nombre', username: 'tuusuario', verifiedBadge: true, bio: 'Creador de contenido 🌟', location: '' } },
+  { type: 'social_links',   label: 'Redes Sociales',       tag: 'free', desc: 'Iconos de redes sociales con links.',          defaultData: { links: [{ id: 'sl_tt', platform: 'tiktok' as const, url: '', enabled: true }, { id: 'sl_ig', platform: 'instagram' as const, url: '', enabled: true }] } },
+  { type: 'footer_legal',   label: 'Footer Legal',         tag: 'free', desc: 'Footer con info legal y contacto.',            defaultData: { brandName: 'Mi Marca', contactEmail: 'hola@mimarca.com', privacyUrl: '', termsUrl: '', showTokproofBranding: true, legalText: '' } },
+  { type: 'product_grid',   label: 'Product Grid',         tag: 'pro',  desc: 'Cuadrícula de productos con precios.',         defaultData: { title: 'Nuestros productos', subtitle: '', products: [{ id: 'p_1', imageUrl: '', title: 'Producto 1', price: '29.99€', compareAtPrice: '', url: '', badge: 'Nuevo', description: '' }] } },
+  { type: 'trust_badges',   label: 'Trust Badges',         tag: 'pro',  desc: 'Badges de confianza y garantías.',             defaultData: { badges: [{ id: 'tb1', icon: 'shipping' as const, title: 'Envío gratis', description: 'En pedidos +20€', enabled: true }, { id: 'tb2', icon: 'secure' as const, title: 'Pago seguro', description: 'SSL 256 bits', enabled: true }] } },
+  { type: 'comparison',     label: 'Comparativa',          tag: 'pro',  desc: 'Tabla comparativa vs competidores.',           defaultData: { title: 'Por qué elegirnos', leftTitle: 'Otros', rightTitle: 'Nosotros', rows: [{ id: 'cr1', label: 'Calidad', leftValue: 'Media', rightValue: 'Premium', winner: 'right' as const }] } },
+  { type: 'urgency_offer',  label: 'Urgencia / Oferta',    tag: 'pro',  desc: 'Banner de urgencia con oferta limitada.',      defaultData: { title: '¡Oferta limitada!', description: 'Solo por tiempo limitado.', badgeText: '🔥 Agotándose', countdownEnabled: false, countdownText: 'Quedan 2 horas', ctaText: '🛒 Aprovechar oferta', ctaUrl: '' } },
+  { type: 'testimonials',   label: 'Testimonials',         tag: 'soon', desc: 'Carrusel de reseñas reales de clientes.' },
+  { type: 'video_featured', label: 'YouTube Featured',     tag: 'soon', desc: 'Video de YouTube incrustado en la página.' },
+  { type: 'partner_discounts', label: 'Partner Discounts', tag: 'soon', desc: 'Códigos de descuento de marcas asociadas.' },
+]
+
+// ─── Small badge for catalog cards ────────────────────────────────────────────
+function SBadge({ tag }: { tag: 'free' | 'pro' | 'soon' }) {
+  const cfg = {
+    free: { label: 'Free',         bg: '#dcfce7', tx: '#16a34a', lock: false },
+    pro:  { label: 'Pro',          bg: '#ede7fd', tx: '#7c3aed', lock: true  },
+    soon: { label: 'Próximamente', bg: '#eef0f3', tx: '#8b8f98', lock: false },
+  }
+  const c = cfg[tag]
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, background: c.bg, color: c.tx, fontSize: 9.5, fontWeight: 700, padding: '2px 6px', borderRadius: 5, whiteSpace: 'nowrap', flexShrink: 0 }}>
+      {c.label}{c.lock && <Lock size={9} strokeWidth={2.5} />}
+    </span>
+  )
+}
+
+// ─── Inline catalog card ──────────────────────────────────────────────────────
+function InlineBlockCard({ entry, plan, onAdd, onUpgrade }: {
+  entry: CatalogEntry; plan: Plan
+  onAdd: (type: LandingBlock['type'], data: LandingBlock['data']) => void
+  onUpgrade: () => void
+}) {
+  const isSoon   = entry.tag === 'soon'
+  const isLocked = entry.tag === 'pro' && plan === 'free'
+  const disabled = isSoon
+
+  function handleClick() {
+    if (disabled) return
+    if (isLocked) { onUpgrade(); return }
+    if (entry.defaultData) onAdd(entry.type as LandingBlock['type'], entry.defaultData)
+  }
+
+  return (
+    <div
+      onClick={handleClick}
+      style={{
+        display: 'flex', gap: 10, padding: '8px 10px', borderRadius: 10,
+        cursor: disabled ? 'default' : 'pointer', marginBottom: 5,
+        border: '1.5px solid rgba(123,97,255,0.12)', background: '#fefbff',
+        opacity: disabled ? 0.6 : 1, transition: 'border-color .13s, box-shadow .13s, transform .13s',
+        alignItems: 'center',
+      }}
+      onMouseEnter={e => { if (!disabled) { (e.currentTarget as HTMLDivElement).style.borderColor = '#c4a9f4'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 14px rgba(124,58,237,.09)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-1px)' } }}
+      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(123,97,255,0.12)'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; (e.currentTarget as HTMLDivElement).style.transform = 'none' }}
+    >
+      <GlowThumb type={entry.type} size="list" />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+          <span style={{ fontSize: 12.5, fontWeight: 700, color: '#171717', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.label}</span>
+          <SBadge tag={entry.tag} />
+        </div>
+        <span style={{ fontSize: 11, color: '#6B7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{entry.desc}</span>
+      </div>
+      {!disabled && !isLocked && (
+        <div style={{ width: 22, height: 22, borderRadius: 6, background: '#f3effe', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Plus size={13} color="#7c3aed" strokeWidth={2.5} />
+        </div>
+      )}
+    </div>
+  )
+}
 
 // ─── Block icons ──────────────────────────────────────────────────────────────
 const BLOCK_ICONS: Record<string, string> = {
@@ -90,15 +179,14 @@ interface Props {
   onDuplicate: (id: string) => void
   onMove: (from: number, to: number) => void
   onAdd: (type: LandingBlock['type'], defaultData: LandingBlock['data']) => void
-  onOpenCatalog?: () => void
 }
 
 // ─── Sortable item ────────────────────────────────────────────────────────────
 function SortableItem({
-  block, theme,
+  block, theme, highlighted,
   onUpdateBlock, onUpdateBlockStyle, onToggleVisibility, onDelete, onDuplicate,
 }: {
-  block: LandingBlock; theme: LandingTheme
+  block: LandingBlock; theme: LandingTheme; highlighted?: boolean
   onUpdateBlock: (id: string, data: Partial<LandingBlock['data']>) => void
   onUpdateBlockStyle: (id: string, style: Partial<BlockStyle>) => void
   onToggleVisibility: (id: string) => void
@@ -115,7 +203,7 @@ function SortableItem({
   }
 
   return (
-    <div ref={setNodeRef} style={dragStyle}>
+    <div ref={setNodeRef} style={{ ...dragStyle, outline: highlighted ? '2px solid #8b5cf6' : 'none', outlineOffset: -1, borderRadius: 4, transition: 'outline .15s' }}>
       {/* Header row */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8,
@@ -812,27 +900,52 @@ function FooterLegalEditor({ block, onUpdate }: { block: LandingBlock; onUpdate:
 }
 
 // ─── Add block trigger (opens catalog panel) ─────────────────────────────────
-function AddBlockTrigger({ onOpenCatalog }: { onOpenCatalog?: () => void }) {
-  return (
-    <div style={{ padding: '12px 14px', borderTop: `1px solid ${T.border}`, flexShrink: 0 }}>
-      <button
-        onClick={onOpenCatalog}
-        style={{ width: '100%', padding: '10px 0', borderRadius: 999, border: `1.5px dashed ${T.border2}`, background: 'transparent', color: T.purple, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'background .12s, border-color .12s' }}
-        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#f3effe'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#c4a9f4' }}
-        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.borderColor = T.border2 }}
-      >
-        <Plus size={15} strokeWidth={2.2} /> Añadir bloque
-      </button>
-    </div>
-  )
-}
-
 // ─── Main export ──────────────────────────────────────────────────────────────
 export default function SortableBlockList({
   blocks, theme, plan = 'free',
-  onUpdateBlock, onUpdateBlockStyle, onToggleVisibility, onDelete, onDuplicate, onMove, onAdd, onOpenCatalog,
+  onUpdateBlock, onUpdateBlockStyle, onToggleVisibility, onDelete, onDuplicate, onMove, onAdd,
 }: Props) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
+
+  // ── Inline selector state ──
+  const [isAdding, setIsAdding]     = useState(false)
+  const [q, setQ]                   = useState('')
+  const [filter, setFilter]         = useState<'todos' | 'free' | 'pro' | 'soon'>('todos')
+  const [lastAddedId, setLastAddedId] = useState<string | null>(null)
+  const [upgradeOpen, setUpgradeOpen] = useState(false)
+  const scrollAreaRef  = useRef<HTMLDivElement>(null)
+  const selectorRef    = useRef<HTMLDivElement>(null)
+  const prevCountRef   = useRef(blocks.length)
+
+  // Highlight + scroll when new block is added
+  useEffect(() => {
+    if (blocks.length > prevCountRef.current) {
+      const newBlock = blocks[blocks.length - 1]
+      if (newBlock) {
+        setLastAddedId(newBlock.id)
+        // Scroll the blocks area to the bottom so new block is visible
+        requestAnimationFrame(() => {
+          scrollAreaRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+          // find the newly added item
+          const el = scrollAreaRef.current?.querySelector(`[data-block-id="${newBlock.id}"]`)
+          el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        })
+        const t = setTimeout(() => setLastAddedId(null), 1200)
+        prevCountRef.current = blocks.length
+        return () => clearTimeout(t)
+      }
+    }
+    prevCountRef.current = blocks.length
+  }, [blocks])
+
+  // When selector opens, scroll down so it's visible
+  useEffect(() => {
+    if (isAdding) {
+      requestAnimationFrame(() => {
+        selectorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      })
+    }
+  }, [isAdding])
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
@@ -843,35 +956,138 @@ export default function SortableBlockList({
     }
   }
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
-      <div style={{ padding: '10px 14px 8px', borderBottom: `1px solid ${T.border}`, flexShrink: 0 }}>
-        <span style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em' }}>
-          Bloques · {blocks.length}
-        </span>
-      </div>
+  function handleAdd(type: LandingBlock['type'], data: LandingBlock['data']) {
+    onAdd(type, data)
+    setIsAdding(false)
+    setQ('')
+  }
 
-      <div style={{ flex: 1, overflowY: 'auto' }}>
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={blocks.map(b => b.id)} strategy={verticalListSortingStrategy}>
-            {blocks.map(block => (
-              <SortableItem
-                key={block.id} block={block} theme={theme}
-                onUpdateBlock={onUpdateBlock}
-                onUpdateBlockStyle={onUpdateBlockStyle}
-                onToggleVisibility={onToggleVisibility}
-                onDelete={onDelete}
-                onDuplicate={onDuplicate}
-              />
-            ))}
-          </SortableContext>
-        </DndContext>
-        {blocks.length === 0 && (
-          <div style={{ padding: 24, textAlign: 'center', color: T.ink3, fontSize: 12 }}>Sin bloques. Añade uno abajo.</div>
+  const filteredCatalog = BLOCKS_CATALOG.filter(b =>
+    (filter === 'todos' || b.tag === filter) &&
+    b.label.toLowerCase().includes(q.toLowerCase())
+  )
+
+  return (
+    <>
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+
+        {/* ── Header ── */}
+        <div style={{ padding: '10px 14px 8px', borderBottom: `1px solid ${T.border}`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em' }}>
+            Bloques · {blocks.length}
+          </span>
+          {isAdding && (
+            <button onClick={() => { setIsAdding(false); setQ('') }}
+              style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: T.ink3, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', borderRadius: 6 }}
+              onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = '#f2f3f5'}
+              onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = 'none'}>
+              <X size={13} /> Cancelar
+            </button>
+          )}
+        </div>
+
+        {/* ── Existing blocks (DnD) ── */}
+        <div
+          ref={scrollAreaRef}
+          style={{
+            overflowY: 'auto',
+            flex: isAdding ? '0 0 auto' : '1 1 auto',
+            maxHeight: isAdding ? 'clamp(110px, 30vh, 240px)' : 'none',
+          }}
+        >
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={blocks.map(b => b.id)} strategy={verticalListSortingStrategy}>
+              {blocks.map(block => (
+                <div key={block.id} data-block-id={block.id}>
+                  <SortableItem
+                    block={block} theme={theme}
+                    highlighted={lastAddedId === block.id}
+                    onUpdateBlock={onUpdateBlock}
+                    onUpdateBlockStyle={onUpdateBlockStyle}
+                    onToggleVisibility={onToggleVisibility}
+                    onDelete={onDelete}
+                    onDuplicate={onDuplicate}
+                  />
+                </div>
+              ))}
+            </SortableContext>
+          </DndContext>
+          {blocks.length === 0 && !isAdding && (
+            <div style={{ padding: 24, textAlign: 'center', color: T.ink3, fontSize: 12 }}>Sin bloques. Añade uno abajo.</div>
+          )}
+        </div>
+
+        {/* ── Inline block selector ── */}
+        {isAdding ? (
+          <div ref={selectorRef} style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', borderTop: '2px solid #ede7fd', overflow: 'hidden', background: '#fefbff' }}>
+
+            {/* Selector header + search */}
+            <div style={{ padding: '10px 12px 6px', flexShrink: 0 }}>
+              <div style={{ fontSize: 10.5, fontWeight: 700, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>Añadir bloque</div>
+              <div style={{ position: 'relative' }}>
+                <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+                <input
+                  value={q} onChange={e => setQ(e.target.value)}
+                  placeholder="Buscar bloque..."
+                  autoFocus
+                  style={{ width: '100%', border: '1px solid rgba(123,97,255,0.18)', borderRadius: 9, padding: '7px 10px 7px 30px', fontSize: 12, outline: 'none', background: '#fff', color: '#171717', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                  onFocus={e => e.target.style.borderColor = '#c4a9f4'}
+                  onBlur={e => e.target.style.borderColor = 'rgba(123,97,255,0.18)'}
+                />
+              </div>
+            </div>
+
+            {/* Filter pills */}
+            <div style={{ padding: '0 12px 8px', display: 'flex', gap: 5, flexShrink: 0 }}>
+              {(['todos', 'free', 'pro', 'soon'] as const).map(k => (
+                <button key={k} onClick={() => setFilter(k)} style={{
+                  fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 999, border: 'none', cursor: 'pointer',
+                  background: filter === k ? '#7c3aed' : '#f3f4f6',
+                  color: filter === k ? '#fff' : '#374151',
+                  transition: 'all .12s',
+                }}>
+                  {k === 'todos' ? 'Todos' : k === 'free' ? 'Free' : k === 'pro' ? 'Pro' : 'Próxim.'}
+                </button>
+              ))}
+            </div>
+
+            {/* Block cards — scrollable */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px 12px' }}>
+              {filteredCatalog.map(entry => (
+                <InlineBlockCard
+                  key={entry.type}
+                  entry={entry}
+                  plan={plan}
+                  onAdd={handleAdd}
+                  onUpgrade={() => { setUpgradeOpen(true) }}
+                />
+              ))}
+              {filteredCatalog.length === 0 && (
+                <div style={{ padding: '20px 0', textAlign: 'center', color: '#9CA3AF', fontSize: 12 }}>Sin resultados</div>
+              )}
+            </div>
+          </div>
+        ) : (
+          /* ── Add button ── */
+          <div style={{ padding: '12px 14px', borderTop: `1px solid ${T.border}`, flexShrink: 0 }}>
+            <button
+              onClick={() => setIsAdding(true)}
+              style={{ width: '100%', padding: '10px 0', borderRadius: 999, border: `1.5px dashed ${T.border2}`, background: 'transparent', color: T.purple, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'background .12s, border-color .12s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#f3effe'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#c4a9f4' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.borderColor = T.border2 }}
+            >
+              <Plus size={15} strokeWidth={2.2} /> Añadir bloque
+            </button>
+          </div>
         )}
       </div>
 
-      <AddBlockTrigger onOpenCatalog={onOpenCatalog} />
-    </div>
+      <UpgradeProModal
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        title="Bloque premium"
+        description="Este bloque está disponible en el plan Pro. Actualiza para añadir bloques premium a tus páginas."
+      />
+    </>
   )
 }
