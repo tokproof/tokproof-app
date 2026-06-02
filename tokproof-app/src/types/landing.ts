@@ -272,6 +272,16 @@ export interface PartnerDiscountsData {
   hideOnDesktop?: boolean
 }
 
+export interface TikTokReply {
+  id: string
+  avatarUrl: string
+  username: string
+  verified: boolean
+  text: string
+  likes: string
+  date: string
+}
+
 export interface TikTokComment {
   id: string
   avatarUrl: string
@@ -281,7 +291,7 @@ export interface TikTokComment {
   imageUrl: string
   likes: string
   date: string
-  replies: string
+  replyItems: TikTokReply[]
   showReply: boolean
   showLikes: boolean
   showReplies: boolean

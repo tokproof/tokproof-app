@@ -137,9 +137,9 @@ const CATALOG: CatalogBlock[] = [
       showTitle: false, showSubtitle: false, showBadge: false,
       layout: 'feed',
       comments: [
-        { id: 'tc1', avatarUrl: '', username: 'Tri G🌸🥰👣', verified: true,  text: 'Quiero ver donde le entregan el pan🥰',         imageUrl: '', likes: '13',       date: '3 h', replies: '1',  showReply: true, showLikes: true, showReplies: true  },
-        { id: 'tc2', avatarUrl: '', username: 'Mira que bonito',  verified: false, text: 'Mira que bonito se le ven esos zapatitoosss', imageUrl: '', likes: '24.7 mil', date: '1 d', replies: '32', showReply: true, showLikes: true, showReplies: true  },
-        { id: 'tc3', avatarUrl: '', username: 'Antoni ⺣',         verified: false, text: 'Necesito uno para mi michi 🤣',              imageUrl: '', likes: '824',      date: '2 d', replies: '0',  showReply: true, showLikes: true, showReplies: false },
+        { id: 'tc1', avatarUrl: '', username: 'Tri G🌸🥰👣', verified: true,  text: 'Quiero ver donde le entregan el pan🥰',         imageUrl: '', likes: '13',       date: '3 h', replyItems: [{ id: 'r1a', avatarUrl: '', username: 'GlowSkin Oficial 💗', verified: true,  text: '¡Entregamos en toda España! 📦', likes: '7', date: '2 h' }], showReply: true, showLikes: true, showReplies: true  },
+        { id: 'tc2', avatarUrl: '', username: 'Mira que bonito',  verified: false, text: 'Mira que bonito se le ven esos zapatitoosss', imageUrl: '', likes: '24.7 mil', date: '1 d', replyItems: [{ id: 'r2a', avatarUrl: '', username: 'Fashionista 💅',  verified: false, text: 'Jajaja exactamente lo que yo dije!!', likes: '127', date: '22 h' }, { id: 'r2b', avatarUrl: '', username: 'Laura M.', verified: false, text: 'Son divinos 😍 yo ya los pedí', likes: '38', date: '1 d' }], showReply: true, showLikes: true, showReplies: true  },
+        { id: 'tc3', avatarUrl: '', username: 'Antoni ⺣',         verified: false, text: 'Necesito uno para mi michi 🤣',              imageUrl: '', likes: '824',      date: '2 d', replyItems: [], showReply: true, showLikes: true, showReplies: false },
       ],
       showArrows: true, showDots: true, autoplay: false, autoplaySpeed: 3,
       borderRadius: 'soft', shadowIntensity: 'soft', spacing: 'normal',

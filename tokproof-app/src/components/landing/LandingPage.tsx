@@ -80,6 +80,8 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
   const [saleVal, setSaleVal] = useState('$34.99')
   const [chatMsg, setChatMsg] = useState('')
   const [annotIndex, setAnnotIndex] = useState(0)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [footerOpenMap, setFooterOpenMap] = useState<Record<string, boolean>>({})
 
   const linePath = buildLinePath(SVG_POINTS)
   const areaPath = buildAreaPath(SVG_POINTS)
@@ -214,8 +216,21 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
     const track = testiTrackRef.current
     if (!track) return
     const cards = track.querySelectorAll<HTMLElement>('.testi-card')
+    const isMobile = window.innerWidth <= 767
+
+    if (isMobile) {
+      // On mobile: clear any JS transform, let CSS scroll-snap handle it
+      track.style.transform = 'none'
+      const wrapper = track.parentElement as HTMLElement | null
+      const targetCard = cards[testiIndex] as HTMLElement | undefined
+      if (wrapper && targetCard) {
+        wrapper.scrollTo({ left: targetCard.offsetLeft, behavior: 'smooth' })
+      }
+      return
+    }
+
     const total = cards.length
-    const visible = window.innerWidth <= 680 ? 1 : window.innerWidth <= 1000 ? 2 : 3
+    const visible = window.innerWidth <= 1000 ? 2 : 3
     const cardW = cards[0]?.offsetWidth ?? 0
     const gap = 20
     const max = Math.max(0, total - visible)
@@ -255,6 +270,12 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
               </>
             )}
           </div>
+          {/* Hamburger — visible only on mobile */}
+          <button className="nav-burger" onClick={() => setMobileMenuOpen(true)} aria-label="Abrir menú">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
         </div>
       </nav>
 
@@ -852,15 +873,76 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
               <a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor"/></svg></a>
             </div>
           </div>
-          <div className="fcol"><h5>Producto</h5><a href="#">Funciones</a><a href="#">Integraciones</a><a href="#">Precios</a><a href="#">Novedades</a></div>
-          <div className="fcol"><h5>Recursos</h5><a href="#">Guías</a><a href="#">Blog</a><a href="#">Centro de ayuda</a><a href="#">Comunidad</a></div>
-          <div className="fcol"><h5>Empresa</h5><a href="#">Nosotros</a><a href="#">Contacto</a><Link href="/terms">Términos</Link><Link href="/privacy">Privacidad</Link></div>
+          {[
+            { key: 'producto',  label: 'Producto',  links: [{ l: 'Funciones', h: '#' }, { l: 'Integraciones', h: '#' }, { l: 'Precios', h: '#pricing' }, { l: 'Novedades', h: '#' }] },
+            { key: 'recursos',  label: 'Recursos',  links: [{ l: 'Guías', h: '#' }, { l: 'Blog', h: '#' }, { l: 'Centro de ayuda', h: '#' }, { l: 'Comunidad', h: '#' }] },
+            { key: 'empresa',   label: 'Empresa',   links: [{ l: 'Nosotros', h: '#' }, { l: 'Contacto', h: '#' }, { l: 'Términos', h: '/terms' }, { l: 'Privacidad', h: '/privacy' }] },
+          ].map(col => (
+            <div key={col.key} className="fcol">
+              <button className="fcol-head" onClick={() => setFooterOpenMap(prev => ({ ...prev, [col.key]: !(prev[col.key] ?? false) }))}>
+                <h5>{col.label}</h5>
+                <svg className={`fcol-chv${footerOpenMap[col.key] ? ' up' : ''}`} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div className={`fcol-body${footerOpenMap[col.key] ? ' open' : ''}`}>
+                <div className="fcol-body-inner">
+                  {col.links.map(({ l, h }) => (
+                    h.startsWith('/') ? <Link key={l} href={h}>{l}</Link> : <a key={l} href={h}>{l}</a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
         <div className="footer-bottom">
           <span>© 2026 Tokproof. Todos los derechos reservados.</span>
           <span>Hecho con ❤️ para creadores y marcas</span>
         </div>
       </footer>
+
+      {/* ── MOBILE NAV DRAWER ── */}
+      <div className={`mob-backdrop${mobileMenuOpen ? ' open' : ''}`} onClick={() => setMobileMenuOpen(false)} />
+      <div className={`mob-drawer${mobileMenuOpen ? ' open' : ''}`}>
+        <div className="mob-top">
+          <Link className="brand" href="/" onClick={() => setMobileMenuOpen(false)}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/assets/tokproof-isotipo.png" alt="Tokproof" width={28} height={28} style={{ width: 28, height: 28, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+            Tokproof
+          </Link>
+          <button className="mob-close" onClick={() => setMobileMenuOpen(false)} aria-label="Cerrar menú">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <nav className="mob-links">
+          {[
+            { href: '#features', label: 'Producto' },
+            { href: '#features', label: 'Beneficios' },
+            { href: '#how',      label: 'Cómo funciona' },
+            { href: '#pricing',  label: 'Precios' },
+          ].map(link => (
+            <a key={link.label} href={link.href} className="mob-link" onClick={() => setMobileMenuOpen(false)}>
+              {link.label}
+            </a>
+          ))}
+        </nav>
+        <div className="mob-ctas">
+          {isLoggedIn ? (
+            <Link className="btn btn-primary mob-cta-btn" href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+              Ir al Dashboard
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </Link>
+          ) : (
+            <>
+              <Link href="/login" className="mob-login-btn" onClick={() => setMobileMenuOpen(false)}>Iniciar sesión</Link>
+              <Link href="/signup" className="btn btn-primary mob-cta-btn" onClick={() => setMobileMenuOpen(false)}>
+                Comenzar gratis
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
 
     </div>
   )

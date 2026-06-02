@@ -553,10 +553,18 @@ function TikTokCommentsThumb({ size }: { size: ThumbSize }) {
                 </div>
               </div>
               <p style={{ margin: '0 0 3px', fontSize: 8.5, color: '#161823', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.text}</p>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <span style={{ fontSize: 7, color: '#6b7280' }}>{c.date}</span>
-                <span style={{ fontSize: 7, color: '#6b7280', fontWeight: 600 }}>Responder</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <span style={{ fontSize: 7, color: '#6b7280' }}>{c.date}</span>
+                  <span style={{ fontSize: 7, color: '#6b7280', fontWeight: 600 }}>Responder</span>
+                </div>
               </div>
+              {i < 2 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3 }}>
+                  <div style={{ height: 1, width: 14, background: '#bdbdbd' }} />
+                  <span style={{ fontSize: 6.5, color: '#6b7280' }}>Ver {i === 0 ? '1 respuesta' : '2 respuestas'} ▼</span>
+                </div>
+              )}
             </div>
           </div>
           {i < 2 && <div style={{ height: 1, background: '#f1f1f2', marginLeft: 36 }} />}

@@ -38,6 +38,7 @@ import type {
   BeforeAfterColors,
   TikTokCommentsData,
   TikTokComment,
+  TikTokReply,
   TikTokCommentsColors,
 } from '@/types/landing'
 import { FONT_OPTIONS } from '@/lib/blockStyle'
@@ -76,7 +77,7 @@ const BLOCKS_CATALOG: CatalogEntry[] = [
   { type: 'testimonials',   label: 'Testimonials',         tag: 'soon', desc: 'Carrusel de reseñas reales de clientes.' },
   { type: 'video_featured', label: 'YouTube Featured',     tag: 'soon', desc: 'Video de YouTube incrustado en la página.' },
   { type: 'partner_discounts', label: 'Partner Discounts', tag: 'free', desc: 'Muestra códigos de descuento y ofertas exclusivas de tus partners.', defaultData: { title: 'Descuentos de nuestros partners', subtitle: 'Ahorra en tus marcas favoritas con códigos exclusivos. 🎁', badgeText: '♦ Ofertas exclusivas', footerText: 'Nuevas ofertas cada semana', layout: 'compact', showLogos: true, showDescriptions: false, showCopyButton: true, showExternalButton: true, showFooterText: true, discounts: [{ id: 'pd1', brandName: 'Gymshark', storeUrl: 'https://gymshark.com', logoUrl: '', description: 'En toda la tienda.', discountText: '15% OFF', code: 'GYM15', buttonText: 'Ver oferta', buttonUrl: 'https://gymshark.com', isPopular: true, enabled: true }, { id: 'pd2', brandName: 'LSKD', storeUrl: 'https://lskd.co', logoUrl: '', description: 'En pedidos superiores a $100.', discountText: '20% OFF', code: 'LSKD20', buttonText: 'Ver oferta', buttonUrl: 'https://lskd.co', isPopular: false, enabled: true }, { id: 'pd3', brandName: 'Alo Yoga', storeUrl: 'https://aloyoga.com', logoUrl: '', description: 'En toda la tienda.', discountText: '10% OFF', code: 'ALO10', buttonText: 'Ver oferta', buttonUrl: 'https://aloyoga.com', isPopular: false, enabled: true }] } },
-  { type: 'tiktok_comments', label: 'TikTok Comments', tag: 'free', desc: 'Comentarios estilo TikTok para generar confianza y conversiones.', defaultData: { title: '', subtitle: '', badgeText: '', showTitle: false, showSubtitle: false, showBadge: false, layout: 'feed', comments: [{ id: 'tc1', avatarUrl: '', username: 'Tri G🌸🥰👣', verified: true, text: 'Quiero ver donde le entregan el pan🥰', imageUrl: '', likes: '13', date: '3 h', replies: '1', showReply: true, showLikes: true, showReplies: true }, { id: 'tc2', avatarUrl: '', username: 'Mira que bonito', verified: false, text: 'Mira que bonito se le ven esos zapatitoosss', imageUrl: '', likes: '24.7 mil', date: '1 d', replies: '32', showReply: true, showLikes: true, showReplies: true }, { id: 'tc3', avatarUrl: '', username: 'Antoni ⺣', verified: false, text: 'Necesito uno para mi michi 🤣', imageUrl: '', likes: '824', date: '2 d', replies: '0', showReply: true, showLikes: true, showReplies: false }], showArrows: true, showDots: true, autoplay: false, autoplaySpeed: 3, borderRadius: 'soft', shadowIntensity: 'soft', spacing: 'normal' } },
+  { type: 'tiktok_comments', label: 'TikTok Comments', tag: 'free', desc: 'Comentarios estilo TikTok para generar confianza y conversiones.', defaultData: { title: '', subtitle: '', badgeText: '', showTitle: false, showSubtitle: false, showBadge: false, layout: 'feed', comments: [{ id: 'tc1', avatarUrl: '', username: 'Tri G🌸🥰👣', verified: true, text: 'Quiero ver donde le entregan el pan🥰', imageUrl: '', likes: '13', date: '3 h', replyItems: [{ id: 'r1a', avatarUrl: '', username: 'GlowSkin Oficial 💗', verified: true, text: '¡Entregamos en toda España! Usa el código TIKTOK para un 15% off 📦', likes: '7', date: '2 h' }], showReply: true, showLikes: true, showReplies: true }, { id: 'tc2', avatarUrl: '', username: 'Mira que bonito', verified: false, text: 'Mira que bonito se le ven esos zapatitoosss', imageUrl: '', likes: '24.7 mil', date: '1 d', replyItems: [{ id: 'r2a', avatarUrl: '', username: 'Fashionista 💅', verified: false, text: 'Jajaja exactamente lo que yo dije!!', likes: '127', date: '22 h' }, { id: 'r2b', avatarUrl: '', username: 'Laura M.', verified: false, text: 'Son divinos 😍 yo ya los pedí', likes: '38', date: '1 d' }], showReply: true, showLikes: true, showReplies: true }, { id: 'tc3', avatarUrl: '', username: 'Antoni ⺣', verified: false, text: 'Necesito uno para mi michi 🤣', imageUrl: '', likes: '824', date: '2 d', replyItems: [], showReply: true, showLikes: true, showReplies: false }], showArrows: true, showDots: true, autoplay: false, autoplaySpeed: 3, borderRadius: 'soft', shadowIntensity: 'soft', spacing: 'normal' } },
   { type: 'before_after', label: 'Before / After', tag: 'free', desc: 'Muestra transformaciones reales antes y después.', defaultData: { title: 'Resultados que puedes ver', subtitle: 'Mira la diferencia real después de usar nuestro producto.', badgeText: 'Transformación real', mode: 'cards', beforeImageUrl: '', afterImageUrl: '', beforeLabel: 'Antes', afterLabel: 'Después', beforeDescription: 'Cabello seco, sin brillo y con frizz.', afterDescription: 'Cabello hidratado, brillante y saludable.', showBadge: true, showSubtitle: true, showDescriptions: true, showCTA: false, buttonText: 'Ver producto', buttonUrl: 'https://tutienda.com/producto', borderRadius: 'soft', shadowIntensity: 'soft' } },
 ]
 
@@ -1619,9 +1620,27 @@ function TikTokCommentsEditor({ block, onUpdate, plan }: {
   function deleteComment(id: string) { onUpdate({ comments: comments.filter(c => c.id !== id) }) }
   function addComment() {
     const id = `tc_${Date.now()}`
-    const newC: TikTokComment = { id, avatarUrl: '', username: 'Usuario TikTok', verified: false, text: 'Este producto es increíble 🔥', imageUrl: '', likes: '42', date: '1 h', replies: '0', showReply: true, showLikes: true, showReplies: false }
+    const newC: TikTokComment = { id, avatarUrl: '', username: 'Usuario TikTok', verified: false, text: 'Este producto es increíble 🔥', imageUrl: '', likes: '42', date: '1 h', replyItems: [], showReply: true, showLikes: true, showReplies: false }
     onUpdate({ comments: [...comments, newC] })
     setExpandedIds(prev => { const s = new Set(Array.from(prev)); s.add(id); return s })
+  }
+
+  function updReply(commentId: string, replyId: string, patch: Partial<TikTokReply>) {
+    onUpdate({ comments: comments.map(c => c.id === commentId
+      ? { ...c, replyItems: (c.replyItems ?? []).map(r => r.id === replyId ? { ...r, ...patch } : r) }
+      : c )})
+  }
+  function deleteReply(commentId: string, replyId: string) {
+    onUpdate({ comments: comments.map(c => c.id === commentId
+      ? { ...c, replyItems: (c.replyItems ?? []).filter(r => r.id !== replyId) }
+      : c )})
+  }
+  function addReply(commentId: string) {
+    const id = `tr_${Date.now()}`
+    const newR: TikTokReply = { id, avatarUrl: '', username: 'Usuario', verified: false, text: 'Me pasó lo mismo 😂', likes: '5', date: '30 min' }
+    onUpdate({ comments: comments.map(c => c.id === commentId
+      ? { ...c, replyItems: [...(c.replyItems ?? []), newR], showReplies: true }
+      : c )})
   }
   function toggleExpand(id: string) {
     setExpandedIds(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s })
@@ -1760,25 +1779,58 @@ function TikTokCommentsEditor({ block, onUpdate, plan }: {
                           </FG>
                         </div>
 
-                        {/* Replies */}
-                        <FG mb={10}>
-                          <FL>Nº respuestas</FL>
-                          <FI value={c.replies} placeholder="0" onChange={e => updComment(c.id, { replies: e.target.value })} />
-                        </FG>
-
                         {/* Toggles */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
                           {([
                             { key: 'verified',    label: 'Verificado' },
                             { key: 'showReply',   label: 'Mostrar botón Responder' },
                             { key: 'showLikes',   label: 'Mostrar likes' },
-                            { key: 'showReplies', label: 'Mostrar respuestas' },
+                            { key: 'showReplies', label: 'Mostrar "Ver respuestas"' },
                           ] as { key: keyof TikTokComment; label: string }[]).map(({ key, label }) => (
                             <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                               <span style={{ fontSize: 11.5, color: T.ink2 }}>{label}</span>
                               <InlineToggle enabled={!!c[key]} onChange={v => updComment(c.id, { [key]: v })} />
                             </div>
                           ))}
+                        </div>
+
+                        {/* Replies management */}
+                        <div style={{ marginTop: 10, marginBottom: 12 }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
+                            Respuestas · {(c.replyItems ?? []).length}/2
+                          </div>
+                          {(c.replyItems ?? []).map((r, ri) => (
+                            <div key={r.id} style={{ marginBottom: 6, borderRadius: 8, border: `1px solid ${T.border}`, padding: '8px 10px', background: '#fafbff' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <TikTokAvatar url={r.avatarUrl} name={r.username} size={22} />
+                                  <span style={{ fontSize: 11.5, fontWeight: 600, color: T.ink }}>Respuesta {ri + 1}</span>
+                                </div>
+                                <button onClick={() => deleteReply(c.id, r.id)} style={{ background: T.redBg, border: `1px solid ${T.redBorder}`, borderRadius: 5, color: T.red, cursor: 'pointer', padding: '3px 6px', fontSize: 10, display: 'flex', alignItems: 'center', gap: 3 }}>
+                                  <Trash2 size={9} /> Eliminar
+                                </button>
+                              </div>
+                              <FG mb={5}><FL>Nombre</FL><FI value={r.username} onChange={e => updReply(c.id, r.id, { username: e.target.value })} /></FG>
+                              <FG mb={5}><FL>Texto</FL><FTA value={r.text} onChange={e => updReply(c.id, r.id, { text: e.target.value })} style={{ minHeight: 40 }} /></FG>
+                              <FG mb={5}>
+                                <FL>Avatar URL</FL>
+                                <FI type="url" value={r.avatarUrl} placeholder="https://..." onChange={e => updReply(c.id, r.id, { avatarUrl: e.target.value })} />
+                              </FG>
+                              <div style={{ display: 'flex', gap: 6 }}>
+                                <FG style={{ flex: 1, marginBottom: 5 }}><FL>Likes</FL><FI value={r.likes} placeholder="5" onChange={e => updReply(c.id, r.id, { likes: e.target.value })} /></FG>
+                                <FG style={{ flex: 1, marginBottom: 5 }}><FL>Fecha</FL><FI value={r.date} placeholder="30 min" onChange={e => updReply(c.id, r.id, { date: e.target.value })} /></FG>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <span style={{ fontSize: 11, color: T.ink2 }}>Verificado</span>
+                                <button onClick={() => updReply(c.id, r.id, { verified: !r.verified })} style={{ width: 32, height: 17, borderRadius: 999, border: 'none', padding: 2, background: r.verified ? T.purple : '#D1D5DB', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: r.verified ? 'flex-end' : 'flex-start' }}>
+                                  <div style={{ width: 13, height: 13, borderRadius: 999, background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.22)' }} />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                          {(c.replyItems ?? []).length < 2 && (
+                            <AddBtn onClick={() => addReply(c.id)} label="+ Añadir respuesta" />
+                          )}
                         </div>
 
                         {/* Delete */}
