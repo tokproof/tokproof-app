@@ -30,15 +30,16 @@
   }
   #root{height:100vh;}
   button{font-family:inherit;cursor:pointer;border:none;background:none;}
-  input{font-family:inherit;}
+  input,textarea{font-family:inherit;}
   ::-webkit-scrollbar{width:8px;height:8px;}
   ::-webkit-scrollbar-thumb{background:#dcd8e2;border-radius:8px;}
   ::-webkit-scrollbar-thumb:hover{background:#c9c4d4;}
   ::-webkit-scrollbar-track{background:transparent;}
 
-  /* canvas block hover — solo para bloques ya colocados */
+  /* canvas block hover */
   .canvas-block{position:relative;outline:2px solid transparent;outline-offset:-2px;border-radius:4px;transition:outline-color .12s;}
   .canvas-block:hover{outline-color:#b794f6;}
+  .canvas-block.selected{outline-color:#7c3aed !important;}
   .block-label{position:absolute;top:0;left:0;transform:translateY(-100%);background:var(--purple);color:#fff;font-size:11px;font-weight:700;
     padding:3px 9px;border-radius:7px 7px 0 0;opacity:0;pointer-events:none;transition:opacity .12s;white-space:nowrap;z-index:6;}
   .canvas-block:hover .block-label{opacity:1;}
@@ -54,6 +55,10 @@
   /* panel slide-in */
   @keyframes slideIn{from{opacity:0;transform:translateX(-14px);}to{opacity:1;transform:translateX(0);}}
   .panel-enter{animation:slideIn .18s cubic-bezier(.2,.8,.3,1) both;}
+
+  /* editor panel slide-in from right */
+  @keyframes slideInRight{from{opacity:0;transform:translateX(14px);}to{opacity:1;transform:translateX(0);}}
+  .editor-panel-enter{animation:slideInRight .18s cubic-bezier(.2,.8,.3,1) both;}
 
   /* block added flash */
   @keyframes blockFlash{0%{outline-color:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,.25);}100%{outline-color:transparent;box-shadow:none;}}
@@ -108,6 +113,8 @@ const I = {
   minus:<><path d="M5 12h14" strokeWidth="2"/></>,
   play:<><path d="M7 4.5v15l13-7.5z" fill="currentColor" stroke="none"/></>,
   blocks:<><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></>,
+  image:<><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></>,
+  tag:<><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></>,
 };
 
 /* ---------- block thumbnails ---------- */
@@ -159,9 +166,42 @@ const Thumb = ({type, big}) => {
           <div style={{width:14*s,height:14*s,borderRadius:9,background:c}}/>
           <div style={{width:15*s,height:3*s,borderRadius:2,background:'#dfe2e7'}}/></div>))}
     </div>);
+  /* ── featured_product thumbnail ── */
+  if(type==='featured_product') return (
+    <div style={{...base,padding:6*s,display:'flex',flexDirection:'column',gap:3*s,background:'#fff'}}>
+      {/* product image */}
+      <div style={{height:36*s,borderRadius:6*s,background:'linear-gradient(145deg,#fce4d6 0%,#f9c5b8 45%,#e8a090 100%)',position:'relative',overflow:'hidden'}}>
+        <div style={{position:'absolute',top:4*s,left:4*s,background:'rgba(0,0,0,.65)',borderRadius:8*s,padding:`${1.5*s}px ${4*s}px`,fontSize:4*s,fontWeight:700,color:'#fff'}}>🔥 Top</div>
+      </div>
+      {/* stars row */}
+      <div style={{display:'flex',alignItems:'center',gap:2*s}}>
+        {[0,1,2,3,4].map(i=><div key={i} style={{width:4*s,height:4*s,background:'#f59e0b',clipPath:'polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)'}}/>)}
+        <span style={{fontSize:4*s,fontWeight:700,color:'#111',marginLeft:2*s}}>4.9</span>
+      </div>
+      {/* title */}
+      <div style={{height:5*s,width:'80%',borderRadius:2,background:'#1f2430'}}/>
+      {/* description */}
+      <div style={{height:3*s,width:'95%',borderRadius:2,background:'#d1d5db'}}/>
+      {/* benefits */}
+      <div style={{display:'flex',flexDirection:'column',gap:2*s}}>
+        {[0,1,2].map(i=><div key={i} style={{display:'flex',alignItems:'center',gap:2*s}}>
+          <div style={{width:4*s,height:4*s,borderRadius:'50%',background:'#22c55e',flexShrink:0}}/>
+          <div style={{height:3*s,flex:1,borderRadius:2,background:'#e5e7eb'}}/>
+        </div>)}
+      </div>
+      {/* price */}
+      <div style={{display:'flex',alignItems:'center',gap:3*s}}>
+        <div style={{height:7*s,width:18*s,borderRadius:2,background:'#111'}}/>
+        <div style={{height:5*s,width:14*s,borderRadius:2,background:'#e5e7eb'}}/>
+        <div style={{height:5*s,width:9*s,borderRadius:3,background:'#fee2e2'}}/>
+      </div>
+      {/* button */}
+      <div style={{height:10*s,borderRadius:4*s,background:'linear-gradient(180deg,#8b5cf6,#7c3aed)',marginTop:'auto'}}/>
+    </div>);
   return <div style={base}/>;
 };
 
+/* ---------- block catalog ---------- */
 const BLOCKS = [
   {id:'partner', name:'Partner Discounts', tag:'pro', thumb:'discount', desc:'Muestra códigos de descuento copiables.',
    long:'Muestra códigos de descuento atractivos para aumentar tus conversiones.', ideal:['E-commerce','Afiliados','Marcas','Creadores']},
@@ -169,6 +209,8 @@ const BLOCKS = [
    long:'Agrupa tus productos favoritos en colecciones curadas y navegables.', ideal:['Creadores','Marcas','Tiendas']},
   {id:'product', name:'Featured Product', tag:'free', thumb:'product', desc:'Destaca un producto con imagen, precio y CTA.',
    long:'Resalta un producto estrella con foto, precio, beneficios y botón de compra.', ideal:['E-commerce','Afiliados','Dropshipping']},
+  {id:'featured_product', name:'Product Showcase', tag:'pro', thumb:'featured_product', desc:'Destaca tu producto estrella con imagen, precio y CTA.',
+   long:'Destaca un producto estrella con imagen, precio, reseñas, beneficios y botón de compra.', ideal:['E-commerce','Afiliados','Beauty','Fitness']},
   {id:'youtube', name:'YouTube Featured', tag:'pro', thumb:'youtube', desc:'Muestra tu video principal de YouTube.',
    long:'Incrusta tu mejor video de YouTube para generar confianza al instante.', ideal:['Creadores','Educadores','Marcas']},
   {id:'contact', name:'Contact Form', tag:'free', thumb:'contact', desc:'Formulario para que te contacten fácilmente.',
@@ -178,6 +220,7 @@ const BLOCKS = [
   {id:'testimonials', name:'TESTIMONIALS', tag:'soon', thumb:'testimonials', desc:'Muestra opiniones de clientes.',
    long:'Carrusel de reseñas reales para reforzar la prueba social de tu marca.', ideal:['E-commerce','Servicios','Marcas']},
 ];
+
 const TAG = {
   pro:{label:'Pro', bg:'#ede7fd', tx:'#7c3aed', lock:true},
   free:{label:'Free', bg:'#dcfce7', tx:'#16a34a'},
@@ -188,6 +231,450 @@ function Badge({tag, small}){
   return (<span style={{display:'inline-flex',alignItems:'center',gap:4,background:t.bg,color:t.tx,
     fontSize:small?10:11,fontWeight:700,padding:small?'2px 7px':'3px 9px',borderRadius:6,whiteSpace:'nowrap'}}>
     {t.label}{t.lock && <Ic d={I.lock} size={small?10:11} sw={2}/>}</span>);
+}
+
+/* ============================================================
+   FEATURED PRODUCT — defaults, block renderer, editor panel
+   ============================================================ */
+
+const FEATURED_PRODUCT_DEFAULTS = {
+  imageUrl: '',
+  badgeText: 'Más vendido 🔥',
+  productName: 'Hair Growth Serum',
+  description: 'Fórmula avanzada con ingredientes naturales para fortalecer el cabello desde la raíz.',
+  rating: 4.9,
+  reviewCount: '2.4K',
+  price: '$29.99',
+  compareAtPrice: '$39.99',
+  discountText: '-25%',
+  benefits: ['Estimula el crecimiento capilar', 'Ingredientes 100% naturales', 'Resultados visibles en 7 días'],
+  buttonText: 'Ver producto',
+  buttonUrl: 'https://tutienda.com/producto',
+  showBadge: true,
+  showRating: true,
+  showReviews: true,
+  showPrice: true,
+  showCompareAtPrice: true,
+  showDiscount: true,
+  showBenefits: true,
+  layout: 'card',
+  theme: 'light',
+  accentColor: '#7c3aed',
+  buttonStyle: 'filled',
+  marginTop: 0,
+  marginBottom: 0,
+  customAnchorId: '',
+  openInNewTab: false,
+  hideOnMobile: false,
+  hideOnDesktop: false,
+};
+
+/* ---- Stars ---- */
+function Stars({rating, size=12}){
+  const full = Math.floor(rating);
+  return (
+    <div style={{display:'flex',gap:2}}>
+      {[0,1,2,3,4].map(i => {
+        const c = i < full ? '#f59e0b' : (i === full && (rating - full) >= 0.5) ? '#f59e0b' : '#d1d5db';
+        return (
+          <svg key={i} width={size} height={size} viewBox="0 0 24 24" fill={c} stroke="none">
+            <path d="M12 3.2l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L4.4 9.3l5.8-.8z"/>
+          </svg>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ---- FeaturedProductBlock (rendered in canvas) ---- */
+function FeaturedProductBlock({data}){
+  const d = {...FEATURED_PRODUCT_DEFAULTS, ...(data||{})};
+  const acc = d.accentColor || '#7c3aed';
+  const dark = d.theme === 'dark';
+  const minimal = d.layout === 'minimal';
+  const outline = d.buttonStyle === 'outline';
+
+  const bg = dark ? '#1a1625' : '#fff';
+  const textPrimary = dark ? '#fff' : '#111';
+  const textSecondary = dark ? 'rgba(255,255,255,.55)' : '#6b7280';
+  const textMuted = dark ? 'rgba(255,255,255,.4)' : '#9ca3af';
+  const borderCol = dark ? 'rgba(255,255,255,.08)' : '#f0eef6';
+  const shadow = minimal ? 'none' : dark ? '0 8px 28px rgba(0,0,0,.4)' : '0 8px 28px rgba(40,20,60,.13)';
+
+  return (
+    <div id={d.customAnchorId || undefined}
+      style={{borderRadius: minimal ? 14 : 20, background: bg, border:`1px solid ${borderCol}`,
+        overflow:'hidden', boxShadow: shadow,
+        marginTop: d.marginTop ? `${d.marginTop}px` : 0,
+        marginBottom: d.marginBottom ? `${d.marginBottom}px` : 0}}>
+
+      {/* ── Image (card layout only) ── */}
+      {!minimal && (
+        <div style={{position:'relative', height:176,
+          background: d.imageUrl ? 'transparent'
+            : 'linear-gradient(145deg,#fce4d6 0%,#f9c5b8 40%,#f0a496 70%,#e08880 100%)',
+          overflow:'hidden'}}>
+          {d.imageUrl
+            ? <img src={d.imageUrl} style={{width:'100%',height:'100%',objectFit:'cover'}} alt={d.productName}/>
+            : <>
+                <div style={{position:'absolute',inset:0,background:'linear-gradient(180deg,rgba(255,255,255,.28) 0%,transparent 55%)'}}/>
+                {/* decorative bottle */}
+                <div style={{position:'absolute',left:'50%',bottom:18,transform:'translateX(-50%)',width:58,height:108,
+                  background:'linear-gradient(180deg,rgba(255,255,255,.58),rgba(240,150,120,.18))',
+                  borderRadius:'12px 12px 16px 16px',boxShadow:'0 8px 22px rgba(150,60,40,.28)'}}>
+                  <div style={{width:20,height:15,background:'rgba(120,60,40,.48)',borderRadius:3,margin:'-8px auto 0'}}/>
+                </div>
+              </>}
+          {d.showBadge && d.badgeText && (
+            <div style={{position:'absolute',top:12,left:12,
+              background:'rgba(0,0,0,.72)',backdropFilter:'blur(6px)',
+              color:'#fff',fontSize:11.5,fontWeight:700,padding:'5px 11px',borderRadius:20,
+              letterSpacing:'-.01em'}}>
+              {d.badgeText}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div style={{padding: minimal ? '13px 15px 15px' : '14px 16px 16px'}}>
+
+        {/* badge for minimal */}
+        {minimal && d.showBadge && d.badgeText && (
+          <div style={{display:'inline-block',background: dark ? 'rgba(255,255,255,.1)' : 'rgba(0,0,0,.07)',
+            color: textSecondary, fontSize:10.5,fontWeight:700,padding:'3px 9px',borderRadius:12,marginBottom:10}}>
+            {d.badgeText}
+          </div>
+        )}
+
+        {/* rating */}
+        {d.showRating && (
+          <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:10}}>
+            <Stars rating={Number(d.rating)}/>
+            <span style={{fontSize:12,fontWeight:700,color:textPrimary}}>{d.rating}</span>
+            {d.showReviews && (
+              <span style={{fontSize:11.5,color:textMuted}}>({d.reviewCount} reseñas)</span>
+            )}
+          </div>
+        )}
+
+        {/* product name */}
+        <h3 style={{margin:0,fontSize:16.5,fontWeight:800,lineHeight:1.2,letterSpacing:'-.015em',
+          color:textPrimary,marginBottom:6}}>{d.productName}</h3>
+
+        {/* description */}
+        <p style={{margin:'0 0 12px',fontSize:12.5,color:textSecondary,lineHeight:1.45}}>{d.description}</p>
+
+        {/* benefits */}
+        {d.showBenefits && d.benefits && d.benefits.length > 0 && (
+          <div style={{display:'flex',flexDirection:'column',gap:7,marginBottom:14}}>
+            {d.benefits.filter(Boolean).map((b,i)=>(
+              <div key={i} style={{display:'flex',alignItems:'center',gap:8}}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M5 12.5l4.5 4.5L19 6.5"/>
+                </svg>
+                <span style={{fontSize:12.5,fontWeight:600,color: dark ? 'rgba(255,255,255,.85)' : '#374151'}}>{b}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* price row */}
+        {d.showPrice && (
+          <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:14,flexWrap:'wrap'}}>
+            <span style={{fontSize:22,fontWeight:800,color:textPrimary,letterSpacing:'-.02em'}}>{d.price}</span>
+            {d.showCompareAtPrice && d.compareAtPrice && (
+              <span style={{fontSize:14,color:textMuted,textDecoration:'line-through'}}>{d.compareAtPrice}</span>
+            )}
+            {d.showDiscount && d.discountText && (
+              <span style={{fontSize:11.5,fontWeight:700,color:'#dc2626',background:'#fee2e2',padding:'2px 8px',borderRadius:6}}>
+                {d.discountText}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* CTA button */}
+        <a href={d.buttonUrl || '#'} target={d.openInNewTab ? '_blank' : undefined}
+          rel={d.openInNewTab ? 'noopener noreferrer' : undefined}
+          onClick={e=>e.preventDefault()}
+          style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%',
+            padding:'13px',borderRadius:12,fontSize:14.5,fontWeight:700,textDecoration:'none',
+            cursor:'pointer',
+            ...(outline
+              ? {border:`2px solid ${acc}`,color:acc,background:'transparent',boxShadow:'none'}
+              : {background:`linear-gradient(180deg,${acc} 0%,${acc}bb 100%)`,color:'#fff',border:'none',
+                 boxShadow:`0 8px 20px ${acc}44`}
+            )
+          }}>
+          {d.buttonText}
+        </a>
+
+      </div>
+    </div>
+  );
+}
+
+/* ---- FeaturedProductEditor sub-components ---- */
+function Toggle({label, checked, onChange}){
+  return (
+    <label style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,
+      cursor:'pointer',padding:'6px 0',userSelect:'none'}}>
+      <span style={{fontSize:13,color:'#374151',fontWeight:500,lineHeight:1.3}}>{label}</span>
+      <div onClick={()=>onChange(!checked)}
+        style={{width:38,height:22,borderRadius:99,background:checked?'#7c3aed':'#d1d5db',
+          position:'relative',transition:'background .18s',cursor:'pointer',flexShrink:0}}>
+        <div style={{position:'absolute',top:3,left:checked?18:3,width:16,height:16,
+          borderRadius:99,background:'#fff',transition:'left .18s',boxShadow:'0 1px 3px rgba(0,0,0,.22)'}}/>
+      </div>
+    </label>
+  );
+}
+
+function FField({label, children, compact}){
+  return (
+    <div style={{marginBottom: compact ? 10 : 14}}>
+      <label style={{display:'block',fontSize:11,fontWeight:700,letterSpacing:'.05em',
+        color:'#8b909a',textTransform:'uppercase',marginBottom:5}}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function FInput({value, onChange, type='text', placeholder='', min, max}){
+  return (
+    <input value={value} type={type} placeholder={placeholder} min={min} max={max}
+      onChange={e=>onChange(e.target.value)}
+      style={{width:'100%',border:'1px solid #e5e7eb',borderRadius:9,padding:'9px 11px',fontSize:13,
+        color:'#1f2430',background:'#fafbfc',outline:'none',boxSizing:'border-box'}}
+      onFocus={e=>e.target.style.borderColor='#c4b5fd'} onBlur={e=>e.target.style.borderColor='#e5e7eb'}/>
+  );
+}
+
+function FTextarea({value, onChange, rows=3}){
+  return (
+    <textarea value={value} rows={rows} onChange={e=>onChange(e.target.value)}
+      style={{width:'100%',border:'1px solid #e5e7eb',borderRadius:9,padding:'9px 11px',fontSize:13,
+        color:'#1f2430',background:'#fafbfc',outline:'none',resize:'vertical',
+        boxSizing:'border-box',fontFamily:'inherit',lineHeight:1.5}}
+      onFocus={e=>e.target.style.borderColor='#c4b5fd'} onBlur={e=>e.target.style.borderColor='#e5e7eb'}/>
+  );
+}
+
+function SegControl({options, value, onChange}){
+  return (
+    <div style={{display:'flex',background:'#f3f4f6',borderRadius:10,padding:3,gap:2}}>
+      {options.map(([k,l])=>(
+        <button key={k} onClick={()=>onChange(k)}
+          style={{flex:1,fontSize:12,fontWeight:700,padding:'7px 4px',borderRadius:8,
+            background:value===k?'#fff':'transparent',color:value===k?'#1f2430':'#6b7280',
+            boxShadow:value===k?'0 1px 4px rgba(0,0,0,.09)':'none',transition:'all .12s',border:'none'}}>
+          {l}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* ---- FeaturedProductEditor (right panel) ---- */
+function FeaturedProductEditor({data, onChange, onClose}){
+  const [tab, setTab] = useState('content');
+  const d = {...FEATURED_PRODUCT_DEFAULTS, ...data};
+
+  const set = (key, val) => onChange({...d, [key]: val});
+
+  const setBenefit = (i, val) => {
+    const arr = [...d.benefits];
+    arr[i] = val;
+    set('benefits', arr);
+  };
+  const addBenefit = () => set('benefits', [...d.benefits, 'Nuevo beneficio']);
+  const removeBenefit = (i) => set('benefits', d.benefits.filter((_,idx)=>idx!==i));
+  const moveBenefit = (i, dir) => {
+    const arr = [...d.benefits];
+    const j = i + dir;
+    if(j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    set('benefits', arr);
+  };
+
+  const TABS = [['content','Contenido'],['style','Estilo'],['advanced','Avanzado']];
+
+  return (
+    <div className="editor-panel-enter"
+      style={{width:296,flexShrink:0,background:'#fff',borderLeft:'1px solid #eceef2',
+        display:'flex',flexDirection:'column',overflowY:'hidden',zIndex:25}}>
+
+      {/* Header */}
+      <div style={{padding:'14px 16px 0',borderBottom:'1px solid #eceef2',flexShrink:0}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:11}}>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <span style={{fontSize:13.5,fontWeight:800,color:'#1f2430'}}>Product Showcase</span>
+            <Badge tag="pro" small/>
+          </div>
+          <button onClick={onClose}
+            style={{color:'#9aa0a8',display:'flex',padding:4,borderRadius:8,border:'none',background:'none'}}
+            onMouseEnter={e=>e.currentTarget.style.background='#f2f3f5'}
+            onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+            <Ic d={I.close} size={18}/>
+          </button>
+        </div>
+        {/* tabs */}
+        <SegControl options={TABS} value={tab} onChange={setTab}/>
+        <div style={{height:13}}/>
+      </div>
+
+      {/* Body */}
+      <div style={{flex:1,overflowY:'auto',padding:'14px 16px 24px'}}>
+
+        {/* ── CONTENIDO ── */}
+        {tab === 'content' && <>
+          <FField label="URL Imagen">
+            <FInput value={d.imageUrl} onChange={v=>set('imageUrl',v)} placeholder="https://cdn.tu-marca.com/producto.jpg"/>
+          </FField>
+          <FField label="Nombre del producto">
+            <FInput value={d.productName} onChange={v=>set('productName',v)}/>
+          </FField>
+          <FField label="Descripción">
+            <FTextarea value={d.description} onChange={v=>set('description',v)} rows={2}/>
+          </FField>
+          <FField label="Badge">
+            <FInput value={d.badgeText} onChange={v=>set('badgeText',v)} placeholder="Ej: Más vendido 🔥"/>
+          </FField>
+          <div style={{display:'flex',gap:8}}>
+            <div style={{flex:1}}><FField label="Rating" compact><FInput value={d.rating} onChange={v=>set('rating',v)} type="number" min="0" max="5"/></FField></div>
+            <div style={{flex:1}}><FField label="Reseñas" compact><FInput value={d.reviewCount} onChange={v=>set('reviewCount',v)}/></FField></div>
+          </div>
+          <div style={{display:'flex',gap:8}}>
+            <div style={{flex:1}}><FField label="Precio" compact><FInput value={d.price} onChange={v=>set('price',v)} placeholder="$29.99"/></FField></div>
+            <div style={{flex:1}}><FField label="Precio anterior" compact><FInput value={d.compareAtPrice} onChange={v=>set('compareAtPrice',v)} placeholder="$39.99"/></FField></div>
+          </div>
+          <FField label="Texto descuento">
+            <FInput value={d.discountText} onChange={v=>set('discountText',v)} placeholder="Ej: -25%"/>
+          </FField>
+
+          {/* benefits */}
+          <FField label="Beneficios">
+            <div style={{display:'flex',flexDirection:'column',gap:7}}>
+              {d.benefits.map((b,i)=>(
+                <div key={i} style={{display:'flex',gap:5,alignItems:'center'}}>
+                  <div style={{display:'flex',flexDirection:'column',gap:2,flexShrink:0}}>
+                    <button onClick={()=>moveBenefit(i,-1)} disabled={i===0}
+                      style={{width:22,height:18,borderRadius:5,border:'1px solid #e5e7eb',background:'#fafbfc',
+                        display:'flex',alignItems:'center',justifyContent:'center',cursor:i===0?'not-allowed':'pointer',
+                        opacity:i===0?.35:1,color:'#6b7280'}}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+                    </button>
+                    <button onClick={()=>moveBenefit(i,1)} disabled={i===d.benefits.length-1}
+                      style={{width:22,height:18,borderRadius:5,border:'1px solid #e5e7eb',background:'#fafbfc',
+                        display:'flex',alignItems:'center',justifyContent:'center',cursor:i===d.benefits.length-1?'not-allowed':'pointer',
+                        opacity:i===d.benefits.length-1?.35:1,color:'#6b7280'}}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                  </div>
+                  <FInput value={b} onChange={v=>setBenefit(i,v)}/>
+                  <button onClick={()=>removeBenefit(i)}
+                    style={{width:30,height:30,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',
+                      color:'#ef4444',background:'#fef2f2',flexShrink:0,border:'1px solid #fecaca',cursor:'pointer'}}>
+                    <Ic d={I.minus} size={14} sw={2.5}/>
+                  </button>
+                </div>
+              ))}
+              <button onClick={addBenefit}
+                style={{display:'flex',alignItems:'center',gap:6,fontSize:12.5,fontWeight:600,
+                  color:'#7c3aed',background:'#f3effe',border:'1px dashed #c4a9f4',borderRadius:8,
+                  padding:'7px 12px',cursor:'pointer',width:'100%',justifyContent:'center'}}>
+                <Ic d={I.plus} size={14} sw={2.5}/> Añadir beneficio
+              </button>
+            </div>
+          </FField>
+
+          <FField label="Texto del botón">
+            <FInput value={d.buttonText} onChange={v=>set('buttonText',v)}/>
+          </FField>
+          <FField label="URL del botón">
+            <FInput value={d.buttonUrl} onChange={v=>set('buttonUrl',v)} placeholder="https://tutienda.com/producto"/>
+          </FField>
+        </>}
+
+        {/* ── ESTILO ── */}
+        {tab === 'style' && <>
+          <FField label="Layout">
+            <SegControl options={[['card','Card'],['minimal','Minimal']]} value={d.layout} onChange={v=>set('layout',v)}/>
+          </FField>
+          <FField label="Tema">
+            <SegControl options={[['light','Light'],['dark','Dark']]} value={d.theme} onChange={v=>set('theme',v)}/>
+          </FField>
+          <FField label="Color de acento">
+            <div style={{display:'flex',gap:8,alignItems:'center'}}>
+              <input type="color" value={d.accentColor} onChange={e=>set('accentColor',e.target.value)}
+                style={{width:40,height:36,borderRadius:8,border:'1px solid #e5e7eb',padding:2,
+                  cursor:'pointer',flexShrink:0,background:'none'}}/>
+              <FInput value={d.accentColor} onChange={v=>set('accentColor',v)}/>
+            </div>
+          </FField>
+          <FField label="Estilo botón">
+            <SegControl options={[['filled','Filled'],['outline','Outline']]} value={d.buttonStyle} onChange={v=>set('buttonStyle',v)}/>
+          </FField>
+
+          <div style={{borderTop:'1px solid #f0eef6',paddingTop:14,marginTop:4}}>
+            <div style={{fontSize:11,fontWeight:700,color:'#9ca3af',letterSpacing:'.05em',textTransform:'uppercase',marginBottom:8}}>Visibilidad</div>
+            <Toggle label="Mostrar badge" checked={d.showBadge} onChange={v=>set('showBadge',v)}/>
+            <Toggle label="Mostrar rating" checked={d.showRating} onChange={v=>set('showRating',v)}/>
+            <Toggle label="Mostrar nº reseñas" checked={d.showReviews} onChange={v=>set('showReviews',v)}/>
+            <Toggle label="Mostrar precio" checked={d.showPrice} onChange={v=>set('showPrice',v)}/>
+            <Toggle label="Mostrar precio anterior" checked={d.showCompareAtPrice} onChange={v=>set('showCompareAtPrice',v)}/>
+            <Toggle label="Mostrar descuento" checked={d.showDiscount} onChange={v=>set('showDiscount',v)}/>
+            <Toggle label="Mostrar beneficios" checked={d.showBenefits} onChange={v=>set('showBenefits',v)}/>
+          </div>
+
+          {/* Live preview mini */}
+          <div style={{marginTop:18,borderTop:'1px solid #f0eef6',paddingTop:14}}>
+            <div style={{fontSize:11,fontWeight:700,color:'#9ca3af',letterSpacing:'.05em',textTransform:'uppercase',marginBottom:10}}>Vista previa del botón</div>
+            <div style={{
+              display:'flex',alignItems:'center',justifyContent:'center',
+              padding:'12px',borderRadius:11,fontSize:13.5,fontWeight:700,
+              ...(d.buttonStyle==='outline'
+                ? {border:`2px solid ${d.accentColor}`,color:d.accentColor,background:'transparent'}
+                : {background:`linear-gradient(180deg,${d.accentColor},${d.accentColor}bb)`,color:'#fff',
+                   boxShadow:`0 6px 16px ${d.accentColor}44`}
+              )
+            }}>
+              {d.buttonText}
+            </div>
+          </div>
+        </>}
+
+        {/* ── AVANZADO ── */}
+        {tab === 'advanced' && <>
+          <div style={{display:'flex',gap:8}}>
+            <div style={{flex:1}}>
+              <FField label="Espaciado superior" compact>
+                <FInput value={d.marginTop} onChange={v=>set('marginTop',parseInt(v)||0)} type="number" min="0"/>
+              </FField>
+            </div>
+            <div style={{flex:1}}>
+              <FField label="Espaciado inferior" compact>
+                <FInput value={d.marginBottom} onChange={v=>set('marginBottom',parseInt(v)||0)} type="number" min="0"/>
+              </FField>
+            </div>
+          </div>
+          <FField label="ID / Ancla personalizada">
+            <FInput value={d.customAnchorId} onChange={v=>set('customAnchorId',v)} placeholder="Ej: mi-producto"/>
+            <div style={{fontSize:11,color:'#9ca3af',marginTop:4,lineHeight:1.4}}>
+              Añade un ID para enlazar directamente a este bloque.
+            </div>
+          </FField>
+
+          <div style={{borderTop:'1px solid #f0eef6',paddingTop:14,marginTop:4}}>
+            <Toggle label="Abrir URL en nueva pestaña" checked={d.openInNewTab} onChange={v=>set('openInNewTab',v)}/>
+            <Toggle label="Ocultar en móvil" checked={d.hideOnMobile} onChange={v=>set('hideOnMobile',v)}/>
+            <Toggle label="Ocultar en escritorio" checked={d.hideOnDesktop} onChange={v=>set('hideOnDesktop',v)}/>
+          </div>
+        </>}
+
+      </div>
+    </div>
+  );
 }
 
 /* =========================== SIDEBAR =========================== */
@@ -236,8 +723,7 @@ function Sidebar({onOpenBlocks}){
 }
 
 /* =========================== BLOCKS PANEL =========================== */
-/* Solo se monta cuando isAddingBlock === true */
-function BlocksPanel({onHover, onLeave, onPin, activeId, onClose}){
+function BlocksPanel({onHover, onLeave, onPin, activeId, onClose, isUserPro}){
   const [filter,setFilter]=useState('todos');
   const [q,setQ]=useState('');
   const filters=[['todos','Todos'],['free','Free'],['pro','Pro'],['soon','Próximamente']];
@@ -272,6 +758,7 @@ function BlocksPanel({onHover, onLeave, onPin, activeId, onClose}){
           {list.map(b=>{
             const active=activeId===b.id;
             const soon=b.tag==='soon';
+            const locked=b.tag==='pro' && !isUserPro;
             return (
               <div key={b.id} data-card={b.id}
                 onMouseEnter={e=>onHover(b.id, e.currentTarget)}
@@ -298,27 +785,31 @@ function BlocksPanel({onHover, onLeave, onPin, activeId, onClose}){
         </div>
       </div>
       <div style={{padding:'12px 18px',borderTop:'1px solid var(--line)'}}>
-        <button style={{width:'100%',background:'var(--purple-tint)',color:'var(--purple-700)',fontWeight:700,fontSize:13.5,padding:'11px',borderRadius:11}}>Ver todos los bloques (24)</button>
+        <button style={{width:'100%',background:'var(--purple-tint)',color:'var(--purple-700)',fontWeight:700,fontSize:13.5,padding:'11px',borderRadius:11}}>
+          Ver todos los bloques ({BLOCKS.length})
+        </button>
       </div>
     </section>
   );
 }
 
 /* =========================== FLOATING POPOVER =========================== */
-/* Solo se monta cuando isAddingBlock === true && preview !== null */
-function PreviewPopover({block, top, pinned, onClose, onEnter, onLeave, onAdd, panelWidth}){
+function PreviewPopover({block, top, pinned, onClose, onEnter, onLeave, onAdd, panelWidth, isUserPro}){
   if(!block) return null;
   const b=BLOCKS.find(x=>x.id===block);
+  if(!b) return null;
   const LEFT = 212 + panelWidth + 16;
-  const H = 430;
+  const H = 480;
   const clampedTop = Math.max(70, Math.min(top, window.innerHeight - H - 16));
   const soon = b.tag === 'soon';
+  const needsUpgrade = b.tag === 'pro' && !isUserPro;
+
   return (
     <div className="popover" onMouseEnter={onEnter} onMouseLeave={onLeave}
       style={{position:'fixed',left:LEFT,top:clampedTop,width:330,background:'#fff',borderRadius:18,
         border:'1px solid #efe9f6',boxShadow:'0 24px 60px -18px rgba(60,30,90,.32), 0 4px 14px rgba(60,30,90,.10)',
         zIndex:60,overflow:'hidden'}}>
-      {/* flecha hacia la card */}
+      {/* arrow */}
       <div style={{position:'absolute',left:-7,top:34,width:14,height:14,background:'#fff',borderLeft:'1px solid #efe9f6',borderBottom:'1px solid #efe9f6',transform:'rotate(45deg)'}}/>
       <div style={{padding:'16px 16px 0'}}>
         <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:10}}>
@@ -331,11 +822,16 @@ function PreviewPopover({block, top, pinned, onClose, onEnter, onLeave, onAdd, p
             onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='#a4a9b2';}}><Ic d={I.close} size={17}/></button>
         </div>
       </div>
-      {/* mockup preview */}
+      {/* thumbnail preview — real block for featured_product */}
       <div style={{padding:'12px 16px 0'}}>
-        <div style={{borderRadius:13,padding:12,background:'linear-gradient(160deg,#faf6fe,#f5eefb)',border:'1px solid #efe6f8'}}>
-          <Thumb type={b.thumb} big/>
-        </div>
+        {b.id === 'featured_product'
+          ? <div style={{borderRadius:13,overflow:'hidden',border:'1px solid #efe6f8'}}>
+              <FeaturedProductBlock data={FEATURED_PRODUCT_DEFAULTS}/>
+            </div>
+          : <div style={{borderRadius:13,padding:12,background:'linear-gradient(160deg,#faf6fe,#f5eefb)',border:'1px solid #efe6f8'}}>
+              <Thumb type={b.thumb} big/>
+            </div>
+        }
       </div>
       <div style={{padding:'13px 16px 16px'}}>
         <p style={{margin:0,fontSize:13,color:'var(--gray)',lineHeight:1.45}}>{b.long}</p>
@@ -343,30 +839,46 @@ function PreviewPopover({block, top, pinned, onClose, onEnter, onLeave, onAdd, p
         <div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:8}}>
           {b.ideal.map(t=>(<span key={t} style={{fontSize:11.5,fontWeight:600,color:'var(--ink-2)',background:'#f6f4f9',border:'1px solid #ece8f2',padding:'5px 11px',borderRadius:16}}>{t}</span>))}
         </div>
-        {/* único CTA */}
-        <button
-          disabled={soon}
-          onClick={()=>{ if(!soon) onAdd(b.id); }}
-          style={{width:'100%',marginTop:16,display:'flex',alignItems:'center',justifyContent:'center',gap:8,
-            background:soon?'#eef0f3':'linear-gradient(180deg,#8b5cf6,#7c3aed)',
-            color:soon?'#a4a9b2':'#fff',fontSize:14,fontWeight:700,padding:'13px',borderRadius:12,
-            boxShadow:soon?'none':'0 8px 18px rgba(124,58,237,.32)',
-            cursor:soon?'not-allowed':'pointer',border:'none'}}>
-          {soon ? <><Ic d={I.clock} size={16}/> Disponible pronto</> : <><Ic d={I.plus} size={17} sw={2.2}/> Añadir bloque</>}
-        </button>
+        {/* CTA */}
+        {needsUpgrade ? (
+          <div style={{marginTop:16}}>
+            <div style={{fontSize:12.5,color:'#6b7280',textAlign:'center',marginBottom:10,lineHeight:1.4}}>
+              <strong style={{color:'#1f2430'}}>Product Showcase</strong> is available on Pro.
+            </div>
+            <button onClick={()=>{}}
+              style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:8,
+                background:'linear-gradient(180deg,#8b5cf6,#7c3aed)',color:'#fff',fontSize:14,fontWeight:700,
+                padding:'13px',borderRadius:12,boxShadow:'0 8px 18px rgba(124,58,237,.32)',border:'none',cursor:'pointer'}}>
+              <Ic d={I.spark} size={16}/> Upgrade to Pro
+            </button>
+          </div>
+        ) : (
+          <button
+            disabled={soon}
+            onClick={()=>{ if(!soon) onAdd(b.id); }}
+            style={{width:'100%',marginTop:16,display:'flex',alignItems:'center',justifyContent:'center',gap:8,
+              background:soon?'#eef0f3':'linear-gradient(180deg,#8b5cf6,#7c3aed)',
+              color:soon?'#a4a9b2':'#fff',fontSize:14,fontWeight:700,padding:'13px',borderRadius:12,
+              boxShadow:soon?'none':'0 8px 18px rgba(124,58,237,.32)',
+              cursor:soon?'not-allowed':'pointer',border:'none'}}>
+            {soon ? <><Ic d={I.clock} size={16}/> Disponible pronto</> : <><Ic d={I.plus} size={17} sw={2.2}/> Añadir bloque</>}
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
 /* =========================== CANVAS BLOCK WRAPPER =========================== */
-function CanvasBlock({label, children, flash}){
+function CanvasBlock({label, children, flash, selected, onSelect}){
   return (
-    <div className={`canvas-block${flash?' block-added':''}`}>
+    <div
+      className={`canvas-block${flash?' block-added':''}${selected?' selected':''}`}
+      onClick={e=>{ if(onSelect && !e.target.closest('.block-tools')) onSelect(); }}>
       <span className="block-label">{label}</span>
-      <div className="block-tools">
+      <div className="block-tools" onClick={e=>e.stopPropagation()}>
         <button className="grip" title="Arrastrar"><Ic d={I.grip} size={16}/></button>
-        <button title="Ocultar"><Ic d={I.eyeOff} size={15}/></button>
+        <button title={selected?'Ocultar':'Editar'} onClick={onSelect}><Ic d={selected?I.eyeOff:I.pen} size={15}/></button>
         <button title="Duplicar"><Ic d={I.copy} size={14}/></button>
         <button className="danger" title="Borrar"><Ic d={I.trash} size={15}/></button>
       </div>
@@ -375,12 +887,23 @@ function CanvasBlock({label, children, flash}){
   );
 }
 
-/* ---------- bloque añadido dinámicamente en el canvas ---------- */
-function AddedBlockCard({blockId, flash}){
-  const b = BLOCKS.find(x=>x.id===blockId);
+/* ---- block added dynamically in canvas ---- */
+function AddedBlockCard({block, flash, selected, onSelect}){
+  const b = BLOCKS.find(x=>x.id===block.id);
   if(!b) return null;
+
+  /* featured_product → render the real block */
+  if(block.id === 'featured_product'){
+    return (
+      <CanvasBlock label="Product Showcase" flash={flash} selected={selected} onSelect={onSelect}>
+        <FeaturedProductBlock data={block.data}/>
+      </CanvasBlock>
+    );
+  }
+
+  /* all other blocks → generic placeholder */
   return (
-    <CanvasBlock label={b.name} flash={flash}>
+    <CanvasBlock label={b.name} flash={flash} selected={selected} onSelect={onSelect}>
       <div style={{borderRadius:14,overflow:'hidden',background:'linear-gradient(160deg,#faf6fe,#f5eefb)',border:'1px solid #efe6f8',padding:'10px 10px 12px'}}>
         <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
           <span style={{fontSize:12.5,fontWeight:700,color:'var(--ink)',letterSpacing:'-.01em'}}>{b.name}</span>
@@ -397,7 +920,17 @@ function chk(t){return (
   <div style={{display:'flex',alignItems:'center',gap:9,fontSize:13.5,fontWeight:600,color:'#1f2430'}}>
     <span style={{color:'#16a34a',display:'flex'}}><Ic d={I.check} size={16} sw={2.4}/></span>{t}</div>);}
 
-function PhoneCanvas({onOpenBlockPanel, addedBlocks, lastAddedIdx}){
+function PhoneCanvas({onOpenBlockPanel, pageBlocks, lastAddedKey, selectedBlockKey, onSelectBlock}){
+  const scrollRef = useRef(null);
+
+  /* scroll to last added block */
+  useEffect(()=>{
+    if(lastAddedKey && scrollRef.current){
+      const el = scrollRef.current.querySelector(`[data-block-key="${lastAddedKey}"]`);
+      if(el) el.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
+  },[lastAddedKey]);
+
   return (
     <div style={{width:344,position:'relative'}}>
       <div style={{borderRadius:52,background:'#0c0c10',padding:12,boxShadow:'0 40px 80px -28px rgba(40,20,60,.5), 0 0 0 1px rgba(0,0,0,.35)'}}>
@@ -411,9 +944,10 @@ function PhoneCanvas({onOpenBlockPanel, addedBlocks, lastAddedIdx}){
               <div style={{width:23,height:11,border:'1.5px solid #16131a',borderRadius:3,padding:1,display:'flex'}}><div style={{flex:1,background:'#16131a',borderRadius:1}}/></div>
             </div>
           </div>
-          <div style={{height:'100%',overflowY:'auto',paddingTop:44}}>
+          <div ref={scrollRef} style={{height:'100%',overflowY:'auto',paddingTop:44}}>
             <div style={{padding:'8px 10px 14px',display:'flex',flexDirection:'column',gap:14}}>
 
+              {/* static demo blocks */}
               <CanvasBlock label="Imagen del producto">
                 <div style={{height:206,borderRadius:16,background:'radial-gradient(120% 90% at 50% 35%, #f7c9b4 0%, #f0a890 40%, #d98a78 75%, #c47867 100%)',position:'relative',overflow:'hidden'}}>
                   <div style={{position:'absolute',inset:0,background:'linear-gradient(180deg,rgba(255,255,255,.25),transparent 40%)'}}/>
@@ -451,12 +985,19 @@ function PhoneCanvas({onOpenBlockPanel, addedBlocks, lastAddedIdx}){
                 </div>
               </CanvasBlock>
 
-              {/* bloques añadidos dinámicamente */}
-              {addedBlocks.map((blockId, idx)=>(
-                <AddedBlockCard key={`${blockId}-${idx}`} blockId={blockId} flash={idx === lastAddedIdx}/>
+              {/* dynamic added blocks */}
+              {pageBlocks.map((block)=>(
+                <div key={block.key} data-block-key={block.key}>
+                  <AddedBlockCard
+                    block={block}
+                    flash={block.key === lastAddedKey}
+                    selected={block.key === selectedBlockKey}
+                    onSelect={()=>onSelectBlock(block.key)}
+                  />
+                </div>
               ))}
 
-              {/* botón añadir bloque en el canvas */}
+              {/* add block button */}
               <button onClick={onOpenBlockPanel}
                 style={{margin:'4px 6px 8px',display:'flex',alignItems:'center',justifyContent:'center',gap:8,
                   border:'1.5px dashed #c9b4f6',color:'var(--purple-700)',background:'#faf7fe',fontSize:13.5,fontWeight:700,padding:'13px',borderRadius:13}}
@@ -471,7 +1012,7 @@ function PhoneCanvas({onOpenBlockPanel, addedBlocks, lastAddedIdx}){
 }
 
 /* =========================== CANVAS COLUMN =========================== */
-function Canvas({onOpenBlockPanel, addedBlocks, lastAddedIdx}){
+function Canvas({onOpenBlockPanel, pageBlocks, lastAddedKey, selectedBlockKey, onSelectBlock}){
   const [device,setDevice]=useState('movil');
   return (
     <section style={{flex:1,minWidth:0,background:'var(--canvas)',display:'flex',flexDirection:'column',alignItems:'center',position:'relative'}}>
@@ -482,7 +1023,13 @@ function Canvas({onOpenBlockPanel, addedBlocks, lastAddedIdx}){
       </div>
       <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',width:'100%',overflow:'auto',padding:'10px 0'}}>
         {device==='movil'
-          ? <PhoneCanvas onOpenBlockPanel={onOpenBlockPanel} addedBlocks={addedBlocks} lastAddedIdx={lastAddedIdx}/>
+          ? <PhoneCanvas
+              onOpenBlockPanel={onOpenBlockPanel}
+              pageBlocks={pageBlocks}
+              lastAddedKey={lastAddedKey}
+              selectedBlockKey={selectedBlockKey}
+              onSelectBlock={onSelectBlock}
+            />
           : <div style={{width:560,height:360,background:'#fff',borderRadius:16,border:'1px solid var(--line-2)',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--gray-2)',flexDirection:'column',gap:10,boxShadow:'0 18px 44px -22px rgba(40,20,60,.32)'}}>
               <Ic d={I.monitor} size={34}/><span style={{fontSize:13.5,fontWeight:600}}>Vista de escritorio</span></div>}
       </div>
@@ -509,7 +1056,6 @@ function TopBar({onOpenBlocks}){
         <h1 style={{margin:0,fontSize:18,fontWeight:800,letterSpacing:'-.02em'}}>Nueva Página de Confianza</h1>
         <button style={{color:'#9aa0a8',display:'flex'}}><Ic d={I.pen} size={16}/></button></div>
       <button style={{display:'inline-flex',alignItems:'center',gap:6,background:'#ece7f9',color:'#6d28d9',fontSize:13,fontWeight:700,padding:'6px 12px',borderRadius:9}}>Borrador <Ic d={I.chevDown} size={14}/></button>
-      {/* botón global de Bloques */}
       <button onClick={onOpenBlocks}
         style={{display:'inline-flex',alignItems:'center',gap:7,background:'linear-gradient(180deg,#8b5cf6,#7c3aed)',color:'#fff',
           fontSize:13,fontWeight:700,padding:'7px 15px',borderRadius:9,boxShadow:'0 4px 12px rgba(124,58,237,.3)',border:'none'}}
@@ -534,13 +1080,18 @@ function TopBar({onOpenBlocks}){
 }
 
 /* =========================== APP =========================== */
+const IS_USER_PRO = true; /* set to false to test Free gate */
+
 function App(){
   const [isAddingBlock, setIsAddingBlock] = useState(false);
-  const [addedBlocks, setAddedBlocks] = useState([]);
-  const [lastAddedIdx, setLastAddedIdx] = useState(null);
-  const [preview, setPreview] = useState(null); // {id, top, pinned}
+  const [pageBlocks, setPageBlocks] = useState([]);       /* [{id, data, key}] */
+  const [lastAddedKey, setLastAddedKey] = useState(null);
+  const [selectedBlockKey, setSelectedBlockKey] = useState(null);
+  const [preview, setPreview] = useState(null);           /* {id, top, pinned} */
   const timer = useRef(null);
   const PANEL_W = 340;
+
+  const selectedBlock = pageBlocks.find(b=>b.key===selectedBlockKey) || null;
 
   const scheduleClose = () => {
     clearTimeout(timer.current);
@@ -562,8 +1113,10 @@ function App(){
   };
   const closePopover = () => { clearTimeout(timer.current); setPreview(null); };
 
-  const openBlockPanel = () => setIsAddingBlock(true);
-
+  const openBlockPanel = () => {
+    setSelectedBlockKey(null); /* close editor when opening catalog */
+    setIsAddingBlock(true);
+  };
   const closeBlockPanel = () => {
     clearTimeout(timer.current);
     setIsAddingBlock(false);
@@ -571,17 +1124,38 @@ function App(){
   };
 
   const onAddBlock = (blockId) => {
-    const newIdx = addedBlocks.length;
-    setAddedBlocks(prev => [...prev, blockId]);
-    setLastAddedIdx(newIdx);
+    const blockMeta = BLOCKS.find(b=>b.id===blockId);
+    /* Pro gate */
+    if(blockMeta?.tag === 'pro' && !IS_USER_PRO){
+      alert(`${blockMeta.name} is available on Pro.\nUpgrade to Pro to use this block.`);
+      return;
+    }
+    const key = `${blockId}-${Date.now()}`;
+    const defaults = blockId === 'featured_product' ? {...FEATURED_PRODUCT_DEFAULTS} : {};
+    setPageBlocks(prev => [...prev, {id: blockId, data: defaults, key}]);
+    setLastAddedKey(key);
+    /* auto-select featured_product so editor opens immediately */
+    if(blockId === 'featured_product') setSelectedBlockKey(key);
     clearTimeout(timer.current);
     setIsAddingBlock(false);
     setPreview(null);
-    // limpiar flash después de la animación
-    setTimeout(() => setLastAddedIdx(null), 800);
+    setTimeout(() => setLastAddedKey(null), 800);
   };
 
-  // click fuera cierra el popover fijado
+  const updateBlockData = (key, data) => {
+    setPageBlocks(prev => prev.map(b => b.key === key ? {...b, data} : b));
+  };
+
+  const handleSelectBlock = (key) => {
+    if(selectedBlockKey === key){
+      setSelectedBlockKey(null); /* toggle off */
+    } else {
+      setSelectedBlockKey(key);
+      if(isAddingBlock) closeBlockPanel(); /* close catalog if open */
+    }
+  };
+
+  /* close pinned popover on outside click */
   useEffect(() => {
     if (!isAddingBlock || !preview || !preview.pinned) return;
     const onDoc = (e) => {
@@ -592,19 +1166,27 @@ function App(){
     return () => document.removeEventListener('mousedown', onDoc);
   }, [isAddingBlock, preview]);
 
-  // cerrar panel con Escape
+  /* Escape closes panel / editor */
   useEffect(() => {
-    if (!isAddingBlock) return;
-    const onKey = (e) => { if (e.key === 'Escape') closeBlockPanel(); };
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        if(isAddingBlock) closeBlockPanel();
+        else if(selectedBlockKey) setSelectedBlockKey(null);
+      }
+    };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [isAddingBlock]);
+  }, [isAddingBlock, selectedBlockKey]);
+
+  const showEditor = selectedBlock && selectedBlock.id === 'featured_product';
 
   return (
-    <div style={{display:'flex', height:'100vh', minWidth: isAddingBlock ? 1220 : 860}}>
+    <div style={{display:'flex', height:'100vh',
+      minWidth: isAddingBlock ? (showEditor ? 1520 : 1220) : (showEditor ? 1160 : 860)}}>
+
       <Sidebar onOpenBlocks={openBlockPanel}/>
 
-      {/* panel selector — solo montado cuando isAddingBlock === true */}
+      {/* block catalog panel */}
       {isAddingBlock && (
         <BlocksPanel
           onHover={showHover}
@@ -612,15 +1194,22 @@ function App(){
           onPin={onPin}
           activeId={preview && preview.id}
           onClose={closeBlockPanel}
+          isUserPro={IS_USER_PRO}
         />
       )}
 
       <div style={{flex:1, display:'flex', flexDirection:'column', minWidth:0}}>
         <TopBar onOpenBlocks={openBlockPanel}/>
-        <Canvas onOpenBlockPanel={openBlockPanel} addedBlocks={addedBlocks} lastAddedIdx={lastAddedIdx}/>
+        <Canvas
+          onOpenBlockPanel={openBlockPanel}
+          pageBlocks={pageBlocks}
+          lastAddedKey={lastAddedKey}
+          selectedBlockKey={selectedBlockKey}
+          onSelectBlock={handleSelectBlock}
+        />
       </div>
 
-      {/* popover preview — solo montado cuando isAddingBlock === true y hay preview activo */}
+      {/* floating popover preview */}
       {isAddingBlock && preview && (
         <PreviewPopover
           block={preview.id}
@@ -631,8 +1220,19 @@ function App(){
           onLeave={leavePopover}
           onAdd={onAddBlock}
           panelWidth={PANEL_W}
+          isUserPro={IS_USER_PRO}
         />
       )}
+
+      {/* featured_product editor panel (right side) */}
+      {showEditor && (
+        <FeaturedProductEditor
+          data={selectedBlock.data}
+          onChange={data => updateBlockData(selectedBlock.key, data)}
+          onClose={() => setSelectedBlockKey(null)}
+        />
+      )}
+
     </div>
   );
 }
