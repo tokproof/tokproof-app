@@ -82,33 +82,36 @@ function SBadge({ tag }: { tag: 'free' | 'pro' | 'soon' }) {
 }
 
 // ─── Inline catalog card ──────────────────────────────────────────────────────
-function InlineBlockCard({ entry, plan, onAdd, onUpgrade }: {
-  entry: CatalogEntry; plan: Plan
+function InlineBlockCard({ entry, plan, isActive, onAdd, onUpgrade, onHover, onLeave, onPin }: {
+  entry: CatalogEntry; plan: Plan; isActive: boolean
   onAdd: (type: LandingBlock['type'], data: LandingBlock['data']) => void
   onUpgrade: () => void
+  onHover: (entry: CatalogEntry, el: HTMLElement) => void
+  onLeave: () => void
+  onPin: (entry: CatalogEntry, el: HTMLElement) => void
 }) {
   const isSoon   = entry.tag === 'soon'
   const isLocked = entry.tag === 'pro' && plan === 'free'
-  const disabled = isSoon
-
-  function handleClick() {
-    if (disabled) return
-    if (isLocked) { onUpgrade(); return }
-    if (entry.defaultData) onAdd(entry.type as LandingBlock['type'], entry.defaultData)
-  }
 
   return (
     <div
-      onClick={handleClick}
+      data-bc-card={entry.type}
+      onMouseEnter={e => { if (!isSoon) onHover(entry, e.currentTarget as HTMLElement) }}
+      onMouseLeave={onLeave}
+      onClick={e => {
+        if (isSoon) return
+        onPin(entry, e.currentTarget as HTMLElement)
+      }}
       style={{
         display: 'flex', gap: 10, padding: '8px 10px', borderRadius: 10,
-        cursor: disabled ? 'default' : 'pointer', marginBottom: 5,
-        border: '1.5px solid rgba(123,97,255,0.12)', background: '#fefbff',
-        opacity: disabled ? 0.6 : 1, transition: 'border-color .13s, box-shadow .13s, transform .13s',
+        cursor: isSoon ? 'default' : 'pointer', marginBottom: 5,
+        border: `1.5px solid ${isActive ? '#c4a9f4' : 'rgba(123,97,255,0.12)'}`,
+        background: isActive ? '#f3effe' : '#fefbff',
+        opacity: isSoon ? 0.6 : 1,
+        boxShadow: isActive ? '0 6px 18px rgba(124,58,237,.10)' : 'none',
+        transition: 'border-color .13s, box-shadow .13s, transform .13s, background .13s',
         alignItems: 'center',
       }}
-      onMouseEnter={e => { if (!disabled) { (e.currentTarget as HTMLDivElement).style.borderColor = '#c4a9f4'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 14px rgba(124,58,237,.09)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-1px)' } }}
-      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(123,97,255,0.12)'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; (e.currentTarget as HTMLDivElement).style.transform = 'none' }}
     >
       <GlowThumb type={entry.type} size="list" />
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -118,11 +121,145 @@ function InlineBlockCard({ entry, plan, onAdd, onUpgrade }: {
         </div>
         <span style={{ fontSize: 11, color: '#6B7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{entry.desc}</span>
       </div>
-      {!disabled && !isLocked && (
+      {!isSoon && !isLocked && (
         <div style={{ width: 22, height: 22, borderRadius: 6, background: '#f3effe', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <Plus size={13} color="#7c3aed" strokeWidth={2.5} />
         </div>
       )}
+    </div>
+  )
+}
+
+// ─── Floating preview popover (position: fixed — escapa overflow del panel) ──
+const CATALOG_DESC_LONG: Record<string, string> = {
+  hero_product:   'Bloque principal de tu página. Muestra imagen, headline impactante y descripción para convertir desde el primer scroll.',
+  benefits:       'Presenta las características clave con iconos visuales para convencer al visitante antes del CTA.',
+  cta:            'Añade un botón de compra o acción destacado con tu URL de destino, texto personalizado y estilo de marca.',
+  link_list:      'Añade varios links de forma ordenada. Perfecto para bio pages o múltiples destinos de afiliación.',
+  faq:            'Reduce el abandono respondiendo las dudas más comunes. Formato acordeón interactivo.',
+  profile_header: 'Muestra tu perfil con foto, nombre y descripción. Ideal para creadores de contenido e influencers.',
+  social_links:   'Muestra tus perfiles de TikTok, Instagram, YouTube y más con iconos elegantes y enlaces directos.',
+  footer_legal:   'Añade un pie de página profesional con links a política de privacidad, términos y email de contacto.',
+  product_grid:   'Muestra varios productos en una cuadrícula visual con precio, imagen y botón de compra.',
+  trust_badges:   'Refuerza la confianza con badges de envío gratis, pago seguro, garantía y devoluciones.',
+  comparison:     'Muestra por qué tu producto es mejor con una comparativa visual que destaca tus ventajas.',
+  urgency_offer:  'Crea urgencia con un banner de oferta limitada y badge para impulsar la decisión de compra.',
+  testimonials:   'Carrusel de reseñas reales para reforzar la prueba social de tu marca.',
+  video_featured: 'Incrusta tu mejor video de YouTube para generar confianza al instante.',
+  partner_discounts: 'Muestra códigos de descuento copiables de marcas asociadas.',
+}
+const CATALOG_IDEAL: Record<string, string[]> = {
+  hero_product:   ['E-commerce', 'Marcas', 'Dropshipping'],
+  benefits:       ['Todos', 'E-commerce', 'Servicios'],
+  cta:            ['E-commerce', 'Afiliados', 'Landing pages'],
+  link_list:      ['Creadores', 'Afiliados', 'Bio pages'],
+  faq:            ['E-commerce', 'Servicios', 'SaaS'],
+  profile_header: ['Creadores', 'Influencers', 'Freelancers'],
+  social_links:   ['Creadores', 'Marcas', 'Negocios'],
+  footer_legal:   ['Todos', 'E-commerce', 'Negocios'],
+  product_grid:   ['E-commerce', 'Catálogos', 'Dropshipping'],
+  trust_badges:   ['E-commerce', 'Tiendas', 'SaaS'],
+  comparison:     ['E-commerce', 'SaaS', 'Servicios'],
+  urgency_offer:  ['E-commerce', 'Flash sales', 'Promociones'],
+  testimonials:   ['E-commerce', 'Servicios', 'Marcas'],
+  video_featured: ['Creadores', 'Educadores', 'Marcas'],
+  partner_discounts: ['E-commerce', 'Afiliados', 'Creadores'],
+}
+
+function BlockPreviewPopover({ entry, top, onClose, onAdd, onMouseEnter, onMouseLeave, plan, onUpgrade }: {
+  entry: CatalogEntry; top: number
+  onClose: () => void
+  onAdd: (type: LandingBlock['type'], data: LandingBlock['data']) => void
+  onMouseEnter: () => void; onMouseLeave: () => void
+  plan: Plan; onUpgrade: () => void
+}) {
+  const H = 440
+  const safeTop = Math.max(64, Math.min(top, (typeof window !== 'undefined' ? window.innerHeight : 800) - H - 12))
+  const isSoon   = entry.tag === 'soon'
+  const isLocked = entry.tag === 'pro' && plan === 'free'
+  const cfg = {
+    free: { label: 'Free',         bg: '#dcfce7', tx: '#16a34a', lock: false },
+    pro:  { label: 'Pro',          bg: '#ede7fd', tx: '#7c3aed', lock: true  },
+    soon: { label: 'Próximamente', bg: '#eef0f3', tx: '#8b8f98', lock: false },
+  }
+  const bc = cfg[entry.tag]
+
+  return (
+    <div
+      className="blk-popover"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      style={{
+        position: 'fixed', left: 302, top: safeTop, width: 296,
+        background: '#fff', borderRadius: 18,
+        border: '1px solid #efe9f6',
+        boxShadow: '0 24px 60px -18px rgba(60,30,90,.30), 0 4px 14px rgba(60,30,90,.09)',
+        zIndex: 9999, overflow: 'hidden',
+        animation: 'blkPopIn .15s cubic-bezier(.2,.8,.3,1) both',
+      }}
+    >
+      {/* Arrow pointing left */}
+      <div style={{ position: 'absolute', left: -7, top: 30, width: 14, height: 14, background: '#fff', borderLeft: '1px solid #efe9f6', borderBottom: '1px solid #efe9f6', transform: 'rotate(45deg)', zIndex: 1 }} />
+
+      {/* Header */}
+      <div style={{ padding: '14px 14px 0', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', flex: 1 }}>
+          <span style={{ fontSize: 14.5, fontWeight: 800, color: '#1f2430', letterSpacing: '-.01em' }}>{entry.label}</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, background: bc.bg, color: bc.tx, fontSize: 10.5, fontWeight: 700, padding: '3px 8px', borderRadius: 5, whiteSpace: 'nowrap' }}>
+            {bc.label}{bc.lock && <Lock size={10} strokeWidth={2.5} />}
+          </span>
+        </div>
+        <button onClick={onClose}
+          style={{ color: '#9ca3af', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 3, borderRadius: 7, flexShrink: 0 }}
+          onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = '#f2f3f5'}
+          onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = 'transparent'}>
+          <X size={16} />
+        </button>
+      </div>
+
+      {/* Thumbnail */}
+      <div style={{ padding: '11px 14px 0' }}>
+        <div style={{ borderRadius: 13, padding: 10, background: 'linear-gradient(160deg,#faf6fe,#f5eefb)', border: '1px solid #efe6f8' }}>
+          <GlowThumb type={entry.type} size="popover" />
+        </div>
+      </div>
+
+      {/* Body */}
+      <div style={{ padding: '10px 14px 14px' }}>
+        <p style={{ margin: 0, fontSize: 12, color: '#6b7280', lineHeight: 1.45 }}>
+          {CATALOG_DESC_LONG[entry.type] ?? entry.desc}
+        </p>
+
+        {(CATALOG_IDEAL[entry.type]?.length ?? 0) > 0 && (
+          <>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.05em', color: '#9ca3af', marginTop: 10, textTransform: 'uppercase' }}>Ideal para</div>
+            <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginTop: 6 }}>
+              {(CATALOG_IDEAL[entry.type] ?? []).map(t => (
+                <span key={t} style={{ fontSize: 10.5, fontWeight: 600, color: '#374151', background: '#f6f4f9', border: '1px solid #ece8f2', padding: '3px 9px', borderRadius: 12 }}>{t}</span>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* CTA */}
+        {isSoon ? (
+          <button disabled style={{ width: '100%', marginTop: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, background: '#eef0f3', color: '#a4a9b2', fontSize: 13, fontWeight: 700, padding: '11px', borderRadius: 11, border: 'none', cursor: 'not-allowed' }}>
+            Disponible pronto
+          </button>
+        ) : isLocked ? (
+          <button onClick={onUpgrade} style={{ width: '100%', marginTop: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, background: 'linear-gradient(135deg,#FFD700,#FF8C00)', color: '#fff', fontSize: 13, fontWeight: 700, padding: '11px', borderRadius: 11, border: 'none', cursor: 'pointer', boxShadow: '0 6px 14px rgba(255,165,0,.25)' }}>
+            <Lock size={14} /> Actualizar a Pro
+          </button>
+        ) : (
+          <button
+            onClick={() => { if (entry.defaultData) onAdd(entry.type as LandingBlock['type'], entry.defaultData) }}
+            style={{ width: '100%', marginTop: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, background: 'linear-gradient(180deg,#8b5cf6,#7c3aed)', color: '#fff', fontSize: 13, fontWeight: 700, padding: '11px', borderRadius: 11, border: 'none', cursor: 'pointer', boxShadow: '0 8px 18px rgba(124,58,237,.28)' }}
+            onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 10px 22px rgba(124,58,237,.42)'}
+            onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 18px rgba(124,58,237,.28)'}>
+            <Plus size={15} strokeWidth={2.5} /> Añadir bloque
+          </button>
+        )}
+      </div>
     </div>
   )
 }
@@ -908,14 +1045,19 @@ export default function SortableBlockList({
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 
   // ── Inline selector state ──
-  const [isAdding, setIsAdding]     = useState(false)
-  const [q, setQ]                   = useState('')
-  const [filter, setFilter]         = useState<'todos' | 'free' | 'pro' | 'soon'>('todos')
-  const [lastAddedId, setLastAddedId] = useState<string | null>(null)
-  const [upgradeOpen, setUpgradeOpen] = useState(false)
-  const scrollAreaRef  = useRef<HTMLDivElement>(null)
-  const selectorRef    = useRef<HTMLDivElement>(null)
-  const prevCountRef   = useRef(blocks.length)
+  const [isAdding, setIsAdding]         = useState(false)
+  const [q, setQ]                       = useState('')
+  const [filter, setFilter]             = useState<'todos' | 'free' | 'pro' | 'soon'>('todos')
+  const [lastAddedId, setLastAddedId]   = useState<string | null>(null)
+  const [upgradeOpen, setUpgradeOpen]   = useState(false)
+  // ── Popover state ──
+  const [activeEntry, setActiveEntry]   = useState<CatalogEntry | null>(null)
+  const [pinned, setPinned]             = useState(false)
+  const [popTop, setPopTop]             = useState(0)
+  const leaveTimer    = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const selectorRef   = useRef<HTMLDivElement>(null)
+  const prevCountRef  = useRef(blocks.length)
 
   // Highlight + scroll when new block is added
   useEffect(() => {
@@ -947,6 +1089,19 @@ export default function SortableBlockList({
     }
   }, [isAdding])
 
+  // Click outside closes pinned popover
+  useEffect(() => {
+    if (!pinned) return
+    const fn = (e: MouseEvent) => {
+      const t = e.target as HTMLElement
+      if (t.closest('.blk-popover') || t.closest('[data-bc-card]')) return
+      closePopover()
+    }
+    document.addEventListener('mousedown', fn)
+    return () => document.removeEventListener('mousedown', fn)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pinned])
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (over && active.id !== over.id) {
@@ -956,10 +1111,34 @@ export default function SortableBlockList({
     }
   }
 
+  // ── Popover helpers ──
+  function scheduleClose() {
+    leaveTimer.current = setTimeout(() => { if (!pinned) setActiveEntry(null) }, 140)
+  }
+  function cancelClose() { if (leaveTimer.current) clearTimeout(leaveTimer.current) }
+
+  function handleCardHover(entry: CatalogEntry, el: HTMLElement) {
+    cancelClose()
+    if (pinned) return
+    setPopTop(el.getBoundingClientRect().top)
+    setActiveEntry(entry)
+  }
+  function handleCardPin(entry: CatalogEntry, el: HTMLElement) {
+    cancelClose()
+    setPopTop(el.getBoundingClientRect().top)
+    setActiveEntry(entry)
+    setPinned(true)
+  }
+  function closePopover() { cancelClose(); setActiveEntry(null); setPinned(false) }
+
+  function closeSelector() {
+    setIsAdding(false); setQ(''); setFilter('todos')
+    closePopover()
+  }
+
   function handleAdd(type: LandingBlock['type'], data: LandingBlock['data']) {
     onAdd(type, data)
-    setIsAdding(false)
-    setQ('')
+    closeSelector()
   }
 
   const filteredCatalog = BLOCKS_CATALOG.filter(b =>
@@ -969,21 +1148,14 @@ export default function SortableBlockList({
 
   return (
     <>
+      <style>{`@keyframes blkPopIn { from { opacity:0; transform:translateY(5px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }`}</style>
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
 
         {/* ── Header ── */}
-        <div style={{ padding: '10px 14px 8px', borderBottom: `1px solid ${T.border}`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ padding: '10px 14px 8px', borderBottom: `1px solid ${T.border}`, flexShrink: 0 }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em' }}>
             Bloques · {blocks.length}
           </span>
-          {isAdding && (
-            <button onClick={() => { setIsAdding(false); setQ('') }}
-              style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: T.ink3, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', borderRadius: 6 }}
-              onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = '#f2f3f5'}
-              onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = 'none'}>
-              <X size={13} /> Cancelar
-            </button>
-          )}
         </div>
 
         {/* ── Existing blocks (DnD) ── */}
@@ -1023,7 +1195,15 @@ export default function SortableBlockList({
 
             {/* Selector header + search */}
             <div style={{ padding: '10px 12px 6px', flexShrink: 0 }}>
-              <div style={{ fontSize: 10.5, fontWeight: 700, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>Añadir bloque</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span style={{ fontSize: 10.5, fontWeight: 700, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '.06em' }}>Añadir bloque</span>
+                <button onClick={closeSelector}
+                  style={{ color: '#9ca3af', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 3, borderRadius: 6 }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#f2f3f5'; (e.currentTarget as HTMLButtonElement).style.color = '#5b5566' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = '#9ca3af' }}>
+                  <X size={16} />
+                </button>
+              </div>
               <div style={{ position: 'relative' }}>
                 <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
                 <input
@@ -1058,8 +1238,12 @@ export default function SortableBlockList({
                   key={entry.type}
                   entry={entry}
                   plan={plan}
+                  isActive={activeEntry?.type === entry.type}
                   onAdd={handleAdd}
-                  onUpgrade={() => { setUpgradeOpen(true) }}
+                  onUpgrade={() => setUpgradeOpen(true)}
+                  onHover={handleCardHover}
+                  onLeave={scheduleClose}
+                  onPin={handleCardPin}
                 />
               ))}
               {filteredCatalog.length === 0 && (
@@ -1088,6 +1272,21 @@ export default function SortableBlockList({
         title="Bloque premium"
         description="Este bloque está disponible en el plan Pro. Actualiza para añadir bloques premium a tus páginas."
       />
+
+      {/* Popover flotante — position:fixed escapa overflow del panel */}
+      {isAdding && activeEntry && (
+        <BlockPreviewPopover
+          key={activeEntry.type}
+          entry={activeEntry}
+          top={popTop}
+          onClose={closePopover}
+          onAdd={handleAdd}
+          onMouseEnter={cancelClose}
+          onMouseLeave={scheduleClose}
+          plan={plan}
+          onUpgrade={() => { closePopover(); setUpgradeOpen(true) }}
+        />
+      )}
     </>
   )
 }
