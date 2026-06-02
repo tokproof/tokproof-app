@@ -82,34 +82,37 @@ function SBadge({ tag }: { tag: 'free' | 'pro' | 'soon' }) {
 }
 
 // ─── Inline catalog card ──────────────────────────────────────────────────────
-function InlineBlockCard({ entry, plan, isActive, onAdd, onUpgrade, onHover, onLeave, onPin }: {
+// Hover → muestra popover | Click → añade bloque directamente
+function InlineBlockCard({ entry, plan, isActive, onAdd, onUpgrade, onHover, onLeave }: {
   entry: CatalogEntry; plan: Plan; isActive: boolean
   onAdd: (type: LandingBlock['type'], data: LandingBlock['data']) => void
   onUpgrade: () => void
   onHover: (entry: CatalogEntry, el: HTMLElement) => void
   onLeave: () => void
-  onPin: (entry: CatalogEntry, el: HTMLElement) => void
 }) {
   const isSoon   = entry.tag === 'soon'
   const isLocked = entry.tag === 'pro' && plan === 'free'
+
+  function handleClick() {
+    if (isSoon) return
+    if (isLocked) { onUpgrade(); return }
+    if (entry.defaultData) onAdd(entry.type as LandingBlock['type'], entry.defaultData)
+  }
 
   return (
     <div
       data-bc-card={entry.type}
       onMouseEnter={e => { if (!isSoon) onHover(entry, e.currentTarget as HTMLElement) }}
       onMouseLeave={onLeave}
-      onClick={e => {
-        if (isSoon) return
-        onPin(entry, e.currentTarget as HTMLElement)
-      }}
+      onClick={handleClick}
       style={{
         display: 'flex', gap: 10, padding: '8px 10px', borderRadius: 10,
         cursor: isSoon ? 'default' : 'pointer', marginBottom: 5,
         border: `1.5px solid ${isActive ? '#c4a9f4' : 'rgba(123,97,255,0.12)'}`,
         background: isActive ? '#f3effe' : '#fefbff',
         opacity: isSoon ? 0.6 : 1,
-        boxShadow: isActive ? '0 6px 18px rgba(124,58,237,.10)' : 'none',
-        transition: 'border-color .13s, box-shadow .13s, transform .13s, background .13s',
+        boxShadow: isActive ? '0 6px 16px rgba(124,58,237,.10)' : 'none',
+        transition: 'border-color .13s, box-shadow .13s, background .13s',
         alignItems: 'center',
       }}
     >
@@ -166,8 +169,8 @@ const CATALOG_IDEAL: Record<string, string[]> = {
   partner_discounts: ['E-commerce', 'Afiliados', 'Creadores'],
 }
 
-function BlockPreviewPopover({ entry, top, onClose, onAdd, onMouseEnter, onMouseLeave, plan, onUpgrade }: {
-  entry: CatalogEntry; top: number
+function BlockPreviewPopover({ entry, top, left, onClose, onAdd, onMouseEnter, onMouseLeave, plan, onUpgrade }: {
+  entry: CatalogEntry; top: number; left: number
   onClose: () => void
   onAdd: (type: LandingBlock['type'], data: LandingBlock['data']) => void
   onMouseEnter: () => void; onMouseLeave: () => void
@@ -190,7 +193,7 @@ function BlockPreviewPopover({ entry, top, onClose, onAdd, onMouseEnter, onMouse
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{
-        position: 'fixed', left: 302, top: safeTop, width: 296,
+        position: 'fixed', left: left, top: safeTop, width: 296,
         background: '#fff', borderRadius: 18,
         border: '1px solid #efe9f6',
         boxShadow: '0 24px 60px -18px rgba(60,30,90,.30), 0 4px 14px rgba(60,30,90,.09)',
@@ -1050,11 +1053,12 @@ export default function SortableBlockList({
   const [filter, setFilter]             = useState<'todos' | 'free' | 'pro' | 'soon'>('todos')
   const [lastAddedId, setLastAddedId]   = useState<string | null>(null)
   const [upgradeOpen, setUpgradeOpen]   = useState(false)
-  // ── Popover state ──
+  // ── Popover state (hover-only, no pinned) ──
   const [activeEntry, setActiveEntry]   = useState<CatalogEntry | null>(null)
-  const [pinned, setPinned]             = useState(false)
   const [popTop, setPopTop]             = useState(0)
+  const [popLeft, setPopLeft]           = useState(302)
   const leaveTimer    = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const panelRef      = useRef<HTMLDivElement>(null)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const selectorRef   = useRef<HTMLDivElement>(null)
   const prevCountRef  = useRef(blocks.length)
@@ -1089,19 +1093,6 @@ export default function SortableBlockList({
     }
   }, [isAdding])
 
-  // Click outside closes pinned popover
-  useEffect(() => {
-    if (!pinned) return
-    const fn = (e: MouseEvent) => {
-      const t = e.target as HTMLElement
-      if (t.closest('.blk-popover') || t.closest('[data-bc-card]')) return
-      closePopover()
-    }
-    document.addEventListener('mousedown', fn)
-    return () => document.removeEventListener('mousedown', fn)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pinned])
-
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (over && active.id !== over.id) {
@@ -1111,25 +1102,22 @@ export default function SortableBlockList({
     }
   }
 
-  // ── Popover helpers ──
+  // ── Popover helpers (hover-only, no pinned state) ──
   function scheduleClose() {
-    leaveTimer.current = setTimeout(() => { if (!pinned) setActiveEntry(null) }, 140)
+    leaveTimer.current = setTimeout(() => setActiveEntry(null), 140)
   }
   function cancelClose() { if (leaveTimer.current) clearTimeout(leaveTimer.current) }
 
   function handleCardHover(entry: CatalogEntry, el: HTMLElement) {
     cancelClose()
-    if (pinned) return
-    setPopTop(el.getBoundingClientRect().top)
+    const r = el.getBoundingClientRect()
+    // Anchor popover to the right edge of the panel column (viewport-relative)
+    const panelRight = panelRef.current?.getBoundingClientRect().right ?? r.right
+    setPopTop(r.top)
+    setPopLeft(panelRight + 14)
     setActiveEntry(entry)
   }
-  function handleCardPin(entry: CatalogEntry, el: HTMLElement) {
-    cancelClose()
-    setPopTop(el.getBoundingClientRect().top)
-    setActiveEntry(entry)
-    setPinned(true)
-  }
-  function closePopover() { cancelClose(); setActiveEntry(null); setPinned(false) }
+  function closePopover() { cancelClose(); setActiveEntry(null) }
 
   function closeSelector() {
     setIsAdding(false); setQ(''); setFilter('todos')
@@ -1149,7 +1137,7 @@ export default function SortableBlockList({
   return (
     <>
       <style>{`@keyframes blkPopIn { from { opacity:0; transform:translateY(5px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }`}</style>
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+      <div ref={panelRef} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
 
         {/* ── Header ── */}
         <div style={{ padding: '10px 14px 8px', borderBottom: `1px solid ${T.border}`, flexShrink: 0 }}>
@@ -1243,7 +1231,6 @@ export default function SortableBlockList({
                   onUpgrade={() => setUpgradeOpen(true)}
                   onHover={handleCardHover}
                   onLeave={scheduleClose}
-                  onPin={handleCardPin}
                 />
               ))}
               {filteredCatalog.length === 0 && (
@@ -1273,12 +1260,13 @@ export default function SortableBlockList({
         description="Este bloque está disponible en el plan Pro. Actualiza para añadir bloques premium a tus páginas."
       />
 
-      {/* Popover flotante — position:fixed escapa overflow del panel */}
+      {/* Popover flotante — position:fixed, anclado al right edge del panel */}
       {isAdding && activeEntry && (
         <BlockPreviewPopover
           key={activeEntry.type}
           entry={activeEntry}
           top={popTop}
+          left={popLeft}
           onClose={closePopover}
           onAdd={handleAdd}
           onMouseEnter={cancelClose}
