@@ -15,7 +15,7 @@ import {
   GripVertical, Eye, EyeOff, Copy, Trash2, ChevronDown, Plus, RotateCcw,
   X, Search, Lock,
   Tag, Star, HelpCircle, ShoppingCart, Link2, User, Share2,
-  LayoutGrid, Shield, BarChart2, Zap, FileText, Package,
+  LayoutGrid, Shield, BarChart2, Zap, FileText, Package, Info,
 } from 'lucide-react'
 import type {
   LandingBlock, LandingTheme, BlockStyle,
@@ -349,10 +349,10 @@ interface Props {
 
 // ─── Sortable item ────────────────────────────────────────────────────────────
 function SortableItem({
-  block, theme, highlighted, idx,
+  block, theme, highlighted, idx, plan,
   onUpdateBlock, onUpdateBlockStyle, onToggleVisibility, onDelete, onDuplicate,
 }: {
-  block: LandingBlock; theme: LandingTheme; highlighted?: boolean; idx: number
+  block: LandingBlock; theme: LandingTheme; highlighted?: boolean; idx: number; plan: Plan
   onUpdateBlock: (id: string, data: Partial<LandingBlock['data']>) => void
   onUpdateBlockStyle: (id: string, style: Partial<BlockStyle>) => void
   onToggleVisibility: (id: string) => void
@@ -444,7 +444,7 @@ function SortableItem({
           </div>
           <div style={{ padding: '12px 14px 16px' }}>
             {tab === 'content'
-              ? <BlockEditor block={block} onUpdate={(data) => onUpdateBlock(block.id, data)} />
+              ? <BlockEditor block={block} onUpdate={(data) => onUpdateBlock(block.id, data)} plan={plan} />
               : <DesignEditor block={block} theme={theme} onUpdateStyle={(patch) => onUpdateBlockStyle(block.id, patch)} />
             }
           </div>
@@ -649,8 +649,8 @@ function DesignEditor({ block, theme, onUpdateStyle }: {
 }
 
 // ─── Block content editor router ──────────────────────────────────────────────
-function BlockEditor({ block, onUpdate }: {
-  block: LandingBlock; onUpdate: (data: Partial<LandingBlock['data']>) => void
+function BlockEditor({ block, onUpdate, plan }: {
+  block: LandingBlock; onUpdate: (data: Partial<LandingBlock['data']>) => void; plan: Plan
 }) {
   switch (block.type) {
     case 'hero_product':   return <HeroEditor       block={block} onUpdate={onUpdate} />
@@ -665,7 +665,7 @@ function BlockEditor({ block, onUpdate }: {
     case 'comparison':     return <ComparisonEditor    block={block} onUpdate={onUpdate} />
     case 'urgency_offer':    return <UrgencyOfferEditor    block={block} onUpdate={onUpdate} />
     case 'footer_legal':     return <FooterLegalEditor     block={block} onUpdate={onUpdate} />
-    case 'featured_product': return <FeaturedProductEditor block={block} onUpdate={onUpdate} />
+    case 'featured_product': return <FeaturedProductEditor block={block} onUpdate={onUpdate} plan={plan} />
     default:
       return <p style={{ fontSize: 11, color: T.ink3, fontStyle: 'italic' }}>Editor próximamente.</p>
   }
@@ -1090,93 +1090,283 @@ function FooterLegalEditor({ block, onUpdate }: { block: LandingBlock; onUpdate:
   )
 }
 
+// ─── Featured Product — editor helper components ──────────────────────────────
+
+function FPInfoTooltip({ text }: { text: string }) {
+  const [vis, setVis] = useState(false)
+  return (
+    <span
+      style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', cursor: 'help', marginLeft: 4, verticalAlign: 'middle' }}
+      onMouseEnter={() => setVis(true)}
+      onMouseLeave={() => setVis(false)}
+    >
+      <Info size={11} color="#9CA3AF" />
+      {vis && (
+        <div style={{
+          position: 'absolute', left: 18, top: -6, width: 210, zIndex: 9999,
+          background: '#1f2430', color: '#fff', fontSize: 11, lineHeight: 1.5,
+          padding: '8px 10px', borderRadius: 9,
+          boxShadow: '0 4px 16px rgba(0,0,0,.28)', pointerEvents: 'none',
+          whiteSpace: 'normal', wordBreak: 'break-word',
+        }}>
+          {text}
+        </div>
+      )}
+    </span>
+  )
+}
+
+function FPSwitch({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+  return (
+    <button
+      onClick={onToggle}
+      title={on ? 'Ocultar sección' : 'Mostrar sección'}
+      style={{
+        width: 30, height: 17, borderRadius: 999, border: 'none', padding: 2, flexShrink: 0,
+        background: on ? T.purple : '#D1D5DB', cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: on ? 'flex-end' : 'flex-start',
+        transition: 'background .15s',
+      }}
+    >
+      <div style={{ width: 13, height: 13, borderRadius: 999, background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.22)' }} />
+    </button>
+  )
+}
+
+/* Section with optional toggle. When toggle is OFF, children are hidden. */
+function FPSection({ label, toggle, on, onToggle, children }: {
+  label: string; toggle?: boolean; on?: boolean; onToggle?: () => void; children: React.ReactNode
+}) {
+  const isOpen = !toggle || on
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 7, marginBottom: isOpen ? 8 : 0,
+        paddingBottom: isOpen ? 6 : 0, borderBottom: isOpen ? `1px solid ${T.border}` : 'none',
+      }}>
+        {toggle && <FPSwitch on={!!on} onToggle={onToggle!} />}
+        <span style={{
+          fontSize: 10, fontWeight: 700, color: toggle && !on ? T.ink3 : T.purple,
+          textTransform: 'uppercase', letterSpacing: '.07em',
+        }}>
+          {label}
+        </span>
+        {toggle && !on && (
+          <span style={{ fontSize: 9.5, color: T.ink3, fontWeight: 500, marginLeft: 2 }}>(oculto)</span>
+        )}
+      </div>
+      {isOpen && <div>{children}</div>}
+    </div>
+  )
+}
+
 // ─── Featured Product editor ──────────────────────────────────────────────────
-function FeaturedProductEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Partial<LandingBlock['data']>) => void }) {
+function FeaturedProductEditor({ block, onUpdate, plan }: {
+  block: LandingBlock
+  onUpdate: (d: Partial<LandingBlock['data']>) => void
+  plan: Plan
+}) {
   const d = block.data as unknown as FeaturedProductData
-  const benefits: string[] = Array.isArray(d.benefits) ? d.benefits : ['Estimula el crecimiento capilar', 'Ingredientes 100% naturales', 'Resultados visibles en 7 días']
+  const [upgradeOpen, setUpgradeOpen] = useState(false)
+
+  const benefits: string[] = Array.isArray(d.benefits)
+    ? d.benefits
+    : ['Estimula el crecimiento capilar', 'Ingredientes 100% naturales', 'Resultados visibles en 7 días']
 
   const updBenefit = (i: number, val: string) => {
     const arr = [...benefits]; arr[i] = val; onUpdate({ benefits: arr })
   }
 
+  const isPro = plan === 'pro'
+  const imageFit = d.imageFit ?? 'cover'
+
   return (
     <>
-      <FG><FL>URL de imagen</FL><FI type="url" value={d.imageUrl ?? ''} placeholder="https://cdn.tumarca.com/producto.jpg" onChange={e => onUpdate({ imageUrl: e.target.value })} /></FG>
-      <FG><FL>Nombre del producto</FL><FI value={d.productName ?? ''} onChange={e => onUpdate({ productName: e.target.value })} /></FG>
-      <FG><FL>Descripción</FL><FTA value={d.description ?? ''} onChange={e => onUpdate({ description: e.target.value })} style={{ minHeight: 52 }} /></FG>
-      <FG><FL>Badge</FL><FI value={d.badgeText ?? ''} placeholder="Más vendido 🔥" onChange={e => onUpdate({ badgeText: e.target.value })} /></FG>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <FG style={{ flex: 1, marginBottom: 10 }}><FL>Rating</FL><FI type="number" value={d.rating ?? 4.9} step="0.1" min="0" max="5" onChange={e => onUpdate({ rating: parseFloat(e.target.value) || 0 })} /></FG>
-        <FG style={{ flex: 1, marginBottom: 10 }}><FL>Nº reseñas</FL><FI value={d.reviewCount ?? ''} placeholder="2.4K" onChange={e => onUpdate({ reviewCount: e.target.value })} /></FG>
-      </div>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <FG style={{ flex: 1, marginBottom: 10 }}><FL>Precio</FL><FI value={d.price ?? ''} placeholder="$29.99" onChange={e => onUpdate({ price: e.target.value })} /></FG>
-        <FG style={{ flex: 1, marginBottom: 10 }}><FL>Precio anterior</FL><FI value={d.compareAtPrice ?? ''} placeholder="$39.99" onChange={e => onUpdate({ compareAtPrice: e.target.value })} /></FG>
-      </div>
-      <FG><FL>Texto descuento</FL><FI value={d.discountText ?? ''} placeholder="-25%" onChange={e => onUpdate({ discountText: e.target.value })} /></FG>
+      {/* ── PRODUCT IMAGE ── */}
+      <FPSection label="Product Image">
+        {/* Image URL + info tooltip */}
+        <FG>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+            <FL>URL de imagen</FL>
+            <FPInfoTooltip text="Puedes pegar una URL de imagen desde Shopify, Amazon, AliExpress, tu CDN u otra plataforma. Copia la URL de la imagen y pégala aquí." />
+          </div>
+          <FI
+            type="url"
+            value={d.imageUrl ?? ''}
+            placeholder="https://cdn.tumarca.com/producto.jpg"
+            onChange={e => onUpdate({ imageUrl: e.target.value })}
+          />
+        </FG>
 
-      {/* Benefits */}
-      <div style={{ marginBottom: 4 }}><FL>Beneficios</FL></div>
-      {benefits.map((b, i) => (
-        <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
-          <FI value={b} onChange={e => updBenefit(i, e.target.value)} placeholder={`Beneficio ${i + 1}`} style={{ flex: 1 }} />
-          <DelBtn onClick={() => onUpdate({ benefits: benefits.filter((_, j) => j !== i) })} />
-        </div>
-      ))}
-      <AddBtn onClick={() => onUpdate({ benefits: [...benefits, 'Nuevo beneficio'] })} label="Añadir beneficio" />
-
-      <div style={{ marginTop: 10 }}>
-        <FG><FL>Texto del botón</FL><FI value={d.buttonText ?? ''} onChange={e => onUpdate({ buttonText: e.target.value })} /></FG>
-        <FG mb={0}><FL>URL del botón</FL><FI type="url" value={d.buttonUrl ?? ''} placeholder="https://tutienda.com/producto" onChange={e => onUpdate({ buttonUrl: e.target.value })} /></FG>
-      </div>
-
-      {/* Layout / style */}
-      <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px solid ${T.border}` }}>
-        <FL>Layout</FL>
-        <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-          {(['card', 'minimal'] as const).map(v => (
-            <button key={v} onClick={() => onUpdate({ layout: v })} style={{
-              flex: 1, padding: '6px 0', borderRadius: 8, cursor: 'pointer',
-              border: `1.5px solid ${d.layout === v ? T.purple : T.border2}`,
-              background: d.layout === v ? '#f3effe' : T.card,
-              color: d.layout === v ? T.purple : T.ink2, fontSize: 11.5, fontWeight: 600,
-            }}>
-              {v === 'card' ? 'Card' : 'Minimal'}
+        {/* Upload — Pro-gated */}
+        {isPro ? (
+          <button
+            style={{
+              width: '100%', padding: '8px 0', borderRadius: 8, marginBottom: 10,
+              border: `1.5px dashed ${T.border2}`, background: 'transparent',
+              color: T.purple, fontSize: 11.5, fontWeight: 600, cursor: 'not-allowed',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+            }}
+          >
+            📷 Subir imagen personalizada
+            <span style={{ fontSize: 9.5, fontWeight: 700, color: '#9CA3AF', marginLeft: 2 }}>— Función próximamente</span>
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={() => setUpgradeOpen(true)}
+              style={{
+                width: '100%', padding: '8px 0', borderRadius: 8, marginBottom: 6,
+                border: `1.5px dashed ${T.border2}`, background: '#fafbfc',
+                color: '#9CA3AF', fontSize: 11.5, fontWeight: 600, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              }}
+            >
+              <Lock size={11} />
+              Subir imagen personalizada
+              <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1px 5px', borderRadius: 4 }}>Pro</span>
             </button>
-          ))}
-        </div>
-        <FL>Estilo botón</FL>
-        <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-          {(['filled', 'outline'] as const).map(v => (
-            <button key={v} onClick={() => onUpdate({ buttonStyle: v })} style={{
-              flex: 1, padding: '6px 0', borderRadius: 8, cursor: 'pointer',
-              border: `1.5px solid ${d.buttonStyle === v ? T.purple : T.border2}`,
-              background: d.buttonStyle === v ? '#f3effe' : T.card,
-              color: d.buttonStyle === v ? T.purple : T.ink2, fontSize: 11.5, fontWeight: 600,
-            }}>
-              {v === 'filled' ? 'Filled' : 'Outline'}
-            </button>
-          ))}
-        </div>
-      </div>
+            <p style={{ fontSize: 10.5, color: T.ink3, margin: '0 0 10px', textAlign: 'center' }}>
+              Disponible en Pro
+            </p>
+            <UpgradeProModal
+              open={upgradeOpen}
+              onClose={() => setUpgradeOpen(false)}
+              title="Subir imágenes"
+              description="Subir imágenes personalizadas está disponible en el plan Pro. Actualiza para usar tus propias fotos de producto."
+            />
+          </>
+        )}
 
-      {/* Visibility toggles */}
-      <div style={{ paddingTop: 10, borderTop: `1px solid ${T.border}` }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>Visibilidad</div>
-        {([
-          ['showBadge',          'Mostrar badge'],
-          ['showRating',         'Mostrar rating'],
-          ['showPrice',          'Mostrar precio'],
-          ['showBenefits',       'Mostrar beneficios'],
-          ['showCompareAtPrice', 'Precio anterior'],
-          ['showDiscount',       'Badge descuento'],
-        ] as [string, string][]).map(([key, label]) => (
-          <label key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2, marginBottom: 6 }}>
-            <input type="checkbox" checked={!!(d as unknown as Record<string, unknown>)[key]} onChange={e => onUpdate({ [key]: e.target.checked })} />
-            {label}
-          </label>
+        {/* Image fit */}
+        <FG mb={0}>
+          <FL>Image fit</FL>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {(['cover', 'contain'] as const).map(v => (
+              <button
+                key={v}
+                onClick={() => onUpdate({ imageFit: v })}
+                style={{
+                  flex: 1, padding: '6px 0', borderRadius: 8, cursor: 'pointer', fontSize: 11.5, fontWeight: 600,
+                  border: `1.5px solid ${imageFit === v ? T.purple : T.border2}`,
+                  background: imageFit === v ? '#f3effe' : T.card,
+                  color: imageFit === v ? T.purple : T.ink2,
+                }}
+              >
+                {v === 'cover' ? 'Cover' : 'Contain'}
+              </button>
+            ))}
+          </div>
+          <p style={{ margin: '4px 0 0', fontSize: 10, color: T.ink3, lineHeight: 1.4 }}>
+            Cover recorta la imagen para rellenar. Contain la muestra completa.
+          </p>
+        </FG>
+      </FPSection>
+
+      {/* ── BADGE [toggle] ── */}
+      <FPSection
+        label="Badge"
+        toggle
+        on={d.showBadge ?? true}
+        onToggle={() => onUpdate({ showBadge: !(d.showBadge ?? true) })}
+      >
+        <FG mb={0}>
+          <FI value={d.badgeText ?? ''} placeholder="Más vendido 🔥" onChange={e => onUpdate({ badgeText: e.target.value })} />
+        </FG>
+      </FPSection>
+
+      {/* ── PRODUCT INFO ── */}
+      <FPSection label="Product Info">
+        <FG>
+          <FL>Nombre del producto</FL>
+          <FI value={d.productName ?? ''} onChange={e => onUpdate({ productName: e.target.value })} />
+        </FG>
+        <FG mb={0}>
+          <FL>Descripción</FL>
+          <FTA value={d.description ?? ''} onChange={e => onUpdate({ description: e.target.value })} style={{ minHeight: 52 }} />
+        </FG>
+      </FPSection>
+
+      {/* ── RATING [toggle] ── */}
+      <FPSection
+        label="Rating"
+        toggle
+        on={d.showRating ?? true}
+        onToggle={() => onUpdate({ showRating: !(d.showRating ?? true) })}
+      >
+        <div style={{ display: 'flex', gap: 8 }}>
+          <FG style={{ flex: 1, marginBottom: 0 }}>
+            <FL>Rating</FL>
+            <FI type="number" value={d.rating ?? 4.9} step="0.1" min="0" max="5" onChange={e => onUpdate({ rating: parseFloat(e.target.value) || 0 })} />
+          </FG>
+          <FG style={{ flex: 1, marginBottom: 0 }}>
+            <FL>Nº reseñas</FL>
+            <FI value={d.reviewCount ?? ''} placeholder="2.4K" onChange={e => onUpdate({ reviewCount: e.target.value })} />
+          </FG>
+        </div>
+      </FPSection>
+
+      {/* ── PRICING [toggle] ── */}
+      <FPSection
+        label="Pricing"
+        toggle
+        on={d.showPrice ?? true}
+        onToggle={() => onUpdate({ showPrice: !(d.showPrice ?? true) })}
+      >
+        <div style={{ display: 'flex', gap: 8 }}>
+          <FG style={{ flex: 1, marginBottom: 8 }}>
+            <FL>Precio</FL>
+            <FI value={d.price ?? ''} placeholder="$29.99" onChange={e => onUpdate({ price: e.target.value })} />
+          </FG>
+          <FG style={{ flex: 1, marginBottom: 8 }}>
+            <FL>Precio anterior</FL>
+            <FI value={d.compareAtPrice ?? ''} placeholder="$39.99" onChange={e => onUpdate({ compareAtPrice: e.target.value })} />
+          </FG>
+        </div>
+        <FG mb={0}>
+          <FL>Texto descuento</FL>
+          <FI value={d.discountText ?? ''} placeholder="-25%" onChange={e => onUpdate({ discountText: e.target.value })} />
+        </FG>
+      </FPSection>
+
+      {/* ── BENEFITS [toggle] ── */}
+      <FPSection
+        label="Benefits"
+        toggle
+        on={d.showBenefits ?? true}
+        onToggle={() => onUpdate({ showBenefits: !(d.showBenefits ?? true) })}
+      >
+        {benefits.map((b, i) => (
+          <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+            <FI value={b} onChange={e => updBenefit(i, e.target.value)} placeholder={`Beneficio ${i + 1}`} style={{ flex: 1 }} />
+            <DelBtn onClick={() => onUpdate({ benefits: benefits.filter((_, j) => j !== i) })} />
+          </div>
         ))}
-      </div>
+        <AddBtn onClick={() => onUpdate({ benefits: [...benefits, 'Nuevo beneficio'] })} label="Añadir beneficio" />
+      </FPSection>
+
+      {/* ── BUTTON [toggle] ── */}
+      <FPSection
+        label="Button"
+        toggle
+        on={d.showButton ?? true}
+        onToggle={() => onUpdate({ showButton: !(d.showButton ?? true) })}
+      >
+        <FG>
+          <FL>Texto del botón</FL>
+          <FI value={d.buttonText ?? ''} onChange={e => onUpdate({ buttonText: e.target.value })} />
+        </FG>
+        <FG>
+          <FL>URL del botón</FL>
+          <FI type="url" value={d.buttonUrl ?? ''} placeholder="https://tutienda.com/producto" onChange={e => onUpdate({ buttonUrl: e.target.value })} />
+        </FG>
+        <FG mb={0}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
+            <input type="checkbox" checked={d.openInNewTab ?? false} onChange={e => onUpdate({ openInNewTab: e.target.checked })} />
+            Abrir en nueva pestaña
+          </label>
+        </FG>
+      </FPSection>
     </>
   )
 }
@@ -1305,6 +1495,7 @@ export default function SortableBlockList({
                   <SortableItem
                     block={block} theme={theme}
                     idx={idx}
+                    plan={plan}
                     highlighted={lastAddedId === block.id}
                     onUpdateBlock={onUpdateBlock}
                     onUpdateBlockStyle={onUpdateBlockStyle}

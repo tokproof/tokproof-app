@@ -202,6 +202,8 @@ export interface FeaturedProductData {
   colorTheme: 'light' | 'dark'
   accentColor?: string
   buttonStyle: 'filled' | 'outline'
+  imageFit?: 'cover' | 'contain'
+  showButton?: boolean
   marginTop?: number
   marginBottom?: number
   customAnchorId?: string

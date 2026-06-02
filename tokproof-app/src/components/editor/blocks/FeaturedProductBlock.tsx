@@ -27,6 +27,8 @@ const DEFAULTS: FeaturedProductData = {
   colorTheme: 'light',
   accentColor: undefined,
   buttonStyle: 'filled',
+  imageFit: 'cover',
+  showButton: true,
 }
 
 function Stars({ rating }: { rating: number }) {
@@ -46,9 +48,11 @@ export default function FeaturedProductBlock({ block, theme }: Props) {
   const d   = { ...DEFAULTS, ...(block.data as unknown as Partial<FeaturedProductData>) }
   const rs  = resolveBlockStyle(block, theme)
 
-  const minimal = d.layout === 'minimal'
-  const dark    = d.colorTheme === 'dark'
-  const outline = d.buttonStyle === 'outline'
+  const minimal    = d.layout === 'minimal'
+  const dark       = d.colorTheme === 'dark'
+  const outline    = d.buttonStyle === 'outline'
+  const fit        = d.imageFit ?? 'cover'
+  const showButton = d.showButton ?? true
 
   /* accent: block-level override → page accent → page primary */
   const acc = d.accentColor ?? rs.accent
@@ -96,7 +100,7 @@ export default function FeaturedProductBlock({ block, theme }: Props) {
           }}>
             {d.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={d.imageUrl} alt={d.productName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={d.imageUrl} alt={d.productName} style={{ width: '100%', height: '100%', objectFit: fit }} />
             ) : (
               <>
                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,rgba(255,255,255,.22) 0%,transparent 55%)' }} />
@@ -180,7 +184,7 @@ export default function FeaturedProductBlock({ block, theme }: Props) {
           )}
 
           {/* CTA button */}
-          <a
+          {showButton && <a
             href={d.buttonUrl || '#'}
             target={d.openInNewTab ? '_blank' : undefined}
             rel={d.openInNewTab ? 'noopener noreferrer' : undefined}
@@ -193,7 +197,7 @@ export default function FeaturedProductBlock({ block, theme }: Props) {
             }}
           >
             {d.buttonText}
-          </a>
+          </a>}
 
         </div>
       </div>
