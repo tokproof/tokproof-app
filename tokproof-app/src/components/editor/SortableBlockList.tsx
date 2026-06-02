@@ -33,6 +33,7 @@ import type {
   FeaturedProductData,
   PartnerDiscountsData,
   PartnerDiscount,
+  PDColors,
 } from '@/types/landing'
 import { FONT_OPTIONS } from '@/lib/blockStyle'
 
@@ -1463,7 +1464,85 @@ function PDToggle({ label, value, onChange }: { label: string; value: boolean; o
   )
 }
 
-// ─── Partner Discounts editor (3 tabs: Contenido / Estilo / Avanzado) ─────────
+// ─── Color row for the Estilo tab ────────────────────────────────────────────
+function PDColorRow({ label, value, onChange, onReset }: {
+  label: string; value: string | undefined; onChange: (v: string) => void; onReset: () => void
+}) {
+  const fallback = value?.startsWith('#') ? value : '#888888'
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
+      <input type="color" value={value ?? fallback} onChange={e => onChange(e.target.value)}
+        style={{ width: 22, height: 22, borderRadius: 4, cursor: 'pointer', padding: 1, border: 'none', background: 'none', flexShrink: 0 }} />
+      <span style={{ flex: 1, fontSize: 11, color: T.ink2 }}>{label}</span>
+      {value !== undefined && (
+        <button onClick={onReset} title="Resetear" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: T.ink3, padding: 0 }}>
+          <RotateCcw size={9} />
+        </button>
+      )}
+    </div>
+  )
+}
+
+function PDColorSection({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <div style={{ fontSize: 9.5, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>{label}</div>
+      {children}
+    </div>
+  )
+}
+
+// ─── Presets ──────────────────────────────────────────────────────────────────
+type PresetName = 'light' | 'pink' | 'purple' | 'dark'
+const PD_PRESETS: Record<PresetName, PDColors> = {
+  light: {
+    sectionBg: '#F9FAFB', titleColor: '#111827', subtitleColor: '#6B7280',
+    badgeBg: '#FDF2F8', badgeText: '#DB2777',
+    cardBg: '#FFFFFF', cardBorder: '#E5E7EB',
+    brandColor: '#111827', descriptionColor: '#6B7280',
+    discountBg: '#FDF2F8', discountText: '#DB2777',
+    codeBg: '#F3F4F6', codeText: '#374151',
+    copyBg: '#F3F4F6', copyText: '#6B7280',
+    ctaBg: '#111827', ctaText: '#FFFFFF',
+    footerBg: '#FDF2F8', footerTextColor: '#DB2777',
+  },
+  pink: {
+    sectionBg: '#FFF1F8', titleColor: '#831843', subtitleColor: '#9D174D',
+    badgeBg: '#FCE7F3', badgeText: '#BE185D',
+    cardBg: '#FFFFFF', cardBorder: '#FBCFE8',
+    brandColor: '#831843', descriptionColor: '#9D174D',
+    discountBg: '#FCE7F3', discountText: '#BE185D',
+    codeBg: '#FFF1F8', codeText: '#831843',
+    copyBg: '#FCE7F3', copyText: '#BE185D',
+    ctaBg: '#EC4899', ctaText: '#FFFFFF',
+    footerBg: '#FCE7F3', footerTextColor: '#BE185D',
+  },
+  purple: {
+    sectionBg: '#F5F3FF', titleColor: '#3B0764', subtitleColor: '#6B21A8',
+    badgeBg: '#EDE9FE', badgeText: '#6D28D9',
+    cardBg: '#FFFFFF', cardBorder: '#DDD6FE',
+    brandColor: '#3B0764', descriptionColor: '#6B21A8',
+    discountBg: '#EDE9FE', discountText: '#6D28D9',
+    codeBg: '#F5F3FF', codeText: '#3B0764',
+    copyBg: '#EDE9FE', copyText: '#6D28D9',
+    ctaBg: '#7C3AED', ctaText: '#FFFFFF',
+    footerBg: '#EDE9FE', footerTextColor: '#6D28D9',
+  },
+  dark: {
+    sectionBg: '#0F0F10', titleColor: '#FFFFFF', subtitleColor: 'rgba(255,255,255,0.55)',
+    badgeBg: 'rgba(246,71,169,0.15)', badgeText: '#F647A9',
+    cardBg: 'rgba(255,255,255,0.08)', cardBorder: 'rgba(255,255,255,0.12)',
+    brandColor: '#FFFFFF', descriptionColor: 'rgba(255,255,255,0.55)',
+    discountBg: 'rgba(246,71,169,0.18)', discountText: '#F647A9',
+    codeBg: 'rgba(255,255,255,0.08)', codeText: '#FFFFFF',
+    copyBg: 'rgba(255,255,255,0.08)', copyText: 'rgba(255,255,255,0.65)',
+    ctaBg: '#FFFFFF', ctaText: '#0F0F10',
+    footerBg: 'rgba(246,71,169,0.12)', footerTextColor: '#F647A9',
+  },
+}
+const PRESET_LABELS: Record<PresetName, string> = { light: 'Light', pink: 'Pink', purple: 'Purple', dark: 'Dark' }
+
+// ─── Partner Discounts editor (2 tabs: Contenido / Estilo) ────────────────────
 function PartnerDiscountsEditor({ block, onUpdate, onUpdateStyle, plan, theme }: {
   block: LandingBlock
   onUpdate: (d: Partial<LandingBlock['data']>) => void
@@ -1474,12 +1553,38 @@ function PartnerDiscountsEditor({ block, onUpdate, onUpdateStyle, plan, theme }:
   const d = block.data as unknown as PartnerDiscountsData
   const [tab, setTab]                   = useState<'content' | 'style'>('content')
   const [expandedIds, setExpandedIds]   = useState<Set<string>>(new Set())
-  const [uploadOpenId, setUploadOpenId] = useState<string | null>(null)
   const [upgradeOpen, setUpgradeOpen]   = useState(false)
+  const [uploadingId, setUploadingId]   = useState<string | null>(null)
 
   const isPro      = plan === 'pro'
   const discounts: PartnerDiscount[] = Array.isArray(d.discounts) ? d.discounts : []
   const layout     = d.layout ?? 'compact'
+  const colors     = d.colors ?? {}
+
+  function setColor(key: keyof PDColors, val: string) {
+    onUpdate({ colors: { ...colors, [key]: val } })
+  }
+  function resetColor(key: keyof PDColors) {
+    const next = { ...colors }; delete next[key]
+    onUpdate({ colors: Object.keys(next).length > 0 ? next : undefined })
+  }
+
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>, dcId: string) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingId(dcId)
+    let url: string | null = null
+    try {
+      const { createClient } = await import('@/lib/supabase/client')
+      const sb = createClient()
+      const path = `partner-logos/${Date.now()}_${file.name.replace(/\s+/g, '_')}`
+      const { error } = await sb.storage.from('uploads').upload(path, file)
+      if (!error) url = sb.storage.from('uploads').getPublicUrl(path).data.publicUrl
+    } catch { /* fallback */ }
+    const finalUrl = url ?? URL.createObjectURL(file)
+    updDiscount(dcId, { logoUrl: finalUrl })
+    setUploadingId(null)
+  }
 
   function toggleExpand(id: string) {
     setExpandedIds(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s })
@@ -1605,34 +1710,30 @@ function PartnerDiscountsEditor({ block, onUpdate, onUpdateStyle, plan, theme }:
                           <FI type="url" value={dc.storeUrl} placeholder="https://gymshark.com" onChange={e => updDiscount(dc.id, { storeUrl: e.target.value })} />
                         </FG>
 
-                        {/* Upload custom logo — Pro gated (no manual logoUrl input) */}
+                        {/* Upload custom logo — Pro gated, real upload */}
                         {isPro ? (
-                          <>
-                            <button
-                              onClick={() => setUploadOpenId(uploadOpenId === dc.id ? null : dc.id)}
-                              style={{ width: '100%', padding: '7px 0', borderRadius: 8, marginBottom: uploadOpenId === dc.id ? 6 : 10, border: `1.5px dashed ${T.purple}`, background: '#f3effe', color: T.purple, fontSize: 11.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-                              onMouseEnter={e => (e.currentTarget.style.background = '#ede7fd')}
-                              onMouseLeave={e => (e.currentTarget.style.background = '#f3effe')}
-                            >
-                              🖼️ Subir logo personalizado
-                            </button>
-                            {uploadOpenId === dc.id && (
-                              <div style={{ marginBottom: 10, padding: '8px 10px', borderRadius: 8, background: '#faf7ff', border: `1px solid ${T.border2}`, fontSize: 11, color: T.ink2, lineHeight: 1.5 }}>
-                                La subida de imágenes estará disponible próximamente. Por ahora pega la URL del logo en el campo de arriba.
+                          <FG mb={10}>
+                            <label style={{ display: 'block', cursor: 'pointer' }}>
+                              <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleLogoUpload(e, dc.id)} />
+                              <div style={{ width: '100%', padding: '7px 0', borderRadius: 8, border: `1.5px dashed ${T.purple}`, background: '#f3effe', color: T.purple, fontSize: 11.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                {uploadingId === dc.id ? '⏳ Subiendo...' : (dc.logoUrl ? '🖼️ Cambiar logo' : '🖼️ Subir logo personalizado')}
+                              </div>
+                            </label>
+                            {dc.logoUrl && (
+                              <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={dc.logoUrl} alt="" style={{ width: 28, height: 28, borderRadius: 5, objectFit: 'contain', border: `1px solid ${T.border2}` }} />
+                                <button onClick={() => updDiscount(dc.id, { logoUrl: '' })} style={{ fontSize: 10, color: T.red, background: 'none', border: 'none', cursor: 'pointer' }}>Eliminar</button>
                               </div>
                             )}
-                          </>
+                          </FG>
                         ) : (
-                          <>
-                            <button
-                              onClick={() => setUpgradeOpen(true)}
-                              style={{ width: '100%', padding: '7px 0', borderRadius: 8, marginBottom: 4, border: `1.5px dashed ${T.border2}`, background: '#fafbfc', color: '#9CA3AF', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-                            >
+                          <FG mb={10}>
+                            <button onClick={() => setUpgradeOpen(true)} style={{ width: '100%', padding: '7px 0', borderRadius: 8, border: `1.5px dashed ${T.border2}`, background: '#fafbfc', color: '#9CA3AF', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                               <Lock size={11} /> Subir logo personalizado
                               <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1px 5px', borderRadius: 4 }}>Pro</span>
                             </button>
-                            <p style={{ fontSize: 10.5, color: T.ink3, margin: '0 0 10px', textAlign: 'center' }}>Disponible en Pro</p>
-                          </>
+                          </FG>
                         )}
 
                         {/* Code + Discount row */}
@@ -1707,8 +1808,8 @@ function PartnerDiscountsEditor({ block, onUpdate, onUpdateStyle, plan, theme }:
         {/* ══ ESTILO ══ */}
         {tab === 'style' && (
           <div>
-            {/* Layout selector */}
-            <FG mb={14}>
+            {/* Layout */}
+            <FG mb={12}>
               <FL>Layout</FL>
               <div style={{ display: 'flex', gap: 6 }}>
                 {(['compact', 'detailed'] as const).map(v => (
@@ -1722,16 +1823,92 @@ function PartnerDiscountsEditor({ block, onUpdate, onUpdateStyle, plan, theme }:
                   </button>
                 ))}
               </div>
-              <p style={{ margin: '5px 0 0', fontSize: 10, color: T.ink3, lineHeight: 1.4 }}>
-                Compact: tarjetas compactas. Detailed: descripción + botón visible.
-              </p>
             </FG>
 
-            {/* Separator */}
-            <div style={{ height: 1, background: T.border, margin: '0 0 14px' }} />
+            {/* Shadow intensity */}
+            <FG mb={12}>
+              <FL>Shadow</FL>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {(['none', 'soft', 'medium'] as const).map(v => {
+                  const active = (d.shadowIntensity ?? 'soft') === v
+                  return (
+                    <button key={v} onClick={() => onUpdate({ shadowIntensity: v })} style={{
+                      flex: 1, padding: '6px 0', borderRadius: 7, cursor: 'pointer', fontSize: 11, fontWeight: 600,
+                      border: `1.5px solid ${active ? T.purple : T.border2}`,
+                      background: active ? '#f3effe' : T.card,
+                      color: active ? T.purple : T.ink2,
+                    }}>
+                      {v === 'none' ? 'None' : v === 'soft' ? 'Soft' : 'Medium'}
+                    </button>
+                  )
+                })}
+              </div>
+            </FG>
 
-            {/* Standard design controls (colors, typography, borders, spacing) */}
-            <DesignEditor block={block} theme={theme} onUpdateStyle={onUpdateStyle} />
+            <div style={{ height: 1, background: T.border, margin: '0 0 12px' }} />
+
+            {/* Presets */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 9.5, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 7 }}>Presets</div>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {(Object.keys(PD_PRESETS) as PresetName[]).map(name => (
+                  <button key={name} onClick={() => onUpdate({ colors: PD_PRESETS[name] })} style={{
+                    flex: 1, padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`,
+                    background: T.card, fontSize: 11, fontWeight: 600, color: T.ink2, cursor: 'pointer',
+                  }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#f3effe')}
+                    onMouseLeave={e => (e.currentTarget.style.background = T.card)}
+                  >
+                    {PRESET_LABELS[name]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Color grid */}
+            <PDColorSection label="Sección">
+              <PDColorRow label="Fondo sección"  value={colors.sectionBg}      onChange={v => setColor('sectionBg', v)}      onReset={() => resetColor('sectionBg')} />
+              <PDColorRow label="Título"         value={colors.titleColor}     onChange={v => setColor('titleColor', v)}     onReset={() => resetColor('titleColor')} />
+              <PDColorRow label="Subtítulo"      value={colors.subtitleColor}  onChange={v => setColor('subtitleColor', v)}  onReset={() => resetColor('subtitleColor')} />
+            </PDColorSection>
+
+            <PDColorSection label="Badge &quot;Ofertas exclusivas&quot;">
+              <PDColorRow label="Fondo badge"  value={colors.badgeBg}   onChange={v => setColor('badgeBg', v)}   onReset={() => resetColor('badgeBg')} />
+              <PDColorRow label="Texto badge"  value={colors.badgeText} onChange={v => setColor('badgeText', v)} onReset={() => resetColor('badgeText')} />
+            </PDColorSection>
+
+            <PDColorSection label="Tarjetas">
+              <PDColorRow label="Fondo card"    value={colors.cardBg}          onChange={v => setColor('cardBg', v)}          onReset={() => resetColor('cardBg')} />
+              <PDColorRow label="Borde card"    value={colors.cardBorder}      onChange={v => setColor('cardBorder', v)}      onReset={() => resetColor('cardBorder')} />
+              <PDColorRow label="Nombre marca"  value={colors.brandColor}      onChange={v => setColor('brandColor', v)}      onReset={() => resetColor('brandColor')} />
+              <PDColorRow label="Descripción"   value={colors.descriptionColor}onChange={v => setColor('descriptionColor', v)}onReset={() => resetColor('descriptionColor')} />
+            </PDColorSection>
+
+            <PDColorSection label="Chips">
+              <PDColorRow label="Descuento fondo"  value={colors.discountBg}   onChange={v => setColor('discountBg', v)}   onReset={() => resetColor('discountBg')} />
+              <PDColorRow label="Descuento texto"  value={colors.discountText} onChange={v => setColor('discountText', v)} onReset={() => resetColor('discountText')} />
+              <PDColorRow label="Código fondo"     value={colors.codeBg}       onChange={v => setColor('codeBg', v)}       onReset={() => resetColor('codeBg')} />
+              <PDColorRow label="Código texto"     value={colors.codeText}     onChange={v => setColor('codeText', v)}     onReset={() => resetColor('codeText')} />
+              <PDColorRow label="Copiar fondo"     value={colors.copyBg}       onChange={v => setColor('copyBg', v)}       onReset={() => resetColor('copyBg')} />
+              <PDColorRow label="Copiar icono"     value={colors.copyText}     onChange={v => setColor('copyText', v)}     onReset={() => resetColor('copyText')} />
+            </PDColorSection>
+
+            <PDColorSection label="Botón externo (Detailed)">
+              <PDColorRow label="Fondo botón"  value={colors.ctaBg}   onChange={v => setColor('ctaBg', v)}   onReset={() => resetColor('ctaBg')} />
+              <PDColorRow label="Texto botón"  value={colors.ctaText} onChange={v => setColor('ctaText', v)} onReset={() => resetColor('ctaText')} />
+            </PDColorSection>
+
+            <PDColorSection label="Footer">
+              <PDColorRow label="Fondo footer"  value={colors.footerBg}        onChange={v => setColor('footerBg', v)}        onReset={() => resetColor('footerBg')} />
+              <PDColorRow label="Texto footer"  value={colors.footerTextColor} onChange={v => setColor('footerTextColor', v)} onReset={() => resetColor('footerTextColor')} />
+            </PDColorSection>
+
+            {/* Reset all colors */}
+            {Object.keys(colors).length > 0 && (
+              <button onClick={() => onUpdate({ colors: undefined })} style={{ marginTop: 6, width: '100%', padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`, background: 'none', color: T.ink3, fontSize: 11, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                <RotateCcw size={11} /> Restablecer todos los colores
+              </button>
+            )}
           </div>
         )}
 

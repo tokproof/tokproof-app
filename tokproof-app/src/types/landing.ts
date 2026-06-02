@@ -213,6 +213,28 @@ export interface FeaturedProductData {
   hideOnDesktop?: boolean
 }
 
+export interface PDColors {
+  sectionBg?: string
+  titleColor?: string
+  subtitleColor?: string
+  badgeBg?: string
+  badgeText?: string
+  cardBg?: string
+  cardBorder?: string
+  brandColor?: string
+  descriptionColor?: string
+  discountBg?: string
+  discountText?: string
+  codeBg?: string
+  codeText?: string
+  copyBg?: string
+  copyText?: string
+  ctaBg?: string
+  ctaText?: string
+  footerBg?: string
+  footerTextColor?: string
+}
+
 export interface PartnerDiscount {
   id: string
   brandName: string
@@ -243,6 +265,8 @@ export interface PartnerDiscountsData {
   marginTop?: number
   marginBottom?: number
   customAnchorId?: string
+  colors?: PDColors
+  shadowIntensity?: 'none' | 'soft' | 'medium'
   hideOnMobile?: boolean
   hideOnDesktop?: boolean
 }
