@@ -445,15 +445,39 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
             )}
             <div style={{ width: isMobile ? '100%' : 290, height: isMobile ? 'calc(62vh - 18px)' : '100vh', background: T.card, borderRight: isMobile ? 'none' : `1px solid ${T.border2}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 1 }}>
 
-              {/* Panel header */}
-              <div style={{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 13.5, fontWeight: 700, color: T.pink }}>
-                  {activeTool === 'secciones' ? 'Bloques' : activeTool === 'estilos' ? 'Tema' : 'Ajustes'}
-                </span>
-                {isDemo && (
-                  <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', background: 'rgba(245,158,11,.12)', borderRadius: 999, color: '#b45309' }}>Demo</span>
-                )}
-              </div>
+              {/* Panel header — desktop: label / mobile: tab bar */}
+              {isMobile ? (
+                <div style={{ display: 'flex', borderBottom: `1px solid ${T.border}`, flexShrink: 0 }}>
+                  {([
+                    { id: 'secciones', icon: LayoutGrid, label: 'Secciones' },
+                    { id: 'estilos',   icon: Palette,    label: 'Diseño'    },
+                    { id: 'ajustes',   icon: Settings,   label: 'Ajustes'   },
+                  ] as const).map(tool => {
+                    const active = activeTool === tool.id
+                    return (
+                      <button key={tool.id} onClick={() => setActiveTool(tool.id)} style={{
+                        flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+                        padding: '8px 0 9px', border: 'none', background: 'none', cursor: 'pointer',
+                        color: active ? T.pink : T.ink3,
+                        borderBottom: `2px solid ${active ? T.pink : 'transparent'}`,
+                        transition: 'color .15s',
+                      }}>
+                        <tool.icon size={17} />
+                        <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '.01em' }}>{tool.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div style={{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: 13.5, fontWeight: 700, color: T.pink }}>
+                    {activeTool === 'secciones' ? 'Bloques' : activeTool === 'estilos' ? 'Tema' : 'Ajustes'}
+                  </span>
+                  {isDemo && (
+                    <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', background: 'rgba(245,158,11,.12)', borderRadius: 999, color: '#b45309' }}>Demo</span>
+                  )}
+                </div>
+              )}
 
               {/* Page info card */}
               <div style={{ margin: '10px 12px 4px', padding: '10px 14px', background: T.softPurple, borderRadius: 12, flexShrink: 0 }}>
