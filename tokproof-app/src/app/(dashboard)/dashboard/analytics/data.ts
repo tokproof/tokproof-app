@@ -199,7 +199,7 @@ export const TABLE_HEADERS = [
 
 export const TABLE_ROWS: PageRow[] = [
   {
-    name: 'RevHair', url: '/revhair',
+    name: 'BeautyLab', url: '/beautylab',
     gradient: 'linear-gradient(135deg,#F9A8C9,#C084FC)',
     cols: ['4.892', '3.462', '1.532', '31.3%', '75.2%', '3.420', '1.156'],
   },

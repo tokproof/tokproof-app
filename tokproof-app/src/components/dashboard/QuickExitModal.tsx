@@ -181,7 +181,7 @@ export default function QuickExitModal({ open, onClose, userId, editing, onSaved
         {/* Name */}
         <div style={{ marginBottom: 14 }}>
           <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>Nombre</label>
-          <input value={name} onChange={e => handleNameChange(e.target.value)} placeholder="RevHair"
+          <input value={name} onChange={e => handleNameChange(e.target.value)} placeholder="Mi Marca"
             style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1.5px solid #E4E7F0', fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
         </div>
 
@@ -191,7 +191,7 @@ export default function QuickExitModal({ open, onClose, userId, editing, onSaved
           <div style={{ position: 'relative' }}>
             <div style={{ display: 'flex' }}>
               <span style={{ padding: '9px 10px', background: '#F3F4F6', border: '1.5px solid #E4E7F0', borderRight: 'none', borderRadius: '10px 0 0 10px', fontSize: 13, color: '#9CA3AF', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center' }}>@</span>
-              <input value={slug} onChange={e => handleSlugChange(e.target.value)} placeholder="revhair" disabled={isEditing}
+              <input value={slug} onChange={e => handleSlugChange(e.target.value)} placeholder="mimarca" disabled={isEditing}
                 style={{ flex: 1, padding: '9px 12px', borderRadius: '0 10px 10px 0', border: '1.5px solid #E4E7F0', borderLeft: 'none', fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', background: isEditing ? '#F9FAFB' : '#fff' }} />
             </div>
             {slugMsg && <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 12, fontWeight: 700, color: slugColor }}>{slugMsg}</span>}
@@ -224,7 +224,7 @@ export default function QuickExitModal({ open, onClose, userId, editing, onSaved
               value={tiktokProfile}
               onChange={e => { setTiktokProfile(e.target.value.replace(/^@+/, '')); if (tiktokError) setTiktokError('') }}
               onBlur={() => { if (tiktokProfile) validateTikTok(tiktokProfile) }}
-              placeholder="gemaferrero"
+              placeholder="tucreador"
               style={{ flex: 1, padding: '9px 12px', borderRadius: '0 10px 10px 0', border: `1.5px solid ${tiktokError ? '#FCA5A5' : '#E4E7F0'}`, borderLeft: 'none', fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', background: tiktokError ? '#FFF5F5' : '#fff' }}
             />
           </div>

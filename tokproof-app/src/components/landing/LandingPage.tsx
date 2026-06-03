@@ -365,7 +365,7 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
             <div className="phone">
               <div className="pscreen">
                 <div className="pstat"><span>9:41</span><span className="r"><svg width="14" height="10" viewBox="0 0 16 11" fill="#1a1a1a"><rect x="0" y="7" width="2.5" height="4" rx=".5"/><rect x="3.5" y="5" width="2.5" height="6" rx=".5"/><rect x="7" y="2.5" width="2.5" height="8.5" rx=".5"/><rect x="10.5" y="0" width="2.5" height="11" rx=".5"/></svg></span></div>
-                <div className="phead"><span className="lg">G</span>GLOWLAB<span className="st">🔥 Trending</span></div>
+                <div className="phead"><span className="lg">S</span>SKINGLOW<span className="st">🔥 Trending</span></div>
                 <div className="phero-img"><div className="jar" /></div>
                 <div className="pbody">
                   <div className="ttl">Vitamin C <span className="ac">Face Serum</span></div>
@@ -375,7 +375,7 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
                   <button className="pbuy">🧴 Ver producto oficial</button>
                   <button className="psecond"><span className="tk"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 3a5 5 0 0 0 4 4v3a8 8 0 0 1-4-1v7a6 6 0 1 1-6-6v3a3 3 0 1 0 3 3V3z"/></svg></span>Ver vídeo en TikTok</button>
                   <div className="pcomments-h">Comentarios <a href="#">Ver más</a></div>
-                  <div className="pcomment"><div className="ca" /><div><div className="cn">@skincarebysofia</div><div className="ct">GLOWING en 3 días 😍 esto sí funciona</div></div><div className="hl"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-9.5-9A5 5 0 0 1 12 6a5 5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg>2.3k</div></div>
+                  <div className="pcomment"><div className="ca" /><div><div className="cn">@beautybylucia</div><div className="ct">GLOWING en 3 días 😍 esto sí funciona</div></div><div className="hl"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-9.5-9A5 5 0 0 1 12 6a5 5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg>2.3k</div></div>
                 </div>
               </div>
             </div>
@@ -546,7 +546,7 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
                 <div className="eg-top">
                   <span className="url">
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zM9 9V6a3 3 0 1 1 6 0v3H9z"/></svg>
-                    tokproof.app/@glowlab
+                    tokproof.app/@skinglow
                   </span>
                   <span className="eg-dots">
                     <span className="rng"/>
@@ -771,7 +771,7 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
           <div className="testi-track-wrap">
             <div className="testi-track" ref={testiTrackRef}>
               {[
-                { q: '"Desde que usamos Tokproof nuestras conversiones desde TikTok aumentaron más de 40%. Impresionante."', nm: 'María Gómez', rl: '@glowlab', grad: 'linear-gradient(135deg,#FFD1B1,#FFB1E7)' },
+                { q: '"Desde que usamos Tokproof nuestras conversiones desde TikTok aumentaron más de 40%. Impresionante."', nm: 'María Gómez', rl: '@skinglow', grad: 'linear-gradient(135deg,#FFD1B1,#FFB1E7)' },
                 { q: '"Por fin una herramienta que entiende TikTok y me permite vender sin miedo a bloqueos."', nm: 'Javier Ruiz', rl: 'Fitness Pro', grad: 'linear-gradient(135deg,#B1D4FF,#C9A0FF)' },
                 { q: '"Centralicé todos mis enlaces y ahora todo se ve más profesional y mis ventas se duplicaron."', nm: 'Laura Martínez', rl: 'Cozy Home', grad: 'linear-gradient(135deg,#FFB1C1,#FF9BE0)' },
                 { q: '"La página de confianza eliminó las dudas de mis clientes. Las ventas subieron sin gastar más en ads."', nm: 'Diego Salas', rl: 'TechDrop', grad: 'linear-gradient(135deg,#C9F4D4,#A0E0FF)' },
