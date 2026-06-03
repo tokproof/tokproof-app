@@ -262,12 +262,31 @@ export default function AppShell({ children, profile }: AppShellProps) {
 
       {/* ── App body ─────────────────────────────────────────────────────── */}
       <div className={`app-body${collapsed ? ' sidebar-collapsed' : ''}`}>
-        <div className="app-topbar" style={{ display: 'none' }} id="mobile-topbar">
-          <button className="nav-mobile-toggle" onClick={() => setMobileOpen(v => !v)}>☰</button>
-          <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 900, fontSize: 15, color: 'var(--text)' }}>
+        {/* Mobile topbar — hidden on desktop via CSS, shown on mobile */}
+        <div className="app-topbar" id="mobile-topbar">
+          <button
+            className="nav-mobile-toggle"
+            onClick={() => setMobileOpen(v => !v)}
+            aria-label="Abrir menú"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round">
+              <line x1="3" y1="7" x2="21" y2="7"/>
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="17" x2="21" y2="17"/>
+            </svg>
+          </button>
+          <Link href="/dashboard" className="tb-logo">
             <TokproofLogo size="xs" />
-            Tokproof
+            <span>Tokproof</span>
           </Link>
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div
+              className="nav-user-av"
+              style={{ width: 30, height: 30, fontSize: 12, flexShrink: 0 }}
+            >
+              {initials}
+            </div>
+          </div>
         </div>
         {children}
       </div>

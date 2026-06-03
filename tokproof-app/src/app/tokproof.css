@@ -4525,3 +4525,185 @@ body { background: var(--bg); }
 }
 /* Hover lift on category icons */
 .help-cat-item:hover .cat-ico { transform: translateY(-3px); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DASHBOARD MOBILE RESPONSIVE
+   Desktop ≥1024px is never modified. All rules target ≤900px.
+   Appended at end of file so they take highest priority.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── App topbar: hidden on desktop; CSS controls visibility ── */
+.app-topbar { display: none; }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   ≤900px — Sidebar becomes drawer, mobile topbar appears
+   ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+
+  /* Topbar */
+  .app-topbar {
+    display: flex !important;
+    height: 54px; padding: 0 16px; gap: 10px;
+    background: var(--bg, #fff);
+    border-bottom: 1px solid var(--border, rgba(0,0,0,.08));
+    position: sticky; top: 0; z-index: 50;
+    align-items: center; flex-shrink: 0;
+  }
+
+  /* Hamburger */
+  .nav-mobile-toggle {
+    display: flex;
+    align-items: center; justify-content: center;
+    width: 40px; height: 40px;
+    min-height: 40px; min-width: 40px;
+    background: var(--card2, #f5f5f5);
+    border: 1px solid var(--border, rgba(0,0,0,.08));
+    border-radius: 10px;
+    cursor: pointer; color: var(--text, #171717);
+    flex-shrink: 0; transition: background .14s;
+  }
+  .nav-mobile-toggle:hover { background: var(--hover-bg, #ececec); }
+
+  /* No left margin — sidebar is overlay */
+  .app-body { margin-left: 0 !important; overflow-x: hidden; }
+  .db-main { padding: 20px 20px 72px !important; overflow-x: hidden; }
+
+  /* Sidebar elevated when open */
+  .nav-sidebar.open { box-shadow: 4px 0 28px rgba(0,0,0,.18); z-index: 100; }
+
+  /* Touch targets */
+  .page-menu-btn { min-height: 44px; min-width: 44px; }
+  .page-filter-tab { min-height: 36px; }
+  .nav-item { min-height: 44px; }
+
+  /* Header */
+  .db-header { margin-bottom: 20px; }
+  .db-heading { font-size: 22px; }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   ≤640px — Full mobile layout
+   ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+
+  /* Padding */
+  .db-main { padding: 16px 16px 72px !important; }
+
+  /* Header: stack vertically */
+  .db-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .db-heading { font-size: 20px; }
+  .db-subheading { font-size: 13px; }
+
+  /* Header actions: horizontal scroll */
+  .db-header-actions {
+    width: 100%;
+    overflow-x: auto; flex-wrap: nowrap;
+    scrollbar-width: none; -ms-overflow-style: none;
+    gap: 6px; padding-bottom: 2px;
+  }
+  .db-header-actions::-webkit-scrollbar { display: none; }
+  .db-header-actions button,
+  .db-header-actions a {
+    min-height: 40px;
+    white-space: nowrap; flex-shrink: 0;
+    font-size: 13px;
+  }
+
+  /* Metric cards: 1 column, full width, spacious */
+  .db-metrics {
+    grid-template-columns: 1fr !important;
+    gap: 10px; margin-bottom: 16px;
+  }
+  .db-metric-card {
+    padding: 16px 18px;
+    border-radius: 16px;
+    display: flex; flex-direction: row;
+    align-items: center; gap: 14px;
+  }
+  .db-metric-left { flex: 1; gap: 4px; }
+  .db-metric-icon { width: 40px; height: 40px; font-size: 18px; border-radius: 12px; flex-shrink: 0; }
+  .db-metric-value { font-size: 24px; }
+  .db-metric-right { display: flex; }
+
+  /* Filter tabs: horizontal scroll */
+  .page-filter-tabs {
+    overflow-x: auto; flex-wrap: nowrap;
+    scrollbar-width: none; -ms-overflow-style: none;
+    gap: 6px; padding-bottom: 2px;
+    margin-right: -16px; padding-right: 16px;
+  }
+  .page-filter-tabs::-webkit-scrollbar { display: none; }
+  .page-filter-tab { flex-shrink: 0; }
+
+  /* Pages header: stacked, tools full width */
+  .db-pages-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px; margin-bottom: 14px;
+  }
+  .db-pages-tools { width: 100%; flex-wrap: nowrap; gap: 8px; }
+  .db-search { flex: 1; min-width: 0; }
+  .db-sort-btn { min-height: 40px; flex-shrink: 0; }
+
+  /* Page rows: compact horizontal card */
+  .page-row {
+    flex-wrap: nowrap !important;
+    padding: 12px 14px;
+    gap: 10px;
+    border-radius: 14px;
+    align-items: flex-start;
+  }
+  .page-thumb-mini { width: 44px; height: 60px; border-radius: 9px; flex-shrink: 0; }
+  .page-info { flex: 1; min-width: 0; }
+  .page-info-name { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .page-info-store,
+  .page-info-date { font-size: 11px; }
+  .page-info-links { gap: 8px; flex-wrap: wrap; }
+  .page-de-badge { font-size: 9px; padding: 2px 7px; }
+  .page-menu-btn {
+    min-height: 40px; min-width: 40px;
+    border-radius: 8px; align-self: flex-start; flex-shrink: 0;
+  }
+
+  /* Page empty */
+  .page-empty { padding: 40px 20px; }
+  .page-empty-icon { font-size: 36px; }
+
+  /* Widgets */
+  .db-widgets { gap: 14px; margin-bottom: 20px; }
+  .rescue-widget { padding: 16px; }
+  .link-widget { overflow: hidden; }
+
+  /* Any table that might appear: scroll horizontally */
+  .db-main table { min-width: 100%; overflow-x: auto; display: block; }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   ≤480px — Small phones
+   ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .db-main { padding: 14px 14px 72px !important; }
+  .app-topbar { padding: 0 14px; }
+  .db-metric-card { padding: 14px 16px; border-radius: 14px; }
+  .db-metric-value { font-size: 22px; }
+  .db-metric-icon { width: 36px; height: 36px; font-size: 16px; border-radius: 10px; }
+  .db-heading { font-size: 19px; }
+  .page-row { padding: 10px 12px; gap: 8px; }
+  .page-thumb-mini { width: 40px; height: 54px; }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   ≤375px — SE / small Android
+   ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 375px) {
+  .db-main { padding: 12px 12px 72px !important; }
+  .db-heading { font-size: 18px; }
+  .page-thumb-mini { width: 36px; height: 48px; border-radius: 7px; }
+  .db-metric-icon { width: 32px; height: 32px; font-size: 14px; border-radius: 9px; }
+  .db-metric-value { font-size: 20px; }
+}

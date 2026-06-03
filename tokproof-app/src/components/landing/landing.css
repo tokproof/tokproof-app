@@ -604,15 +604,29 @@
     font-size: 14px; text-align: center;
   }
   .tp-landing .hero-visual { padding-right: 0; justify-content: center; }
-  .tp-landing .phone { width: 240px; }
+
+  /* ── Phone mockup: realistic iPhone proportions ──
+     width  = 84 vw capped at 288 px (desktop original)
+     height = reduced ~20 %: smaller hero image + comments hidden              */
+  .tp-landing .phone { width: min(84vw, 288px); }
+  .tp-landing .phero-img { height: 144px; }           /* 188 → 144 = –23 % */
+  .tp-landing .pbody { padding: 10px 14px 12px; }
+  .tp-landing .pbody .ttl { font-size: 16px; }
+  .tp-landing .prprice { margin-top: 5px; }
+  .tp-landing .prprice .now { font-size: 17px; }
+  .tp-landing .prmeta { margin-top: 5px; }
+  .tp-landing .pbuy { margin-top: 9px; padding: 11px; }
+  .tp-landing .psecond { margin-top: 7px; padding: 9px; }
+  .tp-landing .pcomments-h,
+  .tp-landing .pcomment { display: none; }            /* saves ≈ 65 px      */
 }
 @media (max-width: 430px) {
   .tp-landing .hero h1 { font-size: 26px; }
-  .tp-landing .phone { width: 210px; }
+  /* width stays fluid via vw — no override needed */
 }
 @media (max-width: 375px) {
   .tp-landing .hero h1 { font-size: 23px; }
-  .tp-landing .phone { width: 190px; }
+  .tp-landing .phone { width: min(88vw, 272px); }
 }
 
 /* ── Logos: horizontal scroll on mobile ── */
