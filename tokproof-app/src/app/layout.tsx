@@ -9,6 +9,7 @@ import {
 } from 'next/font/google'
 import './globals.css'
 import './tokproof.css'
+import Providers from '@/components/shared/Providers'
 
 const nunitoSans = Nunito_Sans({
   subsets: ['latin'],
@@ -80,8 +81,10 @@ export default function RootLayout({
   ].join(' ')
 
   return (
-    <html lang="es" className={fontVars}>
-      <body className={nunitoSans.className}>{children}</body>
+    <html lang="en" className={fontVars}>
+      <body className={nunitoSans.className}>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   )
 }

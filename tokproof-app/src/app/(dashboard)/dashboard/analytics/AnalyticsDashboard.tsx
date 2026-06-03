@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { FullAnalytics, PageMeta } from '@/lib/analytics'
+import { useTranslation } from '@/lib/i18n'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -130,6 +131,7 @@ const Card = ({ children, style, onClick }: { children: React.ReactNode; style?:
 
 // ─── Coming Soon modal ────────────────────────────────────────────────────────
 function ComingSoonModal({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation()
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.45)', zIndex: 200,
       display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(3px)' }}
@@ -138,14 +140,14 @@ function ComingSoonModal({ onClose }: { onClose: () => void }) {
         width: '90%', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,.16)' }}
         onClick={e => e.stopPropagation()}>
         <div style={{ fontSize: 32, marginBottom: 12 }}>🔜</div>
-        <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 8, color: C.ink }}>Próximamente</div>
+        <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 8, color: C.ink }}>{t('analytics.comingSoon')}</div>
         <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.6 }}>
-          Esta función estará disponible en una próxima actualización.
+          {t('analytics.comingSoonDesc')}
         </p>
         <button onClick={onClose} style={{ marginTop: 20, padding: '11px 28px', background: C.grad,
           color: '#fff', border: 'none', borderRadius: 12, fontFamily: 'inherit',
           fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-          Entendido
+          {t('analytics.understood')}
         </button>
       </div>
     </div>
@@ -199,7 +201,8 @@ function kpiValues(data: FullAnalytics) {
 function KpiCard({ cfg, val, isPro, onUpgrade }: {
   cfg: typeof KPI_CONFIG[0]; val: string; isPro: boolean; onUpgrade: () => void
 }) {
-  const t      = TINT[cfg.tint]
+  const { t } = useTranslation()
+  const tint   = TINT[cfg.tint]
   const locked = cfg.locked && !isPro
   return (
     <Card style={{ padding: '16px 15px 15px', display: 'flex', flexDirection: 'column',
@@ -209,7 +212,7 @@ function KpiCard({ cfg, val, isPro, onUpgrade }: {
       {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div style={{ width: 40, height: 40, borderRadius: 11, flexShrink: 0,
-          background: locked ? '#F0F1F4' : t.bg, color: locked ? C.muted2 : t.color,
+          background: locked ? '#F0F1F4' : tint.bg, color: locked ? C.muted2 : tint.color,
           display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"
@@ -217,7 +220,7 @@ function KpiCard({ cfg, val, isPro, onUpgrade }: {
         </div>
         {locked
           ? <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <InfoIcon tip="Disponible en Tokproof Pro" />
+              <InfoIcon tip={t('analytics.availableInTokproofPro')} />
               <ProBadge />
             </span>
           : <InfoIcon tip={TIPS[cfg.label]} />
@@ -233,13 +236,13 @@ function KpiCard({ cfg, val, isPro, onUpgrade }: {
         <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 5 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 2 }}>
             <span style={{ fontSize: 16 }}>🔒</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: C.violet }}>Disponible en Pro</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: C.violet }}>{t('analytics.availableInPro')}</span>
           </div>
           <a href="/dashboard/billing"
             onClick={e => e.stopPropagation()}
             style={{ fontSize: 11.5, color: C.violet, fontWeight: 600, textDecoration: 'none',
               opacity: .75, marginTop: 2 }}>
-            Upgrade →
+            {t('analytics.upgradeArrow')}
           </a>
         </div>
       ) : (
@@ -250,7 +253,7 @@ function KpiCard({ cfg, val, isPro, onUpgrade }: {
             fontWeight: 700, color: C.green, marginTop: 9 }}>
             <ArrowUp /><span style={{ color: C.muted2, fontSize: 12 }}>—</span>
           </div>
-          <div style={{ fontSize: 11, color: C.muted2, marginTop: 2 }}>vs período anterior</div>
+          <div style={{ fontSize: 11, color: C.muted2, marginTop: 2 }}>{t('analytics.vsPreviousPeriod')}</div>
         </>
       )}
 
@@ -278,6 +281,7 @@ const FUNNEL_STATIC = [
 ]
 
 function FunnelSection({ data, isPro, onUpgrade }: { data: FullAnalytics; isPro: boolean; onUpgrade: () => void }) {
+  const { t } = useTranslation()
   const vals = [data.funnelExitViews, data.funnelGuideViews, data.funnelBrowserDetected, data.funnelLandingViews]
 
   return (
@@ -288,12 +292,12 @@ function FunnelSection({ data, isPro, onUpgrade }: { data: FullAnalytics; isPro:
             padding: '16px 24px', textAlign: 'center',
             boxShadow: '0 8px 32px rgba(124,58,237,.15)' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: C.violet, marginBottom: 8 }}>
-              🔒 Embudo TikTok Rescue — Función PRO
+              🔒 {t('analytics.proFeature')}
             </div>
             <a href="/dashboard/billing" onClick={e => e.stopPropagation()}
               style={{ display: 'inline-block', padding: '9px 22px', background: C.grad,
               color: '#fff', borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
-              Upgrade a Pro →
+              {t('analytics.upgradeAPro')}
             </a>
           </div>
         </SectionBlurGate>
@@ -302,9 +306,9 @@ function FunnelSection({ data, isPro, onUpgrade }: { data: FullAnalytics; isPro:
         <div style={{ display: 'flex', alignItems: 'center', gap: 8,
           fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em' }}>
           {!isPro && <span style={{ fontSize: 16 }}>🔒</span>}
-          Embudo TikTok Rescue
+          {t('analytics.tiktokRescueFunnel')}
           {!isPro && <ProBadge />}
-          <InfoIcon tip={!isPro ? 'Disponible en Tokproof Pro' : TIPS['Embudo TikTok Rescue']} />
+          <InfoIcon tip={!isPro ? t('analytics.availableInTokproofPro') : TIPS['Embudo TikTok Rescue']} />
         </div>
         <button style={{ display: 'flex', alignItems: 'center', gap: 7, background: '#F7F5FD',
           border: '1px solid #ECE7FA', color: C.violet, borderRadius: 10,
@@ -314,7 +318,7 @@ function FunnelSection({ data, isPro, onUpgrade }: { data: FullAnalytics; isPro:
             <circle cx="12" cy="12" r="9"/><path d="M9.2 9a2.8 2.8 0 0 1 5.4 1c0 2-2.8 2.5-2.8 2.5"/>
             <line x1="12" y1="17" x2="12" y2="17"/>
           </svg>
-          ¿Cómo funciona?
+          {t('analytics.howItWorks')}
         </button>
       </div>
       <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
@@ -363,7 +367,7 @@ function FunnelSection({ data, isPro, onUpgrade }: { data: FullAnalytics; isPro:
             ? `${Math.round((data.funnelBrowserDetected / data.funnelExitViews) * 100)}%`
             : '—'
           }</b>{' '}
-          de los usuarios que hacen clic en TikTok logran llegar a tu contenido en un navegador externo.
+          {t('analytics.usersReachContent')}
         </div>
       </div>
     </Card>
@@ -371,9 +375,10 @@ function FunnelSection({ data, isPro, onUpgrade }: { data: FullAnalytics; isPro:
 }
 
 // ─── Triple row ───────────────────────────────────────────────────────────────
-function ColCard({ title, tip, children, footBtn, onFootClick, isPro, onUpgrade }:
+function ColCard({ title, tip, children, footBtn, onFootClick, isPro, onUpgrade, isCountries }:
   { title: string; tip?: string; children: React.ReactNode; footBtn: string; onFootClick: () => void
-    isPro?: boolean; onUpgrade?: () => void }) {
+    isPro?: boolean; onUpgrade?: () => void; isCountries?: boolean }) {
+  const { t } = useTranslation()
   const locked = isPro === false
   return (
     <Card style={{ padding: '20px 20px 16px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -383,7 +388,7 @@ function ColCard({ title, tip, children, footBtn, onFootClick, isPro, onUpgrade 
         {locked && <span style={{ fontSize: 15 }}>🔒</span>}
         {title}
         {locked && <ProBadge />}
-        <InfoIcon tip={locked ? 'Disponible en Tokproof Pro' : tip} />
+        <InfoIcon tip={locked ? t('analytics.availableInTokproofPro') : tip} />
       </div>
 
       {/* Content area — blurred when locked, clicking the whole card goes to billing */}
@@ -395,18 +400,18 @@ function ColCard({ title, tip, children, footBtn, onFootClick, isPro, onUpgrade 
         )}
       </div>
 
-      {/* Footer: "Disponible en Pro" when locked, action button when unlocked */}
+      {/* Footer: "Available in Pro" when locked, action button when unlocked */}
       <div style={{ paddingTop: 16 }}>
         {locked
           ? <div style={{ textAlign: 'center', fontSize: 12.5, fontWeight: 600,
               color: C.violet, padding: '10px 0', letterSpacing: '.01em' }}>
-              Disponible en Tokproof Pro
+              {t('analytics.availableInTokproofPro')}
             </div>
           : <button onClick={onFootClick}
               style={{ width: '100%', border: 'none', borderRadius: 11, padding: 11,
               fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-              background: title === 'Top países' ? '#FDEAF2' : '#F2EEFB',
-              color: title === 'Top países' ? '#E0348F' : C.violet }}>
+              background: isCountries ? '#FDEAF2' : '#F2EEFB',
+              color: isCountries ? '#E0348F' : C.violet }}>
               {footBtn}
             </button>
         }
@@ -425,12 +430,13 @@ function EmptyState({ msg }: { msg: string }) {
 }
 
 function TopCountries({ data, onMore, isPro, onUpgrade }: { data: FullAnalytics; onMore: () => void; isPro: boolean; onUpgrade: () => void }) {
+  const { t } = useTranslation()
   return (
-    <ColCard title="Top países" tip={TIPS['Top países']} footBtn="Ver todos los países" onFootClick={onMore}
-      isPro={isPro} onUpgrade={onUpgrade}>
+    <ColCard title={t('analytics.topCountries')} tip={TIPS['Top países']} footBtn={t('analytics.viewAllCountries')} onFootClick={onMore}
+      isPro={isPro} onUpgrade={onUpgrade} isCountries>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 15, margin: '16px 0 4px', flex: 1 }}>
         {data.devices.length === 0
-          ? <EmptyState msg="Sin datos de países todavía" />
+          ? <EmptyState msg={t('analytics.noCountryData')} />
           : (['🇲🇽 México', '🇪🇸 España', '🇦🇷 Argentina', '🇨🇱 Chile', '🇨🇴 Colombia'] as const).map(item => {
               const [flag, name] = item.split(' ')
               return (
@@ -454,6 +460,7 @@ function TopCountries({ data, onMore, isPro, onUpgrade }: { data: FullAnalytics;
 function DevicesDonut({ data, onMore, isPro, onUpgrade }: {
   data: FullAnalytics; onMore: () => void; isPro: boolean; onUpgrade: () => void
 }) {
+  const { t } = useTranslation()
   const devs   = data.devices
   const total  = devs.reduce((a, d) => a + d.pct, 0)
   const hasData = devs.length > 0 && total > 0
@@ -468,7 +475,7 @@ function DevicesDonut({ data, onMore, isPro, onUpgrade }: {
   })
 
   return (
-    <ColCard title="Dispositivos" tip={TIPS['Dispositivos']} footBtn="Ver todos los dispositivos" onFootClick={onMore}
+    <ColCard title={t('analytics.devices')} tip={TIPS['Dispositivos']} footBtn={t('analytics.viewAllDevices')} onFootClick={onMore}
       isPro={isPro} onUpgrade={onUpgrade}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 18, margin: '10px 0 4px', flex: 1 }}>
         <div style={{ position: 'relative', width: 148, height: 148, flexShrink: 0 }}>
@@ -498,7 +505,7 @@ function DevicesDonut({ data, onMore, isPro, onUpgrade }: {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14, flex: 1 }}>
           {!hasData
-            ? <EmptyState msg="Sin datos de dispositivos" />
+            ? <EmptyState msg={t('analytics.noDeviceData')} />
             : devs.map(d => (
               <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 9,
                 fontSize: 13.5, fontWeight: 600, color: C.ink2 }}>
@@ -518,13 +525,14 @@ function DevicesDonut({ data, onMore, isPro, onUpgrade }: {
 function TrafficSources({ data, onMore, isPro, onUpgrade }: {
   data: FullAnalytics; onMore: () => void; isPro: boolean; onUpgrade: () => void
 }) {
+  const { t } = useTranslation()
   const maxWidth = data.sources.length > 0 ? Math.max(...data.sources.map(s => s.barWidth)) : 1
   return (
-    <ColCard title="Fuentes de tráfico" tip={TIPS['Fuentes de tráfico']} footBtn="Ver todas las fuentes" onFootClick={onMore}
+    <ColCard title={t('analytics.trafficSources')} tip={TIPS['Fuentes de tráfico']} footBtn={t('analytics.viewAllSources')} onFootClick={onMore}
       isPro={isPro} onUpgrade={onUpgrade}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 15, margin: '16px 0 4px', flex: 1 }}>
         {data.sources.length === 0
-          ? <EmptyState msg="Sin datos de fuentes todavía" />
+          ? <EmptyState msg={t('analytics.noSourceData')} />
           : data.sources.map(s => (
             <div key={s.name} style={{ display: 'grid',
               gridTemplateColumns: '24px 86px 1fr 34px', alignItems: 'center', gap: 11 }}>
@@ -567,6 +575,7 @@ const SERIES_META = [
 ]
 
 function PerformanceChart({ data, isPro, onUpgrade }: { data: FullAnalytics; isPro: boolean; onUpgrade: () => void }) {
+  const { t } = useTranslation()
   const pts = data.timeSeries
   const W = 1000, H = 300, padL = 42, padR = 18, padT = 14, padB = 40
   const n = pts.length || 1
@@ -585,14 +594,14 @@ function PerformanceChart({ data, isPro, onUpgrade }: { data: FullAnalytics; isP
         <div style={{ display: 'flex', alignItems: 'center', gap: 8,
           fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em' }}>
           {!isPro && <span style={{ fontSize: 16 }}>🔒</span>}
-          Evolución del rendimiento
+          {t('analytics.performanceEvolution')}
           {!isPro && <ProBadge />}
-          <InfoIcon tip={!isPro ? 'Disponible en Tokproof Pro' : TIPS['Evolución del rendimiento']} />
+          <InfoIcon tip={!isPro ? t('analytics.availableInTokproofPro') : TIPS['Evolución del rendimiento']} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff',
           border: `1px solid ${C.line}`, borderRadius: 10, padding: '8px 13px',
           fontSize: 13, fontWeight: 600, color: C.ink2 }}>
-          Diario <ChevDown />
+          {t('analytics.daily')} <ChevDown />
         </div>
       </div>
       <div style={{ display: 'flex', gap: 22, marginBottom: 6 }}>
@@ -607,7 +616,7 @@ function PerformanceChart({ data, isPro, onUpgrade }: { data: FullAnalytics; isP
       <div style={{ width: '100%', height: 300, marginTop: 8 }}>
         {pts.length === 0
           ? <div style={{ height: '100%', display: 'flex', alignItems: 'center',
-              justifyContent: 'center', color: C.muted2, fontSize: 13 }}>Sin datos en este período</div>
+              justifyContent: 'center', color: C.muted2, fontSize: 13 }}>{t('analytics.noDataPeriod')}</div>
           : <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
               {Array.from({ length: 6 }, (_, g) => {
                 const gv = g * (chartMax / 5)
@@ -656,19 +665,20 @@ const PAGE_GRADIENTS = [
 ]
 
 function PagesTable({ data, onMore }: { data: FullAnalytics; onMore: () => void }) {
-  const headers = ['Página','Landing Views','Visitantes únicos','Clicks','CTR','Rescue Rate','Exit Guide Views','Open Browser Clicks']
+  const { t } = useTranslation()
+  const headers = ['Page','Landing Views','Unique visitors','Clicks','CTR','Rescue Rate','Exit Guide Views','Open Browser Clicks']
   return (
     <Card style={{ marginTop: 22, padding: '22px 24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8,
           fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em' }}>
-          Rendimiento por página <InfoIcon tip={TIPS['Rendimiento por página']} />
+          {t('analytics.pagePerformance')} <InfoIcon tip={TIPS['Rendimiento por página']} />
         </div>
       </div>
       <div style={{ overflowX: 'auto' }}>
         {data.pages.length === 0
           ? <div style={{ textAlign: 'center', padding: '32px 0', color: C.muted2, fontSize: 13 }}>
-              Sin páginas publicadas todavía.
+              {t('analytics.noPages')}
             </div>
           : <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
@@ -718,7 +728,7 @@ function PagesTable({ data, onMore }: { data: FullAnalytics; onMore: () => void 
       <div onClick={onMore} style={{ textAlign: 'center', padding: 16, marginTop: 6,
         background: '#F7F5FD', borderRadius: 12, color: C.violet,
         fontSize: 13.5, fontWeight: 600, cursor: 'pointer' }}>
-        Ver todas las páginas
+        {t('analytics.viewAllPages')}
       </div>
     </Card>
   )
@@ -731,21 +741,23 @@ interface Props {
   isPro:       boolean
 }
 
-const DATE_OPTIONS = [
-  { label: 'Hoy',          days: 1  },
-  { label: 'Ayer',         days: 2  },
-  { label: 'Últimos 7 días', days: 7 },
-  { label: 'Últimos 30 días', days: 30 },
-  { label: 'Este mes',     days: 30 },
-]
-
 export default function AnalyticsDashboard({ initialData, pages, isPro }: Props) {
   const router = useRouter()
+  const { t } = useTranslation()
+
+  const DATE_OPTIONS = [
+    { label: t('analytics.today'),     days: 1  },
+    { label: t('analytics.yesterday'), days: 2  },
+    { label: t('analytics.last7Days'), days: 7  },
+    { label: t('analytics.last30Days'), days: 30 },
+    { label: t('analytics.thisMonth'), days: 30 },
+  ]
+
   const [data,           setData]       = useState<FullAnalytics>(initialData)
   const [days,           setDays]       = useState(7)
-  const [dateLabel,      setDateLabel]  = useState('Últimos 7 días')
+  const [dateLabel,      setDateLabel]  = useState(t('analytics.last7Days'))
   const [selectedPageId, setPageId]     = useState<string | null>(null)
-  const [pageLabel,      setPageLabel]  = useState('Todas las páginas')
+  const [pageLabel,      setPageLabel]  = useState(t('analytics.allPages'))
   const [loading,        setLoading]    = useState(false)
   const [showDateDrop,   setDateDrop]   = useState(false)
   const [showPageDrop,   setPageDrop]   = useState(false)
@@ -802,10 +814,10 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8,
         fontSize: 28, fontWeight: 800, letterSpacing: '-0.025em', color: C.ink }}>
-        Analytics <InfoIcon tip="Panel de métricas de tus páginas Tokproof." />
+        {t('analytics.title')} <InfoIcon tip="Panel de métricas de tus páginas Tokproof." />
       </div>
       <div style={{ color: C.muted, fontSize: 14.5, marginTop: 6 }}>
-        Mide el rendimiento de tus enlaces y optimiza tus resultados.
+        {t('analytics.subtitle')}
       </div>
 
       {/* Filters */}
@@ -856,7 +868,7 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
             <div style={{ position: 'absolute', top: '110%', left: 0, background: '#fff',
               border: `1px solid ${C.line}`, borderRadius: 14, minWidth: 200,
               boxShadow: '0 8px 24px rgba(0,0,0,.08)', overflow: 'hidden', maxHeight: 260, overflowY: 'auto' }}>
-              <div onClick={() => selectPage(null, 'Todas las páginas')}
+              <div onClick={() => selectPage(null, t('analytics.allPages'))}
                 style={{ padding: '11px 16px', fontSize: 13.5, fontWeight: selectedPageId === null ? 700 : 500,
                   color: selectedPageId === null ? C.violet : C.ink2, cursor: 'pointer',
                   background: selectedPageId === null ? '#F3F0FD' : 'transparent' }}>
@@ -885,7 +897,7 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
             strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/>
           </svg>
-          Todas las fuentes <ChevDown />
+          {t('analytics.allSources')} <ChevDown />
         </button>
 
         {/* CSV export */}
@@ -898,7 +910,7 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
             <path d="M12 3v12"/><polyline points="7 11 12 16 17 11"/>
             <path d="M5 20h14"/>
           </svg>
-          Exportar CSV
+          {t('analytics.exportCSV')}
         </button>
       </div>
 
@@ -924,7 +936,7 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
           <path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>
           <polyline points="9 12 11.5 14.5 16 9.5"/>
         </svg>
-        Los datos se actualizan cada 15 minutos. Todas las métricas están en hora local.
+        {t('analytics.dataUpdate')}
       </div>
     </div>
   )

@@ -4,9 +4,11 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useTranslation } from '@/lib/i18n'
 
 export default function SignupPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -38,7 +40,6 @@ export default function SignupPage() {
     }
 
     if (data.session) {
-      // Email confirmation is disabled — session created immediately
       console.log('[signup] session created, redirecting to /onboarding')
       if (data.user) {
         const { error: profileError } = await supabase.from('profiles').insert({
@@ -55,7 +56,6 @@ export default function SignupPage() {
       return
     }
 
-    // Email confirmation is required — show "check email" screen
     console.log('[signup] no session — email confirmation required')
     setNeedsConfirmation(true)
     setLoading(false)
@@ -85,15 +85,17 @@ export default function SignupPage() {
             <div className="reg-step-dot active">2</div>
           </div>
           <div className="reg-card">
-            <h1 className="reg-card-title">Confirma tu cuenta</h1>
-            <p className="reg-card-sub">Revisa el email de <strong style={{ color: 'var(--text)' }}>{email}</strong> y haz clic en el enlace de confirmación.</p>
+            <h1 className="reg-card-title">{t('signup.confirmTitle')}</h1>
+            <p className="reg-card-sub">
+              {t('signup.confirmSub', { email })}
+            </p>
             <div style={{ textAlign: 'center', fontSize: 40, margin: '24px 0' }}>📬</div>
             <div className="fi-tip">
               <span className="fi-tip-ico">💡</span>
-              <span>Si no ves el email, revisa tu carpeta de spam.</span>
+              <span>{t('signup.spamTip')}</span>
             </div>
             <button className="btn btn-ghost btn-full" style={{ marginTop: 16 }} onClick={() => setNeedsConfirmation(false)}>
-              ← Cambiar email
+              {t('signup.changeEmail')}
             </button>
           </div>
         </div>
@@ -124,34 +126,38 @@ export default function SignupPage() {
         )}
 
         <div className="reg-card">
-          <h1 className="reg-card-title">Crea tu cuenta</h1>
-          <p className="reg-card-sub">Únete gratis. Sin tarjeta de crédito.</p>
+          <h1 className="reg-card-title">{t('signup.title')}</h1>
+          <p className="reg-card-sub">{t('signup.subtitle')}</p>
           <form onSubmit={handleSignup}>
             <div className="fg">
-              <label className="fl">Nombre completo <span className="fi-label-rec">Recomendado</span></label>
-              <input className="fi" type="text" placeholder="Tu nombre o nombre de marca" value={name}
+              <label className="fl">
+                {t('signup.fullName')} <span className="fi-label-rec">{t('signup.recommended')}</span>
+              </label>
+              <input className="fi" type="text" placeholder={t('signup.namePlaceholder')} value={name}
                 onChange={e => setName(e.target.value)} autoComplete="name" />
             </div>
             <div className="fg">
-              <label className="fl">Email</label>
+              <label className="fl">{t('signup.email')}</label>
               <input className="fi" type="email" placeholder="hola@tumarca.com" value={email}
                 onChange={e => setEmail(e.target.value)} required autoComplete="email" />
             </div>
             <div className="fg" style={{ marginBottom: 24 }}>
-              <label className="fl">Contraseña</label>
-              <input className="fi" type="password" placeholder="Mínimo 8 caracteres" value={password}
+              <label className="fl">{t('signup.password')}</label>
+              <input className="fi" type="password" placeholder={t('signup.passwordPlaceholder')} value={password}
                 onChange={e => setPassword(e.target.value)} required minLength={8} autoComplete="new-password" />
-              <span className="fh">Al menos 8 caracteres, preferiblemente con números.</span>
+              <span className="fh">{t('signup.passwordHint')}</span>
             </div>
             <button className="btn btn-primary btn-full btn-lg" type="submit" disabled={loading}>
-              {loading ? 'Creando cuenta...' : 'Crear cuenta →'}
+              {loading ? t('signup.creating') : t('signup.createAccount')}
             </button>
-            <div className="reg-or"><span>o</span></div>
+            <div className="reg-or"><span>{t('signup.or')}</span></div>
             <button className="btn btn-secondary btn-full" type="button" onClick={handleGoogle} style={{ gap: 8 }}>
-              <span style={{ fontSize: 16 }}>G</span> Continuar con Google
+              <span style={{ fontSize: 16 }}>G</span> {t('signup.continueWithGoogle')}
             </button>
           </form>
-          <p className="reg-login-link">¿Ya tienes cuenta? <Link href="/login">Iniciar sesión</Link></p>
+          <p className="reg-login-link">
+            {t('signup.haveAccount')} <Link href="/login">{t('signup.signIn')}</Link>
+          </p>
         </div>
       </div>
     </div>

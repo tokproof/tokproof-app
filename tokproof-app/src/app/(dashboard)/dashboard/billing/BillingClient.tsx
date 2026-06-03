@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { FREE_FEATURES, PRO_FEATURES, COMPARISON } from './data'
 import type { ComparisonRow } from './data'
+import { useTranslation } from '@/lib/i18n'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -153,6 +154,7 @@ interface Props {
 }
 
 export default function BillingClient({ isFree, username }: Props) {
+  const { t } = useTranslation()
   return (
     <div style={{
       padding: '40px 48px 36px',
@@ -175,7 +177,7 @@ export default function BillingClient({ isFree, username }: Props) {
             </span>
           </div>
           <div style={{ color: C.muted, fontSize: 15, marginTop: 8 }}>
-            Gestiona tu suscripción y compara planes.
+            {t('billing.subtitle')}
           </div>
         </div>
         <button style={{ display: 'flex', alignItems: 'center', gap: 8, background: C.card,

@@ -9,22 +9,9 @@ import {
   PanelLeftClose, PanelLeft, ShoppingBag, User,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useTranslation } from '@/lib/i18n'
 import type { Profile } from '@/types'
 import TokproofLogo from '@/components/shared/TokproofLogo'
-
-const NAV_MAIN = [
-  { href: '/dashboard',                  label: 'Dashboard',      Icon: Home,        exact: true  },
-  { href: '/dashboard/ecommerce',        label: 'E-commerce',     Icon: ShoppingBag, exact: false },
-  { href: '/dashboard/personal-brand',   label: 'Marca Personal', Icon: User,        exact: false },
-  { href: '/dashboard/analytics',        label: 'Analytics',      Icon: BarChart3,   exact: false },
-  { href: '/dashboard/templates',        label: 'Templates',      Icon: LayoutGrid,  exact: false },
-]
-
-const NAV_ACCOUNT = [
-  { href: '/dashboard/billing',  label: 'Billing',  Icon: CreditCard,  exact: false, showBadge: true },
-  { href: '/dashboard/settings', label: 'Settings', Icon: Settings,    exact: false },
-  { href: '/dashboard/faq',      label: 'Help',     Icon: HelpCircle,  exact: false },
-]
 
 interface AppShellProps {
   children: React.ReactNode
@@ -38,6 +25,7 @@ interface Tooltip {
 
 export default function AppShell({ children, profile }: AppShellProps) {
   const pathname = usePathname()
+  const { t } = useTranslation()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const [tooltip, setTooltip] = useState<Tooltip | null>(null)
@@ -79,6 +67,20 @@ export default function AppShell({ children, profile }: AppShellProps) {
     setTooltip(null)
   }
 
+  const NAV_MAIN = [
+    { href: '/dashboard',                  label: t('nav.dashboard'),     Icon: Home,        exact: true  },
+    { href: '/dashboard/ecommerce',        label: t('nav.ecommerce'),     Icon: ShoppingBag, exact: false },
+    { href: '/dashboard/personal-brand',   label: t('nav.personalBrand'), Icon: User,        exact: false },
+    { href: '/dashboard/analytics',        label: t('nav.analytics'),     Icon: BarChart3,   exact: false },
+    { href: '/dashboard/templates',        label: t('nav.templates'),     Icon: LayoutGrid,  exact: false },
+  ]
+
+  const NAV_ACCOUNT = [
+    { href: '/dashboard/billing',  label: t('nav.billing'),  Icon: CreditCard,  exact: false, showBadge: true },
+    { href: '/dashboard/settings', label: t('nav.settings'), Icon: Settings,    exact: false, showBadge: false },
+    { href: '/dashboard/faq',      label: t('nav.help'),     Icon: HelpCircle,  exact: false, showBadge: false },
+  ]
+
   const sidebarClass = [
     'nav-sidebar',
     mobileOpen ? 'open' : '',
@@ -105,7 +107,7 @@ export default function AppShell({ children, profile }: AppShellProps) {
           <button
             className="nav-collapse-btn"
             onClick={toggleCollapsed}
-            title={collapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
+            title={collapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
           >
             {collapsed
               ? <PanelLeft size={15} />
@@ -137,7 +139,7 @@ export default function AppShell({ children, profile }: AppShellProps) {
 
         {/* Account nav */}
         <div className="nav-section">
-          {!collapsed && <div className="nav-section-label">Cuenta</div>}
+          {!collapsed && <div className="nav-section-label">{t('nav.account')}</div>}
           {NAV_ACCOUNT.map(({ href, label, Icon, exact, showBadge }) => (
             <Link
               key={href}
@@ -158,7 +160,7 @@ export default function AppShell({ children, profile }: AppShellProps) {
                   className="nav-item-badge"
                   style={!isFree ? { background: 'linear-gradient(135deg,#F647A9,#7B61FF)', color: 'white' } : {}}
                 >
-                  {isFree ? 'Free' : 'Pro'}
+                  {isFree ? t('nav.free') : t('nav.pro')}
                 </span>
               )}
             </Link>
@@ -166,11 +168,11 @@ export default function AppShell({ children, profile }: AppShellProps) {
           <button
             className={['nav-item', 'nav-item-logout', collapsed ? 'nav-item-icon-only' : ''].filter(Boolean).join(' ')}
             onClick={handleLogout}
-            onMouseEnter={e => onNavEnter(e, 'Cerrar sesión')}
+            onMouseEnter={e => onNavEnter(e, t('nav.logout'))}
             onMouseLeave={onNavLeave}
           >
             <span className="nav-item-ico"><LogOut size={20} strokeWidth={1.8} /></span>
-            {!collapsed && <span>Cerrar sesión</span>}
+            {!collapsed && <span>{t('nav.logout')}</span>}
           </button>
         </div>
 
@@ -180,7 +182,7 @@ export default function AppShell({ children, profile }: AppShellProps) {
             <div className="nav-footer-compact">
               <div
                 className="nav-user-av"
-                onMouseEnter={e => onNavEnter(e, profile?.display_name ?? profile?.email ?? 'Usuario')}
+                onMouseEnter={e => onNavEnter(e, profile?.display_name ?? profile?.email ?? 'User')}
                 onMouseLeave={onNavLeave}
               >
                 {initials}
@@ -189,7 +191,7 @@ export default function AppShell({ children, profile }: AppShellProps) {
                 <Link
                   href="/dashboard/billing"
                   className="nav-upgrade-icon"
-                  title="Upgrade to Pro"
+                  title={t('nav.upgradeToPro')}
                 >
                   <Crown size={13} />
                 </Link>
@@ -200,8 +202,8 @@ export default function AppShell({ children, profile }: AppShellProps) {
               <div className="nav-user">
                 <div className="nav-user-av">{initials}</div>
                 <div className="nav-user-info" style={{ flex: 1 }}>
-                  <div className="nav-user-name">{profile?.display_name ?? profile?.email ?? 'Usuario'}</div>
-                  <div className="nav-user-plan">{isFree ? 'Plan Free' : 'Plan Pro'}</div>
+                  <div className="nav-user-name">{profile?.display_name ?? profile?.email ?? 'User'}</div>
+                  <div className="nav-user-plan">{isFree ? t('nav.planFree') : t('nav.planPro')}</div>
                 </div>
                 <div style={{
                   width: 22, height: 22, borderRadius: 7,
@@ -214,12 +216,12 @@ export default function AppShell({ children, profile }: AppShellProps) {
               </div>
               {isFree ? (
                 <Link href="/dashboard/billing" className="nav-upgrade-btn">
-                  Upgrade to Pro
+                  {t('nav.upgradeToPro')}
                   <ArrowRight size={14} />
                 </Link>
               ) : (
                 <Link href="/dashboard/settings" className="nav-profile-link">
-                  Ver mi perfil
+                  {t('nav.viewProfile')}
                   <ArrowRight size={14} />
                 </Link>
               )}
@@ -267,7 +269,7 @@ export default function AppShell({ children, profile }: AppShellProps) {
           <button
             className="nav-mobile-toggle"
             onClick={() => setMobileOpen(v => !v)}
-            aria-label="Abrir menú"
+            aria-label={t('nav.openMenu')}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round">
               <line x1="3" y1="7" x2="21" y2="7"/>

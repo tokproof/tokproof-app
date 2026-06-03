@@ -11,6 +11,7 @@ import UpgradeProModal from '@/components/shared/UpgradeProModal'
 import CreateEcommerceModal from '@/components/dashboard/CreateEcommerceModal'
 import CreatePersonalBrandModal from '@/components/dashboard/CreatePersonalBrandModal'
 import QuickExitWidget from '@/components/dashboard/QuickExitWidget'
+import { useTranslation } from '@/lib/i18n'
 import type { Page, Profile } from '@/types'
 import { getPublicPageUrl, getPublicExitUrl, getPublicPageDisplay, getPublicExitDisplay } from '@/lib/urls'
 import { getUserPlan, getPlanLimits } from '@/lib/plans'
@@ -98,23 +99,16 @@ function Sparkline({ color, index = 0 }: { color: string; index?: number }) {
   )
 }
 
-/* ── Metric cards ────────────────────────────── */
-const METRICS = [
-  { Icon: Eye,               iconBg: '#FFF1FA', iconColor: '#F647A9', trendColor: '#F647A9', sparkColor: '#F647A9', label: 'Vistas totales',    key: 'views',   trendKey: 'viewsTrend' },
-  { Icon: MousePointerClick, iconBg: '#F4F0FF', iconColor: '#7B61FF', trendColor: '#7B61FF', sparkColor: '#7B61FF', label: 'Clicks totales',    key: 'clicks',  trendKey: 'clicksTrend' },
-  { Icon: TrendingUp,        iconBg: '#FFF1FA', iconColor: '#F647A9', trendColor: '#F647A9', sparkColor: '#F647A9', label: 'CTR promedio',      key: 'ctr',     trendKey: 'ctrTrend' },
-  { Icon: ShieldCheck,       iconBg: '#F4F0FF', iconColor: '#7B61FF', trendColor: '#7B61FF', sparkColor: '#7B61FF', label: 'Rescates exitosos', key: 'rescues', trendKey: 'rescuesTrend' },
-]
-
 /* ── TikTok Rescue widget ────────────────────── */
 function RescueWidget({ guides, opens, rate }: {
   guides?: string; opens?: string; rate?: string
 }) {
+  const { t } = useTranslation()
   const [exitOn, setExitOn] = useState(true)
   return (
     <div className="rescue-widget">
       <div className="rescue-head">
-        <h3>TikTok Rescue</h3>
+        <h3>{t('dashboard.rescue.title')}</h3>
         <span className="badge-pro">PRO</span>
       </div>
       <div className="rescue-body">
@@ -124,34 +118,34 @@ function RescueWidget({ guides, opens, rate }: {
             <div className="rescue-phone-icon">
               <ShieldCheck size={52} color="white" strokeWidth={1.8} />
             </div>
-            <div className="rescue-phone-text">Protegiendo tus clics desde TikTok</div>
+            <div className="rescue-phone-text">{t('dashboard.rescue.protecting')}</div>
           </div>
         </div>
         {/* Right content */}
         <div className="rescue-content">
-          <h4>Protege tus clics desde TikTok</h4>
-          <p className="rescue-desc">Activa el Exit Guide para mostrar un paso intermedio y aumentar las aperturas en navegador.</p>
+          <h4>{t('dashboard.rescue.protecting')}</h4>
+          <p className="rescue-desc">{t('dashboard.rescue.description')}</p>
           <div className="rescue-stats">
             <div className="rescue-stat-row">
               <span className="rescue-stat-ico"><Clock size={14} /></span>
-              <span className="rescue-stat-lbl">Guías mostradas</span>
+              <span className="rescue-stat-lbl">{t('dashboard.rescue.guidesShown')}</span>
               <span className="rescue-stat-val">{guides ?? '—'}</span>
             </div>
             <div className="rescue-stat-row">
               <span className="rescue-stat-ico"><ExternalLink size={14} /></span>
-              <span className="rescue-stat-lbl">Aperturas en navegador</span>
+              <span className="rescue-stat-lbl">{t('dashboard.rescue.browserOpens')}</span>
               <span className="rescue-stat-val">{opens ?? '—'}</span>
             </div>
             <div className="rescue-stat-row">
               <span className="rescue-stat-ico"><TrendingUp size={14} /></span>
-              <span className="rescue-stat-lbl">Tasa de éxito</span>
+              <span className="rescue-stat-lbl">{t('dashboard.rescue.successRate')}</span>
               <span className="rescue-stat-val">{rate ?? '—'}</span>
             </div>
           </div>
           <div className="rescue-toggle-row">
             <span className="rescue-toggle-lbl">
               <ShieldCheck size={16} />
-              Exit Guide {exitOn ? 'activo' : 'inactivo'}
+              {exitOn ? t('dashboard.rescue.exitGuideActive') : t('dashboard.rescue.exitGuideInactive')}
             </span>
             <div
               className={`ui-toggle${exitOn ? '' : ' off'}`}
@@ -167,6 +161,7 @@ function RescueWidget({ guides, opens, rate }: {
 
 /* ── Link widget ─────────────────────────────── */
 function LinkWidget({ profile }: { profile: Profile }) {
+  const { t } = useTranslation()
   const username = profile.username
   const publicUrl     = username ? getPublicPageUrl(username)     : null
   const publicDisplay = username ? getPublicPageDisplay(username) : null
@@ -178,16 +173,16 @@ function LinkWidget({ profile }: { profile: Profile }) {
   return (
     <>
       <div className="link-widget">
-        <h3>Tu link principal</h3>
+        <h3>{t('dashboard.linkWidget.title')}</h3>
         <div className="link-fields">
           <div className="link-field-group">
-            <div className="link-field-label">Enlace principal</div>
+            <div className="link-field-label">{t('dashboard.linkWidget.mainLink')}</div>
             <div className="link-field-row">
-              <span className="link-field-url">{publicDisplay ?? 'Sin configurar'}</span>
+              <span className="link-field-url">{publicDisplay ?? t('dashboard.linkWidget.notConfigured')}</span>
               {publicUrl && (
                 <button
                   className={`link-copy-btn${primary.copied ? ' copied' : ''}`}
-                  title="Copiar"
+                  title={t('common.copy')}
                   onClick={() => primary.copy(publicUrl)}
                 >
                   {primary.copied ? <Check size={13} /> : <GradLinkIcon size={13} />}
@@ -196,13 +191,13 @@ function LinkWidget({ profile }: { profile: Profile }) {
             </div>
           </div>
           <div className="link-field-group">
-            <div className="link-field-label">Enlace Direct Exit</div>
+            <div className="link-field-label">{t('dashboard.linkWidget.directExit')}</div>
             <div className="link-field-row">
-              <span className="link-field-url">{goDisplay ?? 'Sin configurar'}</span>
+              <span className="link-field-url">{goDisplay ?? t('dashboard.linkWidget.notConfigured')}</span>
               {goUrl && (
                 <button
                   className={`link-copy-btn${go.copied ? ' copied' : ''}`}
-                  title="Copiar"
+                  title={t('common.copy')}
                   onClick={() => go.copy(goUrl)}
                 >
                   {go.copied ? <Check size={13} /> : <GradLinkIcon size={13} />}
@@ -216,12 +211,12 @@ function LinkWidget({ profile }: { profile: Profile }) {
             <Lightbulb size={18} color="#F647A9" />
           </div>
           <div>
-            <div className="link-tip-title">Usa tu enlace /go en TikTok</div>
-            <div className="link-tip-text">Los usuarios verán el Exit Guide antes de salir a tu producto. Más aperturas, más ventas.</div>
+            <div className="link-tip-title">{t('dashboard.linkWidget.tipTitle')}</div>
+            <div className="link-tip-text">{t('dashboard.linkWidget.tipText')}</div>
           </div>
         </div>
       </div>
-      <Toast show={primary.copied || go.copied} msg="¡Link copiado!" />
+      <Toast show={primary.copied || go.copied} msg={t('dashboard.linkCopied')} />
     </>
   )
 }
@@ -234,31 +229,36 @@ function CategorySelectModal({
   onClose: () => void
   onSelect: (cat: 'ecommerce' | 'personal_brand') => void
 }) {
+  const { t } = useTranslation()
   if (!open) return null
   return (
     <div className="cm-overlay" onClick={e => { if (e.currentTarget === e.target) onClose() }}>
       <div className="cat-modal">
-        <h2 style={{ fontSize: 20, fontWeight: 900, color: '#171717', marginBottom: 4, letterSpacing: '-.03em' }}>¿Qué quieres crear?</h2>
-        <p style={{ fontSize: 13, color: '#6B7280', marginBottom: 20 }}>Elige el tipo de página que mejor encaja con tu objetivo.</p>
+        <h2 style={{ fontSize: 20, fontWeight: 900, color: '#171717', marginBottom: 4, letterSpacing: '-.03em' }}>
+          {t('dashboard.categoryModal.title')}
+        </h2>
+        <p style={{ fontSize: 13, color: '#6B7280', marginBottom: 20 }}>
+          {t('dashboard.categoryModal.subtitle')}
+        </p>
 
         <div className="cat-card" onClick={() => onSelect('ecommerce')}>
           <div className="cat-card-ico" style={{ background: 'rgba(123,97,255,.1)' }}>🛒</div>
           <div>
-            <div className="cat-card-title">E-commerce</div>
-            <div className="cat-card-desc">Crea páginas para vender productos físicos o digitales.</div>
+            <div className="cat-card-title">{t('dashboard.categoryModal.ecommerce')}</div>
+            <div className="cat-card-desc">{t('dashboard.categoryModal.ecommerceDesc')}</div>
           </div>
         </div>
 
         <div className="cat-card" onClick={() => onSelect('personal_brand')}>
           <div className="cat-card-ico" style={{ background: 'rgba(16,185,129,.1)' }}>⭐</div>
           <div>
-            <div className="cat-card-title">Marca Personal</div>
-            <div className="cat-card-desc">Crea páginas para compartir enlaces, servicios, redes y contenido.</div>
+            <div className="cat-card-title">{t('dashboard.categoryModal.personalBrand')}</div>
+            <div className="cat-card-desc">{t('dashboard.categoryModal.personalBrandDesc')}</div>
           </div>
         </div>
 
         <button className="btn btn-ghost btn-sm" style={{ width: '100%', marginTop: 12 }} onClick={onClose}>
-          Cancelar
+          {t('dashboard.cancel')}
         </button>
       </div>
     </div>
@@ -267,6 +267,7 @@ function CategorySelectModal({
 
 /* ── Main component ──────────────────────────── */
 export default function DashboardClient({ profile, pages, analytics, pageStats }: DashboardClientProps) {
+  const { t } = useTranslation()
   const [pageList, setPageList] = useState<Page[]>(pages)
   const [activeFilter, setActiveFilter] = useState<'all' | 'published' | 'draft'>('all')
   const [categoryOpen,  setCategoryOpen]  = useState(false)
@@ -286,6 +287,13 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
   const publicUrl     = profile.username ? getPublicPageUrl(profile.username)     : null
   const publicDisplay = profile.username ? getPublicPageDisplay(profile.username) : null
 
+  const METRICS = [
+    { Icon: Eye,               iconBg: '#FFF1FA', iconColor: '#F647A9', trendColor: '#F647A9', sparkColor: '#F647A9', label: t('dashboard.totalViews'),    key: 'views',   trendKey: 'viewsTrend' },
+    { Icon: MousePointerClick, iconBg: '#F4F0FF', iconColor: '#7B61FF', trendColor: '#7B61FF', sparkColor: '#7B61FF', label: t('dashboard.totalClicks'),    key: 'clicks',  trendKey: 'clicksTrend' },
+    { Icon: TrendingUp,        iconBg: '#FFF1FA', iconColor: '#F647A9', trendColor: '#F647A9', sparkColor: '#F647A9', label: t('dashboard.avgCtr'),         key: 'ctr',     trendKey: 'ctrTrend' },
+    { Icon: ShieldCheck,       iconBg: '#F4F0FF', iconColor: '#7B61FF', trendColor: '#7B61FF', sparkColor: '#7B61FF', label: t('dashboard.rescues'),         key: 'rescues', trendKey: 'rescuesTrend' },
+  ]
+
   function openNewLanding() {
     if (isFree && publishedCount >= 1) { setUpgradeOpen(true); return }
     setCategoryOpen(true)
@@ -298,16 +306,16 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
   }
 
   const filteredPages = pageList.filter(p => {
-    if (isQuickExit(p)) return false   // quick exits live in the widget, not the pages list
+    if (isQuickExit(p)) return false
     if (activeFilter === 'published') return p.status === 'published'
     if (activeFilter === 'draft') return p.status === 'draft'
     return true
   })
 
   const filters: [string, string, number][] = [
-    ['all',       'Todas',      nonExitPages.length],
-    ['published', 'Publicadas', publishedCount],
-    ['draft',     'Borradores', draftCount],
+    ['all',       t('dashboard.filter.all'),       nonExitPages.length],
+    ['published', t('dashboard.filter.published'), publishedCount],
+    ['draft',     t('dashboard.filter.draft'),     draftCount],
   ]
 
   return (
@@ -332,8 +340,8 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
       <UpgradeProModal
         open={upgradeOpen}
         onClose={() => setUpgradeOpen(false)}
-        title="Límite de páginas alcanzado"
-        description="Tu plan Free incluye 1 página publicada. Actualiza a Pro para publicar páginas ilimitadas."
+        title={t('dashboard.limitReached')}
+        description={t('dashboard.limitReachedDesc')}
       />
 
       <div className="db-main">
@@ -341,8 +349,8 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
         {/* ── Header ── */}
         <div className="db-header">
           <div>
-            <h1 className="db-heading">Hola, {firstName} <span className="wave">👋</span></h1>
-            <p className="db-subheading">Aquí tienes un resumen de tu actividad y rendimiento.</p>
+            <h1 className="db-heading">{t('dashboard.greeting', { name: firstName })} <span className="wave">👋</span></h1>
+            <p className="db-subheading">{t('dashboard.subtitle')}</p>
           </div>
           <div className="db-header-actions">
             {publicUrl && (
@@ -360,7 +368,7 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
                   {headerCopy.copied ? (
                     <>
                       <Check size={15} color="white" />
-                      <span style={{ color: 'white', fontWeight: 600 }}>¡Copiado!</span>
+                      <span style={{ color: 'white', fontWeight: 600 }}>{t('dashboard.copied')}</span>
                     </>
                   ) : (
                     <>
@@ -371,22 +379,22 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
                         WebkitTextFillColor: 'transparent',
                         backgroundClip: 'text',
                         fontWeight: 600,
-                      }}>Copiar mi link</span>
+                      }}>{t('dashboard.copyLink')}</span>
                     </>
                   )}
                 </button>
-                <Toast show={headerCopy.copied} msg="¡Link copiado!" />
+                <Toast show={headerCopy.copied} msg={t('dashboard.linkCopied')} />
               </>
             )}
             {profile.username && (
               <a href={`/u/${profile.username}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm">
                 <Eye size={15} style={{ color: '#7B61FF' }} />
-                Vista previa
+                {t('dashboard.preview')}
               </a>
             )}
             <button className="btn btn-primary btn-sm" onClick={openNewLanding}>
               <Plus size={16} />
-              Nueva landing
+              {t('dashboard.newLanding')}
             </button>
           </div>
         </div>
@@ -422,13 +430,13 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
           <div style={{ marginBottom: 18, padding: '12px 16px', background: '#fff', borderRadius: 14, border: '1px solid #E4E7F0', boxShadow: '0 1px 4px rgba(15,23,42,.04)', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexShrink: 0 }}>
               <div style={{ width: 26, height: 26, borderRadius: 8, background: 'linear-gradient(135deg,#F647A9,#7B61FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13 }}>⚡</div>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#374151' }}>Plan Free</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#374151' }}>{t('dashboard.planFree')}</span>
             </div>
             <div style={{ display: 'flex', gap: 20, flex: 1, flexWrap: 'wrap' }}>
               {/* Exits usage */}
               <div style={{ display: 'flex', flex: 1, minWidth: 140, flexDirection: 'column', gap: 4 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, color: '#6B7280' }}>
-                  <span>Exits Rápidos</span>
+                  <span>{t('dashboard.quickExits')}</span>
                   <span style={{ fontWeight: 700, color: quickExits.length >= limits.maxQuickExits ? '#EF4444' : '#374151' }}>{quickExits.length} / {limits.maxQuickExits === Infinity ? '∞' : limits.maxQuickExits}</span>
                 </div>
                 <div style={{ height: 4, borderRadius: 999, background: '#F3F4F6', overflow: 'hidden' }}>
@@ -438,7 +446,7 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
               {/* Pages usage */}
               <div style={{ display: 'flex', flex: 1, minWidth: 140, flexDirection: 'column', gap: 4 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, color: '#6B7280' }}>
-                  <span>Páginas publicadas</span>
+                  <span>{t('dashboard.publishedPages')}</span>
                   <span style={{ fontWeight: 700, color: publishedCount >= limits.maxPublishedPages ? '#EF4444' : '#374151' }}>{publishedCount} / {limits.maxPublishedPages === Infinity ? '∞' : limits.maxPublishedPages}</span>
                 </div>
                 <div style={{ height: 4, borderRadius: 999, background: '#F3F4F6', overflow: 'hidden' }}>
@@ -447,7 +455,7 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
               </div>
             </div>
             <a href="/dashboard/billing" style={{ fontSize: 12, fontWeight: 700, padding: '6px 14px', borderRadius: 9, background: 'linear-gradient(135deg,#F647A9,#7B61FF)', color: '#fff', textDecoration: 'none', flexShrink: 0, boxShadow: '0 4px 12px rgba(246,71,169,.25)' }}>
-              Upgrade Pro
+              {t('dashboard.upgradePro')}
             </a>
           </div>
         )}
@@ -468,7 +476,7 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
         {/* ── Pages section ── */}
         <div className="db-pages-section">
           <div className="db-pages-header">
-            <h2>Tus páginas</h2>
+            <h2>{t('dashboard.pages')}</h2>
             <div className="page-filter-tabs">
               {filters.map(([key, label, count]) => (
                 <button
@@ -483,9 +491,9 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
             <div className="db-pages-tools">
               <div className="db-search">
                 <span style={{ color: '#9CA3AF', display: 'flex' }}><Eye size={14} /></span>
-                <input placeholder="Buscar..." readOnly />
+                <input placeholder={t('dashboard.search')} readOnly />
               </div>
-              <div className="db-sort-btn">Ordenar ▾</div>
+              <div className="db-sort-btn">{t('dashboard.sort')}</div>
             </div>
           </div>
 
@@ -493,15 +501,20 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
             <div className="page-empty">
               <div className="page-empty-icon">📄</div>
               <div className="page-empty-title">
-                {activeFilter === 'all' ? 'Aún no tienes páginas' : `No hay páginas ${activeFilter === 'published' ? 'publicadas' : 'en borrador'}`}
+                {activeFilter === 'all'
+                  ? t('dashboard.empty.all')
+                  : activeFilter === 'published'
+                    ? t('dashboard.empty.published')
+                    : t('dashboard.empty.draft')
+                }
               </div>
               <p className="page-empty-sub">
                 {activeFilter === 'all'
-                  ? 'Crea tu primera trust page para TikTok en menos de 5 minutos.'
-                  : 'Prueba cambiando el filtro de arriba.'}
+                  ? t('dashboard.empty.allSub')
+                  : t('dashboard.empty.filterSub')}
               </p>
               {activeFilter === 'all' && (
-                <button className="btn btn-primary" onClick={openNewLanding}>+ Crear mi primera landing</button>
+                <button className="btn btn-primary" onClick={openNewLanding}>{t('dashboard.createFirst')}</button>
               )}
             </div>
           ) : (
@@ -538,7 +551,7 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
                 ;(e.currentTarget as HTMLElement).style.color = '#9CA3AF'
               }}
             >
-              + Nueva landing page
+              {t('dashboard.newLandingPage')}
             </button>
           )}
 
@@ -551,14 +564,14 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
             }}>
               <div style={{ flex: 1, minWidth: 200 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#171717', marginBottom: 4 }}>
-                  Plan Free · Límite alcanzado
+                  {t('dashboard.planLimitTitle')}
                 </div>
                 <p style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6 }}>
-                  Con Pro: páginas ilimitadas, TikTok Rescue activo, A/B testing y analytics avanzados.
+                  {t('dashboard.planLimitDesc')}
                 </p>
               </div>
               <Link href="/dashboard/billing" className="btn btn-primary btn-sm">
-                ↑ Upgrade to Pro
+                {t('dashboard.upgradePro')}
               </Link>
             </div>
           )}

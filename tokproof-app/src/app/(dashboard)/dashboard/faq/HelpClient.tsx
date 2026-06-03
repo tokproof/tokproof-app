@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { CATEGORIES, FAQS, RESOURCES } from './data'
 import type { Tint, FaqItem, Resource } from './data'
+import { useTranslation } from '@/lib/i18n'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -240,6 +241,7 @@ function HelpBanner() {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function HelpClient() {
+  const { t } = useTranslation()
   const [query,   setQuery]   = useState('')
   const [openIdx, setOpenIdx] = useState<number>(0) // first item open by default
 
@@ -265,14 +267,14 @@ export default function HelpClient() {
 
       {/* ── Header ── */}
       <div style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-.03em', color: C.ink }}>
-        Centro de{' '}
+        {t('help.title').split(t('help.titleHighlight'))[0]}
         <span style={{
           background: 'linear-gradient(90deg,#C13BD6,#FB2C7D)',
           WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
-        }}>ayuda</span>
+        }}>{t('help.titleHighlight')}</span>
       </div>
       <div style={{ color: C.muted, fontSize: 15, marginTop: 9 }}>
-        Todo lo que necesitas para crear, publicar y optimizar tus páginas.
+        {t('help.subtitle')}
       </div>
 
       {/* ── Search ── */}
@@ -285,7 +287,7 @@ export default function HelpClient() {
         </svg>
         <input
           type="text"
-          placeholder="Buscar pregunta..."
+          placeholder={t('help.searchPlaceholder')}
           value={query}
           onChange={e => handleSearch(e.target.value)}
           style={{ border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: 15,

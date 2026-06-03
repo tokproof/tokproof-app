@@ -5,11 +5,13 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useTranslation } from '@/lib/i18n'
 
 function LoginForm() {
   const router = useRouter()
   const params = useSearchParams()
   const next = params.get('next') ?? '/dashboard'
+  const { t } = useTranslation()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -47,8 +49,8 @@ function LoginForm() {
 
   return (
     <div className="reg-card">
-      <h1 className="reg-card-title">Bienvenido de vuelta</h1>
-      <p className="reg-card-sub">Inicia sesión en tu cuenta Tokproof.</p>
+      <h1 className="reg-card-title">{t('login.title')}</h1>
+      <p className="reg-card-sub">{t('login.subtitle')}</p>
 
       {error && (
         <div style={{ background: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.3)', borderRadius: 10, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#EF4444' }}>
@@ -58,36 +60,45 @@ function LoginForm() {
 
       <form onSubmit={handleLogin}>
         <div className="fg">
-          <label className="fl">Email</label>
+          <label className="fl">{t('login.email')}</label>
           <input className="fi" type="email" placeholder="hola@tumarca.com" value={email}
             onChange={e => setEmail(e.target.value)} required autoComplete="email" />
         </div>
         <div className="fg" style={{ marginBottom: 24 }}>
-          <label className="fl">Contraseña</label>
-          <input className="fi" type="password" placeholder="Tu contraseña" value={password}
+          <label className="fl">{t('login.password')}</label>
+          <input className="fi" type="password" placeholder={t('login.passwordPlaceholder')} value={password}
             onChange={e => setPassword(e.target.value)} required autoComplete="current-password" />
         </div>
 
         <button className="btn btn-primary btn-full btn-lg" type="submit" disabled={loading}>
-          {loading ? 'Iniciando sesión...' : 'Iniciar sesión →'}
+          {loading ? t('login.signingIn') : t('login.signIn')}
         </button>
 
-        <div className="reg-or"><span>o</span></div>
+        <div className="reg-or"><span>{t('login.or')}</span></div>
         <button className="btn btn-secondary btn-full" type="button" onClick={handleGoogle} style={{ gap: 8 }}>
-          <span style={{ fontSize: 16 }}>G</span> Continuar con Google
+          <span style={{ fontSize: 16 }}>G</span> {t('login.continueWithGoogle')}
         </button>
       </form>
 
       <p className="reg-login-link">
-        ¿No tienes cuenta? <Link href="/signup">Crear cuenta gratis</Link>
+        {t('login.noAccount')} <Link href="/signup">{t('login.createFree')}</Link>
       </p>
 
       <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--border)', textAlign: 'center' }}>
-        <p style={{ fontSize: 12, color: 'var(--muted2)', marginBottom: 10 }}>¿Quieres ver el producto sin cuenta?</p>
+        <p style={{ fontSize: 12, color: 'var(--muted2)', marginBottom: 10 }}>{t('login.viewWithoutAccount')}</p>
         <Link href="/demo" className="btn btn-ghost btn-full" style={{ fontSize: 13 }}>
-          Ver demo del dashboard →
+          {t('login.viewDemo')}
         </Link>
       </div>
+    </div>
+  )
+}
+
+function LoadingCard() {
+  const { t } = useTranslation()
+  return (
+    <div className="reg-card" style={{ padding: 32, textAlign: 'center', color: 'var(--muted)' }}>
+      {t('login.loading')}
     </div>
   )
 }
@@ -102,7 +113,7 @@ export default function LoginPage() {
             Tokproof
           </Link>
         </div>
-        <Suspense fallback={<div className="reg-card" style={{ padding: 32, textAlign: 'center', color: 'var(--muted)' }}>Cargando...</div>}>
+        <Suspense fallback={<LoadingCard />}>
           <LoginForm />
         </Suspense>
       </div>
