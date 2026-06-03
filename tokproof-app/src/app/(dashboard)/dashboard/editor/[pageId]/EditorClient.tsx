@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { FullPage } from '@/types'
 import {
   BarChart3, ShieldCheck, LayoutGrid, Settings,
   Link2, ArrowLeft, Pencil, ChevronDown,
-  Eye, UploadCloud, Plus, Undo2, Redo2, Monitor, Minus, Palette,
+  Eye, UploadCloud, Plus, Undo2, Redo2, Monitor, Minus, Palette, X,
   type LucideIcon,
 } from 'lucide-react'
 import { arrayMove } from '@dnd-kit/sortable'
@@ -222,14 +222,22 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
   const [focusCard, setFocusCard]     = useState(false)
 
   // ── Mobile state ──
-  const [isMobile, setIsMobile]           = useState(false)
+  const [isMobile, setIsMobile]               = useState(false)
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false)
+  const swipeStartY                           = useRef(0)
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
   }, [])
+
+  function onHandleTouchStart(e: React.TouchEvent) {
+    swipeStartY.current = e.touches[0].clientY
+  }
+  function onHandleTouchEnd(e: React.TouchEvent) {
+    if (e.changedTouches[0].clientY - swipeStartY.current > 56) setMobilePanelOpen(false)
+  }
 
   // ── Toast helper ──
   function showToast(msg: string, ms = 2200) {
@@ -418,10 +426,21 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
             overflow: 'hidden',
             boxShadow: '0 -4px 28px rgba(40,20,80,.12)',
           } : { position: 'relative', flexShrink: 0 }}>
-            {/* Drag handle — mobile only */}
+            {/* Drag handle — mobile only (swipe-down to close + X button) */}
             {isMobile && (
-              <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 4px', background: T.card, flexShrink: 0 }}>
-                <div style={{ width: 38, height: 4, borderRadius: 2, background: '#dde0e5' }} />
+              <div
+                onTouchStart={onHandleTouchStart}
+                onTouchEnd={onHandleTouchEnd}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px 6px', background: T.card, flexShrink: 0, touchAction: 'none' }}
+              >
+                <div style={{ width: 28 }} />
+                <div style={{ width: 38, height: 4, borderRadius: 2, background: '#dde0e5', cursor: 'row-resize' }} />
+                <button
+                  onClick={() => setMobilePanelOpen(false)}
+                  style={{ width: 28, height: 28, borderRadius: 999, background: '#F3F4F6', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink2 }}
+                >
+                  <X size={13} />
+                </button>
               </div>
             )}
             <div style={{ width: isMobile ? '100%' : 290, height: isMobile ? 'calc(62vh - 18px)' : '100vh', background: T.card, borderRight: isMobile ? 'none' : `1px solid ${T.border2}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 1 }}>
@@ -711,19 +730,23 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
               </button>
             )}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: '0 1 auto', minWidth: 0 }}>
-              <span style={{ fontSize: 17, fontWeight: 700, color: T.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {landingConfig.title || 'Sin título'}
-              </span>
-              <button style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', color: T.ink3, padding: 2, display: 'flex' }}>
-                <Pencil size={13} />
-              </button>
-            </div>
-
-            <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: isPublished ? T.greenBg : T.softPurple, fontSize: 12, fontWeight: 600, color: isPublished ? T.green : T.purple }}>
-              {isPublished ? 'Publicado' : 'Borrador'}
-              <ChevronDown size={11} />
-            </div>
+            {/* Title + status — hidden on mobile to avoid overflow */}
+            {!isMobile && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: '0 1 auto', minWidth: 0 }}>
+                <span style={{ fontSize: 17, fontWeight: 700, color: T.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {landingConfig.title || 'Sin título'}
+                </span>
+                <button style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', color: T.ink3, padding: 2, display: 'flex' }}>
+                  <Pencil size={13} />
+                </button>
+              </div>
+            )}
+            {!isMobile && (
+              <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: isPublished ? T.greenBg : T.softPurple, fontSize: 12, fontWeight: 600, color: isPublished ? T.green : T.purple }}>
+                {isPublished ? 'Publicado' : 'Borrador'}
+                <ChevronDown size={11} />
+              </div>
+            )}
 
             {/* Spacer — title shrinks, buttons stay */}
             <div style={{ flex: '1 1 12px' }} />
@@ -768,10 +791,11 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: T.bg }}>
 
             {/* Canvas */}
-            <div style={{ flex: 1, overflow: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: 32 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22 }}>
+            <div style={{ flex: 1, overflow: 'auto', overflowX: 'hidden', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: isMobile ? '16px 0 90px' : 32 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isMobile ? 14 : 22 }}>
 
-                {/* Device toggle */}
+                {/* Device toggle — hidden on mobile (always shows mobile preview) */}
+                {!isMobile && (
                 <div style={{ display: 'flex', background: T.softPurple, borderRadius: 999, padding: 3, gap: 2 }}>
                   {([{ key: 'mobile', label: 'Móvil' }, { key: 'desktop', label: 'Escritorio' }] as const).map(d => {
                     const active = preview === d.key
@@ -782,9 +806,13 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                     )
                   })}
                 </div>
+                )}
 
-                {/* Preview frame with zoom */}
-                <div style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center', transition: 'transform .2s' }}>
+                {/* Preview frame — scaled to fit on mobile (16px margins each side) */}
+                <div style={{ transform: isMobile ? 'scale(0.87)' : `scale(${zoom / 100})`, transformOrigin: 'top center', transition: 'transform .2s',
+                  /* Compensate layout width on mobile so scale doesn't cause scroll */
+                  ...(isMobile ? { marginLeft: '-27px', marginRight: '-27px' } : {})
+                }}>
                   {preview === 'mobile' ? (
                     // iPhone mockup
                     <div style={{ width: 390, height: 720, borderRadius: 50, background: 'linear-gradient(160deg,#23202b,#0c0b12)', padding: '16px 10px 10px', boxShadow: '0 40px 80px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.06)', position: 'relative' }}>
