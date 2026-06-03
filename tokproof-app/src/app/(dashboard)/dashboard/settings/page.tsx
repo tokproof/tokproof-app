@@ -42,16 +42,17 @@ function PanelHead({ children }: { children: React.ReactNode }) {
   )
 }
 
-function SelectRow({ label, value, onChange, options }: {
+function SelectRow({ label, value, onChange, options, mobile }: {
   label: string
   value: string
   onChange: (v: string) => void
   options: { value: string; label: string }[]
+  mobile?: boolean
 }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, marginBottom: 15 }}>
+    <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', alignItems: mobile ? 'flex-start' : 'center', justifyContent: 'space-between', gap: mobile ? 6 : 14, marginBottom: 15 }}>
       <span style={{ fontWeight: 600, fontSize: 14, color: 'var(--text)' }}>{label}</span>
-      <div style={{ position: 'relative', flexShrink: 0, width: 188 }}>
+      <div style={{ position: 'relative', flexShrink: 0, width: mobile ? '100%' : 188 }}>
         <select
           value={value}
           onChange={e => onChange(e.target.value)}
@@ -115,6 +116,14 @@ export default function SettingsPage() {
     news: true,
   })
   const [notifSaved, setNotifSaved] = useState(false)
+  const [isMobile, setIsMobile]     = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   useEffect(() => {
     const supabase = createClient()
@@ -176,7 +185,7 @@ export default function SettingsPage() {
     borderRadius: 'var(--r-xl)',
     boxShadow: 'var(--shadow-card)',
   }
-  const panel: React.CSSProperties = { ...card, padding: '24px 26px 28px' }
+  const panel: React.CSSProperties = { ...card, padding: isMobile ? '18px 16px 22px' : '24px 26px 28px' }
 
   const outlineBtn: React.CSSProperties = {
     background: '#fff', border: '1px solid var(--border)',
@@ -199,12 +208,17 @@ export default function SettingsPage() {
       </div>
 
       {/* ── Profile card ─────────────────────────────────────────────────── */}
-      <div style={{ ...card, display: 'flex', padding: '30px 34px', gap: 0, marginBottom: 24 }}>
+      <div style={{ ...card, display: 'flex', flexDirection: isMobile ? 'column' : 'row', padding: isMobile ? '20px 16px' : '30px 34px', gap: 0, marginBottom: 24 }}>
 
         {/* Avatar column */}
         <div style={{
-          flexShrink: 0, width: 200, display: 'flex', flexDirection: 'column',
-          alignItems: 'center', paddingRight: 30, borderRight: '1px solid var(--border)',
+          flexShrink: 0, width: isMobile ? '100%' : 200, display: 'flex', flexDirection: 'column',
+          alignItems: 'center',
+          paddingRight: isMobile ? 0 : 30,
+          paddingBottom: isMobile ? 20 : 0,
+          marginBottom: isMobile ? 4 : 0,
+          borderRight: isMobile ? 'none' : '1px solid var(--border)',
+          borderBottom: isMobile ? '1px solid var(--border)' : 'none',
         }}>
           {profile?.avatar_url ? (
             /* eslint-disable-next-line @next/next/no-img-element */
@@ -230,8 +244,11 @@ export default function SettingsPage() {
 
         {/* Fields grid */}
         <form onSubmit={handleSaveProfile} style={{
-          flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr',
-          gap: '22px 40px', paddingLeft: 34,
+          flex: 1, display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+          gap: isMobile ? '14px 0' : '22px 40px',
+          paddingLeft: isMobile ? 0 : 34,
+          paddingTop: isMobile ? 20 : 0,
         }}>
           {/* Display name */}
           <div>
@@ -289,7 +306,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Save button */}
-          <div style={{ gridColumn: 1, marginTop: 2 }}>
+          <div style={{ gridColumn: isMobile ? 'auto' : 1, marginTop: 2 }}>
             <button className="btn btn-primary" type="submit" disabled={saving} style={{ padding: '12px 26px', fontSize: 14 }}>
               {saving ? 'Guardando…' : saved ? '✓ Guardado' : 'Guardar cambios'}
             </button>
@@ -298,7 +315,7 @@ export default function SettingsPage() {
       </div>
 
       {/* ── 3-column middle row ───────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 24, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: isMobile ? 16 : 24, marginBottom: isMobile ? 16 : 24 }}>
 
         {/* Preferencias */}
         <div style={panel}>
@@ -309,25 +326,25 @@ export default function SettingsPage() {
             <h3 style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-.02em' }}>Preferencias</h3>
           </PanelHead>
 
-          <SelectRow
+          <SelectRow mobile={isMobile}
             label="Idioma"
             value={prefs.language}
             onChange={v => setPrefs(p => ({ ...p, language: v }))}
             options={[{ value: 'es', label: 'Español' }, { value: 'en', label: 'English' }]}
           />
-          <SelectRow
+          <SelectRow mobile={isMobile}
             label="País"
             value={prefs.country}
             onChange={v => setPrefs(p => ({ ...p, country: v }))}
             options={[{ value: 'es', label: 'España' }, { value: 'mx', label: 'México' }, { value: 'ar', label: 'Argentina' }]}
           />
-          <SelectRow
+          <SelectRow mobile={isMobile}
             label="Zona horaria"
             value={prefs.timezone}
             onChange={v => setPrefs(p => ({ ...p, timezone: v }))}
             options={[{ value: 'Europe/Madrid', label: 'Europe/Madrid' }, { value: 'America/Mexico_City', label: 'America/Mexico_City' }]}
           />
-          <SelectRow
+          <SelectRow mobile={isMobile}
             label="Formato de fecha"
             value={prefs.dateFormat}
             onChange={v => setPrefs(p => ({ ...p, dateFormat: v }))}
@@ -349,7 +366,7 @@ export default function SettingsPage() {
           </PanelHead>
 
           {/* Password row */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, marginBottom: 18 }}>
+          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', gap: isMobile ? 10 : 14, marginBottom: 18 }}>
             <div>
               <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text)', marginBottom: 7 }}>Contraseña</div>
               <div style={{ letterSpacing: 3, color: 'var(--muted2)', fontSize: 15 }}>••••••••••••</div>
@@ -410,7 +427,7 @@ export default function SettingsPage() {
       </div>
 
       {/* ── 2-column bottom row ───────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.55fr 1fr', gap: 24, marginBottom: 52 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.55fr 1fr', gap: isMobile ? 16 : 24, marginBottom: 52 }}>
 
         {/* Dominio personalizado */}
         <div style={panel}>
@@ -424,22 +441,22 @@ export default function SettingsPage() {
             Conecta tu propio dominio para darle una identidad única a tu perfil.
           </p>
           <div style={{
-            display: 'flex', alignItems: 'center', gap: 14,
+            display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', gap: isMobile ? 12 : 14,
             border: '1px solid var(--border)', background: 'var(--bg)',
-            borderRadius: 13, padding: '16px 18px',
+            borderRadius: 13, padding: isMobile ? '14px' : '16px 18px',
           }}>
             <div style={{
-              width: 42, height: 42, borderRadius: 11,
+              width: 42, height: 42, borderRadius: 11, flexShrink: 0,
               background: 'var(--card2)', display: 'grid', placeItems: 'center', color: 'var(--muted2)',
             }}>
               <Globe size={22} strokeWidth={1.8} />
             </div>
-            <div>
+            <div style={{ flex: 1 }}>
               <b style={{ fontWeight: 700, fontSize: 14 }}>No conectado</b>
               <p style={{ color: 'var(--muted)', fontSize: 12.5, marginTop: 2 }}>Aún no tienes ningún dominio conectado.</p>
             </div>
             <button
-              style={{ ...outlineBtn, marginLeft: 'auto', flexShrink: 0, color: 'var(--text)' }}
+              style={{ ...outlineBtn, marginLeft: isMobile ? 0 : 'auto', flexShrink: 0, color: 'var(--text)' }}
               onClick={() => alert('Funcionalidad de dominio personalizado próximamente.')}
             >
               Configurar dominio
@@ -456,7 +473,7 @@ export default function SettingsPage() {
             <h3 style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-.02em', color: 'var(--danger)' }}>Zona de peligro</h3>
           </PanelHead>
 
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 18 }}>
+          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: isMobile ? 12 : 18 }}>
             <div>
               <div style={{ fontWeight: 700, fontSize: 14.5, color: 'var(--danger)', marginBottom: 7 }}>Eliminar cuenta</div>
               <p style={{ color: 'var(--muted)', fontSize: 13, lineHeight: 1.5, maxWidth: 280 }}>
