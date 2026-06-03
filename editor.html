@@ -13,6 +13,7 @@
 <!-- ── FIXED TOPBAR ──────────────────────────── -->
 <header class="ed-topbar">
   <a href="index.html" class="btn btn-ghost btn-sm" style="gap:5px;flex-shrink:0">← Volver</a>
+  <button class="ed-preview-toggle" id="edPreviewToggle" aria-label="Vista completa">👁 Preview</button>
   <div class="tb-sep"></div>
   <a href="index.html" class="tb-logo" style="font-size:15px;flex-shrink:0">
     <img class="tb-logo-img" style="width:34px;height:34px" src="assets/tokproof-logo.png" alt="Tokproof"/>
@@ -34,7 +35,7 @@
   </div>
 </header>
 
-<div class="ed-body">
+<div class="ed-body" id="edBody">
 
   <!-- ── SIDEBAR ─────────────────────────────── -->
   <aside class="ed-sb">
@@ -722,7 +723,41 @@
 
 </div><!-- /ed-body -->
 
+<!-- ── MOBILE EDIT FAB (shown when sidebar is hidden) ── -->
+<button class="ed-edit-fab" id="edEditFab" aria-label="Abrir editor">⚙ Editar</button>
+
 <script>
+/* ── Mobile preview/edit toggle ── */
+(function() {
+  var btn = document.getElementById('edPreviewToggle');
+  var fab = document.getElementById('edEditFab');
+  var body = document.getElementById('edBody');
+  var sb   = document.querySelector('.ed-sb');
+  if (!btn || !fab || !body || !sb) return;
+
+  var isPreview = false;
+
+  function toggle() {
+    isPreview = !isPreview;
+    if (isPreview) {
+      sb.style.overflowY = 'hidden'; /* collapse needs overflow:hidden */
+      body.classList.add('ed-preview-mode');
+      btn.innerHTML = '⚙ Editor';
+      btn.classList.add('active');
+      fab.style.display = 'flex';
+    } else {
+      body.classList.remove('ed-preview-mode');
+      btn.innerHTML = '👁 Preview';
+      btn.classList.remove('active');
+      fab.style.display = 'none';
+      setTimeout(function() { sb.style.overflowY = ''; }, 290);
+    }
+  }
+
+  btn.addEventListener('click', toggle);
+  fab.addEventListener('click', toggle);
+})();
+
 /* ── Device toggle ── */
 document.querySelectorAll('.ed-dev-btn').forEach(function(btn) {
   btn.addEventListener('click', function() {
