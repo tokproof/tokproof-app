@@ -2874,6 +2874,7 @@ export default function SortableBlockList({
           ref={scrollAreaRef}
           style={{
             overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
             flex: isAdding ? '0 0 auto' : '1 1 auto',
             maxHeight: isAdding ? 'clamp(110px, 30vh, 240px)' : 'none',
             padding: '10px 10px 2px',
@@ -2946,7 +2947,7 @@ export default function SortableBlockList({
             </div>
 
             {/* Block cards — scrollable */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px 12px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '0 10px 48px' }}>
               {filteredCatalog.map(entry => (
                 <InlineBlockCard
                   key={entry.type}

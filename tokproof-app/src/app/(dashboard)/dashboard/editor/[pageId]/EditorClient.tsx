@@ -418,13 +418,15 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
         {(!focus || isMobile) && (
           <div style={isMobile ? {
             position: 'fixed', bottom: 0, left: 0, right: 0,
-            height: '62vh',
+            height: '64vh',
             zIndex: 50,
             transform: mobilePanelOpen ? 'translateY(0)' : 'translateY(100%)',
             transition: 'transform .28s cubic-bezier(.4,0,.2,1)',
             borderRadius: '18px 18px 0 0',
             overflow: 'hidden',
             boxShadow: '0 -4px 28px rgba(40,20,80,.12)',
+            /* flex column so drag handle is fixed and inner div fills the rest */
+            display: 'flex', flexDirection: 'column',
           } : { position: 'relative', flexShrink: 0 }}>
             {/* Drag handle — mobile only (swipe-down to close + X button) */}
             {isMobile && (
@@ -443,7 +445,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                 </button>
               </div>
             )}
-            <div style={{ width: isMobile ? '100%' : 290, height: isMobile ? 'calc(62vh - 18px)' : '100vh', background: T.card, borderRight: isMobile ? 'none' : `1px solid ${T.border2}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 1 }}>
+            <div style={{ width: isMobile ? '100%' : 290, flex: isMobile ? 1 : undefined, height: isMobile ? undefined : '100vh', minHeight: 0, background: T.card, borderRight: isMobile ? 'none' : `1px solid ${T.border2}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 1 }}>
 
               {/* Panel header — desktop: label / mobile: tab bar */}
               {isMobile ? (
@@ -516,7 +518,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                   const th  = landingConfig.theme
                   const bgMode = th.backgroundMode ?? th.background?.mode ?? 'solid'
                   return (
-                  <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
+                  <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 48px', WebkitOverflowScrolling: 'touch' }}>
 
                     {/* ── Presets ── */}
                     <section style={{ marginBottom: 20 }}>
@@ -660,7 +662,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
 
                 {/* ── AJUSTES: page settings ── */}
                 {activeTool === 'ajustes' && (
-                  <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
+                  <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 48px', WebkitOverflowScrolling: 'touch' }}>
                     <section style={{ marginBottom: 20 }}>
                       <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Página</div>
                       <Fg label="Título de la página">
