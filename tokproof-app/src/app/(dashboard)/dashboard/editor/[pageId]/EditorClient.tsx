@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { FullPage } from '@/types'
@@ -221,6 +221,16 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
   const [toast, setToast]             = useState<string | null>(null)
   const [focusCard, setFocusCard]     = useState(false)
 
+  // ── Mobile state ──
+  const [isMobile, setIsMobile]           = useState(false)
+  const [mobilePanelOpen, setMobilePanelOpen] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
   // ── Toast helper ──
   function showToast(msg: string, ms = 2200) {
     setToast(msg); setTimeout(() => setToast(null), ms)
@@ -397,9 +407,24 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
       <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: T.bg, fontFamily: 'Inter,system-ui,sans-serif' }}>
 
         {/* ═══ SECTIONS PANEL ════════════════════════════════════════════════ */}
-        {!focus && (
-          <div style={{ position: 'relative', flexShrink: 0 }}>
-            <div style={{ width: 290, height: '100vh', background: T.card, borderRight: `1px solid ${T.border2}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 1 }}>
+        {(!focus || isMobile) && (
+          <div style={isMobile ? {
+            position: 'fixed', bottom: 0, left: 0, right: 0,
+            height: '62vh',
+            zIndex: 50,
+            transform: mobilePanelOpen ? 'translateY(0)' : 'translateY(100%)',
+            transition: 'transform .28s cubic-bezier(.4,0,.2,1)',
+            borderRadius: '18px 18px 0 0',
+            overflow: 'hidden',
+            boxShadow: '0 -4px 28px rgba(40,20,80,.12)',
+          } : { position: 'relative', flexShrink: 0 }}>
+            {/* Drag handle — mobile only */}
+            {isMobile && (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 4px', background: T.card, flexShrink: 0 }}>
+                <div style={{ width: 38, height: 4, borderRadius: 2, background: '#dde0e5' }} />
+              </div>
+            )}
+            <div style={{ width: isMobile ? '100%' : 290, height: isMobile ? 'calc(62vh - 18px)' : '100vh', background: T.card, borderRight: isMobile ? 'none' : `1px solid ${T.border2}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 1 }}>
 
               {/* Panel header */}
               <div style={{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -643,8 +668,8 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
               </div>
             </div>
 
-            {/* ── MINI-RAIL ── */}
-            <div style={{ position: 'absolute', top: 96, right: -74, background: T.card, borderRadius: 18, padding: '8px 6px', boxShadow: T.shadowPop, display: 'flex', flexDirection: 'column', gap: 2, width: 64, zIndex: 10 }}>
+            {/* ── MINI-RAIL (desktop only) ── */}
+            {!isMobile && <div style={{ position: 'absolute', top: 96, right: -74, background: T.card, borderRadius: 18, padding: '8px 6px', boxShadow: T.shadowPop, display: 'flex', flexDirection: 'column', gap: 2, width: 64, zIndex: 10 }}>
               {([
                 { id: 'secciones', icon: LayoutGrid, label: 'Secciones' },
                 { id: 'estilos',   icon: Palette,    label: 'Estilos'   },
@@ -660,7 +685,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                   </button>
                 )
               })}
-            </div>
+            </div>}
           </div>
         )}
 
@@ -673,6 +698,18 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
             <Link href="/dashboard" style={{ width: 38, height: 38, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: T.card, border: `1px solid ${T.border2}`, borderRadius: 10, color: T.ink2, textDecoration: 'none' }}>
               <ArrowLeft size={16} />
             </Link>
+            {/* Mobile panel toggle — only visible on mobile */}
+            {isMobile && (
+              <button
+                onClick={() => setMobilePanelOpen(o => !o)}
+                style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 9, border: `1.5px solid ${mobilePanelOpen ? T.pink : T.border2}`, background: mobilePanelOpen ? T.softPink2 : T.card, color: mobilePanelOpen ? T.pink : T.ink2, fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0, transition: 'all .15s' }}
+              >
+                {mobilePanelOpen
+                  ? <><Eye size={13} /> Preview</>
+                  : <><LayoutGrid size={13} /> Editor</>
+                }
+              </button>
+            )}
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: '0 1 auto', minWidth: 0 }}>
               <span style={{ fontSize: 17, fontWeight: 700, color: T.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -692,31 +729,37 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
             <div style={{ flex: '1 1 12px' }} />
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-              {/* Focus toggle */}
-              <button onClick={handleFocusToggle} title={focus ? 'Salir del Focus mode' : 'Focus mode'} style={{ width: 36, height: 36, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 9, border: focus ? 'none' : `1px solid ${T.border2}`, background: focus ? T.grad : T.card, cursor: 'pointer', color: focus ? 'white' : T.ink2, boxShadow: focus ? T.shadowBtn : 'none' }}>
-                {focus ? (
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M21 16v3a2 2 0 0 1-2 2h-3"/></svg>
-                ) : (
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
-                )}
-              </button>
+              {/* Focus toggle — desktop only */}
+              {!isMobile && (
+                <button onClick={handleFocusToggle} title={focus ? 'Salir del Focus mode' : 'Focus mode'} style={{ width: 36, height: 36, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 9, border: focus ? 'none' : `1px solid ${T.border2}`, background: focus ? T.grad : T.card, cursor: 'pointer', color: focus ? 'white' : T.ink2, boxShadow: focus ? T.shadowBtn : 'none' }}>
+                  {focus ? (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M21 16v3a2 2 0 0 1-2 2h-3"/></svg>
+                  ) : (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+                  )}
+                </button>
+              )}
 
-              <button onClick={handleCopy} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 999, border: `1px solid ${T.border2}`, background: T.card, color: T.pink, fontSize: 13, fontWeight: 500, cursor: 'pointer', flexShrink: 0 }}>
-                <Link2 size={13} />Copiar link
-              </button>
+              {/* Copy link — desktop only */}
+              {!isMobile && (
+                <button onClick={handleCopy} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 999, border: `1px solid ${T.border2}`, background: T.card, color: T.pink, fontSize: 13, fontWeight: 500, cursor: 'pointer', flexShrink: 0 }}>
+                  <Link2 size={13} />Copiar link
+                </button>
+              )}
 
-              {!isDemo && (
+              {/* Preview link — desktop only */}
+              {!isMobile && !isDemo && (
                 <a href={`/u/${landingConfig.slug}`} target="_blank" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 999, border: `1px solid ${T.border2}`, background: T.card, color: T.ink2, fontSize: 13, fontWeight: 500, textDecoration: 'none', flexShrink: 0 }}>
                   <Eye size={13} />Vista previa
                 </a>
               )}
 
-              <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 999, border: `1px solid ${T.border2}`, background: T.card, color: saved ? T.green : T.ink2, fontSize: 13, fontWeight: 500, cursor: 'pointer', opacity: saving ? .6 : 1, flexShrink: 0 }}>
-                {saving ? '...' : saved ? '✓ Guardado' : 'Guardar'}
+              <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: isMobile ? '7px 12px' : '7px 14px', borderRadius: 999, border: `1px solid ${T.border2}`, background: T.card, color: saved ? T.green : T.ink2, fontSize: 13, fontWeight: 500, cursor: 'pointer', opacity: saving ? .6 : 1, flexShrink: 0 }}>
+                {saving ? '...' : saved ? '✓' : 'Guardar'}
               </button>
 
-              <button onClick={handlePublish} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 18px', borderRadius: 999, border: 'none', background: T.grad, color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxShadow: T.shadowBtn, flexShrink: 0 }}>
-                <UploadCloud size={13} />Publicar
+              <button onClick={handlePublish} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: isMobile ? '7px 14px' : '7px 18px', borderRadius: 999, border: 'none', background: T.grad, color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxShadow: T.shadowBtn, flexShrink: 0 }}>
+                <UploadCloud size={13} />{!isMobile && 'Publicar'}
               </button>
             </div>
           </header>
@@ -810,6 +853,25 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
           <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2 }}>{focus ? 'Focus mode' : 'Modo normal'}</div>
           <div style={{ fontSize: 12, opacity: .65 }}>{focus ? 'Oculta el panel para concentrarte en el editor' : 'Panel restaurado'}</div>
         </div>
+      )}
+
+      {/* ── Mobile FAB: shown when panel is hidden ── */}
+      {isMobile && !mobilePanelOpen && (
+        <button
+          onClick={() => setMobilePanelOpen(true)}
+          style={{
+            position: 'fixed', bottom: 26, right: 18, zIndex: 60,
+            display: 'flex', alignItems: 'center', gap: 8,
+            padding: '13px 20px',
+            background: T.grad, color: 'white',
+            border: 'none', borderRadius: 999,
+            fontSize: 13, fontWeight: 800,
+            boxShadow: '0 4px 24px rgba(246,71,169,.4)',
+            cursor: 'pointer', letterSpacing: '.01em',
+          }}
+        >
+          <LayoutGrid size={16} /> Editar
+        </button>
       )}
 
       {/* Toast */}
