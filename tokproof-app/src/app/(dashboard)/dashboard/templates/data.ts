@@ -3,7 +3,7 @@ export type Badge       = 'popular' | 'new' | 'premium' | 'free'
 export type PageType    = 'trust' | 'simple' | 'affiliate'
 export type CheckColor  = 'green' | 'pink'
 export type BtnVariant  = 'pink' | 'purple' | 'green'
-export type PreviewType = 'links' | 'shop' | 'product' | 'profile' | 'links-dark' | 'creator'
+export type PreviewType = 'links' | 'shop' | 'product' | 'profile' | 'links-dark' | 'creator' | 'conversion-max'
 
 export interface Template {
   id:          string
@@ -74,6 +74,19 @@ export const BADGE_META: Record<Badge, BadgeMeta> = {
 
 export const TEMPLATES: Template[] = [
   // ── ECOMMERCE ─────────────────────────────────────────────────────────────
+  {
+    id:          'conversion-max',
+    category:    'ecommerce',
+    title:       'Conversion Max',
+    description: 'Plantilla PRO optimizada para maximizar conversiones. Prueba social, urgencia, comparativa y showcase completo.',
+    features:    ['Hero + Urgencia + Trust Badges', 'TikTok Comments + Benefit Icons', 'Comparativa + Product Showcase + FAQ'],
+    previewType: 'conversion-max',
+    checkColor:  'green',
+    btnVariant:  'purple',
+    pageType:    'trust',
+    badge:       'premium',
+    featured:    true,
+  },
   {
     id:          'tiktok-product',
     category:    'ecommerce',

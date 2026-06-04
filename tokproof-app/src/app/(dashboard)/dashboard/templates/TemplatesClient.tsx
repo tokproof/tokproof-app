@@ -159,6 +159,65 @@ function PhoneMockup({ type }: { type: PreviewType }) {
         </div>
       </div>
     ),
+
+    'conversion-max': (
+      <div style={{ ...base, background: '#ffffff', minHeight: 300, padding: '14px 10px', display: 'flex', flexDirection: 'column', gap: 0 }}>
+        {/* Hero: badge + title lines */}
+        <div style={{ height: 4, background: 'linear-gradient(135deg,#7C3AED,#A855F7)', borderRadius: 3, width: '38%', marginBottom: 5 }} />
+        <div style={{ height: 6, background: '#111', borderRadius: 3, width: '97%', marginBottom: 2 }} />
+        <div style={{ height: 6, background: '#111', borderRadius: 3, width: '80%', marginBottom: 3 }} />
+        <div style={{ height: 3.5, background: '#999', borderRadius: 2, width: '65%', marginBottom: 7 }} />
+
+        {/* Urgency banner */}
+        <div style={{ height: 14, background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: 6, marginBottom: 5, display: 'flex', alignItems: 'center', padding: '0 6px', gap: 4 }}>
+          <span style={{ fontSize: 7 }}>🔥</span>
+          <div style={{ height: 3, background: '#F59E0B', borderRadius: 2, flex: 1 }} />
+        </div>
+
+        {/* Trust badges 2×2 */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3, marginBottom: 6 }}>
+          {['🚚','🔒','⭐','↩️'].map((ic, i) => (
+            <div key={i} style={{ height: 13, background: '#F5F3FF', borderRadius: 4, border: '1px solid #DDD6FE', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
+              <span style={{ fontSize: 6 }}>{ic}</span>
+              <div style={{ height: 2.5, background: '#7C3AED', borderRadius: 1, width: '45%', opacity: 0.7 }} />
+            </div>
+          ))}
+        </div>
+
+        {/* TikTok comment cards (dark) */}
+        <div style={{ display: 'flex', gap: 4, marginBottom: 6, overflow: 'hidden' }}>
+          {[{ a: '#7C3AED', t: 'WOW. No esperaba...' }, { a: '#FF2D55', t: 'Lo vi en TikTok...' }].map((c, i) => (
+            <div key={i} style={{ flex: '0 0 47%', background: '#1a1a22', borderRadius: 7, padding: '5px 6px', display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: c.a, flexShrink: 0 }} />
+                <div style={{ height: 2.5, background: 'rgba(255,255,255,0.75)', borderRadius: 1, flex: 1 }} />
+              </div>
+              <div style={{ height: 2.5, background: 'rgba(255,255,255,0.55)', borderRadius: 1, width: '92%' }} />
+              <div style={{ height: 2.5, background: 'rgba(255,255,255,0.35)', borderRadius: 1, width: '68%' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 2, marginTop: 1 }}>
+                <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#FF2D55' }} />
+                <div style={{ height: 2, background: 'rgba(255,255,255,0.3)', borderRadius: 1, width: 12 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Benefit icons row */}
+        <div style={{ display: 'flex', gap: 3, marginBottom: 6 }}>
+          {['✨','💧','🛡️','⚡'].map((ic, i) => (
+            <div key={i} style={{ flex: 1, height: 22, background: '#F5F3FF', borderRadius: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+              <span style={{ fontSize: 7 }}>{ic}</span>
+              <div style={{ height: 2, background: '#7C3AED', borderRadius: 1, width: '70%', opacity: 0.65 }} />
+            </div>
+          ))}
+        </div>
+
+        {/* CTA button */}
+        <div style={{ height: 20, background: 'linear-gradient(135deg,#7C3AED,#A855F7)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(124,58,237,.4)' }}>
+          <div style={{ height: 3.5, background: 'rgba(255,255,255,0.9)', borderRadius: 2, width: '52%' }} />
+        </div>
+      </div>
+    ),
   }
 
   return <>{previews[type]}</>
