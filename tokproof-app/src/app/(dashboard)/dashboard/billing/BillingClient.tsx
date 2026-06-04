@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { FREE_FEATURES, PRO_FEATURES, COMPARISON } from './data'
 import type { ComparisonRow } from './data'
@@ -155,9 +156,19 @@ interface Props {
 
 export default function BillingClient({ isFree, username }: Props) {
   const { t } = useTranslation()
+  const [w, setW] = useState(1200)
+  useEffect(() => {
+    const upd = () => setW(window.innerWidth)
+    upd()
+    window.addEventListener('resize', upd)
+    return () => window.removeEventListener('resize', upd)
+  }, [])
+  const isMobile = w < 768
+  const isTablet = w >= 768 && w < 1024
+
   return (
     <div style={{
-      padding: '40px 48px 36px',
+      padding: isMobile ? '16px 16px 28px' : isTablet ? '24px 28px 32px' : '40px 48px 36px',
       maxWidth: 1290,
       background: 'linear-gradient(180deg,#FCF4F8 0%,#FBFAFD 220px)',
       minHeight: '100vh',
@@ -165,9 +176,9 @@ export default function BillingClient({ isFree, username }: Props) {
     }}>
 
       {/* ── Header ── */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <div style={{ fontSize: 33, fontWeight: 800, letterSpacing: '-0.03em', color: C.ink }}>
+          <div style={{ fontSize: isMobile ? 26 : 33, fontWeight: 800, letterSpacing: '-0.03em', color: C.ink }}>
             Plan &amp;{' '}
             <span style={{
               background: 'linear-gradient(90deg,#FB2C7D,#C13BD6)',
@@ -176,30 +187,32 @@ export default function BillingClient({ isFree, username }: Props) {
               Billing
             </span>
           </div>
-          <div style={{ color: C.muted, fontSize: 15, marginTop: 8 }}>
+          <div style={{ color: C.muted, fontSize: isMobile ? 13 : 15, marginTop: 8 }}>
             {t('billing.subtitle')}
           </div>
         </div>
-        <button style={{ display: 'flex', alignItems: 'center', gap: 8, background: C.card,
-          border: `1px solid ${C.line}`, borderRadius: 12, padding: '11px 16px',
-          fontSize: 13.5, fontWeight: 600, color: C.ink2, cursor: 'pointer', fontFamily: 'inherit' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.muted}
-            strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M9.2 9a2.8 2.8 0 0 1 5.4 1c0 2-2.8 2.5-2.8 2.5"/>
-            <line x1="12" y1="17" x2="12" y2="17"/>
-          </svg>
-          ¿Tienes dudas?
-        </button>
+        {!isMobile && (
+          <button style={{ display: 'flex', alignItems: 'center', gap: 8, background: C.card,
+            border: `1px solid ${C.line}`, borderRadius: 12, padding: '11px 16px',
+            fontSize: 13.5, fontWeight: 600, color: C.ink2, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.muted}
+              strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M9.2 9a2.8 2.8 0 0 1 5.4 1c0 2-2.8 2.5-2.8 2.5"/>
+              <line x1="12" y1="17" x2="12" y2="17"/>
+            </svg>
+            ¿Tienes dudas?
+          </button>
+        )}
       </div>
 
       {/* ── Plan cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 26, marginTop: 30 }}
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 16 : 26, marginTop: 30 }}
         className="billing-plans-grid">
 
         {/* FREE card */}
         <div style={{ position: 'relative', background: C.card, border: `1px solid ${C.line}`,
-          borderRadius: 24, padding: '30px 30px 32px', overflow: 'hidden' }}>
+          borderRadius: 24, padding: isMobile ? '24px 20px 28px' : '30px 30px 32px', overflow: 'hidden' }}>
           <FreeIllo />
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.02em', color: C.ink }}>Free</span>
@@ -223,7 +236,7 @@ export default function BillingClient({ isFree, username }: Props) {
         </div>
 
         {/* PRO card */}
-        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 24, padding: '30px 30px 32px',
+        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 24, padding: isMobile ? '24px 20px 28px' : '30px 30px 32px',
           background: 'linear-gradient(165deg,#FBF7FF 0%,#FCFAFE 60%)',
           border: '1px solid #E9DEFB', boxShadow: '0 18px 50px rgba(124,58,237,.10)' }}>
           <ProIllo />
@@ -272,16 +285,17 @@ export default function BillingClient({ isFree, username }: Props) {
       </div>
 
       {/* ── Lower section ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 30, marginTop: 46, alignItems: 'start' }}
+      <div style={{ display: 'grid', gridTemplateColumns: (isMobile || isTablet) ? '1fr' : '1fr 340px', gap: isMobile ? 16 : 30, marginTop: isMobile ? 24 : 46, alignItems: 'start' }}
         className="billing-lower-grid">
 
         {/* Left: comparison table */}
         <div>
-          <div style={{ fontSize: 21, fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 18, color: C.ink }}>
+          <div style={{ fontSize: isMobile ? 17 : 21, fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 18, color: C.ink }}>
             Comparativa completa
           </div>
-          <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0,
-            background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', borderRadius: 18, border: `1px solid ${C.line}` }}>
+          <table style={{ width: '100%', minWidth: isMobile ? 360 : undefined, borderCollapse: 'separate', borderSpacing: 0,
+            background: C.card, overflow: 'hidden' }}>
             <thead>
               <tr>
                 <th style={{ fontSize: 13.5, fontWeight: 700, color: C.ink2, background: '#FAF8FC',
@@ -319,6 +333,7 @@ export default function BillingClient({ isFree, username }: Props) {
               ))}
             </tbody>
           </table>
+          </div>{/* end scroll wrapper */}
         </div>
 
         {/* Right column */}

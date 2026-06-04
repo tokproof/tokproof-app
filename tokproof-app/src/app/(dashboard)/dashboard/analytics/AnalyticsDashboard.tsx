@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type { FullAnalytics, PageMeta } from '@/lib/analytics'
 import { useTranslation } from '@/lib/i18n'
@@ -198,15 +198,15 @@ function kpiValues(data: FullAnalytics) {
   ]
 }
 
-function KpiCard({ cfg, val, isPro, onUpgrade }: {
-  cfg: typeof KPI_CONFIG[0]; val: string; isPro: boolean; onUpgrade: () => void
+function KpiCard({ cfg, val, isPro, onUpgrade, isMobile }: {
+  cfg: typeof KPI_CONFIG[0]; val: string; isPro: boolean; onUpgrade: () => void; isMobile?: boolean
 }) {
   const { t } = useTranslation()
   const tint   = TINT[cfg.tint]
   const locked = cfg.locked && !isPro
   return (
-    <Card style={{ padding: '16px 15px 15px', display: 'flex', flexDirection: 'column',
-      minHeight: 212, cursor: locked ? 'pointer' : 'default' }}
+    <Card style={{ padding: isMobile ? '12px 11px 12px' : '16px 15px 15px', display: 'flex', flexDirection: 'column',
+      minHeight: isMobile ? 160 : 212, cursor: locked ? 'pointer' : 'default' }}
       onClick={locked ? onUpgrade : undefined}>
 
       {/* Header row */}
@@ -228,32 +228,38 @@ function KpiCard({ cfg, val, isPro, onUpgrade }: {
       </div>
 
       {/* Label */}
-      <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 500, marginTop: 13,
-        lineHeight: 1.35, minHeight: 34 }}>{cfg.label}</div>
+      <div style={{ fontSize: isMobile ? 11 : 12.5, color: C.muted, fontWeight: 500, marginTop: isMobile ? 8 : 13,
+        lineHeight: 1.35, minHeight: isMobile ? 26 : 34 }}>{cfg.label}</div>
 
       {locked ? (
         /* Locked state */
         <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 5 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 2 }}>
-            <span style={{ fontSize: 16 }}>🔒</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: C.violet }}>{t('analytics.availableInPro')}</span>
+            <span style={{ fontSize: isMobile ? 13 : 16 }}>🔒</span>
+            <span style={{ fontSize: isMobile ? 11 : 13, fontWeight: 700, color: C.violet }}>{t('analytics.availableInPro')}</span>
           </div>
-          <a href="/dashboard/billing"
-            onClick={e => e.stopPropagation()}
-            style={{ fontSize: 11.5, color: C.violet, fontWeight: 600, textDecoration: 'none',
-              opacity: .75, marginTop: 2 }}>
-            {t('analytics.upgradeArrow')}
-          </a>
+          {!isMobile && (
+            <a href="/dashboard/billing"
+              onClick={e => e.stopPropagation()}
+              style={{ fontSize: 11.5, color: C.violet, fontWeight: 600, textDecoration: 'none',
+                opacity: .75, marginTop: 2 }}>
+              {t('analytics.upgradeArrow')}
+            </a>
+          )}
         </div>
       ) : (
         /* Unlocked state */
         <>
-          <div style={{ fontSize: 25, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 2 }}>{val}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12.5,
-            fontWeight: 700, color: C.green, marginTop: 9 }}>
-            <ArrowUp /><span style={{ color: C.muted2, fontSize: 12 }}>—</span>
-          </div>
-          <div style={{ fontSize: 11, color: C.muted2, marginTop: 2 }}>{t('analytics.vsPreviousPeriod')}</div>
+          <div style={{ fontSize: isMobile ? 20 : 25, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 2 }}>{val}</div>
+          {!isMobile && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12.5,
+                fontWeight: 700, color: C.green, marginTop: 9 }}>
+                <ArrowUp /><span style={{ color: C.muted2, fontSize: 12 }}>—</span>
+              </div>
+              <div style={{ fontSize: 11, color: C.muted2, marginTop: 2 }}>{t('analytics.vsPreviousPeriod')}</div>
+            </>
+          )}
         </>
       )}
 
@@ -280,12 +286,12 @@ const FUNNEL_STATIC = [
     icoSvg: '<circle cx="12" cy="12" r="9" stroke="#16B368" fill="none" stroke-width="2"/><polyline points="8.5 12 11 14.5 15.5 9.5" stroke="#16B368" fill="none" stroke-width="2"/>' },
 ]
 
-function FunnelSection({ data, isPro, onUpgrade }: { data: FullAnalytics; isPro: boolean; onUpgrade: () => void }) {
+function FunnelSection({ data, isPro, onUpgrade, isMobile }: { data: FullAnalytics; isPro: boolean; onUpgrade: () => void; isMobile?: boolean }) {
   const { t } = useTranslation()
   const vals = [data.funnelExitViews, data.funnelGuideViews, data.funnelBrowserDetected, data.funnelLandingViews]
 
   return (
-    <Card style={{ marginTop: 22, padding: '22px 24px', position: 'relative' }}>
+    <Card style={{ marginTop: 22, padding: isMobile ? '16px 14px' : '22px 24px', position: 'relative' }}>
       {!isPro && (
         <SectionBlurGate onUpgrade={onUpgrade}>
           <div style={{ background: 'rgba(255,255,255,.9)', borderRadius: 16,
@@ -321,12 +327,12 @@ function FunnelSection({ data, isPro, onUpgrade }: { data: FullAnalytics; isPro:
           {t('analytics.howItWorks')}
         </button>
       </div>
-      <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'stretch', gap: 0, overflowX: isMobile ? 'auto' : 'visible', WebkitOverflowScrolling: 'touch', marginLeft: isMobile ? -14 : 0, marginRight: isMobile ? -14 : 0, paddingLeft: isMobile ? 14 : 0, paddingRight: isMobile ? 14 : 0 }}>
         {FUNNEL_STATIC.map((s, i) => (
           <span key={s.label} style={{ display: 'contents' }}>
-            <div style={{ flex: 1, borderRadius: 16, padding: '20px 16px 0',
+            <div style={{ flex: isMobile ? '0 0 auto' : 1, width: isMobile ? 130 : undefined, borderRadius: 16, padding: isMobile ? '14px 10px 0' : '20px 16px 0',
               display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-              position: 'relative', overflow: 'hidden', minHeight: 150, background: s.bg }}>
+              position: 'relative', overflow: 'hidden', minHeight: isMobile ? 120 : 150, background: s.bg }}>
               <div style={{ width: 54, height: 54, borderRadius: 15, background: '#fff',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 6px 16px rgba(20,20,40,.07)', marginBottom: 14 }}>
@@ -340,7 +346,7 @@ function FunnelSection({ data, isPro, onUpgrade }: { data: FullAnalytics; isPro:
               <div style={{ height: 6, width: '100%', borderRadius: 6, marginTop: 18, background: s.barGrad }} />
             </div>
             {i < FUNNEL_STATIC.length - 1 && (
-              <div style={{ flexShrink: 0, width: 96, display: 'flex', flexDirection: 'column',
+              <div style={{ flexShrink: 0, width: isMobile ? 36 : 96, display: 'flex', flexDirection: 'column',
                 alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: C.red }}>
                   {dropPct(vals[i], vals[i + 1])}
@@ -353,7 +359,7 @@ function FunnelSection({ data, isPro, onUpgrade }: { data: FullAnalytics; isPro:
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12,
         background: 'linear-gradient(90deg,#F6F1FD,#FBF4F8)', borderRadius: 13,
-        padding: '14px 18px', marginTop: 18, fontSize: 13.5, color: C.ink2 }}>
+        padding: isMobile ? '12px 14px' : '14px 18px', marginTop: 18, fontSize: isMobile ? 12.5 : 13.5, color: C.ink2 }}>
         <span style={{ width: 30, height: 30, borderRadius: 9, background: '#fff',
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           boxShadow: '0 3px 8px rgba(20,20,40,.06)' }}>
@@ -555,11 +561,11 @@ function TrafficSources({ data, onMore, isPro, onUpgrade }: {
   )
 }
 
-function TripleRow({ data, isPro, onMore, onUpgrade }: {
-  data: FullAnalytics; isPro: boolean; onMore: () => void; onUpgrade: () => void
+function TripleRow({ data, isPro, onMore, onUpgrade, isMobile, isTablet }: {
+  data: FullAnalytics; isPro: boolean; onMore: () => void; onUpgrade: () => void; isMobile?: boolean; isTablet?: boolean
 }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginTop: 22 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : isTablet ? '1fr 1fr' : '1fr 1fr 1fr', gap: isMobile ? 14 : 18, marginTop: 22 }}>
       <TopCountries data={data} onMore={onMore} isPro={isPro} onUpgrade={onUpgrade} />
       <DevicesDonut data={data} onMore={onMore} isPro={isPro} onUpgrade={onUpgrade} />
       <TrafficSources data={data} onMore={onMore} isPro={isPro} onUpgrade={onUpgrade} />
@@ -574,10 +580,10 @@ const SERIES_META = [
   { color: '#3B82F6', label: 'Open Browser Clicks',  key: 'openBrowserClicks' as const },
 ]
 
-function PerformanceChart({ data, isPro, onUpgrade }: { data: FullAnalytics; isPro: boolean; onUpgrade: () => void }) {
+function PerformanceChart({ data, isPro, onUpgrade, isMobile }: { data: FullAnalytics; isPro: boolean; onUpgrade: () => void; isMobile?: boolean }) {
   const { t } = useTranslation()
   const pts = data.timeSeries
-  const W = 1000, H = 300, padL = 42, padR = 18, padT = 14, padB = 40
+  const W = 1000, H = isMobile ? 200 : 300, padL = isMobile ? 32 : 42, padR = 18, padT = 14, padB = isMobile ? 28 : 40
   const n = pts.length || 1
   const maxVal = Math.max(...pts.flatMap(p => [p.views, p.clicks, p.openBrowserClicks]), 4)
   const chartMax = Math.ceil(maxVal / 2) * 2 || 4
@@ -585,7 +591,7 @@ function PerformanceChart({ data, isPro, onUpgrade }: { data: FullAnalytics; isP
   const cy = (v: number) => padT + (1 - v / chartMax) * (H - padT - padB)
 
   return (
-    <Card style={{ marginTop: 22, padding: '22px 24px', position: 'relative' }}>
+    <Card style={{ marginTop: 22, padding: isMobile ? '16px 14px' : '22px 24px', position: 'relative' }}>
       {!isPro && (
         <a href="/dashboard/billing" style={{ position: 'absolute', inset: 0, borderRadius: 18,
           background: 'rgba(255,255,255,.36)', backdropFilter: 'blur(2px)', zIndex: 10 }} />
@@ -604,16 +610,16 @@ function PerformanceChart({ data, isPro, onUpgrade }: { data: FullAnalytics; isP
           {t('analytics.daily')} <ChevDown />
         </div>
       </div>
-      <div style={{ display: 'flex', gap: 22, marginBottom: 6 }}>
+      <div style={{ display: 'flex', gap: isMobile ? 10 : 22, marginBottom: 6, flexWrap: 'wrap' }}>
         {SERIES_META.map(s => (
           <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 7,
-            fontSize: 13, fontWeight: 600, color: C.ink2 }}>
+            fontSize: isMobile ? 11 : 13, fontWeight: 600, color: C.ink2 }}>
             <span style={{ width: 9, height: 9, borderRadius: '50%', background: s.color }} />
             {s.label}
           </div>
         ))}
       </div>
-      <div style={{ width: '100%', height: 300, marginTop: 8 }}>
+      <div style={{ width: '100%', height: isMobile ? 200 : 300, marginTop: 8 }}>
         {pts.length === 0
           ? <div style={{ height: '100%', display: 'flex', alignItems: 'center',
               justifyContent: 'center', color: C.muted2, fontSize: 13 }}>{t('analytics.noDataPeriod')}</div>
@@ -664,23 +670,25 @@ const PAGE_GRADIENTS = [
   'linear-gradient(135deg,#6EE7B7,#3B82F6)',
 ]
 
-function PagesTable({ data, onMore }: { data: FullAnalytics; onMore: () => void }) {
+function PagesTable({ data, onMore, isMobile }: { data: FullAnalytics; onMore: () => void; isMobile?: boolean }) {
   const { t } = useTranslation()
-  const headers = ['Page','Landing Views','Unique visitors','Clicks','CTR','Rescue Rate','Exit Guide Views','Open Browser Clicks']
+  const headers = isMobile
+    ? ['Page','Landing Views','Clicks','CTR']
+    : ['Page','Landing Views','Unique visitors','Clicks','CTR','Rescue Rate','Exit Guide Views','Open Browser Clicks']
   return (
-    <Card style={{ marginTop: 22, padding: '22px 24px' }}>
+    <Card style={{ marginTop: 22, padding: isMobile ? '16px 14px' : '22px 24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8,
           fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em' }}>
           {t('analytics.pagePerformance')} <InfoIcon tip={TIPS['Rendimiento por página']} />
         </div>
       </div>
-      <div style={{ overflowX: 'auto' }}>
+      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
         {data.pages.length === 0
           ? <div style={{ textAlign: 'center', padding: '32px 0', color: C.muted2, fontSize: 13 }}>
               {t('analytics.noPages')}
             </div>
-          : <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          : <table style={{ width: '100%', minWidth: isMobile ? 380 : 640, borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
                   {headers.map((h, i) => (
@@ -706,11 +714,10 @@ function PagesTable({ data, onMore }: { data: FullAnalytics; onMore: () => void 
                         </div>
                       </div>
                     </td>
-                    {[
-                      fmtNum(row.landingViews), fmtNum(row.uniqueVisitors), fmtNum(row.clicks),
-                      `${row.ctr}%`, `${row.rescueRate}%`,
-                      fmtNum(row.exitGuideViews), fmtNum(row.openBrowserClicks),
-                    ].map((v, i) => (
+                    {(isMobile
+                      ? [fmtNum(row.landingViews), fmtNum(row.clicks), `${row.ctr}%`]
+                      : [fmtNum(row.landingViews), fmtNum(row.uniqueVisitors), fmtNum(row.clicks), `${row.ctr}%`, `${row.rescueRate}%`, fmtNum(row.exitGuideViews), fmtNum(row.openBrowserClicks)]
+                    ).map((v, i) => (
                       <td key={i} style={{ padding: '13px 0', borderTop: `1px solid ${C.lineSoft}`,
                         fontSize: 13.5, fontWeight: 600, color: C.ink, textAlign: 'right', whiteSpace: 'nowrap' }}>
                         {v}
@@ -744,6 +751,16 @@ interface Props {
 export default function AnalyticsDashboard({ initialData, pages, isPro }: Props) {
   const router = useRouter()
   const { t } = useTranslation()
+
+  const [w, setW] = useState(1200)
+  useEffect(() => {
+    const upd = () => setW(window.innerWidth)
+    upd()
+    window.addEventListener('resize', upd)
+    return () => window.removeEventListener('resize', upd)
+  }, [])
+  const isMobile = w < 768
+  const isTablet = w >= 768 && w < 1024
 
   const DATE_OPTIONS = [
     { label: t('analytics.today'),     days: 1  },
@@ -804,7 +821,7 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
   const kpiVals   = kpiValues(data)
 
   return (
-    <div style={{ padding: '30px 34px 40px', maxWidth: 1130, background: C.bg,
+    <div style={{ padding: isMobile ? '16px 14px 40px' : isTablet ? '20px 24px 40px' : '30px 34px 40px', maxWidth: 1130, background: C.bg,
       minHeight: '100vh', fontFamily: "'Inter', system-ui, sans-serif",
       opacity: loading ? 0.65 : 1, transition: 'opacity .2s' }}>
 
@@ -813,15 +830,15 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8,
-        fontSize: 28, fontWeight: 800, letterSpacing: '-0.025em', color: C.ink }}>
+        fontSize: isMobile ? 22 : 28, fontWeight: 800, letterSpacing: '-0.025em', color: C.ink }}>
         {t('analytics.title')} <InfoIcon tip="Panel de métricas de tus páginas Tokproof." />
       </div>
-      <div style={{ color: C.muted, fontSize: 14.5, marginTop: 6 }}>
+      <div style={{ color: C.muted, fontSize: isMobile ? 13 : 14.5, marginTop: 6 }}>
         {t('analytics.subtitle')}
       </div>
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: 12, margin: '24px 0 18px', flexWrap: 'wrap', position: 'relative', zIndex: 50 }}>
+      <div style={{ display: 'flex', gap: isMobile ? 8 : 12, margin: isMobile ? '16px 0 14px' : '24px 0 18px', flexWrap: isMobile ? 'nowrap' : 'wrap', overflowX: isMobile ? 'auto' : 'visible', WebkitOverflowScrolling: 'touch', position: 'relative', zIndex: 50, paddingBottom: isMobile ? 4 : 0 }}>
 
         {/* Date filter */}
         <div style={{ position: 'relative' }}>
@@ -901,9 +918,9 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
         </button>
 
         {/* CSV export */}
-        <button onClick={exportCSV} style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center',
+        <button onClick={exportCSV} style={{ marginLeft: isMobile ? 0 : 'auto', flexShrink: 0, display: 'flex', alignItems: 'center',
           gap: 9, background: '#fff', border: `1px solid ${C.line}`, borderRadius: 12,
-          padding: '11px 14px', fontSize: 13.5, fontWeight: 600, color: C.ink,
+          padding: '11px 14px', fontSize: isMobile ? 12.5 : 13.5, fontWeight: 600, color: C.ink,
           cursor: 'pointer', fontFamily: 'inherit' }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke={C.purple} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
@@ -915,18 +932,18 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
       </div>
 
       {/* KPI grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 13 }}
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : isTablet ? 'repeat(4,1fr)' : 'repeat(7,1fr)', gap: isMobile ? 10 : 13 }}
         className="kpi-analytics-grid">
         {KPI_CONFIG.map((cfg, i) => (
           <KpiCard key={cfg.label} cfg={cfg} val={kpiVals[i]}
-            isPro={isPro} onUpgrade={onUpgrade} />
+            isPro={isPro} onUpgrade={onUpgrade} isMobile={isMobile} />
         ))}
       </div>
 
-      <FunnelSection  data={data} isPro={isPro} onUpgrade={onUpgrade} />
-      <TripleRow      data={data} isPro={isPro} onMore={onSoon} onUpgrade={onUpgrade} />
-      <PerformanceChart data={data} isPro={isPro} onUpgrade={onUpgrade} />
-      <PagesTable     data={data} onMore={onSoon} />
+      <FunnelSection  data={data} isPro={isPro} onUpgrade={onUpgrade} isMobile={isMobile} />
+      <TripleRow      data={data} isPro={isPro} onMore={onSoon} onUpgrade={onUpgrade} isMobile={isMobile} isTablet={isTablet} />
+      <PerformanceChart data={data} isPro={isPro} onUpgrade={onUpgrade} isMobile={isMobile} />
+      <PagesTable     data={data} onMore={onSoon} isMobile={isMobile} />
 
       {/* Footer */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',

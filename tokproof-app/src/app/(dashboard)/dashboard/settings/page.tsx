@@ -119,7 +119,8 @@ export default function SettingsPage() {
     news: true,
   })
   const [notifSaved, setNotifSaved] = useState(false)
-  const [isMobile, setIsMobile]     = useState(false)
+  const [isMobile, setIsMobile]   = useState(false)
+  const [isTablet, setIsTablet]   = useState(false)
 
   // Keep prefs.language in sync when lang changes externally
   useEffect(() => {
@@ -127,7 +128,11 @@ export default function SettingsPage() {
   }, [lang])
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768)
+    const check = () => {
+      const w = window.innerWidth
+      setIsMobile(w < 768)
+      setIsTablet(w >= 768 && w < 1024)
+    }
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
@@ -195,7 +200,7 @@ export default function SettingsPage() {
     borderRadius: 'var(--r-xl)',
     boxShadow: 'var(--shadow-card)',
   }
-  const panel: React.CSSProperties = { ...card, padding: isMobile ? '18px 16px 22px' : '24px 26px 28px' }
+  const panel: React.CSSProperties = { ...card, padding: isMobile ? '18px 16px 22px' : isTablet ? '18px 20px 24px' : '24px 26px 28px' }
 
   const outlineBtn: React.CSSProperties = {
     background: '#fff', border: '1px solid var(--border)',
@@ -331,7 +336,7 @@ export default function SettingsPage() {
       </div>
 
       {/* ── 3-column middle row ───────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: isMobile ? 16 : 24, marginBottom: isMobile ? 16 : 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : isTablet ? '1fr 1fr' : 'repeat(3,1fr)', gap: isMobile ? 16 : 24, marginBottom: isMobile ? 16 : 24 }}>
 
         {/* Preferencias */}
         <div style={panel}>
@@ -454,7 +459,7 @@ export default function SettingsPage() {
       </div>
 
       {/* ── 2-column bottom row ───────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.55fr 1fr', gap: isMobile ? 16 : 24, marginBottom: 52 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: (isMobile || isTablet) ? '1fr' : '1.55fr 1fr', gap: isMobile ? 16 : 24, marginBottom: 52 }}>
 
         {/* Dominio personalizado */}
         <div style={panel}>
