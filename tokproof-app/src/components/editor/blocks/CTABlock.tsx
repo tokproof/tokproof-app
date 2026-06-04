@@ -13,6 +13,9 @@ export default function CTABlock({ block, theme, pageId }: Props) {
   function handleClick() {
     const url = d.url?.trim()
 
+    // DEBUG: temporary log — remove after analytics confirmed working
+    console.log('[tracker] sending cta_click', { pageId, url, endpoint: '/api/track' })
+
     // Fire analytics with keepalive — request survives page navigation
     if (pageId) {
       fetch('/api/track', {
@@ -25,13 +28,22 @@ export default function CTABlock({ block, theme, pageId }: Props) {
           metadata: { destinationUrl: url ?? '' },
         }),
         keepalive: true,
-      }).catch(() => {})
+      })
+        .then(async res => {
+          const json = await res.json().catch(() => ({}))
+          if (!res.ok) {
+            console.error('[tracker] cta_click FAILED', { status: res.status, body: json })
+          } else {
+            console.log('[tracker] cta_click OK', json)
+          }
+        })
+        .catch(err => console.error('[tracker] cta_click fetch error:', err))
+    } else {
+      console.warn('[tracker] cta_click: no pageId — event NOT sent')
     }
 
     if (!url) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('[CTABlock] No destination URL configured')
-      }
+      console.warn('[CTABlock] No destination URL configured for this CTA')
       return
     }
 
