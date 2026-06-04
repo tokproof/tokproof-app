@@ -24,7 +24,7 @@ export default function LandingPageRenderer({ config, pageId, slug }: Props) {
         {config.blocks
           .filter(b => b.visible)
           .map(block => (
-            <BlockRenderer key={block.id} block={block} theme={config.theme} />
+            <BlockRenderer key={block.id} block={block} theme={config.theme} pageId={pageId} />
           ))
         }
       </div>

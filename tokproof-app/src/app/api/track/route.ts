@@ -2,11 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 
 export async function POST(req: NextRequest) {
+  let pageId: string | undefined
+  let eventType: string | undefined
+
   try {
     const body = await req.json()
-    const { pageId, eventType, slug, sessionId, metadata } = body as {
+    ;({ pageId, eventType } = body as {
       pageId?: string
       eventType: string
+      slug?: string
+      sessionId?: string
+      metadata?: Record<string, unknown>
+    })
+    const { slug, sessionId, metadata } = body as {
       slug?: string
       sessionId?: string
       metadata?: Record<string, unknown>
@@ -38,7 +46,7 @@ export async function POST(req: NextRequest) {
       ...metadata,
     }
 
-    await supabase.from('analytics_events').insert({
+    const { error: insertError } = await supabase.from('analytics_events').insert({
       user_id:    userId,
       page_id:    pageId ?? null,
       event_type: eventType,
@@ -47,9 +55,24 @@ export async function POST(req: NextRequest) {
       metadata:   enriched,
     })
 
+    // Log insert errors — visible in server logs, never breaks public page
+    if (insertError) {
+      console.error('[/api/track] Supabase insert failed:', insertError.message, {
+        code: insertError.code,
+        pageId,
+        eventType,
+        hint: insertError.code === '42703'
+          ? 'Column does not exist — run: supabase/migrations/20260530_analytics_session_id.sql'
+          : undefined,
+      })
+    }
+
     return NextResponse.json({ ok: true })
-  } catch {
-    // Never fail loudly — analytics should be invisible to users
+  } catch (err) {
+    console.error('[/api/track] Unexpected error:', err instanceof Error ? err.message : err, {
+      pageId,
+      eventType,
+    })
     return NextResponse.json({ ok: true })
   }
 }

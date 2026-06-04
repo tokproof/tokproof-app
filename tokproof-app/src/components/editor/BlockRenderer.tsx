@@ -21,15 +21,18 @@ import BenefitIconsRowBlock     from './blocks/BenefitIconsRowBlock'
 interface Props {
   block: LandingBlock
   theme: LandingTheme
+  // Passed from LandingPageRenderer so trackable blocks can fire analytics
+  pageId?: string
 }
 
-export default function BlockRenderer({ block, theme }: Props) {
+export default function BlockRenderer({ block, theme, pageId }: Props) {
   switch (block.type) {
     case 'hero_product':   return <HeroProductBlock  block={block} theme={theme} />
     case 'benefits':       return <BenefitsBlock     block={block} theme={theme} />
-    case 'link_list':      return <LinkListBlock      block={block} theme={theme} />
+    // pageId forwarded — these blocks navigate and track clicks
+    case 'link_list':      return <LinkListBlock      block={block} theme={theme} pageId={pageId} />
+    case 'cta':            return <CTABlock           block={block} theme={theme} pageId={pageId} />
     case 'faq':            return <FAQBlock           block={block} theme={theme} />
-    case 'cta':            return <CTABlock           block={block} theme={theme} />
     case 'profile_header': return <ProfileHeaderBlock block={block} theme={theme} />
     case 'social_links':   return <SocialLinksBlock   block={block} theme={theme} />
     case 'product_grid':   return <ProductGridBlock   block={block} theme={theme} />
