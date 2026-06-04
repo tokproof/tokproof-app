@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from '@/lib/i18n'
 import type { Plan } from '@/lib/plans'
 import { GlowThumb } from '@/components/editor/GlowThumb'
 import UpgradeProModal from '@/components/shared/UpgradeProModal'
@@ -83,10 +84,11 @@ const BLOCKS_CATALOG: CatalogEntry[] = [
 
 // ─── Small badge for catalog cards ────────────────────────────────────────────
 function SBadge({ tag }: { tag: 'free' | 'pro' | 'soon' }) {
+  const { t } = useTranslation()
   const cfg = {
-    free: { label: 'Free',         bg: '#dcfce7', tx: '#16a34a', lock: false },
-    pro:  { label: 'Pro',          bg: '#ede7fd', tx: '#7c3aed', lock: true  },
-    soon: { label: 'Próximamente', bg: '#eef0f3', tx: '#8b8f98', lock: false },
+    free: { label: 'Free',           bg: '#dcfce7', tx: '#16a34a', lock: false },
+    pro:  { label: 'Pro',            bg: '#ede7fd', tx: '#7c3aed', lock: true  },
+    soon: { label: t('block.soon'),  bg: '#eef0f3', tx: '#8b8f98', lock: false },
   }
   const c = cfg[tag]
   return (
@@ -197,14 +199,15 @@ function BlockPreviewPopover({ entry, top, left, onClose, onAdd, onMouseEnter, o
   onMouseEnter: () => void; onMouseLeave: () => void
   plan: Plan; onUpgrade: () => void
 }) {
+  const { t } = useTranslation()
   const H = 440
   const safeTop = Math.max(64, Math.min(top, (typeof window !== 'undefined' ? window.innerHeight : 800) - H - 12))
   const isSoon   = entry.tag === 'soon'
   const isLocked = entry.tag === 'pro' && plan === 'free'
   const cfg = {
-    free: { label: 'Free',         bg: '#dcfce7', tx: '#16a34a', lock: false },
-    pro:  { label: 'Pro',          bg: '#ede7fd', tx: '#7c3aed', lock: true  },
-    soon: { label: 'Próximamente', bg: '#eef0f3', tx: '#8b8f98', lock: false },
+    free: { label: 'Free',              bg: '#dcfce7', tx: '#16a34a', lock: false },
+    pro:  { label: 'Pro',              bg: '#ede7fd', tx: '#7c3aed', lock: true  },
+    soon: { label: t('block.soon'),    bg: '#eef0f3', tx: '#8b8f98', lock: false },
   }
   const bc = cfg[entry.tag]
 
@@ -256,7 +259,7 @@ function BlockPreviewPopover({ entry, top, left, onClose, onAdd, onMouseEnter, o
 
         {(CATALOG_IDEAL[entry.type]?.length ?? 0) > 0 && (
           <>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.05em', color: '#9ca3af', marginTop: 10, textTransform: 'uppercase' }}>Ideal para</div>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.05em', color: '#9ca3af', marginTop: 10, textTransform: 'uppercase' }}>{t('block.idealFor')}</div>
             <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginTop: 6 }}>
               {(CATALOG_IDEAL[entry.type] ?? []).map(t => (
                 <span key={t} style={{ fontSize: 10.5, fontWeight: 600, color: '#374151', background: '#f6f4f9', border: '1px solid #ece8f2', padding: '3px 9px', borderRadius: 12 }}>{t}</span>
@@ -268,11 +271,11 @@ function BlockPreviewPopover({ entry, top, left, onClose, onAdd, onMouseEnter, o
         {/* CTA */}
         {isSoon ? (
           <button disabled style={{ width: '100%', marginTop: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, background: '#eef0f3', color: '#a4a9b2', fontSize: 13, fontWeight: 700, padding: '11px', borderRadius: 11, border: 'none', cursor: 'not-allowed' }}>
-            Disponible pronto
+            {t('block.availableSoon')}
           </button>
         ) : isLocked ? (
           <button onClick={onUpgrade} style={{ width: '100%', marginTop: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, background: 'linear-gradient(135deg,#FFD700,#FF8C00)', color: '#fff', fontSize: 13, fontWeight: 700, padding: '11px', borderRadius: 11, border: 'none', cursor: 'pointer', boxShadow: '0 6px 14px rgba(255,165,0,.25)' }}>
-            <Lock size={14} /> Actualizar a Pro
+            <Lock size={14} /> {t('block.upgradePro')}
           </button>
         ) : (
           <button
@@ -280,7 +283,7 @@ function BlockPreviewPopover({ entry, top, left, onClose, onAdd, onMouseEnter, o
             style={{ width: '100%', marginTop: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, background: 'linear-gradient(180deg,#8b5cf6,#7c3aed)', color: '#fff', fontSize: 13, fontWeight: 700, padding: '11px', borderRadius: 11, border: 'none', cursor: 'pointer', boxShadow: '0 8px 18px rgba(124,58,237,.28)' }}
             onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 10px 22px rgba(124,58,237,.42)'}
             onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 18px rgba(124,58,237,.28)'}>
-            <Plus size={15} strokeWidth={2.5} /> Añadir bloque
+            <Plus size={15} strokeWidth={2.5} /> {t('block.addBlock')}
           </button>
         )}
       </div>
@@ -380,6 +383,7 @@ function SortableItem({
   onDelete: (id: string) => void
   onDuplicate: (id: string) => void
 }) {
+  const { t } = useTranslation()
   const [expanded, setExpanded] = useState(false)
   const [tab, setTab] = useState<'content' | 'design'>('content')
 
@@ -433,13 +437,13 @@ function SortableItem({
 
         {/* Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
-          <IconBtn title={block.visible ? 'Ocultar' : 'Mostrar'} onClick={() => onToggleVisibility(block.id)}>
+          <IconBtn title={block.visible ? t('block.hide') : t('block.show')} onClick={() => onToggleVisibility(block.id)}>
             {block.visible ? <Eye size={14} /> : <EyeOff size={14} />}
           </IconBtn>
-          <IconBtn title="Duplicar" onClick={() => onDuplicate(block.id)} disabled={!!block.locked}>
+          <IconBtn title={t('block.duplicate')} onClick={() => onDuplicate(block.id)} disabled={!!block.locked}>
             <Copy size={13} />
           </IconBtn>
-          <IconBtn title="Eliminar" onClick={() => onDelete(block.id)} disabled={!!block.locked} danger>
+          <IconBtn title={t('block.delete')} onClick={() => onDelete(block.id)} disabled={!!block.locked} danger>
             <Trash2 size={13} />
           </IconBtn>
           <ChevronDown size={13} color={T.ink3}
@@ -484,7 +488,7 @@ function SortableItem({
                     color: tab === key ? T.pink : T.ink3,
                     borderBottom: tab === key ? `2px solid ${T.pink}` : '2px solid transparent',
                   }}>
-                    {key === 'content' ? 'Contenido' : 'Diseño'}
+                    {key === 'content' ? t('block.content') : t('block.design')}
                   </button>
                 ))}
               </div>
@@ -573,6 +577,7 @@ function PillGroup<V extends string>({ options, value, onChange }: {
 function ColRow({ label, value, overridden, onChange, onReset }: {
   label: string; value: string; overridden: boolean; onChange: (v: string) => void; onReset: () => void
 }) {
+  const { t } = useTranslation()
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
       <input type="color" value={value.startsWith('#') ? value : '#1F1F22'} onChange={e => onChange(e.target.value)}
@@ -580,7 +585,7 @@ function ColRow({ label, value, overridden, onChange, onReset }: {
       <span style={{ flex: 1, fontSize: 11.5, fontWeight: 500, color: T.ink2 }}>{label}</span>
       <span style={{ fontSize: 10, fontWeight: 600, color: T.ink3, fontFamily: 'monospace', maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis' }}>{value.toUpperCase()}</span>
       {overridden && (
-        <button onClick={onReset} title="Usar tema" style={{ width: 18, height: 18, borderRadius: 4, border: 'none', background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}>
+        <button onClick={onReset} title={t('block.useTheme')} style={{ width: 18, height: 18, borderRadius: 4, border: 'none', background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}>
           <RotateCcw size={10} />
         </button>
       )}
@@ -625,6 +630,7 @@ function ToggleSection({ label, enabled, onToggle, pro, children }: {
 function DesignEditor({ block, theme, onUpdateStyle }: {
   block: LandingBlock; theme: LandingTheme; onUpdateStyle: (patch: Partial<BlockStyle>) => void
 }) {
+  const { t } = useTranslation()
   const s = block.style ?? {}
 
   const hasColorOverrides = !!(s.backgroundColor || s.textColor || s.accentColor || s.elementBackgroundColor || s.borderColor)
@@ -642,22 +648,22 @@ function DesignEditor({ block, theme, onUpdateStyle }: {
   return (
     <div>
       {/* Colors section */}
-      <ToggleSection label="Personalizar colores" enabled={colorsOn} onToggle={v => onUpdateStyle({ customColorsEnabled: v })} pro>
-        <ColRow label="Fondo del bloque"  value={s.backgroundColor ?? theme.backgroundColor} overridden={!!s.backgroundColor}  onChange={v => onUpdateStyle({ backgroundColor: v })}  onReset={() => onUpdateStyle({ backgroundColor: undefined })} />
-        <ColRow label="Texto"             value={s.textColor ?? theme.textColor}              overridden={!!s.textColor}         onChange={v => onUpdateStyle({ textColor: v })}         onReset={() => onUpdateStyle({ textColor: undefined })} />
-        <ColRow label="Acento / botón"    value={s.accentColor ?? theme.primaryColor}         overridden={!!s.accentColor}       onChange={v => onUpdateStyle({ accentColor: v })}       onReset={() => onUpdateStyle({ accentColor: undefined })} />
-        <ColRow label="Fondo elementos"   value={s.elementBackgroundColor ?? '#1F1F22'}        overridden={!!s.elementBackgroundColor} onChange={v => onUpdateStyle({ elementBackgroundColor: v })} onReset={() => onUpdateStyle({ elementBackgroundColor: undefined })} />
-        <ColRow label="Borde elementos"   value={s.borderColor ?? '#2A2A2E'}                  overridden={!!s.borderColor}       onChange={v => onUpdateStyle({ borderColor: v })}       onReset={() => onUpdateStyle({ borderColor: undefined })} />
-        {sub('Efecto cristal')}
+      <ToggleSection label={t('block.customizeColors')} enabled={colorsOn} onToggle={v => onUpdateStyle({ customColorsEnabled: v })} pro>
+        <ColRow label={t('block.bgBlock')}        value={s.backgroundColor ?? theme.backgroundColor} overridden={!!s.backgroundColor}  onChange={v => onUpdateStyle({ backgroundColor: v })}  onReset={() => onUpdateStyle({ backgroundColor: undefined })} />
+        <ColRow label={t('block.text')}            value={s.textColor ?? theme.textColor}              overridden={!!s.textColor}         onChange={v => onUpdateStyle({ textColor: v })}         onReset={() => onUpdateStyle({ textColor: undefined })} />
+        <ColRow label={t('block.accentBtn')}       value={s.accentColor ?? theme.primaryColor}         overridden={!!s.accentColor}       onChange={v => onUpdateStyle({ accentColor: v })}       onReset={() => onUpdateStyle({ accentColor: undefined })} />
+        <ColRow label={t('block.bgElements')}      value={s.elementBackgroundColor ?? '#1F1F22'}        overridden={!!s.elementBackgroundColor} onChange={v => onUpdateStyle({ elementBackgroundColor: v })} onReset={() => onUpdateStyle({ elementBackgroundColor: undefined })} />
+        <ColRow label={t('block.borderElements')}  value={s.borderColor ?? '#2A2A2E'}                  overridden={!!s.borderColor}       onChange={v => onUpdateStyle({ borderColor: v })}       onReset={() => onUpdateStyle({ borderColor: undefined })} />
+        {sub(t('block.glassEffect'))}
         <PillGroup
-          options={[{ key: 'none', label: 'Ninguno' }, { key: 'soft', label: 'Suave' }, { key: 'medium', label: 'Medio' }, { key: 'strong', label: 'Fuerte' }]}
+          options={[{ key: 'none', label: t('block.none') }, { key: 'soft', label: t('block.soft') }, { key: 'medium', label: t('block.medium') }, { key: 'strong', label: 'Fuerte' }]}
           value={s.glassIntensity}
           onChange={v => onUpdateStyle({ glassIntensity: v as BlockStyle['glassIntensity'] })}
         />
       </ToggleSection>
 
       {/* Typography section */}
-      <ToggleSection label="Personalizar tipografía" enabled={fontOn} onToggle={v => onUpdateStyle({ customFontEnabled: v })} pro>
+      <ToggleSection label={t('block.customizeTypography')} enabled={fontOn} onToggle={v => onUpdateStyle({ customFontEnabled: v })} pro>
         <FG mb={8}>
           <div style={{ display: 'flex', gap: 6 }}>
             <FSel value={s.fontFamily ?? theme.fontFamily} onChange={e => onUpdateStyle({ fontFamily: e.target.value })} style={{ flex: 1 }}>
@@ -666,18 +672,18 @@ function DesignEditor({ block, theme, onUpdateStyle }: {
             {s.fontFamily && <button onClick={() => onUpdateStyle({ fontFamily: undefined })} style={{ width: 26, height: 26, borderRadius: 6, border: `1px solid ${T.border2}`, background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3, flexShrink: 0 }}><RotateCcw size={11} /></button>}
           </div>
         </FG>
-        {sub('Tamaño')}
-        <PillGroup options={[{ key: 'small', label: 'Pequeño' }, { key: 'medium', label: 'Medio' }, { key: 'large', label: 'Grande' }]} value={s.fontSize} onChange={v => onUpdateStyle({ fontSize: v })} />
-        {sub('Alineación')}
-        <PillGroup options={[{ key: 'left', label: 'Izquierda' }, { key: 'center', label: 'Centro' }]} value={s.textAlign} onChange={v => onUpdateStyle({ textAlign: v })} />
+        {sub(t('block.size'))}
+        <PillGroup options={[{ key: 'small', label: t('block.small') }, { key: 'medium', label: t('block.medium') }, { key: 'large', label: t('block.large') }]} value={s.fontSize} onChange={v => onUpdateStyle({ fontSize: v })} />
+        {sub(t('block.alignment'))}
+        <PillGroup options={[{ key: 'left', label: t('block.left') }, { key: 'center', label: t('block.center') }]} value={s.textAlign} onChange={v => onUpdateStyle({ textAlign: v })} />
       </ToggleSection>
 
       {/* Border & spacing section */}
-      <ToggleSection label="Bordes y espaciado" enabled={borderOn} onToggle={v => onUpdateStyle({ customBorderEnabled: v })} pro>
-        {sub('Bordes')}
-        <PillGroup options={[{ key: 'square', label: 'Cuadrado' }, { key: 'soft', label: 'Suave' }, { key: 'medium', label: 'Medio' }, { key: 'round', label: 'Redondo' }]} value={s.borderRadius} onChange={v => onUpdateStyle({ borderRadius: v })} />
-        {sub('Espaciado')}
-        <PillGroup options={[{ key: 'compact', label: 'Compacto' }, { key: 'normal', label: 'Normal' }, { key: 'airy', label: 'Amplio' }]} value={s.spacing} onChange={v => onUpdateStyle({ spacing: v })} />
+      <ToggleSection label={t('block.bordersSpacing')} enabled={borderOn} onToggle={v => onUpdateStyle({ customBorderEnabled: v })} pro>
+        {sub(t('block.borders'))}
+        <PillGroup options={[{ key: 'square', label: t('editor.square') }, { key: 'soft', label: t('editor.soft') }, { key: 'medium', label: t('editor.medium') }, { key: 'round', label: t('editor.round') }]} value={s.borderRadius} onChange={v => onUpdateStyle({ borderRadius: v })} />
+        {sub(t('block.spacing'))}
+        <PillGroup options={[{ key: 'compact', label: t('block.compact') }, { key: 'normal', label: t('block.normal') }, { key: 'airy', label: t('block.airy') }]} value={s.spacing} onChange={v => onUpdateStyle({ spacing: v })} />
       </ToggleSection>
 
       {Object.keys(s).length > 0 && (
@@ -689,7 +695,7 @@ function DesignEditor({ block, theme, onUpdateStyle }: {
           borderRadius: undefined, spacing: undefined,
         })}
           style={{ marginTop: 4, width: '100%', padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`, background: 'none', color: T.ink3, fontSize: 11, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-          <RotateCcw size={11} />Restablecer al tema
+          <RotateCcw size={11} />{t('block.resetToTheme')}
         </button>
       )}
     </div>
@@ -700,6 +706,7 @@ function DesignEditor({ block, theme, onUpdateStyle }: {
 function BlockEditor({ block, onUpdate, plan }: {
   block: LandingBlock; onUpdate: (data: Partial<LandingBlock['data']>) => void; plan: Plan
 }) {
+  const { t } = useTranslation()
   switch (block.type) {
     case 'hero_product':   return <HeroEditor       block={block} onUpdate={onUpdate} />
     case 'benefits':       return <BenefitsEditor   block={block} onUpdate={onUpdate} />
@@ -718,12 +725,13 @@ function BlockEditor({ block, onUpdate, plan }: {
     case 'before_after':      return null // handled directly in SortableItem with its own 2-tab layout
     case 'tiktok_comments':   return null // handled directly in SortableItem with its own 2-tab layout
     default:
-      return <p style={{ fontSize: 11, color: T.ink3, fontStyle: 'italic' }}>Editor próximamente.</p>
+      return <p style={{ fontSize: 11, color: T.ink3, fontStyle: 'italic' }}>{t('block.editorComingSoon')}</p>
   }
 }
 
 // ─── Hero editor ──────────────────────────────────────────────────────────────
 function HeroEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Partial<LandingBlock['data']>) => void }) {
+  const { t } = useTranslation()
   const d = block.data as unknown as HeroProductData
   const [mediaTab, setMediaTab] = useState<'extract' | 'image' | 'video' | 'url'>('extract')
   const [extractUrl, setExtractUrl] = useState('')
@@ -764,13 +772,13 @@ function HeroEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Pa
 
   return (
     <>
-      <FG><FL>Headline principal</FL><FI value={d.headline} onChange={e => onUpdate({ headline: e.target.value })} /></FG>
-      <FG><FL>Subheadline</FL><FI value={d.subheadline} onChange={e => onUpdate({ subheadline: e.target.value })} /></FG>
-      <FG><FL>Descripción</FL><FTA value={d.description} onChange={e => onUpdate({ description: e.target.value })} /></FG>
+      <FG><FL>{t('block.field.headline')}</FL><FI value={d.headline} onChange={e => onUpdate({ headline: e.target.value })} /></FG>
+      <FG><FL>{t('block.field.subheadline')}</FL><FI value={d.subheadline} onChange={e => onUpdate({ subheadline: e.target.value })} /></FG>
+      <FG><FL>{t('block.field.description')}</FL><FTA value={d.description} onChange={e => onUpdate({ description: e.target.value })} /></FG>
 
       {/* ── Media section ── */}
       <div style={{ marginTop: 4, paddingTop: 12, borderTop: `1px solid ${T.border}` }}>
-        <FL>Imagen o vídeo principal</FL>
+        <FL>{t('block.field.imageOrVideo')}</FL>
 
         {/* Current preview */}
         {currentMedia && (
@@ -786,10 +794,10 @@ function HeroEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Pa
         {/* Mode tabs */}
         <div style={{ display: 'flex', gap: 2, background: T.bg, borderRadius: 8, padding: 3, marginBottom: 10, border: `1px solid ${T.border}` }}>
           {([
-            { key: 'extract', label: 'Extraer' },
-            { key: 'image',   label: 'Imagen'  },
-            { key: 'video',   label: 'Vídeo'   },
-            { key: 'url',     label: 'URL'      },
+            { key: 'extract', label: t('block.field.extract') },
+            { key: 'image',   label: t('block.field.image')   },
+            { key: 'video',   label: t('block.field.video')   },
+            { key: 'url',     label: 'URL'                    },
           ] as const).map(tab => (
             <button key={tab.key} onClick={() => setMediaTab(tab.key)} style={{
               flex: 1, padding: '4px 0', borderRadius: 6, border: 'none', fontSize: 10.5, fontWeight: 600, cursor: 'pointer',
@@ -805,21 +813,21 @@ function HeroEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Pa
             <FI value={extractUrl} onChange={e => setExtractUrl(e.target.value)} placeholder="https://tuproducto.com/..." style={{ marginBottom: 6 }} />
             {extractError && <div style={{ fontSize: 11, color: T.red, marginBottom: 6 }}>{extractError}</div>}
             <button onClick={handleExtract} disabled={extracting || !extractUrl} style={{ width: '100%', padding: '7px 0', borderRadius: 8, border: 'none', background: T.purple, color: '#fff', fontSize: 12, fontWeight: 600, cursor: extracting || !extractUrl ? 'not-allowed' : 'pointer', opacity: extracting || !extractUrl ? 0.55 : 1 }}>
-              {extracting ? 'Extrayendo...' : 'Extraer imagen'}
+              {extracting ? t('block.field.extracting') : t('block.field.extractImage')}
             </button>
           </div>
         )}
 
         {mediaTab === 'image' && (
           <label style={{ display: 'block', padding: '10px', borderRadius: 8, border: `1.5px dashed ${T.border2}`, textAlign: 'center', cursor: 'pointer', fontSize: 11.5, color: T.ink2 }}>
-            📷 Seleccionar imagen
+            {t('block.field.selectImage')}
             <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleFileUpload(e, 'image')} />
           </label>
         )}
 
         {mediaTab === 'video' && (
           <label style={{ display: 'block', padding: '10px', borderRadius: 8, border: `1.5px dashed ${T.border2}`, textAlign: 'center', cursor: 'pointer', fontSize: 11.5, color: T.ink2 }}>
-            🎬 Seleccionar vídeo
+            {t('block.field.selectVideo')}
             <input type="file" accept="video/*" style={{ display: 'none' }} onChange={e => handleFileUpload(e, 'video')} />
           </label>
         )}
@@ -833,21 +841,21 @@ function HeroEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Pa
 
         {currentMedia && (
           <button onClick={() => onUpdate({ media: undefined, imageUrl: '' })} style={{ marginTop: 8, width: '100%', padding: '5px 0', borderRadius: 6, border: `1px solid ${T.redBorder}`, background: T.redBg, color: T.red, fontSize: 11, cursor: 'pointer' }}>
-            Eliminar media
+            {t('block.field.removeMedia')}
           </button>
         )}
       </div>
 
       <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-        <FG style={{ flex: 1, marginBottom: 0 }}><FL>Badge</FL><FI value={d.badgeText} onChange={e => onUpdate({ badgeText: e.target.value })} /></FG>
-        <FG style={{ flex: 1, marginBottom: 0 }}><FL>Rating</FL><FI value={d.rating} onChange={e => onUpdate({ rating: e.target.value })} /></FG>
+        <FG style={{ flex: 1, marginBottom: 0 }}><FL>{t('block.field.badge')}</FL><FI value={d.badgeText} onChange={e => onUpdate({ badgeText: e.target.value })} /></FG>
+        <FG style={{ flex: 1, marginBottom: 0 }}><FL>{t('block.field.rating')}</FL><FI value={d.rating} onChange={e => onUpdate({ rating: e.target.value })} /></FG>
       </div>
       <div style={{ display: 'flex', gap: 16, marginTop: 10 }}>
         <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: T.ink2, cursor: 'pointer' }}>
-          <input type="checkbox" checked={d.showBadge} onChange={e => onUpdate({ showBadge: e.target.checked })} /> Mostrar badge
+          <input type="checkbox" checked={d.showBadge} onChange={e => onUpdate({ showBadge: e.target.checked })} /> {t('block.field.showBadge')}
         </label>
         <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: T.ink2, cursor: 'pointer' }}>
-          <input type="checkbox" checked={d.showRating} onChange={e => onUpdate({ showRating: e.target.checked })} /> Mostrar rating
+          <input type="checkbox" checked={d.showRating} onChange={e => onUpdate({ showRating: e.target.checked })} /> {t('block.field.showRating')}
         </label>
       </div>
     </>
@@ -856,11 +864,12 @@ function HeroEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Pa
 
 // ─── Benefits editor ──────────────────────────────────────────────────────────
 function BenefitsEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Partial<LandingBlock['data']>) => void }) {
+  const { t } = useTranslation()
   const d = block.data as unknown as BenefitsData
   const upd = (i: number, patch: Partial<BenefitItem>) => { const items = [...d.items]; items[i] = { ...items[i], ...patch }; onUpdate({ items }) }
   return (
     <>
-      <FG><FL>Título</FL><FI value={d.title} onChange={e => onUpdate({ title: e.target.value })} /></FG>
+      <FG><FL>{t('block.field.title')}</FL><FI value={d.title} onChange={e => onUpdate({ title: e.target.value })} /></FG>
       {d.items.map((item, i) => (
         <div key={i} style={{ padding: 10, background: T.card, border: `1px solid ${T.border2}`, borderRadius: 10, marginBottom: 8 }}>
           <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
@@ -868,42 +877,44 @@ function BenefitsEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d
             <FI value={item.title} onChange={e => upd(i, { title: e.target.value })} placeholder="Título" style={{ flex: 1 }} />
             <DelBtn onClick={() => onUpdate({ items: d.items.filter((_, j) => j !== i) })} />
           </div>
-          <FTA value={item.description} onChange={e => upd(i, { description: e.target.value })} placeholder="Descripción" style={{ minHeight: 40 }} />
+          <FTA value={item.description} onChange={e => upd(i, { description: e.target.value })} placeholder={t('block.field.description')} style={{ minHeight: 40 }} />
         </div>
       ))}
-      <AddBtn onClick={() => onUpdate({ items: [...d.items, { icon: '⭐', title: 'Beneficio', description: '' }] })} label="Añadir beneficio" />
+      <AddBtn onClick={() => onUpdate({ items: [...d.items, { icon: '⭐', title: 'Beneficio', description: '' }] })} label={t('block.add.benefit')} />
     </>
   )
 }
 
 // ─── LinkList editor ──────────────────────────────────────────────────────────
 function LinkListEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Partial<LandingBlock['data']>) => void }) {
+  const { t } = useTranslation()
   const d = block.data as unknown as LinkListData
   const upd = (i: number, patch: Partial<LinkItem>) => { const links = [...d.links]; links[i] = { ...links[i], ...patch }; onUpdate({ links }) }
   return (
     <>
-      <FG><FL>Título</FL><FI value={d.title} onChange={e => onUpdate({ title: e.target.value })} /></FG>
+      <FG><FL>{t('block.field.title')}</FL><FI value={d.title} onChange={e => onUpdate({ title: e.target.value })} /></FG>
       {d.links.map((link, i) => (
         <div key={link.id ?? i} style={{ padding: 10, background: T.card, border: `1px solid ${T.border2}`, borderRadius: 10, marginBottom: 8 }}>
-          <FG mb={6}><FI value={link.label} onChange={e => upd(i, { label: e.target.value })} placeholder="Texto del botón" /></FG>
+          <FG mb={6}><FI value={link.label} onChange={e => upd(i, { label: e.target.value })} placeholder={t('block.field.btnText')} /></FG>
           <div style={{ display: 'flex', gap: 6 }}>
             <FI value={link.url} onChange={e => upd(i, { url: e.target.value })} placeholder="https://..." style={{ flex: 1 }} />
             <DelBtn onClick={() => onUpdate({ links: d.links.filter((_, j) => j !== i) })} />
           </div>
         </div>
       ))}
-      <AddBtn onClick={() => onUpdate({ links: [...d.links, { id: `link_${Date.now()}`, label: 'Nuevo link', url: '', visible: true }] })} label="Añadir link" />
+      <AddBtn onClick={() => onUpdate({ links: [...d.links, { id: `link_${Date.now()}`, label: 'Nuevo link', url: '', visible: true }] })} label={t('block.add.link')} />
     </>
   )
 }
 
 // ─── FAQ editor ───────────────────────────────────────────────────────────────
 function FAQEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Partial<LandingBlock['data']>) => void }) {
+  const { t } = useTranslation()
   const d = block.data as unknown as FAQData
   const upd = (i: number, patch: Partial<FaqItem>) => { const items = [...d.items]; items[i] = { ...items[i], ...patch }; onUpdate({ items }) }
   return (
     <>
-      <FG><FL>Título</FL><FI value={d.title} onChange={e => onUpdate({ title: e.target.value })} /></FG>
+      <FG><FL>{t('block.field.title')}</FL><FI value={d.title} onChange={e => onUpdate({ title: e.target.value })} /></FG>
       {d.items.map((item, i) => (
         <div key={item.id} style={{ padding: 10, background: T.card, border: `1px solid ${T.border2}`, borderRadius: 10, marginBottom: 8 }}>
           <FG mb={6}><FI value={item.question} onChange={e => upd(i, { question: e.target.value })} placeholder="Pregunta" /></FG>
@@ -913,23 +924,24 @@ function FAQEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Par
           </div>
         </div>
       ))}
-      <AddBtn onClick={() => onUpdate({ items: [...d.items, { id: `faq_${Date.now()}`, question: 'Nueva pregunta', answer: 'Respuesta.' }] })} label="Añadir pregunta" />
+      <AddBtn onClick={() => onUpdate({ items: [...d.items, { id: `faq_${Date.now()}`, question: 'Nueva pregunta', answer: 'Respuesta.' }] })} label={t('block.add.question')} />
     </>
   )
 }
 
 // ─── CTA editor ───────────────────────────────────────────────────────────────
 function CTAEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Partial<LandingBlock['data']>) => void }) {
+  const { t } = useTranslation()
   const d = block.data as unknown as CTAData
   return (
     <>
-      <FG><FL>Texto del botón</FL><FI value={d.text} onChange={e => onUpdate({ text: e.target.value })} /></FG>
-      <FG><FL>Microcopy</FL><FI value={d.subtext} onChange={e => onUpdate({ subtext: e.target.value })} /></FG>
-      <FG><FL>URL de destino</FL><FI type="url" value={d.url} placeholder="https://..." onChange={e => onUpdate({ url: e.target.value })} /></FG>
-      <FG mb={0}><FL>Estilo</FL>
+      <FG><FL>{t('block.field.btnText')}</FL><FI value={d.text} onChange={e => onUpdate({ text: e.target.value })} /></FG>
+      <FG><FL>{t('block.field.microcopy')}</FL><FI value={d.subtext} onChange={e => onUpdate({ subtext: e.target.value })} /></FG>
+      <FG><FL>{t('block.field.destUrl')}</FL><FI type="url" value={d.url} placeholder="https://..." onChange={e => onUpdate({ url: e.target.value })} /></FG>
+      <FG mb={0}><FL>{t('block.field.style')}</FL>
         <FSel value={d.style} onChange={e => onUpdate({ style: e.target.value as CTAData['style'] })}>
-          <option value="gradient">Degradado</option>
-          <option value="solid">Sólido</option>
+          <option value="gradient">{t('editor.gradient')}</option>
+          <option value="solid">{t('editor.solid')}</option>
           <option value="outline">Outline</option>
         </FSel>
       </FG>
@@ -939,18 +951,19 @@ function CTAEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Par
 
 // ─── Profile Header editor ────────────────────────────────────────────────────
 function ProfileHeaderEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Partial<LandingBlock['data']>) => void }) {
+  const { t } = useTranslation()
   const d = block.data as unknown as ProfileHeaderData
   return (
     <>
-      <FG><FL>Nombre</FL><FI value={d.displayName} onChange={e => onUpdate({ displayName: e.target.value })} /></FG>
-      <FG><FL>@usuario</FL><FI value={d.username} onChange={e => onUpdate({ username: e.target.value })} /></FG>
-      <FG><FL>Bio</FL><FTA value={d.bio} onChange={e => onUpdate({ bio: e.target.value })} style={{ minHeight: 48 }} /></FG>
-      <FG><FL>URL del avatar</FL><FI type="url" value={d.avatarUrl} placeholder="https://..." onChange={e => onUpdate({ avatarUrl: e.target.value })} /></FG>
-      <FG><FL>Ubicación (opcional)</FL><FI value={d.location ?? ''} placeholder="Ciudad, País" onChange={e => onUpdate({ location: e.target.value })} /></FG>
+      <FG><FL>{t('block.field.name')}</FL><FI value={d.displayName} onChange={e => onUpdate({ displayName: e.target.value })} /></FG>
+      <FG><FL>{t('block.field.username')}</FL><FI value={d.username} onChange={e => onUpdate({ username: e.target.value })} /></FG>
+      <FG><FL>{t('block.field.bio')}</FL><FTA value={d.bio} onChange={e => onUpdate({ bio: e.target.value })} style={{ minHeight: 48 }} /></FG>
+      <FG><FL>{t('block.field.avatarUrl')}</FL><FI type="url" value={d.avatarUrl} placeholder="https://..." onChange={e => onUpdate({ avatarUrl: e.target.value })} /></FG>
+      <FG><FL>{t('block.field.location')}</FL><FI value={d.location ?? ''} placeholder="Ciudad, País" onChange={e => onUpdate({ location: e.target.value })} /></FG>
       <FG mb={0}>
         <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
           <input type="checkbox" checked={d.verifiedBadge} onChange={e => onUpdate({ verifiedBadge: e.target.checked })} />
-          Mostrar badge verificado
+          {t('block.field.showVerified')}
         </label>
       </FG>
     </>
@@ -965,6 +978,7 @@ const PLATFORM_LABELS: Record<SocialPlatform, string> = {
 }
 
 function SocialLinksEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Partial<LandingBlock['data']>) => void }) {
+  const { t } = useTranslation()
   const d = block.data as unknown as SocialLinksData
   const upd = (i: number, patch: Partial<SocialLink>) => { const links = [...d.links]; links[i] = { ...links[i], ...patch }; onUpdate({ links }) }
   return (
@@ -977,7 +991,7 @@ function SocialLinksEditor({ block, onUpdate }: { block: LandingBlock; onUpdate:
             </FSel>
             <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: T.ink2, cursor: 'pointer', flexShrink: 0 }}>
               <input type="checkbox" checked={link.enabled} onChange={e => upd(i, { enabled: e.target.checked })} />
-              Activo
+              {t('block.field.active')}
             </label>
             <DelBtn onClick={() => onUpdate({ links: d.links.filter((_, j) => j !== i) })} />
           </div>
@@ -987,7 +1001,7 @@ function SocialLinksEditor({ block, onUpdate }: { block: LandingBlock; onUpdate:
       ))}
       <AddBtn
         onClick={() => onUpdate({ links: [...d.links, { id: `sl_${Date.now()}`, platform: 'website', url: '', enabled: true }] })}
-        label="Añadir red social"
+        label={t('block.add.social')}
       />
     </>
   )
@@ -995,32 +1009,33 @@ function SocialLinksEditor({ block, onUpdate }: { block: LandingBlock; onUpdate:
 
 // ─── Product Grid editor ──────────────────────────────────────────────────────
 function ProductGridEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Partial<LandingBlock['data']>) => void }) {
+  const { t } = useTranslation()
   const d = block.data as unknown as ProductGridData
   const upd = (i: number, patch: Partial<ProductItem>) => { const products = [...d.products]; products[i] = { ...products[i], ...patch }; onUpdate({ products }) }
   return (
     <>
-      <FG><FL>Título</FL><FI value={d.title} onChange={e => onUpdate({ title: e.target.value })} /></FG>
-      <FG><FL>Subtítulo (opcional)</FL><FI value={d.subtitle ?? ''} onChange={e => onUpdate({ subtitle: e.target.value })} /></FG>
+      <FG><FL>{t('block.field.title')}</FL><FI value={d.title} onChange={e => onUpdate({ title: e.target.value })} /></FG>
+      <FG><FL>{t('block.field.subtitle')}</FL><FI value={d.subtitle ?? ''} onChange={e => onUpdate({ subtitle: e.target.value })} /></FG>
       {d.products.map((p, i) => (
         <div key={p.id} style={{ padding: 10, background: T.card, border: `1px solid ${T.border2}`, borderRadius: 10, marginBottom: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-            <span style={{ fontSize: 11, fontWeight: 600, color: T.ink3 }}>Producto {i + 1}</span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: T.ink3 }}>{t('block.field.product', { n: String(i + 1) })}</span>
             <DelBtn onClick={() => onUpdate({ products: d.products.filter((_, j) => j !== i) })} />
           </div>
-          <FG mb={6}><FI value={p.title} onChange={e => upd(i, { title: e.target.value })} placeholder="Nombre del producto" /></FG>
+          <FG mb={6}><FI value={p.title} onChange={e => upd(i, { title: e.target.value })} placeholder={t('block.field.productName')} /></FG>
           <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
-            <FI value={p.price ?? ''} onChange={e => upd(i, { price: e.target.value })} placeholder="Precio (ej. 29€)" style={{ flex: 1 }} />
-            <FI value={p.compareAtPrice ?? ''} onChange={e => upd(i, { compareAtPrice: e.target.value })} placeholder="Precio antes" style={{ flex: 1 }} />
+            <FI value={p.price ?? ''} onChange={e => upd(i, { price: e.target.value })} placeholder={t('block.field.price')} style={{ flex: 1 }} />
+            <FI value={p.compareAtPrice ?? ''} onChange={e => upd(i, { compareAtPrice: e.target.value })} placeholder={t('block.field.comparePrice')} style={{ flex: 1 }} />
           </div>
           <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
             <FI value={p.badge ?? ''} onChange={e => upd(i, { badge: e.target.value })} placeholder="Badge (ej. Nuevo)" style={{ flex: 1 }} />
           </div>
-          <FI value={p.url} onChange={e => upd(i, { url: e.target.value })} placeholder="URL del producto" />
+          <FI value={p.url} onChange={e => upd(i, { url: e.target.value })} placeholder={t('block.field.productUrl')} />
         </div>
       ))}
       <AddBtn
         onClick={() => onUpdate({ products: [...d.products, { id: `p_${Date.now()}`, imageUrl: '', title: 'Nuevo producto', price: '', compareAtPrice: '', url: '', badge: '', description: '' }] })}
-        label="Añadir producto"
+        label={t('block.add.product')}
       />
     </>
   )
@@ -1034,6 +1049,7 @@ const BADGE_LABELS: Record<TrustBadgeIcon, string> = {
 }
 
 function TrustBadgesEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Partial<LandingBlock['data']>) => void }) {
+  const { t } = useTranslation()
   const d = block.data as unknown as TrustBadgesData
   const upd = (i: number, patch: Partial<TrustBadge>) => { const badges = [...d.badges]; badges[i] = { ...badges[i], ...patch }; onUpdate({ badges }) }
   return (
@@ -1045,17 +1061,17 @@ function TrustBadgesEditor({ block, onUpdate }: { block: LandingBlock; onUpdate:
               {BADGE_ICONS_LIST.map(k => <option key={k} value={k}>{BADGE_LABELS[k]}</option>)}
             </FSel>
             <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: T.ink2, cursor: 'pointer', flexShrink: 0 }}>
-              <input type="checkbox" checked={badge.enabled} onChange={e => upd(i, { enabled: e.target.checked })} />Visible
+              <input type="checkbox" checked={badge.enabled} onChange={e => upd(i, { enabled: e.target.checked })} />{t('block.field.visible')}
             </label>
             <DelBtn onClick={() => onUpdate({ badges: d.badges.filter((_, j) => j !== i) })} />
           </div>
-          <FG mb={6}><FI value={badge.title} onChange={e => upd(i, { title: e.target.value })} placeholder="Título" /></FG>
+          <FG mb={6}><FI value={badge.title} onChange={e => upd(i, { title: e.target.value })} placeholder={t('block.field.title')} /></FG>
           <FI value={badge.description ?? ''} onChange={e => upd(i, { description: e.target.value })} placeholder="Descripción corta (opcional)" />
         </div>
       ))}
       <AddBtn
         onClick={() => onUpdate({ badges: [...d.badges, { id: `tb_${Date.now()}`, icon: 'verified', title: 'Nuevo badge', enabled: true }] })}
-        label="Añadir badge"
+        label={t('block.add.badge')}
       />
     </>
   )
@@ -1063,14 +1079,15 @@ function TrustBadgesEditor({ block, onUpdate }: { block: LandingBlock; onUpdate:
 
 // ─── Comparison editor ────────────────────────────────────────────────────────
 function ComparisonEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Partial<LandingBlock['data']>) => void }) {
+  const { t } = useTranslation()
   const d = block.data as unknown as ComparisonData
   const upd = (i: number, patch: Partial<ComparisonRow>) => { const rows = [...d.rows]; rows[i] = { ...rows[i], ...patch }; onUpdate({ rows }) }
   return (
     <>
-      <FG><FL>Título</FL><FI value={d.title} onChange={e => onUpdate({ title: e.target.value })} /></FG>
+      <FG><FL>{t('block.field.title')}</FL><FI value={d.title} onChange={e => onUpdate({ title: e.target.value })} /></FG>
       <div style={{ display: 'flex', gap: 8 }}>
-        <FG style={{ flex: 1, marginBottom: 10 }}><FL>Columna izquierda</FL><FI value={d.leftTitle} onChange={e => onUpdate({ leftTitle: e.target.value })} placeholder="Otros" /></FG>
-        <FG style={{ flex: 1, marginBottom: 10 }}><FL>Columna derecha</FL><FI value={d.rightTitle} onChange={e => onUpdate({ rightTitle: e.target.value })} placeholder="Nosotros" /></FG>
+        <FG style={{ flex: 1, marginBottom: 10 }}><FL>{t('block.field.leftColumn')}</FL><FI value={d.leftTitle} onChange={e => onUpdate({ leftTitle: e.target.value })} placeholder="Otros" /></FG>
+        <FG style={{ flex: 1, marginBottom: 10 }}><FL>{t('block.field.rightColumn')}</FL><FI value={d.rightTitle} onChange={e => onUpdate({ rightTitle: e.target.value })} placeholder="Nosotros" /></FG>
       </div>
       {d.rows.map((row, i) => (
         <div key={row.id} style={{ padding: 10, background: T.card, border: `1px solid ${T.border2}`, borderRadius: 10, marginBottom: 8 }}>
@@ -1092,7 +1109,7 @@ function ComparisonEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: 
       ))}
       <AddBtn
         onClick={() => onUpdate({ rows: [...d.rows, { id: `cr_${Date.now()}`, label: 'Característica', leftValue: 'Valor', rightValue: 'Valor', winner: 'right' }] })}
-        label="Añadir fila"
+        label={t('block.add.row')}
       />
     </>
   )
@@ -2768,6 +2785,7 @@ export default function SortableBlockList({
   blocks, theme, plan = 'free',
   onUpdateBlock, onUpdateBlockStyle, onToggleVisibility, onDelete, onDuplicate, onMove, onAdd,
 }: Props) {
+  const { t } = useTranslation()
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 
   // ── Inline selector state ──
@@ -2911,7 +2929,7 @@ export default function SortableBlockList({
             {/* Selector header + search */}
             <div style={{ padding: '10px 12px 6px', flexShrink: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                <span style={{ fontSize: 10.5, fontWeight: 700, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '.06em' }}>Añadir bloque</span>
+                <span style={{ fontSize: 10.5, fontWeight: 700, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '.06em' }}>{t('block.addBlock')}</span>
                 <button onClick={closeSelector}
                   style={{ color: '#9ca3af', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 3, borderRadius: 6 }}
                   onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#f2f3f5'; (e.currentTarget as HTMLButtonElement).style.color = '#5b5566' }}
@@ -2974,7 +2992,7 @@ export default function SortableBlockList({
               onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#f3effe'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#c4a9f4' }}
               onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.borderColor = T.border2 }}
             >
-              <Plus size={15} strokeWidth={2.2} /> Añadir bloque
+              <Plus size={15} strokeWidth={2.2} /> {t('block.addBlock')}
             </button>
           </div>
         )}

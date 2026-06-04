@@ -17,6 +17,7 @@ import TrafficSourcesSection from '@/components/editor/TrafficSourcesSection'
 import { FONT_OPTIONS, getPageBackground } from '@/lib/blockStyle'
 import { getPublicPageUrl, getPublicPageDisplay } from '@/lib/urls'
 import { getUserPlan } from '@/lib/plans'
+import { useTranslation } from '@/lib/i18n'
 
 // ─── Theme presets ────────────────────────────────────────────────────────────
 type ThemePreset = Omit<LandingTheme, 'fontFamily' | 'radius'> & {
@@ -200,6 +201,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
   const isDemo = demoMode || initial === null
   const pageId  = initial?.page?.id ?? 'demo'
   const plan    = getUserPlan(initial?.profile ?? null)
+  const { t }   = useTranslation()
 
   // ── Central state ──
   const [landingConfig, setLandingConfig] = useState<LandingConfig>(() =>
@@ -351,32 +353,28 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
     }).eq('id', pageId)
     if (!silent) {
       setSaved(true)
-      showToast('Cambios guardados')
+      showToast(t('editor.savedChanges'))
       setTimeout(() => setSaved(false), 2500)
     }
   }
 
   async function handleSave() {
-    if (isDemo) { alert('Modo demo — conecta Supabase para guardar.'); return }
+    if (isDemo) { alert('Demo mode — connect Supabase to save.'); return }
     setSaving(true)
     await _persistConfig(false)
     setSaving(false)
   }
 
   async function handlePublish() {
-    if (isDemo) { alert('Modo demo — conecta Supabase para publicar.'); return }
+    if (isDemo) { alert('Demo mode — connect Supabase to publish.'); return }
 
     const validSources = trafficSources.filter(s => s.handle.trim())
     if (validSources.length === 0) {
-      showToast(
-        'Antes de publicar, selecciona al menos una fuente de tráfico y añade el perfil donde compartirás esta página.',
-        5000,
-      )
+      showToast(t('editor.beforePublishMsg'), 5000)
       setActiveTool('ajustes')
       return
     }
 
-    // Persist current state (including trafficSources) before publishing
     await _persistConfig(true)
 
     const res = await fetch('/api/publish-page', {
@@ -386,16 +384,16 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
     })
     if (res.ok) {
       setLandingConfig(prev => ({ ...prev, status: 'published' }))
-      showToast('Página publicada ✓')
+      showToast(t('editor.pagePublished'))
     } else {
       const d = await res.json()
-      alert(d.error ?? 'Error al publicar')
+      alert(d.error ?? 'Error publishing')
     }
   }
 
   function handleCopy() {
     navigator.clipboard?.writeText?.(getPublicPageUrl(landingConfig.slug))
-    showToast('Enlace copiado')
+    showToast(t('editor.linkCopied'))
   }
 
   const publicUrl = getPublicPageDisplay(landingConfig.slug || 'tuusuario')
@@ -451,9 +449,9 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
               {isMobile ? (
                 <div style={{ display: 'flex', borderBottom: `1px solid ${T.border}`, flexShrink: 0 }}>
                   {([
-                    { id: 'secciones', icon: LayoutGrid, label: 'Secciones' },
-                    { id: 'estilos',   icon: Palette,    label: 'Diseño'    },
-                    { id: 'ajustes',   icon: Settings,   label: 'Ajustes'   },
+                    { id: 'secciones', icon: LayoutGrid, label: t('editor.sections') },
+                    { id: 'estilos',   icon: Palette,    label: t('editor.styles')   },
+                    { id: 'ajustes',   icon: Settings,   label: t('editor.settings') },
                   ] as const).map(tool => {
                     const active = activeTool === tool.id
                     return (
@@ -473,7 +471,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
               ) : (
                 <div style={{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span style={{ fontSize: 13.5, fontWeight: 700, color: T.pink }}>
-                    {activeTool === 'secciones' ? 'Bloques' : activeTool === 'estilos' ? 'Tema' : 'Ajustes'}
+                    {activeTool === 'secciones' ? t('editor.blocks') : activeTool === 'estilos' ? t('editor.theme') : t('editor.settings')}
                   </span>
                   {isDemo && (
                     <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', background: 'rgba(245,158,11,.12)', borderRadius: 999, color: '#b45309' }}>Demo</span>
@@ -485,7 +483,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
               <div style={{ margin: '10px 12px 4px', padding: '10px 14px', background: T.softPurple, borderRadius: 12, flexShrink: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ flex: 1, fontSize: 12.5, fontWeight: 700, color: T.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {landingConfig.title || 'Sin título'}
+                    {landingConfig.title || t('editor.untitled')}
                   </span>
                   <Pencil size={12} color={T.ink3} style={{ flexShrink: 0 }} />
                 </div>
@@ -522,7 +520,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
 
                     {/* ── Presets ── */}
                     <section style={{ marginBottom: 20 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Tema predefinido</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>{t('editor.predefinedTheme')}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                         {THEME_PRESETS.map(p => {
                           const isActive = th.accentColor === p.accentColor && th.cardBackgroundColor === p.cardBackgroundColor
@@ -553,9 +551,9 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
 
                     {/* ── Background ── */}
                     <section style={{ marginBottom: 20 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Personalizar fondo</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>{t('editor.customBackground')}</div>
                       <div style={{ display: 'flex', background: T.softPurple, borderRadius: 999, padding: 3, gap: 2, marginBottom: 12 }}>
-                        {([{ key: 'solid', label: 'Sólido' }, { key: 'gradient', label: 'Degradado' }] as const).map(m => {
+                        {([{ key: 'solid', label: t('editor.solid') }, { key: 'gradient', label: t('editor.gradient') }] as const).map(m => {
                           const active = bgMode === m.key
                           return (
                             <button key={m.key}
@@ -567,11 +565,11 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                         })}
                       </div>
                       {bgMode === 'solid' ? (
-                        <ColorRow label="Color de fondo" value={th.backgroundColor} onChange={v => updateTheme({ backgroundColor: v })} />
+                        <ColorRow label={t('editor.bgColor')} value={th.backgroundColor} onChange={v => updateTheme({ backgroundColor: v })} />
                       ) : (
                         <>
-                          <ColorRow label="Color inicio" value={th.gradientFrom ?? th.backgroundColor}  onChange={v => updateTheme({ gradientFrom: v })} />
-                          <ColorRow label="Color fin"    value={th.gradientTo   ?? th.secondaryColor}   onChange={v => updateTheme({ gradientTo: v })} />
+                          <ColorRow label={t('editor.startColor')} value={th.gradientFrom ?? th.backgroundColor}  onChange={v => updateTheme({ gradientFrom: v })} />
+                          <ColorRow label={t('editor.endColor')}   value={th.gradientTo   ?? th.secondaryColor}   onChange={v => updateTheme({ gradientTo: v })} />
                           <div style={{ height: 28, borderRadius: 8, marginTop: 4, background: getPageBackground(th) }} />
                         </>
                       )}
@@ -579,14 +577,14 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
 
                     {/* ── Global colors ── */}
                     <section style={{ marginBottom: 20 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Personalizar colores</div>
-                      <ColorRow label="Color principal"   value={th.primaryColor}                            onChange={v => updateTheme({ primaryColor: v })} />
-                      <ColorRow label="Color secundario"  value={th.secondaryColor}                          onChange={v => updateTheme({ secondaryColor: v })} />
-                      <ColorRow label="Texto principal"   value={th.textColor}                               onChange={v => updateTheme({ textColor: v })} />
-                      <ColorRow label="Texto secundario"  value={th.secondaryTextColor ?? '#9CA3AF'}         onChange={v => updateTheme({ secondaryTextColor: v })} />
-                      <ColorRow label="Color cards"       value={th.cardBackgroundColor ?? '#FFFFFF'}        onChange={v => updateTheme({ cardBackgroundColor: v })} />
-                      <ColorRow label="Color elementos"   value={th.elementBackgroundColor ?? '#F3F4F6'}     onChange={v => updateTheme({ elementBackgroundColor: v })} />
-                      <ColorRow label="Acento / CTA"      value={th.accentColor ?? th.primaryColor}         onChange={v => updateTheme({ accentColor: v })} />
+                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>{t('editor.customColors')}</div>
+                      <ColorRow label={t('editor.primaryColor')}   value={th.primaryColor}                            onChange={v => updateTheme({ primaryColor: v })} />
+                      <ColorRow label={t('editor.secondaryColor')} value={th.secondaryColor}                          onChange={v => updateTheme({ secondaryColor: v })} />
+                      <ColorRow label={t('editor.primaryText')}    value={th.textColor}                               onChange={v => updateTheme({ textColor: v })} />
+                      <ColorRow label={t('editor.secondaryText')}  value={th.secondaryTextColor ?? '#9CA3AF'}         onChange={v => updateTheme({ secondaryTextColor: v })} />
+                      <ColorRow label={t('editor.cardColor')}      value={th.cardBackgroundColor ?? '#FFFFFF'}        onChange={v => updateTheme({ cardBackgroundColor: v })} />
+                      <ColorRow label={t('editor.elementColor')}   value={th.elementBackgroundColor ?? '#F3F4F6'}     onChange={v => updateTheme({ elementBackgroundColor: v })} />
+                      <ColorRow label={t('editor.accentCta')}      value={th.accentColor ?? th.primaryColor}         onChange={v => updateTheme({ accentColor: v })} />
                     </section>
 
                     {/* ── Botones ── */}
@@ -598,9 +596,9 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                       const btnR = th.radius === 'round' ? 999 : th.radius === 'medium' ? 24 : th.radius === 'square' ? 2 : 14
                       return (
                         <section style={{ marginBottom: 20 }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Botones</div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>{t('editor.buttons')}</div>
                           <div style={{ display: 'flex', background: T.softPurple, borderRadius: 999, padding: 3, gap: 2, marginBottom: 12 }}>
-                            {([{ key: 'solid', label: 'Sólido' }, { key: 'gradient', label: 'Degradado' }] as const).map(m => {
+                            {([{ key: 'solid', label: t('editor.solid') }, { key: 'gradient', label: t('editor.gradient') }] as const).map(m => {
                               const active = effectiveBtnStyle === m.key
                               return (
                                 <button key={m.key} onClick={() => updateTheme({ buttonStyle: m.key })}
@@ -612,15 +610,15 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                           </div>
                           {effectiveBtnStyle === 'gradient' ? (
                             <>
-                              <ColorRow label="Color inicio botón" value={th.buttonGradientFrom ?? th.accentColor ?? th.primaryColor} onChange={v => updateTheme({ buttonGradientFrom: v })} />
-                              <ColorRow label="Color fin botón"    value={th.buttonGradientTo   ?? th.secondaryColor}                  onChange={v => updateTheme({ buttonGradientTo: v })} />
+                              <ColorRow label={t('editor.btnStartColor')} value={th.buttonGradientFrom ?? th.accentColor ?? th.primaryColor} onChange={v => updateTheme({ buttonGradientFrom: v })} />
+                              <ColorRow label={t('editor.btnEndColor')}   value={th.buttonGradientTo   ?? th.secondaryColor}                  onChange={v => updateTheme({ buttonGradientTo: v })} />
                             </>
                           ) : (
-                            <ColorRow label="Color del botón"     value={th.buttonColor ?? th.accentColor ?? th.primaryColor}         onChange={v => updateTheme({ buttonColor: v })} />
+                            <ColorRow label={t('editor.btnColor')}        value={th.buttonColor ?? th.accentColor ?? th.primaryColor}         onChange={v => updateTheme({ buttonColor: v })} />
                           )}
-                          <ColorRow label="Texto del botón"       value={th.buttonTextColor ?? '#FFFFFF'}                             onChange={v => updateTheme({ buttonTextColor: v })} />
+                          <ColorRow label={t('editor.btnText')}           value={th.buttonTextColor ?? '#FFFFFF'}                             onChange={v => updateTheme({ buttonTextColor: v })} />
                           <div style={{ marginTop: 10, padding: '10px 16px', borderRadius: btnR, background: btnPreviewBg, color: th.buttonTextColor ?? '#FFFFFF', textAlign: 'center', fontSize: 12, fontWeight: 700 }}>
-                            Vista previa del botón
+                            {t('editor.btnPreview')}
                           </div>
                         </section>
                       )
@@ -628,7 +626,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
 
                     {/* ── Typography ── */}
                     <section style={{ marginBottom: 20 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Tipografía global</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>{t('editor.globalTypography')}</div>
                       <select
                         value={th.fontFamily}
                         onChange={e => updateTheme({ fontFamily: e.target.value })}
@@ -640,13 +638,13 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
 
                     {/* ── Borders ── */}
                     <section>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Bordes globales</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>{t('editor.globalBorders')}</div>
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                         {([
-                          { key: 'square', label: 'Cuadrado' },
-                          { key: 'soft',   label: 'Suave'    },
-                          { key: 'medium', label: 'Medio'    },
-                          { key: 'round',  label: 'Redondo'  },
+                          { key: 'square', label: t('editor.square') },
+                          { key: 'soft',   label: t('editor.soft')   },
+                          { key: 'medium', label: t('editor.medium') },
+                          { key: 'round',  label: t('editor.round')  },
                         ] as const).map(r => (
                           <button key={r.key} onClick={() => updateTheme({ radius: r.key })}
                             style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: `1.5px solid ${th.radius === r.key ? T.pink : T.border2}`, background: th.radius === r.key ? T.softPink2 : T.card, color: th.radius === r.key ? T.pink : T.ink2, fontSize: 11, fontWeight: 600, cursor: 'pointer', minWidth: 56 }}>
@@ -664,36 +662,36 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                 {activeTool === 'ajustes' && (
                   <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 48px', WebkitOverflowScrolling: 'touch' }}>
                     <section style={{ marginBottom: 20 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Página</div>
-                      <Fg label="Título de la página">
+                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>{t('editor.settings')}</div>
+                      <Fg label={t('editor.pageTitle')}>
                         <Fi value={landingConfig.title} onChange={e => setLandingConfig(p => ({ ...p, title: e.target.value }))} />
                       </Fg>
-                      <Fg label="Slug (URL)">
+                      <Fg label={t('editor.slugUrl')}>
                         <div style={{ display: 'flex' }}>
                           <span style={{ padding: '7px 8px', background: T.softPurple, border: `1px solid ${T.border2}`, borderRight: 'none', borderRadius: '8px 0 0 8px', fontSize: 11, color: T.ink3, whiteSpace: 'nowrap' }}>@</span>
                           <Fi value={landingConfig.slug} onChange={e => setLandingConfig(p => ({ ...p, slug: e.target.value }))} style={{ borderRadius: '0 8px 8px 0' }} />
                         </div>
                       </Fg>
-                      <Fg label="URL de destino (Shopify)">
+                      <Fg label={t('editor.destinationUrl')}>
                         <Fi type="url" value={landingConfig.destinationUrl} placeholder="https://tu-tienda.myshopify.com/..." onChange={e => setLandingConfig(p => ({ ...p, destinationUrl: e.target.value }))} />
                       </Fg>
                     </section>
                     <section style={{ marginBottom: 20 }}>
                       <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>SEO</div>
-                      <Fg label="Título SEO">
+                      <Fg label={t('editor.seoTitle')}>
                         <Fi value={landingConfig.settings.seoTitle} onChange={e => updateSettings({ seoTitle: e.target.value })} />
                       </Fg>
-                      <Fg label="Meta descripción">
+                      <Fg label={t('editor.metaDescription')}>
                         <textarea value={landingConfig.settings.seoDescription} onChange={e => updateSettings({ seoDescription: e.target.value })} rows={3}
                           style={{ width: '100%', padding: '7px 10px', borderRadius: 9, border: `1px solid ${T.border2}`, background: T.card, fontSize: 12, color: T.ink, outline: 'none', resize: 'vertical' }} />
                       </Fg>
                     </section>
                     <section style={{ marginBottom: 20 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Opciones</div>
-                      <Sw label="Mostrar badge Tokproof" checked={landingConfig.settings.showTokproofBranding} onChange={v => updateSettings({ showTokproofBranding: v })} />
-                      <Sw label="Activar TikTok Rescue" checked={landingConfig.settings.enableTikTokRescue} onChange={v => updateSettings({ enableTikTokRescue: v })} />
+                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>{t('editor.options')}</div>
+                      <Sw label={t('editor.showTokproofBadge')} checked={landingConfig.settings.showTokproofBranding} onChange={v => updateSettings({ showTokproofBranding: v })} />
+                      <Sw label={t('editor.enableTikTokRescue')} checked={landingConfig.settings.enableTikTokRescue} onChange={v => updateSettings({ enableTikTokRescue: v })} />
                       {landingConfig.settings.enableTikTokRescue && (
-                        <Fg label="URL de rescate">
+                        <Fg label={t('editor.rescueUrl')}>
                           <Fi type="url" value={landingConfig.settings.directExitUrl} placeholder="https://tu-tienda.com/producto" onChange={e => updateSettings({ directExitUrl: e.target.value })} />
                         </Fg>
                       )}
@@ -701,7 +699,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
 
                     {/* ── Traffic sources ── */}
                     <section>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>Distribución</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>{t('editor.distribution')}</div>
                       <TrafficSourcesSection
                         sources={trafficSources}
                         onChange={setTrafficSources}
@@ -716,9 +714,9 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
             {/* ── MINI-RAIL (desktop only) ── */}
             {!isMobile && <div style={{ position: 'absolute', top: 96, right: -74, background: T.card, borderRadius: 18, padding: '8px 6px', boxShadow: T.shadowPop, display: 'flex', flexDirection: 'column', gap: 2, width: 64, zIndex: 10 }}>
               {([
-                { id: 'secciones', icon: LayoutGrid, label: 'Secciones' },
-                { id: 'estilos',   icon: Palette,    label: 'Estilos'   },
-                { id: 'ajustes',   icon: Settings,   label: 'Ajustes'   },
+                { id: 'secciones', icon: LayoutGrid, label: t('editor.sections') },
+                { id: 'estilos',   icon: Palette,    label: t('editor.styles')   },
+                { id: 'ajustes',   icon: Settings,   label: t('editor.settings') },
               ] as const).map(tool => {
                 const active = activeTool === tool.id
                 return (
@@ -750,8 +748,8 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                 style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 9, border: `1.5px solid ${mobilePanelOpen ? T.pink : T.border2}`, background: mobilePanelOpen ? T.softPink2 : T.card, color: mobilePanelOpen ? T.pink : T.ink2, fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0, transition: 'all .15s' }}
               >
                 {mobilePanelOpen
-                  ? <><Eye size={13} /> Preview</>
-                  : <><LayoutGrid size={13} /> Editor</>
+                  ? <><Eye size={13} /> {t('editor.preview')}</>
+                  : <><LayoutGrid size={13} /> {t('editor.edit')}</>
                 }
               </button>
             )}
@@ -760,7 +758,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
             {!isMobile && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: '0 1 auto', minWidth: 0 }}>
                 <span style={{ fontSize: 17, fontWeight: 700, color: T.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {landingConfig.title || 'Sin título'}
+                  {landingConfig.title || t('editor.untitled')}
                 </span>
                 <button style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', color: T.ink3, padding: 2, display: 'flex' }}>
                   <Pencil size={13} />
@@ -769,7 +767,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
             )}
             {!isMobile && (
               <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: isPublished ? T.greenBg : T.softPurple, fontSize: 12, fontWeight: 600, color: isPublished ? T.green : T.purple }}>
-                {isPublished ? 'Publicado' : 'Borrador'}
+                {isPublished ? t('editor.published') : t('editor.draft')}
                 <ChevronDown size={11} />
               </div>
             )}
@@ -792,23 +790,23 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
               {/* Copy link — desktop only */}
               {!isMobile && (
                 <button onClick={handleCopy} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 999, border: `1px solid ${T.border2}`, background: T.card, color: T.pink, fontSize: 13, fontWeight: 500, cursor: 'pointer', flexShrink: 0 }}>
-                  <Link2 size={13} />Copiar link
+                  <Link2 size={13} />{t('editor.copyLink')}
                 </button>
               )}
 
               {/* Preview link — desktop only */}
               {!isMobile && !isDemo && (
                 <a href={`/u/${landingConfig.slug}`} target="_blank" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 999, border: `1px solid ${T.border2}`, background: T.card, color: T.ink2, fontSize: 13, fontWeight: 500, textDecoration: 'none', flexShrink: 0 }}>
-                  <Eye size={13} />Vista previa
+                  <Eye size={13} />{t('editor.preview')}
                 </a>
               )}
 
               <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: isMobile ? '7px 12px' : '7px 14px', borderRadius: 999, border: `1px solid ${T.border2}`, background: T.card, color: saved ? T.green : T.ink2, fontSize: 13, fontWeight: 500, cursor: 'pointer', opacity: saving ? .6 : 1, flexShrink: 0 }}>
-                {saving ? '...' : saved ? '✓' : 'Guardar'}
+                {saving ? t('editor.saving') : saved ? '✓' : t('editor.save')}
               </button>
 
               <button onClick={handlePublish} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: isMobile ? '7px 14px' : '7px 18px', borderRadius: 999, border: 'none', background: T.grad, color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxShadow: T.shadowBtn, flexShrink: 0 }}>
-                <UploadCloud size={13} />{!isMobile && 'Publicar'}
+                <UploadCloud size={13} />{!isMobile && t('editor.publish')}
               </button>
             </div>
           </header>
@@ -823,7 +821,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                 {/* Device toggle — hidden on mobile (always shows mobile preview) */}
                 {!isMobile && (
                 <div style={{ display: 'flex', background: T.softPurple, borderRadius: 999, padding: 3, gap: 2 }}>
-                  {([{ key: 'mobile', label: 'Móvil' }, { key: 'desktop', label: 'Escritorio' }] as const).map(d => {
+                  {([{ key: 'mobile', label: t('editor.mobile') }, { key: 'desktop', label: t('editor.desktop') }] as const).map(d => {
                     const active = preview === d.key
                     return (
                       <button key={d.key} onClick={() => setPreview(d.key)} style={{ padding: '5px 18px', borderRadius: 999, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500, background: active ? 'white' : 'transparent', color: active ? T.ink : T.ink2, boxShadow: active ? '0 2px 8px rgba(0,0,0,.08)' : 'none', transition: 'all .15s' }}>
@@ -854,7 +852,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                           }
                           {landingConfig.blocks.filter(b => b.visible).length === 0 && (
                             <div style={{ padding: 32, textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>
-                              Añade bloques en el panel izquierdo
+                              {t('editor.addBlocksHint')}
                             </div>
                           )}
                         </div>
@@ -882,11 +880,11 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
 
             {/* Canvas tools bar */}
             <div style={{ height: 48, flexShrink: 0, background: T.card, borderTop: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: 2, padding: '0 16px' }}>
-              <ToolBtn icon={Undo2} onClick={() => {}} title="Deshacer" />
-              <ToolBtn icon={Redo2} onClick={() => {}} title="Rehacer" />
+              <ToolBtn icon={Undo2} onClick={() => {}} title={t('editor.undo')} />
+              <ToolBtn icon={Redo2} onClick={() => {}} title={t('editor.redo')} />
               <div style={{ width: 1, height: 16, background: T.border, margin: '0 6px' }} />
-              <ToolBtn icon={Eye} onClick={() => !isDemo && window.open(`/u/${landingConfig.slug}`, '_blank')} title="Vista previa" />
-              <ToolBtn icon={Monitor} onClick={() => setPreview(p => p === 'mobile' ? 'desktop' : 'mobile')} title="Cambiar dispositivo" />
+              <ToolBtn icon={Eye} onClick={() => !isDemo && window.open(`/u/${landingConfig.slug}`, '_blank')} title={t('editor.preview')} />
+              <ToolBtn icon={Monitor} onClick={() => setPreview(p => p === 'mobile' ? 'desktop' : 'mobile')} title={t('editor.changeDevice')} />
               <div style={{ flex: 1 }} />
               <button onClick={() => setZoom(z => Math.max(50, z - 10))} style={{ width: 28, height: 28, borderRadius: 8, border: `1px solid ${T.border}`, background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink2 }}>
                 <Minus size={12} />
@@ -904,8 +902,8 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
       {/* Focus card */}
       {focusCard && (
         <div style={{ position: 'fixed', bottom: 32, left: '50%', transform: 'translateX(-50%)', background: T.ink, color: 'white', borderRadius: 18, padding: '14px 24px', boxShadow: T.shadowPop, zIndex: 9999, animation: 'edFadeUp .3s ease both', whiteSpace: 'nowrap' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2 }}>{focus ? 'Focus mode' : 'Modo normal'}</div>
-          <div style={{ fontSize: 12, opacity: .65 }}>{focus ? 'Oculta el panel para concentrarte en el editor' : 'Panel restaurado'}</div>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2 }}>{focus ? t('editor.focusMode') : t('editor.normalMode')}</div>
+          <div style={{ fontSize: 12, opacity: .65 }}>{focus ? t('editor.focusModeDesc') : t('editor.panelRestored')}</div>
         </div>
       )}
 
@@ -924,7 +922,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
             cursor: 'pointer', letterSpacing: '.01em',
           }}
         >
-          <LayoutGrid size={16} /> Editar
+          <LayoutGrid size={16} /> {t('editor.edit')}
         </button>
       )}
 

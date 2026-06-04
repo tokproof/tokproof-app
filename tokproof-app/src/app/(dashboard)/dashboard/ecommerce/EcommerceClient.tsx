@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import CreateEcommerceModal from '@/components/dashboard/CreateEcommerceModal'
 import type { Page, Profile } from '@/types'
 import { getPublicPageDisplay, getPublicPageUrl } from '@/lib/urls'
+import { useTranslation } from '@/lib/i18n'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -26,34 +27,33 @@ function getSafeScore(page: Page): number {
   return 60 + (hash % 36)
 }
 
-function getScoreInfo(score: number): { label: string; color: string } {
-  if (score >= 90) return { label: 'Excelente', color: '#10B981' }
-  if (score >= 75) return { label: 'Muy bueno', color: '#10B981' }
-  if (score >= 60) return { label: 'Mejorable', color: '#F59E0B' }
-  return { label: 'Riesgo alto', color: '#EF4444' }
+function getScoreLabel(score: number, t: (k: string) => string): { label: string; color: string } {
+  if (score >= 90) return { label: t('ecom.score.excellent'), color: '#10B981' }
+  if (score >= 75) return { label: t('ecom.score.veryGood'), color: '#10B981' }
+  if (score >= 60) return { label: t('ecom.score.improvable'), color: '#F59E0B' }
+  return { label: t('ecom.score.highRisk'), color: '#EF4444' }
 }
 
-function timeAgo(dateStr: string): string {
+function timeAgo(dateStr: string, t: (k: string, v?: Record<string, string>) => string): string {
   const diff = Date.now() - new Date(dateStr).getTime()
   const d = Math.floor(diff / 86400000)
-  if (d === 0) return 'Hoy'
-  if (d === 1) return 'Hace 1 día'
-  if (d < 7)  return `Hace ${d} días`
-  if (d < 14) return 'Hace 1 semana'
-  if (d < 30) return `Hace ${Math.floor(d / 7)} semanas`
-  return `Hace ${Math.floor(d / 30)} meses`
+  if (d === 0) return t('time.today')
+  if (d === 1) return t('time.1dayAgo')
+  if (d < 7)   return t('time.daysAgo', { d: String(d) })
+  if (d < 14)  return t('time.1weekAgo')
+  if (d < 30)  return t('time.weeksAgo', { w: String(Math.floor(d / 7)) })
+  return t('time.monthsAgo', { m: String(Math.floor(d / 30)) })
 }
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('es-ES', {
+  return new Date(dateStr).toLocaleDateString(undefined, {
     day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
   })
 }
 
 // ─── Score ring ───────────────────────────────────────────────────────────────
 
-function ScoreRing({ score }: { score: number }) {
-  const { color, label } = getScoreInfo(score)
+function ScoreRing({ score, label, color }: { score: number; label: string; color: string }) {
   const r = 18
   const circ = 2 * Math.PI * r
   const dash = (score / 100) * circ
@@ -112,11 +112,12 @@ function TypeChip({ page }: { page: Page }) {
 
 function RowMenu({ page, onDeleted }: { page: Page; onDeleted: (id: string) => void }) {
   const router = useRouter()
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const publicUrl = page.username ? getPublicPageUrl(page.username) : null
 
   async function handleDelete() {
-    if (!confirm('¿Eliminar esta página? Esta acción no se puede deshacer.')) return
+    if (!confirm(t('ecom.deleteConfirmEcom'))) return
     const supabase = createClient()
     await supabase.from('pages').delete().eq('id', page.id)
     onDeleted(page.id)
@@ -130,7 +131,7 @@ function RowMenu({ page, onDeleted }: { page: Page; onDeleted: (id: string) => v
       username: page.username,
       type: page.type,
       status: 'draft',
-      title: `${page.title} (copia)`,
+      title: `${page.title} ${t('ecom.duplicateSuffix')}`,
       settings: page.settings,
     }).select().single()
     if (data) router.push(`/dashboard/editor/${data.id}`)
@@ -139,15 +140,15 @@ function RowMenu({ page, onDeleted }: { page: Page; onDeleted: (id: string) => v
 
   const items = [
     page.username && page.status === 'published'
-      ? { icon: '👁', label: 'Ver página', onClick: () => { window.open(`/u/${page.username}`, '_blank'); setOpen(false) } }
+      ? { icon: '👁', label: t('ecom.menu.view'), onClick: () => { window.open(`/u/${page.username}`, '_blank'); setOpen(false) } }
       : null,
-    { icon: '✏', label: 'Editar', onClick: () => { router.push(`/dashboard/editor/${page.id}`); setOpen(false) } },
+    { icon: '✏', label: t('ecom.menu.edit'), onClick: () => { router.push(`/dashboard/editor/${page.id}`); setOpen(false) } },
     publicUrl && page.status === 'published'
-      ? { icon: '🔗', label: 'Copiar link', onClick: () => { navigator.clipboard?.writeText(publicUrl); setOpen(false) } }
+      ? { icon: '🔗', label: t('ecom.menu.copyLink'), onClick: () => { navigator.clipboard?.writeText(publicUrl); setOpen(false) } }
       : null,
-    { icon: '📊', label: 'Analytics', onClick: () => { router.push('/dashboard/analytics'); setOpen(false) } },
-    { icon: '⧉', label: 'Duplicar', onClick: handleDuplicate },
-    { icon: '🗑', label: 'Eliminar', onClick: handleDelete, danger: true },
+    { icon: '📊', label: t('ecom.menu.analytics'), onClick: () => { router.push('/dashboard/analytics'); setOpen(false) } },
+    { icon: '⧉', label: t('ecom.menu.duplicate'), onClick: handleDuplicate },
+    { icon: '🗑', label: t('ecom.menu.delete'), onClick: handleDelete, danger: true },
   ].filter(Boolean) as { icon: string; label: string; onClick: () => void; danger?: boolean }[]
 
   return (
@@ -174,33 +175,31 @@ function RowMenu({ page, onDeleted }: { page: Page; onDeleted: (id: string) => v
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
 function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
+  const { t } = useTranslation()
   return (
     <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E4E7F0', overflow: 'hidden' }}>
       <div className="pm-empty">
-        {/* Illustration */}
         <div style={{ marginBottom: 24 }}>
           <div style={{ width: 100, height: 100, borderRadius: '50%', background: 'linear-gradient(135deg,rgba(246,71,169,.12),rgba(123,97,255,.12))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
             <ShoppingBag size={44} color="#7B61FF" strokeWidth={1.5} />
           </div>
         </div>
-        <h2 className="pm-empty-title">Aún no tienes páginas de E-commerce</h2>
-        <p className="pm-empty-sub">
-          Crea tu primera página para convertir tráfico social en clientes para tu tienda.
-        </p>
+        <h2 className="pm-empty-title">{t('ecom.emptyTitleEcom')}</h2>
+        <p className="pm-empty-sub">{t('ecom.emptySubEcom')}</p>
         <div className="pm-empty-actions">
           <button className="btn btn-primary" style={{ minWidth: 220, justifyContent: 'center' }} onClick={onCreateClick}>
-            <Plus size={16} /> Crear mi primera página
+            <Plus size={16} /> {t('ecom.createFirst')}
           </button>
           <button className="btn btn-ghost" style={{ minWidth: 220, justifyContent: 'center', fontSize: 13 }}>
-            ▶ Ver cómo funciona (1 min)
+            {t('ecom.howItWorks')}
           </button>
         </div>
         <div className="pm-empty-benefits">
           {[
-            { icon: '🛡', label: 'Más confianza',       desc: 'Añade prueba social, reviews y garantías.' },
-            { icon: '📈', label: 'Más conversiones',    desc: 'Diseñadas para convertir tráfico frío.' },
-            { icon: '📱', label: '100% optimizado',     desc: 'Rápidas y adaptadas a móviles.' },
-            { icon: '🔒', label: 'Seguro y profesional', desc: 'Tu página con dominio profesional.' },
+            { icon: '🛡', label: t('ecom.benefit.trust'),       desc: t('ecom.benefit.trustDesc') },
+            { icon: '📈', label: t('ecom.benefit.conversions'), desc: t('ecom.benefit.conversionsDesc') },
+            { icon: '📱', label: t('ecom.benefit.optimized'),   desc: t('ecom.benefit.optimizedDesc') },
+            { icon: '🔒', label: t('ecom.benefit.secure'),      desc: t('ecom.benefit.secureDesc') },
           ].map(b => (
             <div key={b.label} className="pm-benefit">
               <div className="pm-benefit-icon" style={{ background: 'linear-gradient(135deg,rgba(246,71,169,.1),rgba(123,97,255,.1))' }}>
@@ -227,7 +226,7 @@ type TypeFilter   = 'all' | 'trust_page' | 'simple_page'
 type StatusFilter = 'all' | 'published' | 'draft'
 
 export default function EcommerceClient({ profile, allPages }: Props) {
-  // Filter to ecommerce category (legacy pages with no category → ecommerce)
+  const { t } = useTranslation()
   const ecomPages = allPages.filter(p => getPageCategory(p) === 'ecommerce')
 
   const [pageList,     setPageList]     = useState<Page[]>(ecomPages)
@@ -256,27 +255,25 @@ export default function EcommerceClient({ profile, allPages }: Props) {
               <ShoppingBag size={26} color="#7B61FF" strokeWidth={1.8} />
             </div>
             <div>
-              <h1 className="pm-header-title">E-commerce</h1>
+              <h1 className="pm-header-title">{t('ecom.title')}</h1>
               <p className="pm-header-sub">
-                {pageList.length === 0
-                  ? 'Crea páginas de alta conversión para vender tus productos.'
-                  : 'Gestiona todas tus páginas de producto y tienda.'}
+                {pageList.length === 0 ? t('ecom.subtitleEmpty') : t('ecom.subtitleFull')}
               </p>
             </div>
           </div>
           <button className="btn btn-primary btn-sm" onClick={() => setCreateOpen(true)}>
-            <Plus size={15} /> Nueva página
+            <Plus size={15} /> {t('ecom.newPage')}
           </button>
         </div>
 
-        {/* Filters — only show when there are pages */}
+        {/* Filters */}
         {pageList.length > 0 && (
           <div className="pm-filters">
             <div className="pm-filter-group">
               {([
-                { key: 'all',        label: 'Todas'        },
-                { key: 'trust_page', label: 'Trust Pages'  },
-                { key: 'simple_page',label: 'Simple Pages' },
+                { key: 'all',        label: t('ecom.filterAll')    },
+                { key: 'trust_page', label: t('ecom.filterTrust')  },
+                { key: 'simple_page',label: t('ecom.filterSimple') },
               ] as const).map(f => (
                 <button key={f.key} className={`pm-filter-btn ${typeFilter === f.key ? 'active' : ''}`}
                   onClick={() => setTypeFilter(f.key)}>{f.label}</button>
@@ -284,9 +281,9 @@ export default function EcommerceClient({ profile, allPages }: Props) {
             </div>
             <div className="pm-status-group">
               {([
-                { key: 'all',       label: 'Todas'      },
-                { key: 'published', label: '● Publicadas' },
-                { key: 'draft',     label: '● Borradores' },
+                { key: 'all',       label: t('ecom.filterAll')       },
+                { key: 'published', label: t('ecom.filterPublished') },
+                { key: 'draft',     label: t('ecom.filterDraft')     },
               ] as const).map(f => (
                 <button key={f.key} className={`pm-filter-btn ${statusFilter === f.key ? 'active' : ''}`}
                   onClick={() => setStatusFilter(f.key)}>{f.label}</button>
@@ -295,7 +292,7 @@ export default function EcommerceClient({ profile, allPages }: Props) {
             <div className="pm-search-box">
               <Search size={13} color="#9CA3AF" />
               <input
-                placeholder="Buscar páginas..."
+                placeholder={t('ecom.searchPages')}
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
@@ -308,31 +305,31 @@ export default function EcommerceClient({ profile, allPages }: Props) {
           <EmptyState onCreateClick={() => setCreateOpen(true)} />
         ) : (
           <div className="pm-table">
-            {/* Table header */}
             <div className="pm-table-header">
-              <div className="pm-table-th pm-col-page">Página</div>
-              <div className="pm-table-th pm-col-type">Tipo</div>
-              <div className="pm-table-th pm-col-status">Estado</div>
-              <div className="pm-table-th pm-col-score">Safe Link Score</div>
-              <div className="pm-table-th pm-col-date">Última edición</div>
+              <div className="pm-table-th pm-col-page">{t('ecom.colPage')}</div>
+              <div className="pm-table-th pm-col-type">{t('ecom.colType')}</div>
+              <div className="pm-table-th pm-col-status">{t('ecom.colStatus')}</div>
+              <div className="pm-table-th pm-col-score">{t('ecom.colScore')}</div>
+              <div className="pm-table-th pm-col-date">{t('ecom.colLastEdit')}</div>
               <div className="pm-table-th pm-col-action" />
             </div>
 
             {filtered.length === 0 ? (
               <div style={{ padding: '40px 20px', textAlign: 'center', color: '#9CA3AF', fontSize: 13 }}>
-                No hay páginas que coincidan con los filtros.
+                {t('ecom.noMatch')}
               </div>
             ) : filtered.map(page => {
               const score   = getSafeScore(page)
+              const { label: scoreLabel, color: scoreColor } = getScoreLabel(score, t)
               const display = page.username ? getPublicPageDisplay(page.username) : null
+              const createdDate = new Date(page.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
 
               return (
                 <div key={page.id} className="pm-table-row">
-                  {/* Página */}
                   <div className="pm-table-cell pm-col-page">
                     <PageThumb page={page} />
                     <div>
-                      <div className="pm-page-name">{page.title ?? page.product_name ?? 'Sin título'}</div>
+                      <div className="pm-page-name">{page.title ?? page.product_name ?? t('ecom.untitled')}</div>
                       {display && (
                         <div className="pm-page-url">
                           <ExternalLink size={10} />
@@ -340,38 +337,33 @@ export default function EcommerceClient({ profile, allPages }: Props) {
                         </div>
                       )}
                       <div className="pm-page-date">
-                        Creada el {new Date(page.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {t('ecom.createdOn', { date: createdDate })}
                       </div>
                     </div>
                   </div>
 
-                  {/* Tipo */}
                   <div className="pm-table-cell pm-col-type">
                     <TypeChip page={page} />
                   </div>
 
-                  {/* Estado */}
                   <div className="pm-table-cell pm-col-status">
                     {page.status === 'published'
-                      ? <span className="pm-status-pub">● Publicada</span>
-                      : <span className="pm-status-draft">● Borrador</span>
+                      ? <span className="pm-status-pub">{t('ecom.statusPublished')}</span>
+                      : <span className="pm-status-draft">{t('ecom.statusDraft')}</span>
                     }
                   </div>
 
-                  {/* Safe Link Score */}
                   <div className="pm-table-cell pm-col-score">
-                    <ScoreRing score={score} />
+                    <ScoreRing score={score} label={scoreLabel} color={scoreColor} />
                   </div>
 
-                  {/* Última edición */}
                   <div className="pm-table-cell pm-col-date">
                     <div>
-                      <div className="pm-date-main">{timeAgo(page.updated_at)}</div>
+                      <div className="pm-date-main">{timeAgo(page.updated_at, t)}</div>
                       <div className="pm-date-sub">{formatDate(page.updated_at)}</div>
                     </div>
                   </div>
 
-                  {/* Actions */}
                   <div className="pm-table-cell pm-col-action" style={{ justifyContent: 'flex-end' }}>
                     <RowMenu page={page} onDeleted={id => setPageList(prev => prev.filter(p => p.id !== id))} />
                   </div>
