@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 
 // ─── DEBUG MODE ───────────────────────────────────────────────────────────────
-// Temporary verbose logging to diagnose analytics issues.
-// Set DEBUG_TRACK=false and restore 200 once root cause is confirmed.
+// Verbose logging until analytics are confirmed working in production.
+// Set to false after confirming events are being inserted.
 const DEBUG_TRACK = true
 
 export async function POST(req: NextRequest) {
@@ -26,15 +26,15 @@ export async function POST(req: NextRequest) {
     }
 
     if (DEBUG_TRACK) {
-      console.log('[track] ── incoming request ──────────────────')
-      console.log('[track] body     :', JSON.stringify({ pageId, eventType, slug, sessionId, metadata }))
-      console.log('[track] userAgent:', req.headers.get('user-agent'))
-      console.log('[track] referer  :', req.headers.get('referer'))
-      console.log('[track] SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL ?? '(not set)')
+      console.log('[track] ── incoming ────────────────────────────')
+      console.log('[track] pageId    :', pageId)
+      console.log('[track] eventType :', eventType)
+      console.log('[track] sessionId :', sessionId)
+      console.log('[track] userAgent :', req.headers.get('user-agent')?.slice(0, 80))
+      console.log('[track] SUPABASE  :', process.env.NEXT_PUBLIC_SUPABASE_URL)
     }
 
     if (!eventType) {
-      console.error('[track] Missing eventType')
       return NextResponse.json({ error: 'eventType required' }, { status: 400 })
     }
 
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
         .single()
 
       if (DEBUG_TRACK) {
-        console.log('[track] page lookup → user_id:', page?.user_id ?? null, '| error:', pageErr?.message ?? 'none')
+        console.log('[track] page lookup → user_id:', page?.user_id ?? null, '| err:', pageErr?.message ?? 'none')
       }
       userId = page?.user_id ?? null
     }
@@ -59,56 +59,62 @@ export async function POST(req: NextRequest) {
     const ref = req.headers.get('referer') ?? ''
     const enriched = { userAgent: ua, referer: ref, ...metadata }
 
-    const row = {
+    // Base row WITHOUT session_id (works even if migration hasn't run)
+    const baseRow = {
       user_id:    userId,
       page_id:    pageId ?? null,
       event_type: eventType,
       slug:       slug ?? null,
-      session_id: sessionId ?? null,
       metadata:   enriched,
     }
 
-    if (DEBUG_TRACK) {
-      console.log('[track] inserting row:', JSON.stringify(row))
-    }
+    // ── Attempt 1: insert WITH session_id ──────────────────────────────────
+    if (DEBUG_TRACK) console.log('[track] attempt insert with session_id…')
 
-    const { data: inserted, error: insertError } = await supabase
+    let { data: inserted, error: insertError } = await supabase
       .from('analytics_events')
-      .insert(row)
+      .insert({ ...baseRow, session_id: sessionId ?? null })
       .select()
 
+    // ── Attempt 2: fallback WITHOUT session_id if column missing (code 42703) ──
+    if (insertError?.code === '42703') {
+      console.warn('[track] ⚠️  session_id column missing — falling back to insert without it.')
+      console.warn('[track]    → Run this in Supabase SQL Editor to fix permanently:')
+      console.warn('[track]    → ALTER TABLE analytics_events ADD COLUMN IF NOT EXISTS session_id TEXT;')
+
+      ;({ data: inserted, error: insertError } = await supabase
+        .from('analytics_events')
+        .insert(baseRow)
+        .select())
+    }
+
+    // ── Final error handling ───────────────────────────────────────────────
     if (insertError) {
-      console.error('[track] ❌ INSERT FAILED')
+      console.error('[track] ❌ INSERT FAILED (both attempts)')
       console.error('[track]   message :', insertError.message)
       console.error('[track]   code    :', insertError.code)
       console.error('[track]   details :', insertError.details)
       console.error('[track]   hint    :', insertError.hint)
-      if (insertError.code === '42703') {
-        console.error('[track]   → Column missing. Run: supabase/migrations/20260530_analytics_session_id.sql')
-      }
 
-      // DEBUG MODE: surface the real error so we can see it in Network tab
+      // Debug mode: surface real error so Network tab shows it
       return NextResponse.json(
         {
           ok: false,
           error: insertError.message,
-          code: insertError.code,
+          code:  insertError.code,
           details: insertError.details,
-          hint: insertError.hint,
         },
         { status: 500 }
       )
     }
 
     if (DEBUG_TRACK) {
-      console.log('[track] ✅ inserted:', JSON.stringify(inserted))
+      console.log('[track] ✅ inserted row id:', (inserted as Array<{ id: string }>)?.[0]?.id)
     }
 
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error('[track] ❌ Unexpected exception:', err instanceof Error ? err.message : err, { pageId, eventType })
-
-    // DEBUG MODE: surface exception
     return NextResponse.json(
       { ok: false, error: err instanceof Error ? err.message : String(err) },
       { status: 500 }
