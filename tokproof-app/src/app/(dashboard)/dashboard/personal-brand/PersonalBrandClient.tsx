@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { MoreHorizontal, Search, Plus, ExternalLink, User } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -8,6 +8,7 @@ import CreatePersonalBrandModal from '@/components/dashboard/CreatePersonalBrand
 import type { Page, Profile } from '@/types'
 import { getPublicPageDisplay, getPublicPageUrl } from '@/lib/urls'
 import { useTranslation } from '@/lib/i18n'
+import PageMiniPreview from '@/components/shared/PageMiniPreview'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -34,27 +35,12 @@ function formatDate(dateStr: string): string {
   })
 }
 
-// ─── Page thumbnail ───────────────────────────────────────────────────────────
+// ─── Page thumbnail — delegates to shared PageMiniPreview ────────────────────
 
 function PageThumb({ page }: { page: Page }) {
-  const type = getEffectivePageType(page)
-  const bg = type === 'creator_page'
-    ? 'linear-gradient(170deg,#D9FFE8,#C7E8D7)'
-    : 'linear-gradient(170deg,#D9E8FF,#C7D7FF)'
-  const mediaUrl = page.settings.media_url ?? page.settings.avatar_url
   return (
-    <div className="pm-thumb" style={{ background: bg }}>
-      {mediaUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={mediaUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-      ) : (
-        <div style={{ width: '100%', height: '100%', padding: '8px 7px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(16,185,129,.4)', margin: '0 auto 4px' }} />
-          <div style={{ height: 5, borderRadius: 3, background: 'rgba(16,185,129,.3)', width: '60%', margin: '0 auto' }} />
-          <div style={{ height: 4, borderRadius: 3, background: 'rgba(16,185,129,.2)', width: '80%', margin: '0 auto' }} />
-          <div style={{ height: 8, borderRadius: 4, background: 'rgba(16,185,129,.35)', marginTop: 4 }} />
-        </div>
-      )}
+    <div className="pm-thumb" style={{ overflow: 'hidden' }}>
+      <PageMiniPreview page={page} />
     </div>
   )
 }
@@ -73,7 +59,23 @@ function RowMenu({ page, onDeleted }: { page: Page; onDeleted: (id: string) => v
   const router = useRouter()
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; right: number }>({ top: 0, right: 0 })
+  const btnRef = useRef<HTMLButtonElement>(null)
   const publicUrl = page.username ? getPublicPageUrl(page.username) : null
+
+  function openMenu(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!btnRef.current) return
+    const rect  = btnRef.current.getBoundingClientRect()
+    const right = window.innerWidth - rect.right
+    const spaceBelow = window.innerHeight - rect.bottom
+    if (spaceBelow < 260) {
+      setMenuPos({ bottom: window.innerHeight - rect.top + 4, right })
+    } else {
+      setMenuPos({ top: rect.bottom + 4, right })
+    }
+    setOpen(v => !v)
+  }
 
   async function handleDelete() {
     if (!confirm(t('ecom.deleteConfirmPb'))) return
@@ -98,28 +100,34 @@ function RowMenu({ page, onDeleted }: { page: Page; onDeleted: (id: string) => v
   }
 
   const items = [
+    { icon: '✏️', label: t('ecom.menu.edit'), onClick: () => { router.push(`/dashboard/editor/${page.id}`); setOpen(false) } },
     page.username && page.status === 'published'
       ? { icon: '👁', label: t('ecom.menu.view'), onClick: () => { window.open(`/u/${page.username}`, '_blank'); setOpen(false) } }
       : null,
-    { icon: '✏', label: t('ecom.menu.edit'), onClick: () => { router.push(`/dashboard/editor/${page.id}`); setOpen(false) } },
+    { icon: '📊', label: t('ecom.menu.analytics'), onClick: () => { router.push('/dashboard/analytics'); setOpen(false) } },
+    { icon: '⧉', label: t('ecom.menu.duplicate'), onClick: handleDuplicate },
     publicUrl && page.status === 'published'
       ? { icon: '🔗', label: t('ecom.menu.copyLink'), onClick: () => { navigator.clipboard?.writeText(publicUrl); setOpen(false) } }
       : null,
-    { icon: '⧉', label: t('ecom.menu.duplicate'), onClick: handleDuplicate },
     { icon: '🗑', label: t('ecom.menu.delete'), onClick: handleDelete, danger: true },
   ].filter(Boolean) as { icon: string; label: string; onClick: () => void; danger?: boolean }[]
 
+  const dropStyle: React.CSSProperties = {
+    position: 'fixed', right: menuPos.right, zIndex: 1000,
+    ...(menuPos.bottom !== undefined ? { bottom: menuPos.bottom } : { top: menuPos.top }),
+  }
+
   return (
-    <div style={{ position: 'relative' }}>
-      <button className="pm-menu-btn" onClick={e => { e.stopPropagation(); setOpen(v => !v) }}>
+    <div>
+      <button ref={btnRef} className="pm-menu-btn" onClick={openMenu}>
         <MoreHorizontal size={16} />
       </button>
       {open && (
         <>
-          <div style={{ position: 'fixed', inset: 0, zIndex: 49 }} onClick={() => setOpen(false)} />
-          <div className="pm-menu-dropdown">
+          <div style={{ position: 'fixed', inset: 0, zIndex: 999 }} onClick={() => setOpen(false)} />
+          <div className="pm-menu-dropdown" style={dropStyle}>
             {items.map((item, i) => (
-              <button key={i} className={`pm-menu-item${item.danger ? ' danger' : ''}`} onClick={item.onClick}>
+              <button key={i} className={`pm-menu-item${item.danger ? ' danger' : ''}`} onClick={e => { e.stopPropagation(); item.onClick() }}>
                 <span style={{ fontSize: 14 }}>{item.icon}</span>{item.label}
               </button>
             ))}

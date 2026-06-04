@@ -1,11 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { Calendar, Link2, MoreHorizontal } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Page } from '@/types'
 import { getPublicPageUrl, getPublicExitUrl, getPublicPageDisplay, getPublicExitDisplay } from '@/lib/urls'
+import PageMiniPreview from '@/components/shared/PageMiniPreview'
 
 interface PageCardProps {
   page: Page
@@ -15,12 +17,16 @@ interface PageCardProps {
 }
 
 export default function PageCard({ page, pageNumber, onDeleted, stats }: PageCardProps) {
+  const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; right: number }>({ top: 0, right: 0 })
   const [publishing, setPublishing] = useState(false)
+  const btnRef = useRef<HTMLButtonElement>(null)
+
   const isPublished = page.status === 'published'
-  const isSimple = page.type === 'simple'
-  const deEnabled = page.settings.direct_exit_enabled
-  const deUrl = page.settings.direct_exit_url
+  const isSimple    = page.type === 'simple'
+  const deEnabled   = page.settings.direct_exit_enabled
+  const deUrl       = page.settings.direct_exit_url
   const publicUrl     = page.username ? getPublicPageUrl(page.username)     : null
   const publicDisplay = page.username ? getPublicPageDisplay(page.username) : null
   const goUrl         = page.username ? getPublicExitUrl(page.username)     : null
@@ -29,6 +35,20 @@ export default function PageCard({ page, pageNumber, onDeleted, stats }: PageCar
   const createdAt = new Date(page.created_at).toLocaleDateString('es-ES', {
     day: 'numeric', month: 'long', year: 'numeric',
   })
+
+  function openMenu(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!btnRef.current) return
+    const rect  = btnRef.current.getBoundingClientRect()
+    const right = window.innerWidth - rect.right
+    const spaceBelow = window.innerHeight - rect.bottom
+    if (spaceBelow < 300) {
+      setMenuPos({ bottom: window.innerHeight - rect.top + 4, right })
+    } else {
+      setMenuPos({ top: rect.bottom + 4, right })
+    }
+    setMenuOpen(v => !v)
+  }
 
   async function handlePublish() {
     setPublishing(true)
@@ -73,34 +93,40 @@ export default function PageCard({ page, pageNumber, onDeleted, stats }: PageCar
   }
 
   const menuItems = [
-    { icon: '✏', label: 'Editar', onClick: () => { window.location.href = `/dashboard/editor/${page.id}` } },
-    isPublished && page.username ? { icon: '👁', label: 'Ver página', onClick: () => window.open(`/u/${page.username}`, '_blank') } : null,
-    { icon: '⧉', label: 'Duplicar', onClick: handleDuplicate },
-    publicUrl && isPublished ? { icon: '🔗', label: 'Copiar link', onClick: () => navigator.clipboard?.writeText(publicUrl) } : null,
-    !isPublished ? { icon: '🚀', label: publishing ? '...' : 'Publicar', onClick: handlePublish } : null,
-    { icon: '🗑', label: 'Eliminar', onClick: handleDelete, danger: true },
+    { icon: '✏️', label: 'Editar',       onClick: () => { router.push(`/dashboard/editor/${page.id}`); setMenuOpen(false) } },
+    isPublished && page.username
+      ? { icon: '👁', label: 'Vista previa',  onClick: () => { window.open(`/u/${page.username}`, '_blank'); setMenuOpen(false) } }
+      : null,
+    { icon: '📊', label: 'Analytics',    onClick: () => { router.push('/dashboard/analytics'); setMenuOpen(false) } },
+    { icon: '⧉',  label: 'Duplicar',    onClick: () => { handleDuplicate(); setMenuOpen(false) } },
+    publicUrl && isPublished
+      ? { icon: '🔗', label: 'Copiar link', onClick: () => { navigator.clipboard?.writeText(publicUrl); setMenuOpen(false) } }
+      : null,
+    !isPublished
+      ? { icon: '🚀', label: publishing ? '...' : 'Publicar', onClick: handlePublish }
+      : null,
+    { icon: '🗑', label: 'Eliminar',     onClick: handleDelete, danger: true },
   ].filter(Boolean) as { icon: string; label: string; onClick: () => void; danger?: boolean }[]
+
+  const dropdownStyle: React.CSSProperties = {
+    position: 'fixed',
+    right: menuPos.right,
+    zIndex: 1000,
+    ...(menuPos.bottom !== undefined ? { bottom: menuPos.bottom } : { top: menuPos.top }),
+  }
 
   return (
     <div className="page-row" onClick={() => menuOpen && setMenuOpen(false)}>
 
-      {/* Thumbnail — mini phone bezel */}
+      {/* Thumbnail — real preview from landingConfig */}
       <div style={{
         width: 64, height: 96, borderRadius: 14,
         background: '#1a1a1a', padding: 5,
         boxShadow: '0 6px 16px rgba(40,20,80,.18)',
-        margin: '0 auto', flexShrink: 0,
+        margin: '0 auto', flexShrink: 0, overflow: 'hidden',
       }}>
-        <div style={{
-          width: '100%', height: '100%', borderRadius: 10, overflow: 'hidden',
-          background: isSimple
-            ? 'linear-gradient(170deg,#D9E8FF,#C7D7FF)'
-            : 'linear-gradient(170deg,#FFD9F0,#E4D7FF)',
-          display: 'flex', flexDirection: 'column', padding: 6,
-        }}>
-          <div style={{ height: 6, borderRadius: 3, background: 'rgba(123,97,255,.35)', marginBottom: 4 }} />
-          <div style={{ height: 6, borderRadius: 3, background: 'rgba(123,97,255,.2)', width: '50%', marginBottom: 4 }} />
-          <div style={{ flex: 1, borderRadius: 6, background: 'white', opacity: .85, marginTop: 4 }} />
+        <div style={{ width: '100%', height: '100%', borderRadius: 10, overflow: 'hidden' }}>
+          <PageMiniPreview page={page} />
         </div>
       </div>
 
@@ -163,27 +189,33 @@ export default function PageCard({ page, pageNumber, onDeleted, stats }: PageCar
             : <span className="off-pill">OFF</span>
           }
         </div>
-        <div style={{ position: 'relative', flexShrink: 0 }}>
+
+        {/* Menu — position: fixed dropdown that always escapes overflow */}
+        <div style={{ flexShrink: 0 }}>
           <button
+            ref={btnRef}
             className="page-menu-btn"
-            onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
+            onClick={openMenu}
             title="Más opciones"
           >
             <MoreHorizontal size={16} />
           </button>
           {menuOpen && (
-            <div className="page-menu-dropdown" onClick={e => e.stopPropagation()}>
-              {menuItems.map((item, i) => (
-                <button
-                  key={i}
-                  className={`page-menu-item${item.danger ? ' danger' : ''}`}
-                  onClick={() => { item.onClick(); setMenuOpen(false) }}
-                >
-                  <span style={{ fontSize: 14 }}>{item.icon}</span>
-                  {item.label}
-                </button>
-              ))}
-            </div>
+            <>
+              <div style={{ position: 'fixed', inset: 0, zIndex: 999 }} onClick={() => setMenuOpen(false)} />
+              <div className="page-menu-dropdown" style={dropdownStyle}>
+                {menuItems.map((item, i) => (
+                  <button
+                    key={i}
+                    className={`page-menu-item${item.danger ? ' danger' : ''}`}
+                    onClick={e => { e.stopPropagation(); item.onClick() }}
+                  >
+                    <span style={{ fontSize: 14 }}>{item.icon}</span>
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>
