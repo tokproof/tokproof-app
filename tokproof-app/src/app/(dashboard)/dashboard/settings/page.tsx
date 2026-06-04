@@ -5,6 +5,7 @@ import { Copy, ExternalLink, Globe, AlertTriangle, Bell, Lock, Sliders, Check } 
 import { createClient } from '@/lib/supabase/client'
 import { getPublicPageUrl, getPublicPageDisplay } from '@/lib/urls'
 import { useTranslation, LANG_OPTIONS, type Lang } from '@/lib/i18n'
+import { getImageCount, IMAGE_LIMITS } from '@/lib/imageUpload'
 import type { Profile } from '@/types'
 
 // ─── local types ────────────────────────────────────────────────────────────
@@ -119,6 +120,7 @@ export default function SettingsPage() {
     news: true,
   })
   const [notifSaved, setNotifSaved] = useState(false)
+  const [imageCount, setImageCount] = useState<number | null>(null)
   const [isMobile, setIsMobile]   = useState(false)
   const [isTablet, setIsTablet]   = useState(false)
 
@@ -148,6 +150,8 @@ export default function SettingsPage() {
           setProfile(p as Profile)
           setDisplayName(p.display_name ?? '')
           setEmail(p.email ?? data.user!.email ?? '')
+          // Load image upload count
+          getImageCount(data.user!.id).then(setImageCount)
         })
     })
   }, [])
@@ -386,6 +390,37 @@ export default function SettingsPage() {
             onChange={v => setPrefs(p => ({ ...p, dateFormat: v }))}
             options={[{ value: 'MM/DD/YYYY', label: 'MM/DD/YYYY' }, { value: 'DD/MM/YYYY', label: 'DD/MM/YYYY' }]}
           />
+
+          {/* Image usage counter */}
+          {imageCount !== null && profile && (() => {
+            const plan = profile.plan === 'pro' ? 'pro' : 'free'
+            const limits = IMAGE_LIMITS[plan]
+            const pct = Math.min(100, Math.round((imageCount / limits.maxImages) * 100))
+            const isNear = pct >= 80
+            const isFull = imageCount >= limits.maxImages
+            return (
+              <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>Image uploads</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: isFull ? 'var(--danger)' : isNear ? '#D97706' : 'var(--muted)' }}>
+                    {imageCount} / {limits.maxImages === Infinity ? '∞' : limits.maxImages}
+                  </span>
+                </div>
+                <div style={{ height: 4, borderRadius: 999, background: 'var(--border)', overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%', borderRadius: 999, transition: 'width .3s',
+                    width: `${pct}%`,
+                    background: isFull ? 'var(--danger)' : isNear ? '#F59E0B' : 'linear-gradient(135deg,#F647A9,#7B61FF)',
+                  }} />
+                </div>
+                {isFull && plan === 'free' && (
+                  <p style={{ fontSize: 10.5, color: 'var(--danger)', marginTop: 5, lineHeight: 1.4 }}>
+                    Limit reached. <a href="/dashboard/billing" style={{ color: 'var(--purple)', fontWeight: 700 }}>Upgrade to Pro</a> for 100 images.
+                  </p>
+                )}
+              </div>
+            )
+          })()}
 
           <button onClick={handleSavePrefs} style={{ ...outlineBtn, marginTop: 8, width: '100%', justifyContent: 'center' }}>
             {prefSaved ? t('settings.prefs.saved') : t('settings.prefs.save')}

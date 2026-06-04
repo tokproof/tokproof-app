@@ -5,6 +5,7 @@ import { useTranslation } from '@/lib/i18n'
 import type { Plan } from '@/lib/plans'
 import { GlowThumb } from '@/components/editor/GlowThumb'
 import UpgradeProModal from '@/components/shared/UpgradeProModal'
+import ImageUploadField from '@/components/shared/ImageUploadField'
 import {
   DndContext, PointerSensor, useSensor, useSensors, closestCenter, type DragEndEvent,
 } from '@dnd-kit/core'
@@ -362,6 +363,8 @@ interface Props {
   blocks: LandingBlock[]
   theme: LandingTheme
   plan?: Plan
+  userId?: string
+  pageId?: string
   onUpdateBlock: (id: string, data: Partial<LandingBlock['data']>) => void
   onUpdateBlockStyle: (id: string, style: Partial<BlockStyle>) => void
   onToggleVisibility: (id: string) => void
@@ -373,10 +376,11 @@ interface Props {
 
 // ─── Sortable item ────────────────────────────────────────────────────────────
 function SortableItem({
-  block, theme, highlighted, idx, plan,
+  block, theme, highlighted, idx, plan, userId, pageId,
   onUpdateBlock, onUpdateBlockStyle, onToggleVisibility, onDelete, onDuplicate,
 }: {
   block: LandingBlock; theme: LandingTheme; highlighted?: boolean; idx: number; plan: Plan
+  userId?: string; pageId?: string
   onUpdateBlock: (id: string, data: Partial<LandingBlock['data']>) => void
   onUpdateBlockStyle: (id: string, style: Partial<BlockStyle>) => void
   onToggleVisibility: (id: string) => void
@@ -456,27 +460,30 @@ function SortableItem({
       {expanded && (
         <div style={{ background: T.bg }}>
           {block.type === 'partner_discounts' ? (
-            /* Partner Discounts has its own 2-tab layout (Contenido/Estilo) */
             <PartnerDiscountsEditor
               block={block}
               onUpdate={(data) => onUpdateBlock(block.id, data)}
               onUpdateStyle={(patch) => onUpdateBlockStyle(block.id, patch)}
               plan={plan}
               theme={theme}
+              userId={userId}
+              pageId={pageId}
             />
           ) : block.type === 'tiktok_comments' ? (
-            /* TikTok Comments has its own 2-tab layout (Contenido/Estilo) */
             <TikTokCommentsEditor
               block={block}
               onUpdate={(data) => onUpdateBlock(block.id, data)}
               plan={plan}
+              userId={userId}
+              pageId={pageId}
             />
           ) : block.type === 'before_after' ? (
-            /* Before / After has its own 2-tab layout (Contenido/Estilo) */
             <BeforeAfterEditor
               block={block}
               onUpdate={(data) => onUpdateBlock(block.id, data)}
               plan={plan}
+              userId={userId}
+              pageId={pageId}
             />
           ) : (
             <>
@@ -494,7 +501,7 @@ function SortableItem({
               </div>
               <div style={{ padding: '12px 14px 16px' }}>
                 {tab === 'content'
-                  ? <BlockEditor block={block} onUpdate={(data) => onUpdateBlock(block.id, data)} plan={plan} />
+                  ? <BlockEditor block={block} onUpdate={(data) => onUpdateBlock(block.id, data)} plan={plan} userId={userId} pageId={pageId} />
                   : <DesignEditor block={block} theme={theme} onUpdateStyle={(patch) => onUpdateBlockStyle(block.id, patch)} />
                 }
               </div>
@@ -703,8 +710,9 @@ function DesignEditor({ block, theme, onUpdateStyle }: {
 }
 
 // ─── Block content editor router ──────────────────────────────────────────────
-function BlockEditor({ block, onUpdate, plan }: {
+function BlockEditor({ block, onUpdate, plan, userId, pageId }: {
   block: LandingBlock; onUpdate: (data: Partial<LandingBlock['data']>) => void; plan: Plan
+  userId?: string; pageId?: string
 }) {
   const { t } = useTranslation()
   switch (block.type) {
@@ -720,10 +728,10 @@ function BlockEditor({ block, onUpdate, plan }: {
     case 'comparison':     return <ComparisonEditor    block={block} onUpdate={onUpdate} />
     case 'urgency_offer':    return <UrgencyOfferEditor    block={block} onUpdate={onUpdate} />
     case 'footer_legal':     return <FooterLegalEditor     block={block} onUpdate={onUpdate} />
-    case 'featured_product':  return <FeaturedProductEditor  block={block} onUpdate={onUpdate} plan={plan} />
-    case 'partner_discounts': return null // handled directly in SortableItem with its own 3-tab layout
-    case 'before_after':      return null // handled directly in SortableItem with its own 2-tab layout
-    case 'tiktok_comments':   return null // handled directly in SortableItem with its own 2-tab layout
+    case 'featured_product':  return <FeaturedProductEditor  block={block} onUpdate={onUpdate} plan={plan} userId={userId} pageId={pageId} />
+    case 'partner_discounts': return null
+    case 'before_after':      return null
+    case 'tiktok_comments':   return null
     default:
       return <p style={{ fontSize: 11, color: T.ink3, fontStyle: 'italic' }}>{t('block.editorComingSoon')}</p>
   }
@@ -1246,14 +1254,15 @@ function FPSection({ label, toggle, on, onToggle, children }: {
 }
 
 // ─── Featured Product editor ──────────────────────────────────────────────────
-function FeaturedProductEditor({ block, onUpdate, plan }: {
+function FeaturedProductEditor({ block, onUpdate, plan, userId, pageId }: {
   block: LandingBlock
   onUpdate: (d: Partial<LandingBlock['data']>) => void
   plan: Plan
+  userId?: string
+  pageId?: string
 }) {
   const d = block.data as unknown as FeaturedProductData
   const [upgradeOpen, setUpgradeOpen]     = useState(false)
-  const [uploadNotice, setUploadNotice]   = useState(false)
 
   const benefits: string[] = Array.isArray(d.benefits)
     ? d.benefits
@@ -1270,73 +1279,31 @@ function FeaturedProductEditor({ block, onUpdate, plan }: {
     <>
       {/* ── PRODUCT IMAGE ── */}
       <FPSection label="Product Image">
-        {/* Image URL + info tooltip */}
-        <FG>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-            <FL>URL de imagen</FL>
-            <FPInfoTooltip text="Puedes pegar una URL de imagen desde Shopify, Amazon, AliExpress, tu CDN u otra plataforma. Copia la URL de la imagen y pégala aquí." />
-          </div>
-          <FI
-            type="url"
+        {userId ? (
+          <ImageUploadField
+            label="Image"
             value={d.imageUrl ?? ''}
+            onChange={url => onUpdate({ imageUrl: url })}
+            userId={userId}
+            pageId={pageId}
+            plan={plan}
+            allowUrlInput
             placeholder="https://cdn.tumarca.com/producto.jpg"
-            onChange={e => onUpdate({ imageUrl: e.target.value })}
+            helperText="Puedes pegar una URL o subir directamente desde tu dispositivo."
+            aspectHint="square"
           />
-        </FG>
-
-        {/* Upload — Pro-gated */}
-        {isPro ? (
-          <>
-            <button
-              onClick={() => setUploadNotice(n => !n)}
-              style={{
-                width: '100%', padding: '8px 0', borderRadius: 8, marginBottom: uploadNotice ? 6 : 10,
-                border: `1.5px dashed ${T.purple}`, background: '#f3effe',
-                color: T.purple, fontSize: 11.5, fontWeight: 600, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#ede7fd')}
-              onMouseLeave={e => (e.currentTarget.style.background = '#f3effe')}
-            >
-              📷 Subir imagen personalizada
-            </button>
-            {uploadNotice && (
-              <div style={{
-                marginBottom: 10, padding: '8px 10px', borderRadius: 8,
-                background: '#faf7ff', border: `1px solid ${T.border2}`,
-                fontSize: 11, color: T.ink2, lineHeight: 1.5,
-              }}>
-                La subida de imágenes desde el editor estará disponible próximamente.
-                Por ahora puedes pegar la URL de tu imagen en el campo de arriba.
-              </div>
-            )}
-          </>
         ) : (
-          <>
-            <button
-              onClick={() => setUpgradeOpen(true)}
-              style={{
-                width: '100%', padding: '8px 0', borderRadius: 8, marginBottom: 4,
-                border: `1.5px dashed ${T.border2}`, background: '#fafbfc',
-                color: '#9CA3AF', fontSize: 11.5, fontWeight: 600, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              }}
-            >
-              <Lock size={11} />
-              Subir imagen personalizada
-              <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1px 5px', borderRadius: 4 }}>Pro</span>
-            </button>
-            <p style={{ fontSize: 10.5, color: T.ink3, margin: '0 0 10px', textAlign: 'center' }}>
-              Disponible en Pro
-            </p>
-            <UpgradeProModal
-              open={upgradeOpen}
-              onClose={() => setUpgradeOpen(false)}
-              title="Subir imágenes"
-              description="Subir imágenes personalizadas está disponible en el plan Pro. Actualiza para usar tus propias fotos de producto."
-            />
-          </>
+          <FG>
+            <FL>Image URL</FL>
+            <FI type="url" value={d.imageUrl ?? ''} placeholder="https://cdn.tumarca.com/producto.jpg" onChange={e => onUpdate({ imageUrl: e.target.value })} />
+          </FG>
         )}
+        <UpgradeProModal
+          open={upgradeOpen}
+          onClose={() => setUpgradeOpen(false)}
+          title="Upload images"
+          description="Custom image uploads are available on the Pro plan."
+        />
 
         {/* Image fit */}
         <FG mb={0}>
@@ -1606,17 +1573,17 @@ function TikTokAvatar({ url, name, size = 28 }: { url: string; name: string; siz
   )
 }
 
-function TikTokCommentsEditor({ block, onUpdate, plan }: {
+function TikTokCommentsEditor({ block, onUpdate, plan, userId, pageId }: {
   block: LandingBlock
   onUpdate: (d: Partial<LandingBlock['data']>) => void
   plan: Plan
+  userId?: string
+  pageId?: string
 }) {
   const d = block.data as unknown as TikTokCommentsData
   const [tab, setTab]                       = useState<'content' | 'style'>('content')
   const [expandedIds, setExpandedIds]       = useState<Set<string>>(new Set())
   const [upgradeOpen, setUpgradeOpen]       = useState(false)
-  const [uploadingAvatarId, setUpAvatarId]  = useState<string | null>(null)
-  const [uploadingImageId,  setUpImageId]   = useState<string | null>(null)
 
   const isPro     = plan === 'pro'
   const comments: TikTokComment[] = Array.isArray(d.comments) ? d.comments : []
@@ -1661,22 +1628,6 @@ function TikTokCommentsEditor({ block, onUpdate, plan }: {
   }
   function toggleExpand(id: string) {
     setExpandedIds(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s })
-  }
-
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>, id: string, field: 'avatarUrl' | 'imageUrl') {
-    const file = e.target.files?.[0]; if (!file) return
-    if (field === 'avatarUrl') setUpAvatarId(id); else setUpImageId(id)
-    let url: string | null = null
-    try {
-      const { createClient } = await import('@/lib/supabase/client')
-      const sb = createClient()
-      const folder = field === 'avatarUrl' ? 'tiktok-avatars' : 'tiktok-images'
-      const path = `${folder}/${Date.now()}_${file.name.replace(/\s+/g,'_')}`
-      const { error } = await sb.storage.from('uploads').upload(path, file)
-      if (!error) url = sb.storage.from('uploads').getPublicUrl(path).data.publicUrl
-    } catch { /* fallback */ }
-    updComment(id, { [field]: url ?? URL.createObjectURL(file) })
-    if (field === 'avatarUrl') setUpAvatarId(null); else setUpImageId(null)
   }
 
   function InlineToggle({ enabled, onChange }: { enabled: boolean; onChange: (v: boolean) => void }) {
@@ -1749,40 +1700,44 @@ function TikTokCommentsEditor({ block, onUpdate, plan }: {
                         <FG><FL>Comentario</FL><FTA value={c.text} onChange={e => updComment(c.id, { text: e.target.value })} style={{ minHeight: 52 }} /></FG>
 
                         {/* Avatar */}
-                        <FG mb={10}>
-                          <FL>Avatar URL</FL>
-                          <FI type="url" value={c.avatarUrl} placeholder="https://..." onChange={e => updComment(c.id, { avatarUrl: e.target.value })} />
-                          {isPro ? (
-                            <label style={{ display: 'block', marginTop: 6, cursor: 'pointer' }}>
-                              <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleUpload(e, c.id, 'avatarUrl')} />
-                              <div style={{ padding: '5px 0', borderRadius: 7, border: `1.5px dashed ${T.purple}`, background: '#f3effe', color: T.purple, fontSize: 11, fontWeight: 600, textAlign: 'center' }}>
-                                {uploadingAvatarId === c.id ? '⏳ Subiendo...' : '🖼️ Subir avatar'}
-                              </div>
-                            </label>
-                          ) : (
-                            <button onClick={() => setUpgradeOpen(true)} style={{ width: '100%', marginTop: 6, padding: '5px 0', borderRadius: 7, border: `1.5px dashed ${T.border2}`, background: '#fafbfc', color: '#9CA3AF', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                              <Lock size={10} /> Subir avatar <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1px 5px', borderRadius: 4 }}>Pro</span>
-                            </button>
-                          )}
-                        </FG>
+                        {userId ? (
+                          <ImageUploadField
+                            label="Avatar"
+                            value={c.avatarUrl}
+                            onChange={url => updComment(c.id, { avatarUrl: url })}
+                            userId={userId}
+                            pageId={pageId}
+                            plan={plan}
+                            allowUrlInput
+                            placeholder="https://..."
+                            aspectHint="square"
+                          />
+                        ) : (
+                          <FG mb={10}>
+                            <FL>Avatar URL</FL>
+                            <FI type="url" value={c.avatarUrl} placeholder="https://..." onChange={e => updComment(c.id, { avatarUrl: e.target.value })} />
+                          </FG>
+                        )}
 
                         {/* Image */}
-                        <FG mb={10}>
-                          <FL>Imagen en comentario (URL)</FL>
-                          <FI type="url" value={c.imageUrl} placeholder="https://..." onChange={e => updComment(c.id, { imageUrl: e.target.value })} />
-                          {isPro ? (
-                            <label style={{ display: 'block', marginTop: 6, cursor: 'pointer' }}>
-                              <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleUpload(e, c.id, 'imageUrl')} />
-                              <div style={{ padding: '5px 0', borderRadius: 7, border: `1.5px dashed ${T.purple}`, background: '#f3effe', color: T.purple, fontSize: 11, fontWeight: 600, textAlign: 'center' }}>
-                                {uploadingImageId === c.id ? '⏳ Subiendo...' : '🖼️ Subir imagen'}
-                              </div>
-                            </label>
-                          ) : (
-                            <button onClick={() => setUpgradeOpen(true)} style={{ width: '100%', marginTop: 6, padding: '5px 0', borderRadius: 7, border: `1.5px dashed ${T.border2}`, background: '#fafbfc', color: '#9CA3AF', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                              <Lock size={10} /> Subir imagen <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1px 5px', borderRadius: 4 }}>Pro</span>
-                            </button>
-                          )}
-                        </FG>
+                        {userId ? (
+                          <ImageUploadField
+                            label="Comment image (optional)"
+                            value={c.imageUrl}
+                            onChange={url => updComment(c.id, { imageUrl: url })}
+                            userId={userId}
+                            pageId={pageId}
+                            plan={plan}
+                            allowUrlInput
+                            placeholder="https://..."
+                            aspectHint="wide"
+                          />
+                        ) : (
+                          <FG mb={10}>
+                            <FL>Comment image URL</FL>
+                            <FI type="url" value={c.imageUrl} placeholder="https://..." onChange={e => updComment(c.id, { imageUrl: e.target.value })} />
+                          </FG>
+                        )}
 
                         {/* Likes + Date row */}
                         <div style={{ display: 'flex', gap: 8 }}>
@@ -2059,16 +2014,16 @@ const BA_PRESETS: Record<BAPreset, BAPresetFull> = {
 }
 const BA_PRESET_LABELS: Record<BAPreset, string> = { light: 'Light', pink: 'Pink', purple: 'Purple', dark: 'Dark' }
 
-function BeforeAfterEditor({ block, onUpdate, plan }: {
+function BeforeAfterEditor({ block, onUpdate, plan, userId, pageId }: {
   block: LandingBlock
   onUpdate: (d: Partial<LandingBlock['data']>) => void
   plan: Plan
+  userId?: string
+  pageId?: string
 }) {
   const d = block.data as unknown as BeforeAfterData
   const [tab, setTab]                   = useState<'content' | 'style'>('content')
   const [upgradeOpen, setUpgradeOpen]   = useState(false)
-  const [uploadingBefore, setUploadingBefore] = useState(false)
-  const [uploadingAfter,  setUploadingAfter]  = useState(false)
 
   const isPro   = plan === 'pro'
   const colors  = d.colors ?? {}
@@ -2080,24 +2035,6 @@ function BeforeAfterEditor({ block, onUpdate, plan }: {
   function resetColor(key: keyof BeforeAfterColors) {
     const next = { ...colors }; delete next[key]
     onUpdate({ colors: Object.keys(next).length > 0 ? next : undefined })
-  }
-
-  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>, field: 'beforeImageUrl' | 'afterImageUrl') {
-    const file = e.target.files?.[0]
-    if (!file) return
-    if (field === 'beforeImageUrl') setUploadingBefore(true)
-    else setUploadingAfter(true)
-    let url: string | null = null
-    try {
-      const { createClient } = await import('@/lib/supabase/client')
-      const sb = createClient()
-      const path = `before-after/${Date.now()}_${file.name.replace(/\s+/g, '_')}`
-      const { error } = await sb.storage.from('uploads').upload(path, file)
-      if (!error) url = sb.storage.from('uploads').getPublicUrl(path).data.publicUrl
-    } catch { /* fallback */ }
-    onUpdate({ [field]: url ?? URL.createObjectURL(file) })
-    if (field === 'beforeImageUrl') setUploadingBefore(false)
-    else setUploadingAfter(false)
   }
 
   return (
@@ -2173,41 +2110,45 @@ function BeforeAfterEditor({ block, onUpdate, plan }: {
             )}
 
             {/* Images */}
-            <div style={{ fontSize: 10, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8, marginTop: 4 }}>Imágenes</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: T.ink3, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8, marginTop: 4 }}>Images</div>
 
-            <FG mb={12}>
-              <FL>Before image URL</FL>
-              <FI type="url" value={d.beforeImageUrl ?? ''} placeholder="https://..." onChange={e => onUpdate({ beforeImageUrl: e.target.value })} />
-              {isPro ? (
-                <label style={{ display: 'block', marginTop: 6, cursor: 'pointer' }}>
-                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleImageUpload(e, 'beforeImageUrl')} />
-                  <div style={{ padding: '6px 0', borderRadius: 7, border: `1.5px dashed ${T.purple}`, background: '#f3effe', color: T.purple, fontSize: 11, fontWeight: 600, textAlign: 'center' }}>
-                    {uploadingBefore ? '⏳ Subiendo...' : '🖼️ Subir imagen Before'}
-                  </div>
-                </label>
-              ) : (
-                <button onClick={() => setUpgradeOpen(true)} style={{ width: '100%', marginTop: 6, padding: '6px 0', borderRadius: 7, border: `1.5px dashed ${T.border2}`, background: '#fafbfc', color: '#9CA3AF', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                  <Lock size={10} /> Subir imagen <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1px 5px', borderRadius: 4 }}>Pro</span>
-                </button>
-              )}
-            </FG>
-
-            <FG mb={14}>
-              <FL>After image URL</FL>
-              <FI type="url" value={d.afterImageUrl ?? ''} placeholder="https://..." onChange={e => onUpdate({ afterImageUrl: e.target.value })} />
-              {isPro ? (
-                <label style={{ display: 'block', marginTop: 6, cursor: 'pointer' }}>
-                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleImageUpload(e, 'afterImageUrl')} />
-                  <div style={{ padding: '6px 0', borderRadius: 7, border: `1.5px dashed ${T.purple}`, background: '#f3effe', color: T.purple, fontSize: 11, fontWeight: 600, textAlign: 'center' }}>
-                    {uploadingAfter ? '⏳ Subiendo...' : '🖼️ Subir imagen After'}
-                  </div>
-                </label>
-              ) : (
-                <button onClick={() => setUpgradeOpen(true)} style={{ width: '100%', marginTop: 6, padding: '6px 0', borderRadius: 7, border: `1.5px dashed ${T.border2}`, background: '#fafbfc', color: '#9CA3AF', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                  <Lock size={10} /> Subir imagen <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1px 5px', borderRadius: 4 }}>Pro</span>
-                </button>
-              )}
-            </FG>
+            {userId ? (
+              <>
+                <ImageUploadField
+                  label="Before image"
+                  value={d.beforeImageUrl ?? ''}
+                  onChange={url => onUpdate({ beforeImageUrl: url })}
+                  userId={userId}
+                  pageId={pageId}
+                  plan={plan}
+                  allowUrlInput
+                  placeholder="https://..."
+                  aspectHint="square"
+                />
+                <ImageUploadField
+                  label="After image"
+                  value={d.afterImageUrl ?? ''}
+                  onChange={url => onUpdate({ afterImageUrl: url })}
+                  userId={userId}
+                  pageId={pageId}
+                  plan={plan}
+                  allowUrlInput
+                  placeholder="https://..."
+                  aspectHint="square"
+                />
+              </>
+            ) : (
+              <>
+                <FG mb={12}>
+                  <FL>Before image URL</FL>
+                  <FI type="url" value={d.beforeImageUrl ?? ''} placeholder="https://..." onChange={e => onUpdate({ beforeImageUrl: e.target.value })} />
+                </FG>
+                <FG mb={14}>
+                  <FL>After image URL</FL>
+                  <FI type="url" value={d.afterImageUrl ?? ''} placeholder="https://..." onChange={e => onUpdate({ afterImageUrl: e.target.value })} />
+                </FG>
+              </>
+            )}
 
             {/* Labels */}
             <div style={{ display: 'flex', gap: 8 }}>
@@ -2386,19 +2327,19 @@ function BeforeAfterEditor({ block, onUpdate, plan }: {
 }
 
 // ─── Partner Discounts editor (2 tabs: Contenido / Estilo) ────────────────────
-function PartnerDiscountsEditor({ block, onUpdate, onUpdateStyle, plan, theme }: {
+function PartnerDiscountsEditor({ block, onUpdate, onUpdateStyle, plan, theme, userId, pageId }: {
   block: LandingBlock
   onUpdate: (d: Partial<LandingBlock['data']>) => void
   onUpdateStyle: (patch: Partial<BlockStyle>) => void
   plan: Plan
   theme: LandingTheme
+  userId?: string
+  pageId?: string
 }) {
   const d = block.data as unknown as PartnerDiscountsData
   const [tab, setTab]                   = useState<'content' | 'style'>('content')
   const [expandedIds, setExpandedIds]   = useState<Set<string>>(new Set())
   const [upgradeOpen, setUpgradeOpen]   = useState(false)
-  const [uploadingId, setUploadingId]   = useState<string | null>(null)
-
   const isPro      = plan === 'pro'
   const discounts: PartnerDiscount[] = Array.isArray(d.discounts) ? d.discounts : []
   const layout     = d.layout ?? 'compact'
@@ -2410,23 +2351,6 @@ function PartnerDiscountsEditor({ block, onUpdate, onUpdateStyle, plan, theme }:
   function resetColor(key: keyof PDColors) {
     const next = { ...colors }; delete next[key]
     onUpdate({ colors: Object.keys(next).length > 0 ? next : undefined })
-  }
-
-  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>, dcId: string) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setUploadingId(dcId)
-    let url: string | null = null
-    try {
-      const { createClient } = await import('@/lib/supabase/client')
-      const sb = createClient()
-      const path = `partner-logos/${Date.now()}_${file.name.replace(/\s+/g, '_')}`
-      const { error } = await sb.storage.from('uploads').upload(path, file)
-      if (!error) url = sb.storage.from('uploads').getPublicUrl(path).data.publicUrl
-    } catch { /* fallback */ }
-    const finalUrl = url ?? URL.createObjectURL(file)
-    updDiscount(dcId, { logoUrl: finalUrl })
-    setUploadingId(null)
   }
 
   function toggleExpand(id: string) {
@@ -2553,31 +2477,28 @@ function PartnerDiscountsEditor({ block, onUpdate, onUpdateStyle, plan, theme }:
                           <FI type="url" value={dc.storeUrl} placeholder="https://gymshark.com" onChange={e => updDiscount(dc.id, { storeUrl: e.target.value })} />
                         </FG>
 
-                        {/* Upload custom logo — Pro gated, real upload */}
-                        {isPro ? (
-                          <FG mb={10}>
-                            <label style={{ display: 'block', cursor: 'pointer' }}>
-                              <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleLogoUpload(e, dc.id)} />
-                              <div style={{ width: '100%', padding: '7px 0', borderRadius: 8, border: `1.5px dashed ${T.purple}`, background: '#f3effe', color: T.purple, fontSize: 11.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                                {uploadingId === dc.id ? '⏳ Subiendo...' : (dc.logoUrl ? '🖼️ Cambiar logo' : '🖼️ Subir logo personalizado')}
-                              </div>
-                            </label>
-                            {dc.logoUrl && (
-                              <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={dc.logoUrl} alt="" style={{ width: 28, height: 28, borderRadius: 5, objectFit: 'contain', border: `1px solid ${T.border2}` }} />
-                                <button onClick={() => updDiscount(dc.id, { logoUrl: '' })} style={{ fontSize: 10, color: T.red, background: 'none', border: 'none', cursor: 'pointer' }}>Eliminar</button>
-                              </div>
-                            )}
-                          </FG>
-                        ) : (
+                        {/* Custom logo — Pro only */}
+                        {isPro && userId ? (
+                          <ImageUploadField
+                            label="Custom logo (Pro)"
+                            value={dc.logoUrl ?? ''}
+                            onChange={url => updDiscount(dc.id, { logoUrl: url })}
+                            userId={userId}
+                            pageId={pageId}
+                            plan={plan}
+                            allowUrlInput={false}
+                            aspectHint="square"
+                            helperText="Square logo recommended. Leave empty to auto-detect from Store URL."
+                          />
+                        ) : !isPro ? (
                           <FG mb={10}>
                             <button onClick={() => setUpgradeOpen(true)} style={{ width: '100%', padding: '7px 0', borderRadius: 8, border: `1.5px dashed ${T.border2}`, background: '#fafbfc', color: '#9CA3AF', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                              <Lock size={11} /> Subir logo personalizado
+                              <Lock size={11} /> Upload custom logo
                               <span style={{ fontSize: 9, fontWeight: 700, color: '#7c3aed', background: '#ede7fd', padding: '1px 5px', borderRadius: 4 }}>Pro</span>
                             </button>
+                            <p style={{ fontSize: 10, color: '#9CA3AF', margin: '3px 0 0', textAlign: 'center' }}>Available on Pro</p>
                           </FG>
-                        )}
+                        ) : null}
 
                         {/* Code + Discount row */}
                         <div style={{ display: 'flex', gap: 8 }}>
@@ -2782,7 +2703,7 @@ function PartnerDiscountsEditor({ block, onUpdate, onUpdateStyle, plan, theme }:
 // ─── Add block trigger (opens catalog panel) ─────────────────────────────────
 // ─── Main export ──────────────────────────────────────────────────────────────
 export default function SortableBlockList({
-  blocks, theme, plan = 'free',
+  blocks, theme, plan = 'free', userId, pageId,
   onUpdateBlock, onUpdateBlockStyle, onToggleVisibility, onDelete, onDuplicate, onMove, onAdd,
 }: Props) {
   const { t } = useTranslation()
@@ -2906,6 +2827,8 @@ export default function SortableBlockList({
                     block={block} theme={theme}
                     idx={idx}
                     plan={plan}
+                    userId={userId}
+                    pageId={pageId}
                     highlighted={lastAddedId === block.id}
                     onUpdateBlock={onUpdateBlock}
                     onUpdateBlockStyle={onUpdateBlockStyle}

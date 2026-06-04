@@ -3,6 +3,8 @@ export type Plan = 'free' | 'pro'
 export interface PlanLimits {
   maxQuickExits: number
   maxPublishedPages: number
+  maxImageUploads: number
+  maxImageSizeMB: number
   canRemoveBranding: boolean
   canUsePremiumBlocks: boolean
   canUsePremiumTemplates: boolean
@@ -13,6 +15,8 @@ const PLAN_LIMITS: Record<Plan, PlanLimits> = {
   free: {
     maxQuickExits:            1,
     maxPublishedPages:        1,
+    maxImageUploads:          5,
+    maxImageSizeMB:           2,
     canRemoveBranding:        false,
     canUsePremiumBlocks:      false,
     canUsePremiumTemplates:   false,
@@ -21,6 +25,8 @@ const PLAN_LIMITS: Record<Plan, PlanLimits> = {
   pro: {
     maxQuickExits:            Infinity,
     maxPublishedPages:        Infinity,
+    maxImageUploads:          100,
+    maxImageSizeMB:           5,
     canRemoveBranding:        true,
     canUsePremiumBlocks:      true,
     canUsePremiumTemplates:   true,

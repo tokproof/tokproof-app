@@ -501,6 +501,8 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                     blocks={landingConfig.blocks}
                     theme={landingConfig.theme}
                     plan={plan}
+                    userId={initial?.profile?.user_id}
+                    pageId={pageId !== 'demo' ? pageId : undefined}
                     onUpdateBlock={updateBlock}
                     onUpdateBlockStyle={updateBlockStyle}
                     onToggleVisibility={toggleBlockVisibility}
