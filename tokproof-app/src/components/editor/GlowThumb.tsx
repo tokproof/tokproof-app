@@ -643,6 +643,50 @@ function BeforeAfterThumb({ size }: { size: ThumbSize }) {
   )
 }
 
+// ─── benefit_icons_row ────────────────────────────────────────────────────────
+const BIR_ITEMS = [
+  { icon: '✨', label: 'Brightens' },
+  { icon: '💧', label: 'Hydration' },
+  { icon: '🌿', label: 'Natural'   },
+  { icon: '🛡️', label: 'Tested'   },
+]
+
+function BenefitIconsRowThumb({ size }: { size: ThumbSize }) {
+  if (size === 'popover') return (
+    <div style={W('100%', 140, 12, '#0B0B12', { padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 })}>
+      <div style={{ textAlign: 'center', fontSize: 10, fontWeight: 800, color: '#fff', marginBottom: 4 }}>Why You'll Love It</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+        {BIR_ITEMS.map((item, i) => (
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 10, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
+              {item.icon}
+            </div>
+            <div style={{ fontSize: 7.5, fontWeight: 700, color: '#fff', textAlign: 'center', lineHeight: 1.2 }}>{item.label}</div>
+            <div style={{ height: 2.5, borderRadius: 1, background: 'rgba(255,255,255,0.28)', width: '80%' }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  const [w, h] = size === 'card' ? [52, 78] : [40, 56]
+  return (
+    <div style={W(w, h, 8, '#0B0B12', { padding: '4px 5px', display: 'flex', flexDirection: 'column', gap: 3 })}>
+      <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.8)', width: '65%', margin: '0 auto 2px' }} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, flex: 1 }}>
+        {BIR_ITEMS.slice(0, size === 'card' ? 4 : 3).map((item, i) => (
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <div style={{ width: size === 'card' ? 10 : 9, height: size === 'card' ? 10 : 9, borderRadius: 3, background: 'rgba(255,255,255,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size === 'card' ? 7 : 6 }}>
+              {item.icon}
+            </div>
+            <div style={{ height: 2, borderRadius: 1, background: 'rgba(255,255,255,0.7)', width: '85%' }} />
+            <div style={{ height: 1.5, borderRadius: 1, background: 'rgba(255,255,255,0.3)', width: '75%' }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ─── tiktok_comment_cards ─────────────────────────────────────────────────────
 const TCC_CARDS = [
   { init: 'GM', bg: '#FF2D55', user: '@glowwithmaria', text: 'WOW. So worth it!! 💕',      likes: '1.8K', verified: true  },
@@ -736,6 +780,7 @@ export function GlowThumb({ type, size = 'card' }: { type: string; size?: ThumbS
     case 'tiktok_comments':     return <TikTokCommentsThumb   size={size} />
     case 'before_after':          return <BeforeAfterThumb          size={size} />
     case 'tiktok_comment_cards':  return <TikTokCommentCardsThumb   size={size} />
+    case 'benefit_icons_row':     return <BenefitIconsRowThumb      size={size} />
     default:                      return <GenericThumb size={size} />
   }
 }

@@ -146,6 +146,21 @@ const CATALOG: CatalogBlock[] = [
     },
   },
   {
+    type: 'benefit_icons_row', label: 'Benefit Icons Row', tag: 'free',
+    desc: 'Fila de beneficios con iconos, títulos y texto.',
+    long: 'Muestra los beneficios clave del producto con iconos visuales. Fila horizontal en desktop, grid en móvil. Ideal antes del CTA.',
+    ideal: ['E-commerce', 'Beauty', 'Skincare', 'Fitness', 'Trust'],
+    defaultData: {
+      title: "Why You'll Love It", subtitle: '', showTitle: true, showSubtitle: false, showDividers: false, layout: 'row', itemShadow: 'none',
+      items: [
+        { id: 'bir1', enabled: true, icon: '✨', title: 'Brightens Skin',       description: 'Boosts radiance and evens tone'   },
+        { id: 'bir2', enabled: true, icon: '💧', title: 'Deep Hydration',        description: 'Locks in moisture all day long'   },
+        { id: 'bir3', enabled: true, icon: '🌿', title: 'Natural Ingredients',   description: 'Clean, vegan and cruelty-free'    },
+        { id: 'bir4', enabled: true, icon: '🛡️', title: 'Dermatologist Tested', description: 'Safe for all skin types'          },
+      ],
+    },
+  },
+  {
     type: 'tiktok_comment_cards', label: 'TikTok Comment Cards', tag: 'free',
     desc: 'Cards de comentarios TikTok con scroll horizontal en móvil.',
     long: 'Muestra comentarios estilo TikTok en cards horizontales. Scroll natural en móvil, grid en escritorio. No parece Trustpilot — parece una extensión de TikTok.',

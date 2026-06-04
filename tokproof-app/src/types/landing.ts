@@ -25,6 +25,7 @@ export type BlockType =
   | 'benefits'
   | 'tiktok_comments'
   | 'tiktok_comment_cards'
+  | 'benefit_icons_row'
   | 'reviews'
   | 'faq'
   | 'cta'
@@ -373,6 +374,26 @@ export interface FooterLegalData {
   termsUrl: string
   showTokproofBranding: boolean
   legalText?: string
+}
+
+// ─── Benefit Icons Row ────────────────────────────────────────────────────────
+export interface BenefitIconsItem {
+  id: string
+  enabled: boolean
+  icon: string
+  title: string
+  description: string
+}
+
+export interface BenefitIconsRowData {
+  title: string
+  subtitle: string
+  showTitle: boolean
+  showSubtitle: boolean
+  showDividers: boolean
+  layout: 'row' | 'grid'
+  itemShadow?: 'none' | 'soft' | 'medium'
+  items: BenefitIconsItem[]
 }
 
 // ─── TikTok Comment Cards ─────────────────────────────────────────────────────

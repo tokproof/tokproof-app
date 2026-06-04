@@ -16,6 +16,7 @@ import PartnerDiscountsBlock  from './blocks/PartnerDiscountsBlock'
 import BeforeAfterBlock       from './blocks/BeforeAfterBlock'
 import TikTokCommentsBlock      from './blocks/TikTokCommentsBlock'
 import TikTokCommentCardsBlock  from './blocks/TikTokCommentCardsBlock'
+import BenefitIconsRowBlock     from './blocks/BenefitIconsRowBlock'
 
 interface Props {
   block: LandingBlock
@@ -41,6 +42,7 @@ export default function BlockRenderer({ block, theme }: Props) {
     case 'before_after':       return <BeforeAfterBlock       block={block} theme={theme} />
     case 'tiktok_comments':       return <TikTokCommentsBlock       block={block} theme={theme} />
     case 'tiktok_comment_cards':  return <TikTokCommentCardsBlock   block={block} theme={theme} />
+    case 'benefit_icons_row':     return <BenefitIconsRowBlock      block={block} theme={theme} />
     // Stubs for future blocks
     case 'reviews':
       return (

@@ -44,6 +44,8 @@ import type {
   TikTokCommentsColors,
   TikTokCommentCardsData,
   TikTokCommentCard,
+  BenefitIconsRowData,
+  BenefitIconsItem,
 } from '@/types/landing'
 import { FONT_OPTIONS } from '@/lib/blockStyle'
 
@@ -82,6 +84,7 @@ const BLOCKS_CATALOG: CatalogEntry[] = [
   { type: 'video_featured', label: 'YouTube Featured',     tag: 'soon', desc: 'Video de YouTube incrustado en la página.' },
   { type: 'partner_discounts', label: 'Partner Discounts', tag: 'free', desc: 'Muestra códigos de descuento y ofertas exclusivas de tus partners.', defaultData: { title: 'Descuentos de nuestros partners', subtitle: 'Ahorra en tus marcas favoritas con códigos exclusivos. 🎁', badgeText: '♦ Ofertas exclusivas', footerText: 'Nuevas ofertas cada semana', layout: 'compact', showLogos: true, showDescriptions: false, showCopyButton: true, showExternalButton: true, showFooterText: true, discounts: [{ id: 'pd1', brandName: 'Gymshark', storeUrl: 'https://gymshark.com', logoUrl: '', description: 'En toda la tienda.', discountText: '15% OFF', code: 'GYM15', buttonText: 'Ver oferta', buttonUrl: 'https://gymshark.com', isPopular: true, enabled: true }, { id: 'pd2', brandName: 'LSKD', storeUrl: 'https://lskd.co', logoUrl: '', description: 'En pedidos superiores a $100.', discountText: '20% OFF', code: 'LSKD20', buttonText: 'Ver oferta', buttonUrl: 'https://lskd.co', isPopular: false, enabled: true }, { id: 'pd3', brandName: 'Alo Yoga', storeUrl: 'https://aloyoga.com', logoUrl: '', description: 'En toda la tienda.', discountText: '10% OFF', code: 'ALO10', buttonText: 'Ver oferta', buttonUrl: 'https://aloyoga.com', isPopular: false, enabled: true }] } },
   { type: 'tiktok_comments', label: 'TikTok Comments', tag: 'free', desc: 'Comentarios estilo TikTok para generar confianza y conversiones.', defaultData: { title: '', subtitle: '', badgeText: '', showTitle: false, showSubtitle: false, showBadge: false, layout: 'feed', comments: [{ id: 'tc1', avatarUrl: '', username: 'Tri G🌸🥰👣', verified: true, text: 'Quiero ver donde le entregan el pan🥰', imageUrl: '', likes: '13', date: '3 h', replyItems: [{ id: 'r1a', avatarUrl: '', username: 'GlowSkin Oficial 💗', verified: true, text: '¡Entregamos en toda España! Usa el código TIKTOK para un 15% off 📦', likes: '7', date: '2 h' }], showReply: true, showLikes: true, showReplies: true }, { id: 'tc2', avatarUrl: '', username: 'Mira que bonito', verified: false, text: 'Mira que bonito se le ven esos zapatitoosss', imageUrl: '', likes: '24.7 mil', date: '1 d', replyItems: [{ id: 'r2a', avatarUrl: '', username: 'Fashionista 💅', verified: false, text: 'Jajaja exactamente lo que yo dije!!', likes: '127', date: '22 h' }, { id: 'r2b', avatarUrl: '', username: 'Laura M.', verified: false, text: 'Son divinos 😍 yo ya los pedí', likes: '38', date: '1 d' }], showReply: true, showLikes: true, showReplies: true }, { id: 'tc3', avatarUrl: '', username: 'Antoni ⺣', verified: false, text: 'Necesito uno para mi michi 🤣', imageUrl: '', likes: '824', date: '2 d', replyItems: [], showReply: true, showLikes: true, showReplies: false }], showArrows: true, showDots: true, autoplay: false, autoplaySpeed: 3, borderRadius: 'soft', shadowIntensity: 'soft', spacing: 'normal' } },
+  { type: 'benefit_icons_row', label: 'Benefit Icons Row', tag: 'free', desc: 'Fila visual de beneficios con iconos, títulos y descripciones.', defaultData: { title: "Why You'll Love It", subtitle: '', showTitle: true, showSubtitle: false, showDividers: false, layout: 'row', itemShadow: 'none', items: [{ id: 'bir1', enabled: true, icon: '✨', title: 'Brightens Skin', description: 'Boosts radiance and evens tone' }, { id: 'bir2', enabled: true, icon: '💧', title: 'Deep Hydration', description: 'Locks in moisture all day long' }, { id: 'bir3', enabled: true, icon: '🌿', title: 'Natural Ingredients', description: 'Clean, vegan and cruelty-free' }, { id: 'bir4', enabled: true, icon: '🛡️', title: 'Dermatologist Tested', description: 'Safe for all skin types' }] } },
   { type: 'tiktok_comment_cards', label: 'TikTok Comment Cards', tag: 'free', desc: 'Cards de comentarios TikTok con scroll horizontal en móvil.', defaultData: { title: "TikTok Can't Get Enough", showTitle: true, showTikTokIcon: true, layout: 'carousel', comments: [{ id: 'tcc1', enabled: true, avatarUrl: '', username: '@glowwithmaria', text: "I was skeptical but WOW. So worth it!! 💕", timeAgo: '1w ago', likes: '1.8K', verified: true }, { id: 'tcc2', enabled: true, avatarUrl: '', username: '@skinbyalexa', text: "The glow is unmatched ✨ My new holy grail.", timeAgo: '5d ago', likes: '1.2K', verified: true }, { id: 'tcc3', enabled: true, avatarUrl: '', username: '@beautywithlex', text: "Everyone needs this in their routine 🔥", timeAgo: '3d ago', likes: '987', verified: true }] } },
   { type: 'before_after', label: 'Before / After', tag: 'free', desc: 'Muestra transformaciones reales antes y después.', defaultData: { title: 'Resultados que puedes ver', subtitle: 'Mira la diferencia real después de usar nuestro producto.', badgeText: 'Transformación real', mode: 'cards', beforeImageUrl: '', afterImageUrl: '', beforeLabel: 'Antes', afterLabel: 'Después', beforeDescription: 'Cabello seco, sin brillo y con frizz.', afterDescription: 'Cabello hidratado, brillante y saludable.', showBadge: true, showSubtitle: true, showDescriptions: true, showCTA: false, buttonText: 'Ver producto', buttonUrl: 'https://tutienda.com/producto', borderRadius: 'soft', shadowIntensity: 'soft' } },
 ]
@@ -174,6 +177,7 @@ const CATALOG_DESC_LONG: Record<string, string> = {
   partner_discounts: 'Muestra códigos de descuento y ofertas exclusivas de tus partners. Ideal para afiliados, e-commerce e influencers.',
   before_after: 'Enseña el impacto visual de tu producto con un bloque antes/después. Modo Cards (Free) o Slider interactivo (Pro).',
   tiktok_comments: 'Feed de comentarios auténticos al estilo TikTok. Genera más confianza que los testimonios clásicos. Feed vertical (Free) o Carousel (Pro).',
+  benefit_icons_row: 'Fila visual de beneficios con iconos, títulos y texto. Perfecto para resumir las ventajas del producto antes del CTA.',
   tiktok_comment_cards: 'Cards de comentarios estilo TikTok. Scroll horizontal en móvil, grid en escritorio. No parece Trustpilot — parece una extensión natural de TikTok.',
 }
 const CATALOG_IDEAL: Record<string, string[]> = {
@@ -195,6 +199,7 @@ const CATALOG_IDEAL: Record<string, string[]> = {
   partner_discounts: ['E-commerce', 'Afiliados', 'Creadores', 'Fitness', 'Beauty'],
   before_after: ['Beauty', 'Hair care', 'Skincare', 'Fitness', 'E-commerce'],
   tiktok_comments: ['Beauty', 'E-commerce', 'Ropa', 'Mascotas', 'Viral'],
+  benefit_icons_row: ['E-commerce', 'Beauty', 'Skincare', 'Fitness', 'Trust'],
   tiktok_comment_cards: ['E-commerce', 'Beauty', 'Viral', 'Social'],
 }
 
@@ -326,6 +331,7 @@ const BLOCK_LUCIDE: Record<string, React.ElementType> = {
   partner_discounts:  Gift,
   before_after:       Layers,
   tiktok_comments:       MessageCircle,
+  benefit_icons_row:     Star,
   tiktok_comment_cards:  MessageCircle,
 }
 const ACCENT = ['#F647A9', '#8B5CF6'] // rosa, lila — alternan por índice
@@ -353,6 +359,7 @@ const BLOCK_CATEGORIES: Array<{ label: string; blocks: BlockDef[] }> = [
       { type: 'comparison',    label: 'Comparativa',        isPremium: true,  defaultData: { title: 'Por qué elegirnos', leftTitle: 'Otros', rightTitle: 'Nosotros', rows: [{ id: 'cr1', label: 'Calidad', leftValue: 'Media', rightValue: 'Premium', winner: 'right' }, { id: 'cr2', label: 'Precio', leftValue: 'Caro', rightValue: 'Justo', winner: 'right' }, { id: 'cr3', label: 'Soporte', leftValue: 'Limitado', rightValue: '24/7', winner: 'right' }] } },
       { type: 'urgency_offer',    label: 'Urgencia / Oferta',  isPremium: true, defaultData: { title: '¡Oferta limitada!', description: 'Solo por tiempo limitado.', badgeText: '🔥 Agotándose', countdownEnabled: false, countdownText: 'Quedan 2 horas', ctaText: '🛒 Aprovechar oferta', ctaUrl: '' } },
       { type: 'partner_discounts', label: 'Partner Discounts', defaultData: { title: 'Descuentos de nuestros partners', subtitle: 'Ahorra en tus marcas favoritas con códigos exclusivos. 🎁', badgeText: '♦ Ofertas exclusivas', footerText: 'Nuevas ofertas cada semana', layout: 'compact', showLogos: true, showDescriptions: false, showCopyButton: true, showExternalButton: true, showFooterText: true, discounts: [{ id: 'pd1', brandName: 'Gymshark', storeUrl: 'https://gymshark.com', logoUrl: '', description: 'En toda la tienda.', discountText: '15% OFF', code: 'GYM15', buttonText: 'Ver oferta', buttonUrl: 'https://gymshark.com', isPopular: true, enabled: true }] } },
+      { type: 'benefit_icons_row', label: 'Benefit Icons Row', defaultData: { title: "Why You'll Love It", subtitle: '', showTitle: true, showSubtitle: false, showDividers: false, layout: 'row', itemShadow: 'none', items: [{ id: 'bir1', enabled: true, icon: '✨', title: 'Brightens Skin', description: 'Boosts radiance and evens tone' }, { id: 'bir2', enabled: true, icon: '💧', title: 'Deep Hydration', description: 'Locks in moisture all day long' }, { id: 'bir3', enabled: true, icon: '🌿', title: 'Natural Ingredients', description: 'Clean, vegan and cruelty-free' }, { id: 'bir4', enabled: true, icon: '🛡️', title: 'Dermatologist Tested', description: 'Safe for all skin types' }] } },
       { type: 'tiktok_comment_cards', label: 'TikTok Comment Cards', defaultData: { title: "TikTok Can't Get Enough", showTitle: true, showTikTokIcon: true, layout: 'carousel', comments: [{ id: 'tcc1', enabled: true, avatarUrl: '', username: '@glowwithmaria', text: "I was skeptical but WOW. So worth it!! 💕", timeAgo: '1w ago', likes: '1.8K', verified: true }, { id: 'tcc2', enabled: true, avatarUrl: '', username: '@skinbyalexa', text: "The glow is unmatched ✨ My new holy grail.", timeAgo: '5d ago', likes: '1.2K', verified: true }, { id: 'tcc3', enabled: true, avatarUrl: '', username: '@beautywithlex', text: "Everyone needs this in their routine 🔥", timeAgo: '3d ago', likes: '987', verified: true }] } },
     ],
   },
@@ -509,7 +516,19 @@ function SortableItem({
               <div style={{ padding: '12px 14px 16px' }}>
                 {tab === 'content'
                   ? <BlockEditor block={block} onUpdate={(data) => onUpdateBlock(block.id, data)} plan={plan} userId={userId} pageId={pageId} />
-                  : <DesignEditor block={block} theme={theme} onUpdateStyle={(patch) => onUpdateBlockStyle(block.id, patch)} />
+                  : block.type === 'tiktok_comment_cards'
+                    ? <TikTokCommentCardsDesignEditor
+                        block={block} theme={theme} plan={plan}
+                        onUpdateStyle={(patch) => onUpdateBlockStyle(block.id, patch)}
+                        onUpdate={(data) => onUpdateBlock(block.id, data)}
+                      />
+                    : block.type === 'benefit_icons_row'
+                      ? <BenefitIconsRowDesignEditor
+                          block={block} theme={theme} plan={plan}
+                          onUpdateStyle={(patch) => onUpdateBlockStyle(block.id, patch)}
+                          onUpdate={(data) => onUpdateBlock(block.id, data)}
+                        />
+                      : <DesignEditor block={block} theme={theme} onUpdateStyle={(patch) => onUpdateBlockStyle(block.id, patch)} />
                 }
               </div>
             </>
@@ -740,6 +759,7 @@ function BlockEditor({ block, onUpdate, plan, userId, pageId }: {
     case 'before_after':         return null
     case 'tiktok_comments':      return null
     case 'tiktok_comment_cards': return <TikTokCommentCardsContentEditor block={block} onUpdate={onUpdate} />
+    case 'benefit_icons_row':    return <BenefitIconsRowContentEditor    block={block} onUpdate={onUpdate} />
     default:
       return <p style={{ fontSize: 11, color: T.ink3, fontStyle: 'italic' }}>{t('block.editorComingSoon')}</p>
   }
@@ -2406,21 +2426,6 @@ function TikTokCommentCardsContentEditor({ block, onUpdate }: {
         <FL>Title</FL>
         <FI value={d.title ?? ''} onChange={e => onUpdate({ title: e.target.value })} placeholder="TikTok Can't Get Enough" />
       </FG>
-      <FG mb={10}>
-        <FL>Layout</FL>
-        <div style={{ display: 'flex', gap: 5 }}>
-          {(['carousel', 'grid'] as const).map(v => (
-            <button key={v} onClick={() => onUpdate({ layout: v })} style={{
-              flex: 1, padding: '6px 0', borderRadius: 7, cursor: 'pointer', fontSize: 11.5, fontWeight: 600,
-              border: `1.5px solid ${(d.layout ?? 'carousel') === v ? T.purple : T.border2}`,
-              background: (d.layout ?? 'carousel') === v ? '#f3effe' : T.card,
-              color: (d.layout ?? 'carousel') === v ? T.purple : T.ink2,
-            }}>
-              {v === 'carousel' ? '← Carousel →' : '⊞ Grid'}
-            </button>
-          ))}
-        </div>
-      </FG>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
         <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
           <input type="checkbox" checked={d.showTitle ?? true} onChange={e => onUpdate({ showTitle: e.target.checked })} />
@@ -2509,6 +2514,321 @@ function TikTokCommentCardsContentEditor({ block, onUpdate }: {
       })}
       <AddBtn onClick={addComment} label="Add Comment" />
     </>
+  )
+}
+
+// ─── TikTok Comment Cards — design editor ────────────────────────────────────
+// Layout/radius/shadow/spacing = Free · Custom colors = Pro (same pattern as DesignEditor)
+function TikTokCommentCardsDesignEditor({ block, theme, plan, onUpdateStyle, onUpdate }: {
+  block: LandingBlock
+  theme: LandingTheme
+  plan: Plan
+  onUpdateStyle: (patch: Partial<BlockStyle>) => void
+  onUpdate: (data: Partial<LandingBlock['data']>) => void
+}) {
+  const { t } = useTranslation()
+  const d = block.data as Partial<TikTokCommentCardsData>
+  const s = block.style ?? {}
+
+  const hasColorOverrides = !!(s.backgroundColor || s.textColor || s.accentColor || s.elementBackgroundColor || s.borderColor)
+  const colorsOn = s.customColorsEnabled ?? hasColorOverrides
+
+  const sub = (text: string) => (
+    <div style={{ fontSize: 10, fontWeight: 700, color: T.purple, textTransform: 'uppercase' as const, letterSpacing: '.06em', marginBottom: 6, marginTop: 10 }}>{text}</div>
+  )
+
+  // ── Style presets (Free) ──────────────────────────────────────────────────
+  const PRESETS: Array<{ name: string; style: Partial<BlockStyle> }> = [
+    { name: '🖤 TikTok Dark', style: { customColorsEnabled: true, backgroundColor: '#0B0B12', textColor: '#ffffff', accentColor: '#FF2D55', elementBackgroundColor: '#1a1a22', borderColor: 'rgba(255,255,255,0.07)' } },
+    { name: '☁️ Minimal',      style: { customColorsEnabled: true, backgroundColor: '#f9fafb', textColor: '#111827', accentColor: '#ec3b8e', elementBackgroundColor: '#ffffff', borderColor: '#e5e7eb' } },
+    { name: '🌙 Midnight',     style: { customColorsEnabled: true, backgroundColor: '#0f0f1a', textColor: '#ffffff', accentColor: '#8b5cf6', elementBackgroundColor: '#1a1525', borderColor: 'rgba(139,92,246,0.2)' } },
+  ]
+
+  return (
+    <div>
+      {/* ── FREE: Layout ── */}
+      {sub('Layout')}
+      <div style={{ display: 'flex', gap: 5, marginBottom: 10 }}>
+        {(['carousel', 'grid'] as const).map(v => (
+          <button key={v} onClick={() => onUpdate({ layout: v })} style={{
+            flex: 1, padding: '6px 0', borderRadius: 7, cursor: 'pointer', fontSize: 11.5, fontWeight: 600,
+            border: `1.5px solid ${(d.layout ?? 'carousel') === v ? T.purple : T.border2}`,
+            background: (d.layout ?? 'carousel') === v ? '#f3effe' : T.card,
+            color: (d.layout ?? 'carousel') === v ? T.purple : T.ink2,
+          }}>
+            {v === 'carousel' ? '← Carousel →' : '⊞ Grid'}
+          </button>
+        ))}
+      </div>
+
+      {/* ── FREE: Presets ── */}
+      {sub(t('editor.predefinedTheme'))}
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+        {PRESETS.map(p => (
+          <button key={p.name} onClick={() => onUpdateStyle(p.style)}
+            style={{ padding: '5px 11px', borderRadius: 8, cursor: 'pointer', fontSize: 11, fontWeight: 600, border: `1.5px solid ${T.border2}`, background: T.card, color: T.ink2, transition: 'border-color .12s' }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = '#c4a9f4')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = T.border2)}
+          >
+            {p.name}
+          </button>
+        ))}
+      </div>
+
+      {/* ── FREE: Border radius ── */}
+      {sub(t('block.borders'))}
+      <div style={{ marginBottom: 10 }}>
+        <PillGroup
+          options={[{ key: 'square', label: t('editor.square') }, { key: 'soft', label: t('editor.soft') }, { key: 'medium', label: t('editor.medium') }, { key: 'round', label: t('editor.round') }]}
+          value={s.borderRadius}
+          onChange={v => onUpdateStyle({ borderRadius: v as BlockStyle['borderRadius'] })}
+        />
+      </div>
+
+      {/* ── FREE: Shadow ── */}
+      {sub('Shadow')}
+      <div style={{ marginBottom: 10 }}>
+        <PillGroup
+          options={[{ key: 'none', label: t('block.none') }, { key: 'soft', label: t('block.soft') }, { key: 'medium', label: t('block.medium') }]}
+          value={(d.cardShadow as string | undefined) ?? 'soft'}
+          onChange={v => onUpdate({ cardShadow: v ?? 'soft' })}
+        />
+      </div>
+
+      {/* ── FREE: Spacing ── */}
+      {sub(t('block.spacing'))}
+      <div style={{ marginBottom: 4 }}>
+        <PillGroup
+          options={[{ key: 'compact', label: t('block.compact') }, { key: 'normal', label: t('block.normal') }, { key: 'airy', label: t('block.airy') }]}
+          value={s.spacing}
+          onChange={v => onUpdateStyle({ spacing: v as BlockStyle['spacing'] })}
+        />
+      </div>
+
+      {/* ── PRO: Custom colors ── */}
+      <ToggleSection label={t('block.customizeColors')} enabled={colorsOn} onToggle={v => onUpdateStyle({ customColorsEnabled: v })} pro>
+        <ColRow label={t('block.bgBlock')}       value={s.backgroundColor       ?? theme.backgroundColor           ?? '#0B0B12'} overridden={!!s.backgroundColor}       onChange={v => onUpdateStyle({ backgroundColor: v })}       onReset={() => onUpdateStyle({ backgroundColor: undefined })} />
+        <ColRow label={t('block.text')}           value={s.textColor             ?? theme.textColor                 ?? '#ffffff'} overridden={!!s.textColor}             onChange={v => onUpdateStyle({ textColor: v })}             onReset={() => onUpdateStyle({ textColor: undefined })} />
+        <ColRow label={t('block.accentBtn')}      value={s.accentColor           ?? theme.primaryColor              ?? '#FF2D55'} overridden={!!s.accentColor}           onChange={v => onUpdateStyle({ accentColor: v })}           onReset={() => onUpdateStyle({ accentColor: undefined })} />
+        <ColRow label={t('block.bgElements')}     value={s.elementBackgroundColor ?? theme.cardBackgroundColor       ?? '#1a1a22'} overridden={!!s.elementBackgroundColor} onChange={v => onUpdateStyle({ elementBackgroundColor: v })} onReset={() => onUpdateStyle({ elementBackgroundColor: undefined })} />
+        <ColRow label={t('block.borderElements')} value={s.borderColor           ?? 'rgba(255,255,255,0.07)'}                    overridden={!!s.borderColor}           onChange={v => onUpdateStyle({ borderColor: v })}           onReset={() => onUpdateStyle({ borderColor: undefined })} />
+      </ToggleSection>
+
+      {/* Reset all */}
+      {(Object.keys(s).length > 0) && (
+        <button onClick={() => onUpdateStyle({ customColorsEnabled: undefined, backgroundColor: undefined, textColor: undefined, accentColor: undefined, elementBackgroundColor: undefined, borderColor: undefined, borderRadius: undefined, spacing: undefined })}
+          style={{ marginTop: 4, width: '100%', padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`, background: 'none', color: T.ink3, fontSize: 11, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+          <RotateCcw size={11} />{t('block.resetToTheme')}
+        </button>
+      )}
+    </div>
+  )
+}
+
+// ─── Benefit Icons Row — content editor ──────────────────────────────────────
+function BenefitIconsRowContentEditor({ block, onUpdate }: {
+  block: LandingBlock
+  onUpdate: (data: Partial<LandingBlock['data']>) => void
+}) {
+  const d = block.data as unknown as BenefitIconsRowData
+  const items = d.items ?? []
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  function updItem(id: string, patch: Partial<BenefitIconsItem>) {
+    onUpdate({ items: items.map(i => i.id === id ? { ...i, ...patch } : i) })
+  }
+  function addItem() {
+    const newId = `bir_${Date.now()}`
+    onUpdate({ items: [...items, { id: newId, enabled: true, icon: '⭐', title: 'New Benefit', description: 'Brief description here' }] })
+    setExpandedId(newId)
+  }
+  function deleteItem(id: string) {
+    onUpdate({ items: items.filter(i => i.id !== id) })
+    if (expandedId === id) setExpandedId(null)
+  }
+  function duplicateItem(id: string) {
+    const src = items.find(i => i.id === id); if (!src) return
+    const idx = items.findIndex(i => i.id === id)
+    const copy: BenefitIconsItem = { ...src, id: `${id}_${Date.now()}` }
+    const next = [...items]; next.splice(idx + 1, 0, copy)
+    onUpdate({ items: next }); setExpandedId(copy.id)
+  }
+
+  return (
+    <>
+      <FG><FL>Title</FL><FI value={d.title ?? ''} onChange={e => onUpdate({ title: e.target.value })} placeholder="Why You'll Love It" /></FG>
+      <FG mb={12}>
+        <FL>Subtitle</FL>
+        <FI value={d.subtitle ?? ''} onChange={e => onUpdate({ subtitle: e.target.value })} placeholder="Optional subtitle..." />
+      </FG>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 14 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
+          <input type="checkbox" checked={d.showTitle ?? true} onChange={e => onUpdate({ showTitle: e.target.checked })} />
+          Show section title
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
+          <input type="checkbox" checked={d.showSubtitle ?? false} onChange={e => onUpdate({ showSubtitle: e.target.checked })} />
+          Show subtitle
+        </label>
+      </div>
+
+      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>
+        Benefits · {items.length}
+      </div>
+
+      {items.map(item => {
+        const isOpen = expandedId === item.id
+        return (
+          <div key={item.id} style={{
+            marginBottom: 6, borderRadius: 10, overflow: 'hidden',
+            border: `1px solid ${isOpen ? '#c4a9f4' : T.border2}`,
+            background: T.card, opacity: item.enabled ? 1 : 0.55,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px' }}>
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(123,97,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16 }}>
+                {item.icon}
+              </div>
+              <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: T.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</span>
+              <button onClick={() => updItem(item.id, { enabled: !item.enabled })} title={item.enabled ? 'Hide' : 'Show'} style={{ width: 26, height: 26, borderRadius: 6, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}>
+                {item.enabled ? <Eye size={13} /> : <EyeOff size={13} />}
+              </button>
+              <button onClick={() => duplicateItem(item.id)} title="Duplicate" style={{ width: 26, height: 26, borderRadius: 6, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}>
+                <Copy size={13} />
+              </button>
+              <button onClick={() => deleteItem(item.id)} title="Delete" style={{ width: 26, height: 26, borderRadius: 6, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.red }}>
+                <Trash2 size={13} />
+              </button>
+              <ChevronDown size={13} color={T.ink3}
+                style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform .18s', cursor: 'pointer', flexShrink: 0 }}
+                onClick={() => setExpandedId(isOpen ? null : item.id)}
+              />
+            </div>
+            {isOpen && (
+              <div style={{ padding: '0 10px 10px', borderTop: `1px solid ${T.border}` }}>
+                <div style={{ display: 'flex', gap: 7, marginTop: 8, marginBottom: 7 }}>
+                  <FG mb={0} style={{ width: 52, flexShrink: 0 }}>
+                    <FL>Icon</FL>
+                    <FI value={item.icon} onChange={e => updItem(item.id, { icon: e.target.value })} style={{ textAlign: 'center', padding: '6px 4px' }} />
+                  </FG>
+                  <FG mb={0} style={{ flex: 1 }}>
+                    <FL>Title</FL>
+                    <FI value={item.title} onChange={e => updItem(item.id, { title: e.target.value })} placeholder="Benefit title" />
+                  </FG>
+                </div>
+                <FG mb={0}>
+                  <FL>Description</FL>
+                  <FTA value={item.description} onChange={e => updItem(item.id, { description: e.target.value })} placeholder="Short description" style={{ minHeight: 44 }} />
+                </FG>
+              </div>
+            )}
+          </div>
+        )
+      })}
+      <AddBtn onClick={addItem} label="Add Benefit" />
+    </>
+  )
+}
+
+// ─── Benefit Icons Row — design editor ───────────────────────────────────────
+// Layout/radius/shadow/spacing/dividers = Free · Custom colors = Pro
+function BenefitIconsRowDesignEditor({ block, theme, plan, onUpdateStyle, onUpdate }: {
+  block: LandingBlock; theme: LandingTheme; plan: Plan
+  onUpdateStyle: (patch: Partial<BlockStyle>) => void
+  onUpdate: (data: Partial<LandingBlock['data']>) => void
+}) {
+  const { t } = useTranslation()
+  const d = block.data as Partial<BenefitIconsRowData>
+  const s = block.style ?? {}
+
+  const hasColorOverrides = !!(s.backgroundColor || s.textColor || s.accentColor || s.elementBackgroundColor || s.borderColor)
+  const colorsOn = s.customColorsEnabled ?? hasColorOverrides
+
+  const sub = (text: string) => (
+    <div style={{ fontSize: 10, fontWeight: 700, color: T.purple, textTransform: 'uppercase' as const, letterSpacing: '.06em', marginBottom: 6, marginTop: 10 }}>{text}</div>
+  )
+
+  const PRESETS: Array<{ name: string; style: Partial<BlockStyle> }> = [
+    { name: '🖤 Dark',   style: { customColorsEnabled: true, backgroundColor: '#0B0B12', textColor: '#ffffff', accentColor: '#FF2D55', elementBackgroundColor: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.10)' } },
+    { name: '☁️ Clean',  style: { customColorsEnabled: true, backgroundColor: '#ffffff', textColor: '#111827', accentColor: '#8b5cf6', elementBackgroundColor: '#f3f4f6',               borderColor: '#e5e7eb'                 } },
+    { name: '🌸 Soft',   style: { customColorsEnabled: true, backgroundColor: '#fff0f8', textColor: '#2d1b2e', accentColor: '#ec3b8e', elementBackgroundColor: '#fce7f3',               borderColor: '#f9a8d4'                 } },
+  ]
+
+  return (
+    <div>
+      {sub('Layout')}
+      <div style={{ display: 'flex', gap: 5, marginBottom: 10 }}>
+        {(['row', 'grid'] as const).map(v => (
+          <button key={v} onClick={() => onUpdate({ layout: v })} style={{
+            flex: 1, padding: '6px 0', borderRadius: 7, cursor: 'pointer', fontSize: 11.5, fontWeight: 600,
+            border: `1.5px solid ${(d.layout ?? 'row') === v ? T.purple : T.border2}`,
+            background: (d.layout ?? 'row') === v ? '#f3effe' : T.card,
+            color: (d.layout ?? 'row') === v ? T.purple : T.ink2,
+          }}>
+            {v === 'row' ? '── Row ──' : '⊞ Grid'}
+          </button>
+        ))}
+      </div>
+
+      <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2, marginBottom: 10 }}>
+        <input type="checkbox" checked={d.showDividers ?? false} onChange={e => onUpdate({ showDividers: e.target.checked })} />
+        Show dividers between items
+      </label>
+
+      {sub(t('editor.predefinedTheme'))}
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+        {PRESETS.map(p => (
+          <button key={p.name} onClick={() => onUpdateStyle(p.style)}
+            style={{ padding: '5px 11px', borderRadius: 8, cursor: 'pointer', fontSize: 11, fontWeight: 600, border: `1.5px solid ${T.border2}`, background: T.card, color: T.ink2, transition: 'border-color .12s' }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = '#c4a9f4')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = T.border2)}
+          >
+            {p.name}
+          </button>
+        ))}
+      </div>
+
+      {sub(t('block.borders'))}
+      <div style={{ marginBottom: 10 }}>
+        <PillGroup
+          options={[{ key: 'square', label: t('editor.square') }, { key: 'soft', label: t('editor.soft') }, { key: 'medium', label: t('editor.medium') }, { key: 'round', label: t('editor.round') }]}
+          value={s.borderRadius}
+          onChange={v => onUpdateStyle({ borderRadius: v as BlockStyle['borderRadius'] })}
+        />
+      </div>
+
+      {sub('Shadow')}
+      <div style={{ marginBottom: 10 }}>
+        <PillGroup
+          options={[{ key: 'none', label: t('block.none') }, { key: 'soft', label: t('block.soft') }, { key: 'medium', label: t('block.medium') }]}
+          value={(d.itemShadow as string | undefined) ?? 'none'}
+          onChange={v => onUpdate({ itemShadow: v ?? 'none' })}
+        />
+      </div>
+
+      {sub(t('block.spacing'))}
+      <div style={{ marginBottom: 4 }}>
+        <PillGroup
+          options={[{ key: 'compact', label: t('block.compact') }, { key: 'normal', label: t('block.normal') }, { key: 'airy', label: t('block.airy') }]}
+          value={s.spacing}
+          onChange={v => onUpdateStyle({ spacing: v as BlockStyle['spacing'] })}
+        />
+      </div>
+
+      <ToggleSection label={t('block.customizeColors')} enabled={colorsOn} onToggle={v => onUpdateStyle({ customColorsEnabled: v })} pro>
+        <ColRow label={t('block.bgBlock')}       value={s.backgroundColor       ?? theme.backgroundColor  ?? '#0B0B12'} overridden={!!s.backgroundColor}       onChange={v => onUpdateStyle({ backgroundColor: v })}       onReset={() => onUpdateStyle({ backgroundColor: undefined })} />
+        <ColRow label={t('block.text')}           value={s.textColor             ?? theme.textColor        ?? '#ffffff'} overridden={!!s.textColor}             onChange={v => onUpdateStyle({ textColor: v })}             onReset={() => onUpdateStyle({ textColor: undefined })} />
+        <ColRow label={t('block.accentBtn')}      value={s.accentColor           ?? theme.primaryColor     ?? '#FF2D55'} overridden={!!s.accentColor}           onChange={v => onUpdateStyle({ accentColor: v })}           onReset={() => onUpdateStyle({ accentColor: undefined })} />
+        <ColRow label={t('block.bgElements')}     value={s.elementBackgroundColor ?? 'rgba(255,255,255,0.08)'} overridden={!!s.elementBackgroundColor} onChange={v => onUpdateStyle({ elementBackgroundColor: v })} onReset={() => onUpdateStyle({ elementBackgroundColor: undefined })} />
+        <ColRow label={t('block.borderElements')} value={s.borderColor           ?? 'rgba(255,255,255,0.12)'} overridden={!!s.borderColor}           onChange={v => onUpdateStyle({ borderColor: v })}           onReset={() => onUpdateStyle({ borderColor: undefined })} />
+      </ToggleSection>
+
+      {Object.keys(s).length > 0 && (
+        <button onClick={() => onUpdateStyle({ customColorsEnabled: undefined, backgroundColor: undefined, textColor: undefined, accentColor: undefined, elementBackgroundColor: undefined, borderColor: undefined, borderRadius: undefined, spacing: undefined })}
+          style={{ marginTop: 4, width: '100%', padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`, background: 'none', color: T.ink3, fontSize: 11, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+          <RotateCcw size={11} />{t('block.resetToTheme')}
+        </button>
+      )}
+    </div>
   )
 }
 

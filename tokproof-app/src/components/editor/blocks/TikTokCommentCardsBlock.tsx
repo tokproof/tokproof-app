@@ -168,16 +168,19 @@ export default function TikTokCommentCardsBlock({ block, theme }: { block: Landi
       {/* Carousel */}
       {comments.length > 0 && layout === 'carousel' && (
         <div className="tcc-scroll" style={{
-          display: 'flex', gap: 12,
+          display: 'flex', gap: 14,
           overflowX: 'auto',
-          paddingLeft: 16, paddingRight: 16, paddingBottom: 8,
+          // paddingRight intentionally omitted — right spacer div handles it
+          paddingLeft: 20, paddingBottom: 8,
           scrollSnapType: 'x mandatory',
+          scrollPaddingLeft: 20,
           WebkitOverflowScrolling: 'touch',
         }}>
           {comments.map(c => (
             <CommentCard key={c.id} comment={c} cardBg={cardBg} textColor={textClr} usernameColor={userClr} metaColor={metaClr} accentColor={accentClr} cardBorder={cardBorder} radius={radius} shadow={shadow} />
           ))}
-          <div style={{ minWidth: 4, flexShrink: 0 }} />
+          {/* Right spacer — ensures last card has trailing space on iOS/Android */}
+          <div style={{ minWidth: 20, flexShrink: 0 }} />
         </div>
       )}
 
