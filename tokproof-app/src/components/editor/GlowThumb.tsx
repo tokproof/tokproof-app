@@ -643,6 +643,73 @@ function BeforeAfterThumb({ size }: { size: ThumbSize }) {
   )
 }
 
+// ─── tiktok_comment_cards ─────────────────────────────────────────────────────
+const TCC_CARDS = [
+  { init: 'GM', bg: '#FF2D55', user: '@glowwithmaria', text: 'WOW. So worth it!! 💕',      likes: '1.8K', verified: true  },
+  { init: 'SA', bg: '#7B61FF', user: '@skinbyalexa',   text: 'My new holy grail ✨',        likes: '1.2K', verified: true  },
+  { init: 'BL', bg: '#0EA5E9', user: '@beautywithlex', text: 'Everyone needs this 🔥',      likes: '987',  verified: false },
+]
+
+function TikTokCommentCardsThumb({ size }: { size: ThumbSize }) {
+  if (size === 'popover') return (
+    <div style={W('100%', 140, 12, '#0B0B12', { padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 6 })}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 2 }}>
+        <svg width={11} height={11} viewBox="0 0 24 24" fill="#FF2D55">
+          <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.73a4.85 4.85 0 01-1.01-.04z"/>
+        </svg>
+        <span style={{ fontSize: 9, fontWeight: 800, color: '#fff' }}>TikTok Can't Get Enough</span>
+      </div>
+      {/* Cards row */}
+      <div style={{ display: 'flex', gap: 6, overflowX: 'hidden' }}>
+        {TCC_CARDS.map((c, i) => (
+          <div key={i} style={{ minWidth: 76, background: '#1a1a22', borderRadius: 7, padding: '6px 7px', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 14, height: 14, borderRadius: '50%', background: c.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span style={{ color: '#fff', fontSize: 5, fontWeight: 700 }}>{c.init}</span>
+              </div>
+              <span style={{ fontSize: 6.5, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{c.user}</span>
+              {c.verified && <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#20d5ec', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ color: '#fff', fontSize: 4, fontWeight: 900 }}>✓</span></div>}
+            </div>
+            <p style={{ margin: 0, fontSize: 7.5, color: 'rgba(255,255,255,0.88)', lineHeight: 1.3 }}>{c.text}</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+              <span style={{ fontSize: 7, color: '#FF2D55' }}>♥</span>
+              <span style={{ fontSize: 6.5, color: 'rgba(255,255,255,0.5)' }}>{c.likes}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  const [w, h] = size === 'card' ? [52, 78] : [40, 56]
+  return (
+    <div style={W(w, h, 8, '#0B0B12', { padding: '4px 5px', display: 'flex', flexDirection: 'column', gap: 2 })}>
+      {/* Title row */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 1 }}>
+        <div style={{ width: 5, height: 5, background: '#FF2D55', borderRadius: 1 }} />
+        <div style={{ height: 2.5, borderRadius: 1, background: 'rgba(255,255,255,0.8)', width: '65%' }} />
+      </div>
+      {/* Mini cards */}
+      <div style={{ display: 'flex', gap: 2.5, flex: 1 }}>
+        {TCC_CARDS.slice(0, size === 'card' ? 3 : 2).map((c, i) => (
+          <div key={i} style={{ flex: 1, background: '#1a1a22', borderRadius: 4, padding: '3px', border: '1px solid rgba(255,255,255,0.10)', display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <div style={{ width: size === 'card' ? 8 : 7, height: size === 'card' ? 8 : 7, borderRadius: '50%', background: c.bg, flexShrink: 0 }} />
+              <div style={{ height: 2, borderRadius: 1, background: 'rgba(255,255,255,0.7)', flex: 1 }} />
+            </div>
+            <div style={{ height: 2, borderRadius: 1, background: 'rgba(255,255,255,0.4)', width: '90%' }} />
+            <div style={{ height: 2, borderRadius: 1, background: 'rgba(255,255,255,0.35)', width: '70%' }} />
+            <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <div style={{ width: 3, height: 3, borderRadius: '50%', background: '#FF2D55' }} />
+              <div style={{ height: 2, borderRadius: 1, background: 'rgba(255,255,255,0.3)', width: 10 }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ─── Generic fallback ─────────────────────────────────────────────────────────
 function GenericThumb({ size }: { size: ThumbSize }) {
   const [w, h] = size === 'popover' ? [300, 140] : size === 'card' ? [52, 78] : [40, 56]
@@ -667,7 +734,8 @@ export function GlowThumb({ type, size = 'card' }: { type: string; size?: ThumbS
     case 'featured_product':    return <FeaturedProductThumb size={size} />
     case 'partner_discounts':   return <PartnerDiscountsThumb size={size} />
     case 'tiktok_comments':     return <TikTokCommentsThumb   size={size} />
-    case 'before_after':        return <BeforeAfterThumb      size={size} />
-    default:                    return <GenericThumb size={size} />
+    case 'before_after':          return <BeforeAfterThumb          size={size} />
+    case 'tiktok_comment_cards':  return <TikTokCommentCardsThumb   size={size} />
+    default:                      return <GenericThumb size={size} />
   }
 }

@@ -42,6 +42,8 @@ import type {
   TikTokComment,
   TikTokReply,
   TikTokCommentsColors,
+  TikTokCommentCardsData,
+  TikTokCommentCard,
 } from '@/types/landing'
 import { FONT_OPTIONS } from '@/lib/blockStyle'
 
@@ -80,6 +82,7 @@ const BLOCKS_CATALOG: CatalogEntry[] = [
   { type: 'video_featured', label: 'YouTube Featured',     tag: 'soon', desc: 'Video de YouTube incrustado en la página.' },
   { type: 'partner_discounts', label: 'Partner Discounts', tag: 'free', desc: 'Muestra códigos de descuento y ofertas exclusivas de tus partners.', defaultData: { title: 'Descuentos de nuestros partners', subtitle: 'Ahorra en tus marcas favoritas con códigos exclusivos. 🎁', badgeText: '♦ Ofertas exclusivas', footerText: 'Nuevas ofertas cada semana', layout: 'compact', showLogos: true, showDescriptions: false, showCopyButton: true, showExternalButton: true, showFooterText: true, discounts: [{ id: 'pd1', brandName: 'Gymshark', storeUrl: 'https://gymshark.com', logoUrl: '', description: 'En toda la tienda.', discountText: '15% OFF', code: 'GYM15', buttonText: 'Ver oferta', buttonUrl: 'https://gymshark.com', isPopular: true, enabled: true }, { id: 'pd2', brandName: 'LSKD', storeUrl: 'https://lskd.co', logoUrl: '', description: 'En pedidos superiores a $100.', discountText: '20% OFF', code: 'LSKD20', buttonText: 'Ver oferta', buttonUrl: 'https://lskd.co', isPopular: false, enabled: true }, { id: 'pd3', brandName: 'Alo Yoga', storeUrl: 'https://aloyoga.com', logoUrl: '', description: 'En toda la tienda.', discountText: '10% OFF', code: 'ALO10', buttonText: 'Ver oferta', buttonUrl: 'https://aloyoga.com', isPopular: false, enabled: true }] } },
   { type: 'tiktok_comments', label: 'TikTok Comments', tag: 'free', desc: 'Comentarios estilo TikTok para generar confianza y conversiones.', defaultData: { title: '', subtitle: '', badgeText: '', showTitle: false, showSubtitle: false, showBadge: false, layout: 'feed', comments: [{ id: 'tc1', avatarUrl: '', username: 'Tri G🌸🥰👣', verified: true, text: 'Quiero ver donde le entregan el pan🥰', imageUrl: '', likes: '13', date: '3 h', replyItems: [{ id: 'r1a', avatarUrl: '', username: 'GlowSkin Oficial 💗', verified: true, text: '¡Entregamos en toda España! Usa el código TIKTOK para un 15% off 📦', likes: '7', date: '2 h' }], showReply: true, showLikes: true, showReplies: true }, { id: 'tc2', avatarUrl: '', username: 'Mira que bonito', verified: false, text: 'Mira que bonito se le ven esos zapatitoosss', imageUrl: '', likes: '24.7 mil', date: '1 d', replyItems: [{ id: 'r2a', avatarUrl: '', username: 'Fashionista 💅', verified: false, text: 'Jajaja exactamente lo que yo dije!!', likes: '127', date: '22 h' }, { id: 'r2b', avatarUrl: '', username: 'Laura M.', verified: false, text: 'Son divinos 😍 yo ya los pedí', likes: '38', date: '1 d' }], showReply: true, showLikes: true, showReplies: true }, { id: 'tc3', avatarUrl: '', username: 'Antoni ⺣', verified: false, text: 'Necesito uno para mi michi 🤣', imageUrl: '', likes: '824', date: '2 d', replyItems: [], showReply: true, showLikes: true, showReplies: false }], showArrows: true, showDots: true, autoplay: false, autoplaySpeed: 3, borderRadius: 'soft', shadowIntensity: 'soft', spacing: 'normal' } },
+  { type: 'tiktok_comment_cards', label: 'TikTok Comment Cards', tag: 'free', desc: 'Cards de comentarios TikTok con scroll horizontal en móvil.', defaultData: { title: "TikTok Can't Get Enough", showTitle: true, showTikTokIcon: true, layout: 'carousel', comments: [{ id: 'tcc1', enabled: true, avatarUrl: '', username: '@glowwithmaria', text: "I was skeptical but WOW. So worth it!! 💕", timeAgo: '1w ago', likes: '1.8K', verified: true }, { id: 'tcc2', enabled: true, avatarUrl: '', username: '@skinbyalexa', text: "The glow is unmatched ✨ My new holy grail.", timeAgo: '5d ago', likes: '1.2K', verified: true }, { id: 'tcc3', enabled: true, avatarUrl: '', username: '@beautywithlex', text: "Everyone needs this in their routine 🔥", timeAgo: '3d ago', likes: '987', verified: true }] } },
   { type: 'before_after', label: 'Before / After', tag: 'free', desc: 'Muestra transformaciones reales antes y después.', defaultData: { title: 'Resultados que puedes ver', subtitle: 'Mira la diferencia real después de usar nuestro producto.', badgeText: 'Transformación real', mode: 'cards', beforeImageUrl: '', afterImageUrl: '', beforeLabel: 'Antes', afterLabel: 'Después', beforeDescription: 'Cabello seco, sin brillo y con frizz.', afterDescription: 'Cabello hidratado, brillante y saludable.', showBadge: true, showSubtitle: true, showDescriptions: true, showCTA: false, buttonText: 'Ver producto', buttonUrl: 'https://tutienda.com/producto', borderRadius: 'soft', shadowIntensity: 'soft' } },
 ]
 
@@ -171,6 +174,7 @@ const CATALOG_DESC_LONG: Record<string, string> = {
   partner_discounts: 'Muestra códigos de descuento y ofertas exclusivas de tus partners. Ideal para afiliados, e-commerce e influencers.',
   before_after: 'Enseña el impacto visual de tu producto con un bloque antes/después. Modo Cards (Free) o Slider interactivo (Pro).',
   tiktok_comments: 'Feed de comentarios auténticos al estilo TikTok. Genera más confianza que los testimonios clásicos. Feed vertical (Free) o Carousel (Pro).',
+  tiktok_comment_cards: 'Cards de comentarios estilo TikTok. Scroll horizontal en móvil, grid en escritorio. No parece Trustpilot — parece una extensión natural de TikTok.',
 }
 const CATALOG_IDEAL: Record<string, string[]> = {
   hero_product:   ['E-commerce', 'Marcas', 'Dropshipping'],
@@ -191,6 +195,7 @@ const CATALOG_IDEAL: Record<string, string[]> = {
   partner_discounts: ['E-commerce', 'Afiliados', 'Creadores', 'Fitness', 'Beauty'],
   before_after: ['Beauty', 'Hair care', 'Skincare', 'Fitness', 'E-commerce'],
   tiktok_comments: ['Beauty', 'E-commerce', 'Ropa', 'Mascotas', 'Viral'],
+  tiktok_comment_cards: ['E-commerce', 'Beauty', 'Viral', 'Social'],
 }
 
 function BlockPreviewPopover({ entry, top, left, onClose, onAdd, onMouseEnter, onMouseLeave, plan, onUpgrade }: {
@@ -320,7 +325,8 @@ const BLOCK_LUCIDE: Record<string, React.ElementType> = {
   featured_product:   Package,
   partner_discounts:  Gift,
   before_after:       Layers,
-  tiktok_comments:    MessageCircle,
+  tiktok_comments:       MessageCircle,
+  tiktok_comment_cards:  MessageCircle,
 }
 const ACCENT = ['#F647A9', '#8B5CF6'] // rosa, lila — alternan por índice
 
@@ -347,6 +353,7 @@ const BLOCK_CATEGORIES: Array<{ label: string; blocks: BlockDef[] }> = [
       { type: 'comparison',    label: 'Comparativa',        isPremium: true,  defaultData: { title: 'Por qué elegirnos', leftTitle: 'Otros', rightTitle: 'Nosotros', rows: [{ id: 'cr1', label: 'Calidad', leftValue: 'Media', rightValue: 'Premium', winner: 'right' }, { id: 'cr2', label: 'Precio', leftValue: 'Caro', rightValue: 'Justo', winner: 'right' }, { id: 'cr3', label: 'Soporte', leftValue: 'Limitado', rightValue: '24/7', winner: 'right' }] } },
       { type: 'urgency_offer',    label: 'Urgencia / Oferta',  isPremium: true, defaultData: { title: '¡Oferta limitada!', description: 'Solo por tiempo limitado.', badgeText: '🔥 Agotándose', countdownEnabled: false, countdownText: 'Quedan 2 horas', ctaText: '🛒 Aprovechar oferta', ctaUrl: '' } },
       { type: 'partner_discounts', label: 'Partner Discounts', defaultData: { title: 'Descuentos de nuestros partners', subtitle: 'Ahorra en tus marcas favoritas con códigos exclusivos. 🎁', badgeText: '♦ Ofertas exclusivas', footerText: 'Nuevas ofertas cada semana', layout: 'compact', showLogos: true, showDescriptions: false, showCopyButton: true, showExternalButton: true, showFooterText: true, discounts: [{ id: 'pd1', brandName: 'Gymshark', storeUrl: 'https://gymshark.com', logoUrl: '', description: 'En toda la tienda.', discountText: '15% OFF', code: 'GYM15', buttonText: 'Ver oferta', buttonUrl: 'https://gymshark.com', isPopular: true, enabled: true }] } },
+      { type: 'tiktok_comment_cards', label: 'TikTok Comment Cards', defaultData: { title: "TikTok Can't Get Enough", showTitle: true, showTikTokIcon: true, layout: 'carousel', comments: [{ id: 'tcc1', enabled: true, avatarUrl: '', username: '@glowwithmaria', text: "I was skeptical but WOW. So worth it!! 💕", timeAgo: '1w ago', likes: '1.8K', verified: true }, { id: 'tcc2', enabled: true, avatarUrl: '', username: '@skinbyalexa', text: "The glow is unmatched ✨ My new holy grail.", timeAgo: '5d ago', likes: '1.2K', verified: true }, { id: 'tcc3', enabled: true, avatarUrl: '', username: '@beautywithlex', text: "Everyone needs this in their routine 🔥", timeAgo: '3d ago', likes: '987', verified: true }] } },
     ],
   },
   {
@@ -484,6 +491,11 @@ function SortableItem({
               plan={plan}
               userId={userId}
               pageId={pageId}
+            />
+          ) : block.type === 'tiktok_comment_cards' ? (
+            <TikTokCommentCardsEditor
+              block={block}
+              onUpdate={(data) => onUpdateBlock(block.id, data)}
             />
           ) : (
             <>
@@ -729,9 +741,10 @@ function BlockEditor({ block, onUpdate, plan, userId, pageId }: {
     case 'urgency_offer':    return <UrgencyOfferEditor    block={block} onUpdate={onUpdate} />
     case 'footer_legal':     return <FooterLegalEditor     block={block} onUpdate={onUpdate} />
     case 'featured_product':  return <FeaturedProductEditor  block={block} onUpdate={onUpdate} plan={plan} userId={userId} pageId={pageId} />
-    case 'partner_discounts': return null
-    case 'before_after':      return null
-    case 'tiktok_comments':   return null
+    case 'partner_discounts':      return null
+    case 'before_after':           return null
+    case 'tiktok_comments':        return null
+    case 'tiktok_comment_cards':   return null
     default:
       return <p style={{ fontSize: 11, color: T.ink3, fontStyle: 'italic' }}>{t('block.editorComingSoon')}</p>
   }
@@ -2356,6 +2369,235 @@ function BeforeAfterEditor({ block, onUpdate, plan, userId, pageId }: {
         />
       )}
     </>
+  )
+}
+
+// ─── TikTok Comment Cards editor ─────────────────────────────────────────────
+function TikTokCommentCardsEditor({ block, onUpdate }: {
+  block: LandingBlock
+  onUpdate: (data: Partial<LandingBlock['data']>) => void
+}) {
+  const { t } = useTranslation()
+  const d = block.data as unknown as TikTokCommentCardsData
+  const comments = d.comments ?? []
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [styleOpen, setStyleOpen]   = useState(false)
+
+  function updComment(id: string, patch: Partial<TikTokCommentCard>) {
+    onUpdate({ comments: comments.map(c => c.id === id ? { ...c, ...patch } : c) })
+  }
+
+  function addComment() {
+    const newId = `tcc_${Date.now()}`
+    onUpdate({ comments: [...comments, { id: newId, enabled: true, avatarUrl: '', username: '@newuser', text: 'Amazing product! ✨', timeAgo: '1d ago', likes: '100', verified: false }] })
+    setExpandedId(newId)
+  }
+
+  function deleteComment(id: string) {
+    onUpdate({ comments: comments.filter(c => c.id !== id) })
+    if (expandedId === id) setExpandedId(null)
+  }
+
+  function duplicateComment(id: string) {
+    const src = comments.find(c => c.id === id)
+    if (!src) return
+    const idx = comments.findIndex(c => c.id === id)
+    const newId = `${id}_${Date.now()}`
+    const copy: TikTokCommentCard = { ...src, id: newId }
+    const next = [...comments]
+    next.splice(idx + 1, 0, copy)
+    onUpdate({ comments: next })
+    setExpandedId(newId)
+  }
+
+  const sub = (text: string) => (
+    <div style={{ fontSize: 10, fontWeight: 700, color: T.purple, textTransform: 'uppercase' as const, letterSpacing: '.06em', marginBottom: 6, marginTop: 10 }}>{text}</div>
+  )
+
+  return (
+    <div>
+      {/* ── Section settings ── */}
+      <div style={{ borderBottom: `1px solid ${T.border}`, padding: '10px 14px 12px', background: T.card }}>
+        {sub('Section Settings')}
+        <FG mb={8}>
+          <FL>Title</FL>
+          <FI value={d.title ?? ''} onChange={e => onUpdate({ title: e.target.value })} placeholder="TikTok Can't Get Enough" />
+        </FG>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
+            <input type="checkbox" checked={d.showTitle ?? true} onChange={e => onUpdate({ showTitle: e.target.checked })} />
+            Show Section Title
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
+            <input type="checkbox" checked={d.showTikTokIcon ?? true} onChange={e => onUpdate({ showTikTokIcon: e.target.checked })} />
+            Show TikTok Icon
+          </label>
+        </div>
+        <div style={{ marginTop: 10 }}>
+          <FL>Layout</FL>
+          <div style={{ display: 'flex', gap: 5 }}>
+            {(['carousel', 'grid'] as const).map(v => (
+              <button key={v} onClick={() => onUpdate({ layout: v })} style={{
+                flex: 1, padding: '6px 0', borderRadius: 7, cursor: 'pointer', fontSize: 11.5, fontWeight: 600, border: `1.5px solid ${d.layout === v ? T.purple : T.border2}`,
+                background: d.layout === v ? '#f3effe' : T.card, color: d.layout === v ? T.purple : T.ink2,
+              }}>
+                {v === 'carousel' ? '← Carousel →' : '⊞ Grid'}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Comments ── */}
+      <div style={{ padding: '10px 14px 6px' }}>
+        {sub(`Comments · ${comments.length}`)}
+        {comments.map(c => {
+          const isOpen = expandedId === c.id
+          const bg = c.avatarUrl ? 'transparent' : ['#FF2D55','#7B61FF','#0EA5E9','#10B981'][c.username.charCodeAt(0) % 4] ?? '#FF2D55'
+          const initials = c.username.replace(/^@/, '').slice(0, 2).toUpperCase() || '?'
+          return (
+            <div key={c.id} style={{
+              marginBottom: 6, borderRadius: 10, overflow: 'hidden',
+              border: `1px solid ${isOpen ? '#c4a9f4' : T.border2}`,
+              background: T.card,
+              opacity: c.enabled ? 1 : 0.55,
+            }}>
+              {/* Card header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px' }}>
+                <div style={{ width: 24, height: 24, borderRadius: '50%', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  {c.avatarUrl
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={c.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                    : <span style={{ color: '#fff', fontSize: 8, fontWeight: 700 }}>{initials}</span>
+                  }
+                </div>
+                <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: T.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {c.username}
+                </span>
+                {/* Toggle enabled */}
+                <button onClick={() => updComment(c.id, { enabled: !c.enabled })} style={{ width: 26, height: 26, borderRadius: 6, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}>
+                  {c.enabled ? <Eye size={13} /> : <EyeOff size={13} />}
+                </button>
+                {/* Duplicate */}
+                <button onClick={() => duplicateComment(c.id)} style={{ width: 26, height: 26, borderRadius: 6, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}>
+                  <Copy size={13} />
+                </button>
+                {/* Delete */}
+                <button onClick={() => deleteComment(c.id)} style={{ width: 26, height: 26, borderRadius: 6, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.red }}>
+                  <Trash2 size={13} />
+                </button>
+                {/* Expand */}
+                <ChevronDown size={13} color={T.ink3}
+                  style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform .18s', cursor: 'pointer', flexShrink: 0 }}
+                  onClick={() => setExpandedId(isOpen ? null : c.id)}
+                />
+              </div>
+
+              {/* Card body */}
+              {isOpen && (
+                <div style={{ padding: '0 10px 10px', borderTop: `1px solid ${T.border}` }}>
+                  <FG mb={7} style={{ marginTop: 8 }}>
+                    <FL>Username</FL>
+                    <FI value={c.username} onChange={e => updComment(c.id, { username: e.target.value })} placeholder="@username" />
+                  </FG>
+                  <FG mb={7}>
+                    <FL>Comment</FL>
+                    <FTA value={c.text} onChange={e => updComment(c.id, { text: e.target.value })} placeholder="Amazing product! ✨" style={{ minHeight: 56 }} />
+                  </FG>
+                  <div style={{ display: 'flex', gap: 7 }}>
+                    <FG mb={7} style={{ flex: 1 }}>
+                      <FL>Time ago</FL>
+                      <FI value={c.timeAgo} onChange={e => updComment(c.id, { timeAgo: e.target.value })} placeholder="1w ago" />
+                    </FG>
+                    <FG mb={7} style={{ flex: 1 }}>
+                      <FL>Likes</FL>
+                      <FI value={c.likes} onChange={e => updComment(c.id, { likes: e.target.value })} placeholder="1.8K" />
+                    </FG>
+                  </div>
+                  <FG mb={0}>
+                    <FL>Avatar URL (optional)</FL>
+                    <FI value={c.avatarUrl ?? ''} onChange={e => updComment(c.id, { avatarUrl: e.target.value })} placeholder="https://..." type="url" />
+                  </FG>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
+                    <input type="checkbox" checked={c.verified} onChange={e => updComment(c.id, { verified: e.target.checked })} />
+                    Verified badge ✓
+                  </label>
+                </div>
+              )}
+            </div>
+          )
+        })}
+
+        <AddBtn onClick={addComment} label="Add Comment" />
+      </div>
+
+      {/* ── Style ── */}
+      <div style={{ borderTop: `1px solid ${T.border}`, margin: '4px 0' }}>
+        <button onClick={() => setStyleOpen(s => !s)} style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '9px 14px', border: 'none', background: 'none', cursor: 'pointer', fontSize: 11.5, fontWeight: 600, color: T.ink2,
+        }}>
+          <span>Style</span>
+          <ChevronDown size={13} color={T.ink3} style={{ transform: styleOpen ? 'rotate(180deg)' : 'none', transition: 'transform .18s' }} />
+        </button>
+        {styleOpen && (
+          <div style={{ padding: '0 14px 14px' }}>
+            {sub('Colors')}
+            {([
+              ['Section Background', 'sectionBackground', '#0B0B12'],
+              ['Title Color',        'titleColor',        '#ffffff'],
+              ['Accent Color',       'accentColor',       '#FF2D55'],
+              ['Card Background',    'cardBackground',    '#1a1a22'],
+              ['Card Text',          'cardTextColor',     '#ffffff'],
+              ['Username Color',     'usernameColor',     '#ffffff'],
+              ['Meta Color',         'metaColor',         'rgba(255,255,255,0.5)'],
+            ] as [string, keyof TikTokCommentCardsData, string][]).map(([label, key, def]) => (
+              <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
+                <input type="color"
+                  value={((d[key] as string | undefined) ?? def).startsWith('#') ? ((d[key] as string | undefined) ?? def) : '#1F1F22'}
+                  onChange={e => onUpdate({ [key]: e.target.value })}
+                  style={{ width: 26, height: 26, border: 'none', borderRadius: 6, cursor: 'pointer', padding: 2, background: 'none', flexShrink: 0 }}
+                />
+                <span style={{ flex: 1, fontSize: 11.5, color: T.ink2 }}>{label}</span>
+              </div>
+            ))}
+            {sub('Card Shape')}
+            <div style={{ display: 'flex', gap: 4 }}>
+              {(['square', 'soft', 'medium', 'round'] as const).map(v => (
+                <button key={v} onClick={() => onUpdate({ cardRadius: v })} style={{
+                  flex: 1, padding: '5px 0', borderRadius: 6, cursor: 'pointer', fontSize: 10, fontWeight: 600,
+                  border: `1.5px solid ${d.cardRadius === v ? T.purple : T.border2}`,
+                  background: d.cardRadius === v ? '#f3effe' : T.card,
+                  color: d.cardRadius === v ? T.purple : T.ink2,
+                }}>{v}</button>
+              ))}
+            </div>
+            {sub('Card Shadow')}
+            <div style={{ display: 'flex', gap: 4 }}>
+              {(['none', 'soft', 'medium', 'strong'] as const).map(v => (
+                <button key={v} onClick={() => onUpdate({ cardShadow: v })} style={{
+                  flex: 1, padding: '5px 0', borderRadius: 6, cursor: 'pointer', fontSize: 10, fontWeight: 600,
+                  border: `1.5px solid ${d.cardShadow === v ? T.purple : T.border2}`,
+                  background: d.cardShadow === v ? '#f3effe' : T.card,
+                  color: d.cardShadow === v ? T.purple : T.ink2,
+                }}>{v}</button>
+              ))}
+            </div>
+            {sub('Section Spacing')}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <FG style={{ flex: 1, marginBottom: 0 }}>
+                <FL>Top (px)</FL>
+                <FI type="number" value={d.spacingTop ?? 28} onChange={e => onUpdate({ spacingTop: Number(e.target.value) })} style={{ textAlign: 'center' }} />
+              </FG>
+              <FG style={{ flex: 1, marginBottom: 0 }}>
+                <FL>Bottom (px)</FL>
+                <FI type="number" value={d.spacingBottom ?? 28} onChange={e => onUpdate({ spacingBottom: Number(e.target.value) })} style={{ textAlign: 'center' }} />
+              </FG>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 

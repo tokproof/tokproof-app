@@ -146,6 +146,21 @@ const CATALOG: CatalogBlock[] = [
     },
   },
   {
+    type: 'tiktok_comment_cards', label: 'TikTok Comment Cards', tag: 'free',
+    desc: 'Cards de comentarios TikTok con scroll horizontal en móvil.',
+    long: 'Muestra comentarios estilo TikTok en cards horizontales. Scroll natural en móvil, grid en escritorio. No parece Trustpilot — parece una extensión de TikTok.',
+    ideal: ['E-commerce', 'Beauty', 'Viral', 'Social'],
+    defaultData: {
+      title: "TikTok Can't Get Enough",
+      showTitle: true, showTikTokIcon: true, layout: 'carousel',
+      comments: [
+        { id: 'tcc1', enabled: true, avatarUrl: '', username: '@glowwithmaria',  text: "I was skeptical but WOW. So worth it!! 💕",          timeAgo: '1w ago', likes: '1.8K', verified: true  },
+        { id: 'tcc2', enabled: true, avatarUrl: '', username: '@skinbyalexa',    text: "The glow is unmatched ✨ My new holy grail.",          timeAgo: '5d ago', likes: '1.2K', verified: true  },
+        { id: 'tcc3', enabled: true, avatarUrl: '', username: '@beautywithlex',  text: "Everyone needs this in their routine 🔥",              timeAgo: '3d ago', likes: '987',  verified: true  },
+      ],
+    },
+  },
+  {
     type: 'before_after', label: 'Before / After', tag: 'free',
     desc: 'Muestra transformaciones reales antes y después.',
     long: 'Enseña el impacto visual de tu producto con un bloque antes/después. Ideal para beauty, hair care, skincare, fitness y más.',

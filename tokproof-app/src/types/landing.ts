@@ -24,6 +24,7 @@ export type BlockType =
   | 'hero_product'
   | 'benefits'
   | 'tiktok_comments'
+  | 'tiktok_comment_cards'
   | 'reviews'
   | 'faq'
   | 'cta'
@@ -372,6 +373,38 @@ export interface FooterLegalData {
   termsUrl: string
   showTokproofBranding: boolean
   legalText?: string
+}
+
+// ─── TikTok Comment Cards ─────────────────────────────────────────────────────
+export interface TikTokCommentCard {
+  id: string
+  enabled: boolean
+  avatarUrl: string
+  username: string
+  text: string
+  timeAgo: string
+  likes: string
+  verified: boolean
+}
+
+export interface TikTokCommentCardsData {
+  title: string
+  showTitle: boolean
+  showTikTokIcon: boolean
+  layout: 'carousel' | 'grid'
+  comments: TikTokCommentCard[]
+  // Style overrides
+  sectionBackground?: string
+  titleColor?: string
+  accentColor?: string
+  cardBackground?: string
+  cardTextColor?: string
+  usernameColor?: string
+  metaColor?: string
+  cardRadius?: 'square' | 'soft' | 'medium' | 'round'
+  cardShadow?: 'none' | 'soft' | 'medium' | 'strong'
+  spacingTop?: number
+  spacingBottom?: number
 }
 
 // ─── Simple Page / Creator Page ──────────────────────────────────────────────
