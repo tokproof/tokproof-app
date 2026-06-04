@@ -13,6 +13,7 @@ import {
 import { arrayMove } from '@dnd-kit/sortable'
 import type { LandingConfig, LandingBlock, LandingTheme, LandingSettings, BlockStyle, TrafficSource } from '@/types/landing'
 import { makeDefaultConfig, makeDefaultBlocks } from '@/types/landing'
+import { getTemplateConfig } from '@/lib/templateConfigs'
 import TrafficSourcesSection from '@/components/editor/TrafficSourcesSection'
 import { FONT_OPTIONS, getPageBackground } from '@/lib/blockStyle'
 import { getPublicPageUrl, getPublicPageDisplay } from '@/lib/urls'
@@ -159,11 +160,26 @@ function ColorRow({ label, value, onChange }: { label: string; value: string; on
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function pageToLandingConfig(data: FullPage): LandingConfig {
+  const pageSettings = data.page.settings as Record<string, unknown>
+
   // If the page already has a saved landingConfig, restore it
-  const saved = (data.page.settings as Record<string, unknown>)?._landingConfig
+  const saved = pageSettings?._landingConfig
   if (saved && typeof saved === 'object' && 'blocks' in saved) {
     return saved as LandingConfig
   }
+
+  // If the page was created from a template, apply its config
+  const templateId = pageSettings?._templateId as string | undefined
+  if (templateId) {
+    const tmplConfig = getTemplateConfig(templateId, {
+      id: data.page.id,
+      title: data.page.title ?? undefined,
+      slug: data.page.username ?? undefined,
+      status: (data.page.status as 'draft' | 'published') ?? 'draft',
+    })
+    if (tmplConfig) return tmplConfig
+  }
+
   // Otherwise bootstrap a default from the legacy settings
   return makeDefaultConfig({
     id: data.page.id,
