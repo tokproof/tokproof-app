@@ -550,7 +550,6 @@ export function makeDefaultBlocks(): LandingBlock[] {
       type: 'hero_product',
       label: 'Hero del producto',
       visible: true,
-      locked: true,
       data: {
         headline: 'El producto que todos en TikTok están buscando',
         subheadline: 'Fórmula con Vitamina C + Ácido Hialurónico',
@@ -594,7 +593,6 @@ export function makeDefaultBlocks(): LandingBlock[] {
       type: 'cta',
       label: 'Botón principal',
       visible: true,
-      locked: true,
       data: {
         text: '🛒 Ver producto oficial',
         subtext: '🔒 Página oficial del producto',

@@ -444,10 +444,10 @@ function SortableItem({
           <IconBtn title={block.visible ? t('block.hide') : t('block.show')} onClick={() => onToggleVisibility(block.id)}>
             {block.visible ? <Eye size={14} /> : <EyeOff size={14} />}
           </IconBtn>
-          <IconBtn title={t('block.duplicate')} onClick={() => onDuplicate(block.id)} disabled={!!block.locked}>
+          <IconBtn title={t('block.duplicate')} onClick={() => onDuplicate(block.id)}>
             <Copy size={13} />
           </IconBtn>
-          <IconBtn title={t('block.delete')} onClick={() => onDelete(block.id)} disabled={!!block.locked} danger>
+          <IconBtn title={t('block.delete')} onClick={() => onDelete(block.id)} danger>
             <Trash2 size={13} />
           </IconBtn>
           <ChevronDown size={13} color={T.ink3}
@@ -716,7 +716,7 @@ function BlockEditor({ block, onUpdate, plan, userId, pageId }: {
 }) {
   const { t } = useTranslation()
   switch (block.type) {
-    case 'hero_product':   return <HeroEditor       block={block} onUpdate={onUpdate} />
+    case 'hero_product':   return <HeroEditor       block={block} onUpdate={onUpdate} userId={userId} pageId={pageId} plan={plan} />
     case 'benefits':       return <BenefitsEditor   block={block} onUpdate={onUpdate} />
     case 'link_list':      return <LinkListEditor   block={block} onUpdate={onUpdate} />
     case 'faq':            return <FAQEditor        block={block} onUpdate={onUpdate} />
@@ -738,7 +738,13 @@ function BlockEditor({ block, onUpdate, plan, userId, pageId }: {
 }
 
 // ─── Hero editor ──────────────────────────────────────────────────────────────
-function HeroEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Partial<LandingBlock['data']>) => void }) {
+function HeroEditor({ block, onUpdate, userId, pageId, plan = 'free' }: {
+  block: LandingBlock
+  onUpdate: (d: Partial<LandingBlock['data']>) => void
+  userId?: string
+  pageId?: string
+  plan?: Plan
+}) {
   const { t } = useTranslation()
   const d = block.data as unknown as HeroProductData
   const [mediaTab, setMediaTab] = useState<'extract' | 'image' | 'video' | 'url'>('extract')
@@ -761,7 +767,8 @@ function HeroEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Pa
     finally { setExtracting(false) }
   }
 
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') {
+  // Only used for video — images now go through ImageUploadField
+  async function handleVideoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
     let url: string | null = null
@@ -771,12 +778,13 @@ function HeroEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Pa
       const path = `hero-media/${Date.now()}_${file.name.replace(/\s+/g, '_')}`
       const { error } = await sb.storage.from('uploads').upload(path, file)
       if (!error) url = sb.storage.from('uploads').getPublicUrl(path).data.publicUrl
-    } catch { /* fallback below */ }
+    } catch { /* fallback */ }
     const finalUrl = url ?? URL.createObjectURL(file)
-    onUpdate({ media: { type, url: finalUrl, source: 'upload' } as HeroMedia, ...(type === 'image' ? { imageUrl: finalUrl } : {}) })
+    onUpdate({ media: { type: 'video', url: finalUrl, source: 'upload' } as HeroMedia })
   }
 
   const currentMedia = d.media?.url ?? d.imageUrl
+  const currentImageUrl = d.media?.type !== 'video' ? (d.media?.url ?? d.imageUrl ?? '') : ''
 
   return (
     <>
@@ -788,14 +796,13 @@ function HeroEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Pa
       <div style={{ marginTop: 4, paddingTop: 12, borderTop: `1px solid ${T.border}` }}>
         <FL>{t('block.field.imageOrVideo')}</FL>
 
-        {/* Current preview */}
-        {currentMedia && (
+        {/* Video preview (images handled by ImageUploadField below) */}
+        {d.media?.type === 'video' && currentMedia && (
           <div style={{ marginBottom: 8, borderRadius: 8, overflow: 'hidden', border: `1px solid ${T.border2}` }}>
-            {d.media?.type === 'video'
-              ? <video src={currentMedia} controls muted playsInline style={{ width: '100%', maxHeight: 110, display: 'block' }} />
-              // eslint-disable-next-line @next/next/no-img-element
-              : <img src={currentMedia} alt="" style={{ width: '100%', maxHeight: 110, objectFit: 'cover', display: 'block' }} />
-            }
+            <video src={currentMedia} controls muted playsInline style={{ width: '100%', maxHeight: 110, display: 'block' }} />
+            <button onClick={() => onUpdate({ media: undefined, imageUrl: '' })} style={{ width: '100%', padding: '5px 0', border: 'none', borderTop: `1px solid ${T.redBorder}`, background: T.redBg, color: T.red, fontSize: 11, cursor: 'pointer' }}>
+              {t('block.field.removeMedia')}
+            </button>
           </div>
         )}
 
@@ -816,6 +823,7 @@ function HeroEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Pa
           ))}
         </div>
 
+        {/* Extract from URL */}
         {mediaTab === 'extract' && (
           <div>
             <FI value={extractUrl} onChange={e => setExtractUrl(e.target.value)} placeholder="https://tuproducto.com/..." style={{ marginBottom: 6 }} />
@@ -826,20 +834,44 @@ function HeroEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Pa
           </div>
         )}
 
-        {mediaTab === 'image' && (
+        {/* Image upload — uses ImageUploadField for tracking + limits */}
+        {mediaTab === 'image' && userId && (
+          <ImageUploadField
+            value={currentImageUrl}
+            onChange={url => {
+              if (url) {
+                onUpdate({ media: { type: 'image', url, source: 'upload' } as HeroMedia, imageUrl: url })
+              } else {
+                onUpdate({ media: undefined, imageUrl: '' })
+              }
+            }}
+            userId={userId}
+            pageId={pageId}
+            plan={plan}
+            allowUrlInput={false}
+            aspectHint="wide"
+          />
+        )}
+        {mediaTab === 'image' && !userId && (
           <label style={{ display: 'block', padding: '10px', borderRadius: 8, border: `1.5px dashed ${T.border2}`, textAlign: 'center', cursor: 'pointer', fontSize: 11.5, color: T.ink2 }}>
             {t('block.field.selectImage')}
-            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleFileUpload(e, 'image')} />
+            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
+              const file = e.target.files?.[0]; if (!file) return
+              const url = URL.createObjectURL(file)
+              onUpdate({ media: { type: 'image', url, source: 'upload' } as HeroMedia, imageUrl: url })
+            }} />
           </label>
         )}
 
+        {/* Video upload */}
         {mediaTab === 'video' && (
           <label style={{ display: 'block', padding: '10px', borderRadius: 8, border: `1.5px dashed ${T.border2}`, textAlign: 'center', cursor: 'pointer', fontSize: 11.5, color: T.ink2 }}>
             {t('block.field.selectVideo')}
-            <input type="file" accept="video/*" style={{ display: 'none' }} onChange={e => handleFileUpload(e, 'video')} />
+            <input type="file" accept="video/*" style={{ display: 'none' }} onChange={handleVideoUpload} />
           </label>
         )}
 
+        {/* Manual URL */}
         {mediaTab === 'url' && (
           <FI type="url" value={d.media?.url ?? d.imageUrl ?? ''} placeholder="https://..." onChange={e => {
             const url = e.target.value
@@ -847,7 +879,8 @@ function HeroEditor({ block, onUpdate }: { block: LandingBlock; onUpdate: (d: Pa
           }} />
         )}
 
-        {currentMedia && (
+        {/* Remove button for non-video (ImageUploadField handles its own remove) */}
+        {mediaTab !== 'image' && currentMedia && d.media?.type !== 'video' && (
           <button onClick={() => onUpdate({ media: undefined, imageUrl: '' })} style={{ marginTop: 8, width: '100%', padding: '5px 0', borderRadius: 6, border: `1px solid ${T.redBorder}`, background: T.redBg, color: T.red, fontSize: 11, cursor: 'pointer' }}>
             {t('block.field.removeMedia')}
           </button>
@@ -2841,7 +2874,17 @@ export default function SortableBlockList({
             </SortableContext>
           </DndContext>
           {blocks.length === 0 && !isAdding && (
-            <div style={{ padding: 24, textAlign: 'center', color: T.ink3, fontSize: 12 }}>Sin bloques. Añade uno abajo.</div>
+            <div style={{ padding: '32px 20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+              <div style={{ fontSize: 32 }}>📄</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: T.ink }}>Your page is empty</div>
+              <div style={{ fontSize: 12, color: T.ink3, lineHeight: 1.5 }}>Add your first block to start building your page.</div>
+              <button
+                onClick={() => setIsAdding(true)}
+                style={{ marginTop: 4, padding: '9px 20px', borderRadius: 999, border: 'none', background: 'linear-gradient(180deg,#8b5cf6,#7c3aed)', color: '#fff', fontSize: 12.5, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 12px rgba(124,58,237,.28)' }}
+              >
+                <Plus size={14} strokeWidth={2.5} /> {t('block.addBlock')}
+              </button>
+            </div>
           )}
         </div>
 

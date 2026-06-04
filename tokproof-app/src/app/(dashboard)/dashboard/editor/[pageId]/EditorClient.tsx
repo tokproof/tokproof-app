@@ -266,12 +266,10 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
   }, [])
 
   const deleteBlock = useCallback((blockId: string) => {
-    setLandingConfig(prev => {
-      const block = prev.blocks.find(b => b.id === blockId)
-      if (!block) return prev
-      if (block.locked && !window.confirm(`¿Eliminar "${block.label}"? Es un bloque importante.`)) return prev
-      return { ...prev, blocks: prev.blocks.filter(b => b.id !== blockId) }
-    })
+    setLandingConfig(prev => ({
+      ...prev,
+      blocks: prev.blocks.filter(b => b.id !== blockId),
+    }))
   }, [])
 
   const duplicateBlock = useCallback((blockId: string) => {
