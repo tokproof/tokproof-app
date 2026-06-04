@@ -2730,7 +2730,8 @@ function BenefitIconsRowContentEditor({ block, onUpdate }: {
 }
 
 // ─── Benefit Icons Row — design editor ───────────────────────────────────────
-// Layout/radius/shadow/spacing/dividers = Free · Custom colors = Pro
+// FREE: Layout, Dividers, Shadow, Spacing
+// PRO: Presets+Colors, Typography, Border radius
 function BenefitIconsRowDesignEditor({ block, theme, plan, onUpdateStyle, onUpdate }: {
   block: LandingBlock; theme: LandingTheme; plan: Plan
   onUpdateStyle: (patch: Partial<BlockStyle>) => void
@@ -2740,21 +2741,27 @@ function BenefitIconsRowDesignEditor({ block, theme, plan, onUpdateStyle, onUpda
   const d = block.data as Partial<BenefitIconsRowData>
   const s = block.style ?? {}
 
-  const hasColorOverrides = !!(s.backgroundColor || s.textColor || s.accentColor || s.elementBackgroundColor || s.borderColor)
+  const hasColorOverrides  = !!(s.backgroundColor || s.textColor || s.accentColor || s.elementBackgroundColor || s.borderColor)
+  const hasFontOverrides   = !!(s.fontFamily || s.fontSize)
+  const hasBorderOverrides = !!(s.borderRadius)
+
   const colorsOn = s.customColorsEnabled ?? hasColorOverrides
+  const fontOn   = s.customFontEnabled   ?? hasFontOverrides
+  const borderOn = s.customBorderEnabled ?? hasBorderOverrides
 
   const sub = (text: string) => (
     <div style={{ fontSize: 10, fontWeight: 700, color: T.purple, textTransform: 'uppercase' as const, letterSpacing: '.06em', marginBottom: 6, marginTop: 10 }}>{text}</div>
   )
 
   const PRESETS: Array<{ name: string; style: Partial<BlockStyle> }> = [
-    { name: '🖤 Dark',   style: { customColorsEnabled: true, backgroundColor: '#0B0B12', textColor: '#ffffff', accentColor: '#FF2D55', elementBackgroundColor: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.10)' } },
-    { name: '☁️ Clean',  style: { customColorsEnabled: true, backgroundColor: '#ffffff', textColor: '#111827', accentColor: '#8b5cf6', elementBackgroundColor: '#f3f4f6',               borderColor: '#e5e7eb'                 } },
-    { name: '🌸 Soft',   style: { customColorsEnabled: true, backgroundColor: '#fff0f8', textColor: '#2d1b2e', accentColor: '#ec3b8e', elementBackgroundColor: '#fce7f3',               borderColor: '#f9a8d4'                 } },
+    { name: '🖤 Dark',  style: { customColorsEnabled: true, backgroundColor: '#0B0B12', textColor: '#ffffff', accentColor: '#FF2D55', elementBackgroundColor: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.10)' } },
+    { name: '☁️ Clean', style: { customColorsEnabled: true, backgroundColor: '#ffffff', textColor: '#111827', accentColor: '#8b5cf6', elementBackgroundColor: '#f3f4f6',               borderColor: '#e5e7eb'                 } },
+    { name: '🌸 Soft',  style: { customColorsEnabled: true, backgroundColor: '#fff0f8', textColor: '#2d1b2e', accentColor: '#ec3b8e', elementBackgroundColor: '#fce7f3',               borderColor: '#f9a8d4'                 } },
   ]
 
   return (
     <div>
+      {/* ── FREE: Layout ── */}
       {sub('Layout')}
       <div style={{ display: 'flex', gap: 5, marginBottom: 10 }}>
         {(['row', 'grid'] as const).map(v => (
@@ -2764,38 +2771,18 @@ function BenefitIconsRowDesignEditor({ block, theme, plan, onUpdateStyle, onUpda
             background: (d.layout ?? 'row') === v ? '#f3effe' : T.card,
             color: (d.layout ?? 'row') === v ? T.purple : T.ink2,
           }}>
-            {v === 'row' ? '── Row ──' : '⊞ Grid'}
+            {v === 'row' ? '← Scroll →' : '⊞ Grid 2×'}
           </button>
         ))}
       </div>
 
+      {/* ── FREE: Dividers ── */}
       <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2, marginBottom: 10 }}>
         <input type="checkbox" checked={d.showDividers ?? false} onChange={e => onUpdate({ showDividers: e.target.checked })} />
         Show dividers between items
       </label>
 
-      {sub(t('editor.predefinedTheme'))}
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
-        {PRESETS.map(p => (
-          <button key={p.name} onClick={() => onUpdateStyle(p.style)}
-            style={{ padding: '5px 11px', borderRadius: 8, cursor: 'pointer', fontSize: 11, fontWeight: 600, border: `1.5px solid ${T.border2}`, background: T.card, color: T.ink2, transition: 'border-color .12s' }}
-            onMouseEnter={e => (e.currentTarget.style.borderColor = '#c4a9f4')}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = T.border2)}
-          >
-            {p.name}
-          </button>
-        ))}
-      </div>
-
-      {sub(t('block.borders'))}
-      <div style={{ marginBottom: 10 }}>
-        <PillGroup
-          options={[{ key: 'square', label: t('editor.square') }, { key: 'soft', label: t('editor.soft') }, { key: 'medium', label: t('editor.medium') }, { key: 'round', label: t('editor.round') }]}
-          value={s.borderRadius}
-          onChange={v => onUpdateStyle({ borderRadius: v as BlockStyle['borderRadius'] })}
-        />
-      </div>
-
+      {/* ── FREE: Shadow ── */}
       {sub('Shadow')}
       <div style={{ marginBottom: 10 }}>
         <PillGroup
@@ -2805,6 +2792,7 @@ function BenefitIconsRowDesignEditor({ block, theme, plan, onUpdateStyle, onUpda
         />
       </div>
 
+      {/* ── FREE: Spacing ── */}
       {sub(t('block.spacing'))}
       <div style={{ marginBottom: 4 }}>
         <PillGroup
@@ -2814,16 +2802,60 @@ function BenefitIconsRowDesignEditor({ block, theme, plan, onUpdateStyle, onUpda
         />
       </div>
 
+      {/* ── PRO: Colors + Presets ── */}
       <ToggleSection label={t('block.customizeColors')} enabled={colorsOn} onToggle={v => onUpdateStyle({ customColorsEnabled: v })} pro>
-        <ColRow label={t('block.bgBlock')}       value={s.backgroundColor       ?? theme.backgroundColor  ?? '#0B0B12'} overridden={!!s.backgroundColor}       onChange={v => onUpdateStyle({ backgroundColor: v })}       onReset={() => onUpdateStyle({ backgroundColor: undefined })} />
-        <ColRow label={t('block.text')}           value={s.textColor             ?? theme.textColor        ?? '#ffffff'} overridden={!!s.textColor}             onChange={v => onUpdateStyle({ textColor: v })}             onReset={() => onUpdateStyle({ textColor: undefined })} />
-        <ColRow label={t('block.accentBtn')}      value={s.accentColor           ?? theme.primaryColor     ?? '#FF2D55'} overridden={!!s.accentColor}           onChange={v => onUpdateStyle({ accentColor: v })}           onReset={() => onUpdateStyle({ accentColor: undefined })} />
+        {/* Presets inside the Pro section */}
+        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 10 }}>
+          {PRESETS.map(p => (
+            <button key={p.name} onClick={() => onUpdateStyle(p.style)}
+              style={{ padding: '4px 10px', borderRadius: 7, cursor: 'pointer', fontSize: 10.5, fontWeight: 600, border: `1.5px solid ${T.border2}`, background: T.card, color: T.ink2, transition: 'border-color .12s' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#c4a9f4')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = T.border2)}
+            >
+              {p.name}
+            </button>
+          ))}
+        </div>
+        <ColRow label={t('block.bgBlock')}       value={s.backgroundColor        ?? theme.backgroundColor  ?? '#0B0B12'} overridden={!!s.backgroundColor}        onChange={v => onUpdateStyle({ backgroundColor: v })}        onReset={() => onUpdateStyle({ backgroundColor: undefined })} />
+        <ColRow label={t('block.text')}           value={s.textColor              ?? theme.textColor        ?? '#ffffff'} overridden={!!s.textColor}              onChange={v => onUpdateStyle({ textColor: v })}              onReset={() => onUpdateStyle({ textColor: undefined })} />
+        <ColRow label={t('block.accentBtn')}      value={s.accentColor            ?? theme.primaryColor     ?? '#FF2D55'} overridden={!!s.accentColor}            onChange={v => onUpdateStyle({ accentColor: v })}            onReset={() => onUpdateStyle({ accentColor: undefined })} />
         <ColRow label={t('block.bgElements')}     value={s.elementBackgroundColor ?? 'rgba(255,255,255,0.08)'} overridden={!!s.elementBackgroundColor} onChange={v => onUpdateStyle({ elementBackgroundColor: v })} onReset={() => onUpdateStyle({ elementBackgroundColor: undefined })} />
-        <ColRow label={t('block.borderElements')} value={s.borderColor           ?? 'rgba(255,255,255,0.12)'} overridden={!!s.borderColor}           onChange={v => onUpdateStyle({ borderColor: v })}           onReset={() => onUpdateStyle({ borderColor: undefined })} />
+        <ColRow label={t('block.borderElements')} value={s.borderColor            ?? 'rgba(255,255,255,0.12)'} overridden={!!s.borderColor}            onChange={v => onUpdateStyle({ borderColor: v })}            onReset={() => onUpdateStyle({ borderColor: undefined })} />
       </ToggleSection>
 
+      {/* ── PRO: Typography ── */}
+      <ToggleSection label={t('block.customizeTypography')} enabled={fontOn} onToggle={v => onUpdateStyle({ customFontEnabled: v })} pro>
+        <FG mb={8}>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <FSel value={s.fontFamily ?? theme.fontFamily} onChange={e => onUpdateStyle({ fontFamily: e.target.value })} style={{ flex: 1 }}>
+              {FONT_OPTIONS.map(f => <option key={f}>{f}</option>)}
+            </FSel>
+            {s.fontFamily && (
+              <button onClick={() => onUpdateStyle({ fontFamily: undefined })} style={{ width: 26, height: 26, borderRadius: 6, border: `1px solid ${T.border2}`, background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3, flexShrink: 0 }}>
+                <RotateCcw size={11} />
+              </button>
+            )}
+          </div>
+        </FG>
+        {sub(t('block.size'))}
+        <PillGroup options={[{ key: 'small', label: t('block.small') }, { key: 'medium', label: t('block.medium') }, { key: 'large', label: t('block.large') }]} value={s.fontSize} onChange={v => onUpdateStyle({ fontSize: v as BlockStyle['fontSize'] })} />
+        {sub(t('block.alignment'))}
+        <PillGroup options={[{ key: 'left', label: t('block.left') }, { key: 'center', label: t('block.center') }]} value={s.textAlign} onChange={v => onUpdateStyle({ textAlign: v as BlockStyle['textAlign'] })} />
+      </ToggleSection>
+
+      {/* ── PRO: Border radius ── */}
+      <ToggleSection label={t('block.bordersSpacing')} enabled={borderOn} onToggle={v => onUpdateStyle({ customBorderEnabled: v })} pro>
+        {sub(t('block.borders'))}
+        <PillGroup
+          options={[{ key: 'square', label: t('editor.square') }, { key: 'soft', label: t('editor.soft') }, { key: 'medium', label: t('editor.medium') }, { key: 'round', label: t('editor.round') }]}
+          value={s.borderRadius}
+          onChange={v => onUpdateStyle({ borderRadius: v as BlockStyle['borderRadius'] })}
+        />
+      </ToggleSection>
+
+      {/* Reset all */}
       {Object.keys(s).length > 0 && (
-        <button onClick={() => onUpdateStyle({ customColorsEnabled: undefined, backgroundColor: undefined, textColor: undefined, accentColor: undefined, elementBackgroundColor: undefined, borderColor: undefined, borderRadius: undefined, spacing: undefined })}
+        <button onClick={() => onUpdateStyle({ customColorsEnabled: undefined, customFontEnabled: undefined, customBorderEnabled: undefined, backgroundColor: undefined, textColor: undefined, accentColor: undefined, elementBackgroundColor: undefined, borderColor: undefined, fontFamily: undefined, fontSize: undefined, textAlign: undefined, borderRadius: undefined, spacing: undefined })}
           style={{ marginTop: 4, width: '100%', padding: '7px 0', borderRadius: 8, border: `1px solid ${T.border2}`, background: 'none', color: T.ink3, fontSize: 11, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
           <RotateCcw size={11} />{t('block.resetToTheme')}
         </button>
