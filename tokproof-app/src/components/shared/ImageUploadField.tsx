@@ -82,6 +82,11 @@ export default function ImageUploadField({
       return
     }
 
+    // Warn in UI if file uploaded but DB record failed (debug mode)
+    if (result.ok && !result.assetId) {
+      setError(`⚠ File uploaded but not registered in DB. Check console for details.`)
+    }
+
     onChange(result.url)
   }
 
