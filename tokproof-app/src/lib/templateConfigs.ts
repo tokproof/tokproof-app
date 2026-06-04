@@ -374,10 +374,9 @@ function makeConversionMaxBlocks(): LandingBlock[] {
       visible: true,
       data: {
         badges: [
-          { id: 'cm_tb1', icon: 'shipping'  as const, title: 'Envío gratuito',    description: 'En todos los pedidos',   enabled: true },
-          { id: 'cm_tb2', icon: 'secure'    as const, title: 'Pago seguro SSL',   description: 'Cifrado 256-bit',        enabled: true },
-          { id: 'cm_tb3', icon: 'guarantee' as const, title: 'Garantía 30 días',  description: 'Sin preguntas',          enabled: true },
-          { id: 'cm_tb4', icon: 'returns'   as const, title: 'Devoluciones',      description: 'Fáciles y gratuitas',    enabled: true },
+          { id: 'cm_tb1', icon: 'shipping'  as const, title: 'Envío gratuito',   description: 'En todos los pedidos', enabled: true },
+          { id: 'cm_tb2', icon: 'secure'    as const, title: 'Pago seguro SSL',  description: 'Cifrado 256-bit',      enabled: true },
+          { id: 'cm_tb3', icon: 'guarantee' as const, title: 'Garantía 30 días', description: 'Sin preguntas',        enabled: true },
         ],
       } satisfies TrustBadgesData,
     },
@@ -393,6 +392,7 @@ function makeConversionMaxBlocks(): LandingBlock[] {
         showTitle: true,
         showTikTokIcon: true,
         layout: 'carousel' as const,
+        cardShadow: 'none' as const,
         comments: [
           { id: 'cm_c1', enabled: true, avatarUrl: '', username: '@maria_beauty',  text: 'WOW. No esperaba que funcionara tan bien 😍 Lo estoy recomendando a toda mi familia.',   timeAgo: '2d ago', likes: '2.3K', verified: true  } satisfies TikTokCommentCard,
           { id: 'cm_c2', enabled: true, avatarUrl: '', username: '@shopper_alex',  text: 'Lo vi en TikTok y ahora entiendo el hype. Llegó en 2 días y la calidad es increíble.', timeAgo: '5d ago', likes: '1.8K', verified: false } satisfies TikTokCommentCard,
@@ -413,8 +413,8 @@ function makeConversionMaxBlocks(): LandingBlock[] {
         subtitle: '',
         showTitle: true,
         showSubtitle: false,
-        showDividers: true,
-        layout: 'row' as const,
+        showDividers: false,
+        layout: 'grid' as const,
         itemShadow: 'none' as const,
         items: [
           { id: 'cm_bi1', enabled: true, icon: '✨', title: 'Resultados visibles', description: 'Desde la primera semana de uso'    } satisfies BenefitIconsItem,
