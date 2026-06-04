@@ -492,11 +492,6 @@ function SortableItem({
               userId={userId}
               pageId={pageId}
             />
-          ) : block.type === 'tiktok_comment_cards' ? (
-            <TikTokCommentCardsEditor
-              block={block}
-              onUpdate={(data) => onUpdateBlock(block.id, data)}
-            />
           ) : (
             <>
               <div style={{ display: 'flex', borderBottom: `1px solid ${T.border}`, background: T.card }}>
@@ -741,10 +736,10 @@ function BlockEditor({ block, onUpdate, plan, userId, pageId }: {
     case 'urgency_offer':    return <UrgencyOfferEditor    block={block} onUpdate={onUpdate} />
     case 'footer_legal':     return <FooterLegalEditor     block={block} onUpdate={onUpdate} />
     case 'featured_product':  return <FeaturedProductEditor  block={block} onUpdate={onUpdate} plan={plan} userId={userId} pageId={pageId} />
-    case 'partner_discounts':      return null
-    case 'before_after':           return null
-    case 'tiktok_comments':        return null
-    case 'tiktok_comment_cards':   return null
+    case 'partner_discounts':    return null
+    case 'before_after':         return null
+    case 'tiktok_comments':      return null
+    case 'tiktok_comment_cards': return <TikTokCommentCardsContentEditor block={block} onUpdate={onUpdate} />
     default:
       return <p style={{ fontSize: 11, color: T.ink3, fontStyle: 'italic' }}>{t('block.editorComingSoon')}</p>
   }
@@ -2372,232 +2367,148 @@ function BeforeAfterEditor({ block, onUpdate, plan, userId, pageId }: {
   )
 }
 
-// ─── TikTok Comment Cards editor ─────────────────────────────────────────────
-function TikTokCommentCardsEditor({ block, onUpdate }: {
+// ─── TikTok Comment Cards — content editor (used by standard Contenido/Diseño tabs) ──
+function TikTokCommentCardsContentEditor({ block, onUpdate }: {
   block: LandingBlock
   onUpdate: (data: Partial<LandingBlock['data']>) => void
 }) {
-  const { t } = useTranslation()
   const d = block.data as unknown as TikTokCommentCardsData
   const comments = d.comments ?? []
   const [expandedId, setExpandedId] = useState<string | null>(null)
-  const [styleOpen, setStyleOpen]   = useState(false)
 
   function updComment(id: string, patch: Partial<TikTokCommentCard>) {
     onUpdate({ comments: comments.map(c => c.id === id ? { ...c, ...patch } : c) })
   }
-
   function addComment() {
     const newId = `tcc_${Date.now()}`
     onUpdate({ comments: [...comments, { id: newId, enabled: true, avatarUrl: '', username: '@newuser', text: 'Amazing product! ✨', timeAgo: '1d ago', likes: '100', verified: false }] })
     setExpandedId(newId)
   }
-
   function deleteComment(id: string) {
     onUpdate({ comments: comments.filter(c => c.id !== id) })
     if (expandedId === id) setExpandedId(null)
   }
-
   function duplicateComment(id: string) {
     const src = comments.find(c => c.id === id)
     if (!src) return
     const idx = comments.findIndex(c => c.id === id)
-    const newId = `${id}_${Date.now()}`
-    const copy: TikTokCommentCard = { ...src, id: newId }
+    const copy: TikTokCommentCard = { ...src, id: `${id}_${Date.now()}` }
     const next = [...comments]
     next.splice(idx + 1, 0, copy)
     onUpdate({ comments: next })
-    setExpandedId(newId)
+    setExpandedId(copy.id)
   }
 
-  const sub = (text: string) => (
-    <div style={{ fontSize: 10, fontWeight: 700, color: T.purple, textTransform: 'uppercase' as const, letterSpacing: '.06em', marginBottom: 6, marginTop: 10 }}>{text}</div>
-  )
-
   return (
-    <div>
+    <>
       {/* ── Section settings ── */}
-      <div style={{ borderBottom: `1px solid ${T.border}`, padding: '10px 14px 12px', background: T.card }}>
-        {sub('Section Settings')}
-        <FG mb={8}>
-          <FL>Title</FL>
-          <FI value={d.title ?? ''} onChange={e => onUpdate({ title: e.target.value })} placeholder="TikTok Can't Get Enough" />
-        </FG>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
-            <input type="checkbox" checked={d.showTitle ?? true} onChange={e => onUpdate({ showTitle: e.target.checked })} />
-            Show Section Title
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
-            <input type="checkbox" checked={d.showTikTokIcon ?? true} onChange={e => onUpdate({ showTikTokIcon: e.target.checked })} />
-            Show TikTok Icon
-          </label>
-        </div>
-        <div style={{ marginTop: 10 }}>
-          <FL>Layout</FL>
-          <div style={{ display: 'flex', gap: 5 }}>
-            {(['carousel', 'grid'] as const).map(v => (
-              <button key={v} onClick={() => onUpdate({ layout: v })} style={{
-                flex: 1, padding: '6px 0', borderRadius: 7, cursor: 'pointer', fontSize: 11.5, fontWeight: 600, border: `1.5px solid ${d.layout === v ? T.purple : T.border2}`,
-                background: d.layout === v ? '#f3effe' : T.card, color: d.layout === v ? T.purple : T.ink2,
-              }}>
-                {v === 'carousel' ? '← Carousel →' : '⊞ Grid'}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Comments ── */}
-      <div style={{ padding: '10px 14px 6px' }}>
-        {sub(`Comments · ${comments.length}`)}
-        {comments.map(c => {
-          const isOpen = expandedId === c.id
-          const bg = c.avatarUrl ? 'transparent' : ['#FF2D55','#7B61FF','#0EA5E9','#10B981'][c.username.charCodeAt(0) % 4] ?? '#FF2D55'
-          const initials = c.username.replace(/^@/, '').slice(0, 2).toUpperCase() || '?'
-          return (
-            <div key={c.id} style={{
-              marginBottom: 6, borderRadius: 10, overflow: 'hidden',
-              border: `1px solid ${isOpen ? '#c4a9f4' : T.border2}`,
-              background: T.card,
-              opacity: c.enabled ? 1 : 0.55,
+      <FG>
+        <FL>Title</FL>
+        <FI value={d.title ?? ''} onChange={e => onUpdate({ title: e.target.value })} placeholder="TikTok Can't Get Enough" />
+      </FG>
+      <FG mb={10}>
+        <FL>Layout</FL>
+        <div style={{ display: 'flex', gap: 5 }}>
+          {(['carousel', 'grid'] as const).map(v => (
+            <button key={v} onClick={() => onUpdate({ layout: v })} style={{
+              flex: 1, padding: '6px 0', borderRadius: 7, cursor: 'pointer', fontSize: 11.5, fontWeight: 600,
+              border: `1.5px solid ${(d.layout ?? 'carousel') === v ? T.purple : T.border2}`,
+              background: (d.layout ?? 'carousel') === v ? '#f3effe' : T.card,
+              color: (d.layout ?? 'carousel') === v ? T.purple : T.ink2,
             }}>
-              {/* Card header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px' }}>
-                <div style={{ width: 24, height: 24, borderRadius: '50%', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  {c.avatarUrl
-                    // eslint-disable-next-line @next/next/no-img-element
-                    ? <img src={c.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
-                    : <span style={{ color: '#fff', fontSize: 8, fontWeight: 700 }}>{initials}</span>
-                  }
-                </div>
-                <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: T.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {c.username}
-                </span>
-                {/* Toggle enabled */}
-                <button onClick={() => updComment(c.id, { enabled: !c.enabled })} style={{ width: 26, height: 26, borderRadius: 6, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}>
-                  {c.enabled ? <Eye size={13} /> : <EyeOff size={13} />}
-                </button>
-                {/* Duplicate */}
-                <button onClick={() => duplicateComment(c.id)} style={{ width: 26, height: 26, borderRadius: 6, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}>
-                  <Copy size={13} />
-                </button>
-                {/* Delete */}
-                <button onClick={() => deleteComment(c.id)} style={{ width: 26, height: 26, borderRadius: 6, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.red }}>
-                  <Trash2 size={13} />
-                </button>
-                {/* Expand */}
-                <ChevronDown size={13} color={T.ink3}
-                  style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform .18s', cursor: 'pointer', flexShrink: 0 }}
-                  onClick={() => setExpandedId(isOpen ? null : c.id)}
-                />
-              </div>
-
-              {/* Card body */}
-              {isOpen && (
-                <div style={{ padding: '0 10px 10px', borderTop: `1px solid ${T.border}` }}>
-                  <FG mb={7} style={{ marginTop: 8 }}>
-                    <FL>Username</FL>
-                    <FI value={c.username} onChange={e => updComment(c.id, { username: e.target.value })} placeholder="@username" />
-                  </FG>
-                  <FG mb={7}>
-                    <FL>Comment</FL>
-                    <FTA value={c.text} onChange={e => updComment(c.id, { text: e.target.value })} placeholder="Amazing product! ✨" style={{ minHeight: 56 }} />
-                  </FG>
-                  <div style={{ display: 'flex', gap: 7 }}>
-                    <FG mb={7} style={{ flex: 1 }}>
-                      <FL>Time ago</FL>
-                      <FI value={c.timeAgo} onChange={e => updComment(c.id, { timeAgo: e.target.value })} placeholder="1w ago" />
-                    </FG>
-                    <FG mb={7} style={{ flex: 1 }}>
-                      <FL>Likes</FL>
-                      <FI value={c.likes} onChange={e => updComment(c.id, { likes: e.target.value })} placeholder="1.8K" />
-                    </FG>
-                  </div>
-                  <FG mb={0}>
-                    <FL>Avatar URL (optional)</FL>
-                    <FI value={c.avatarUrl ?? ''} onChange={e => updComment(c.id, { avatarUrl: e.target.value })} placeholder="https://..." type="url" />
-                  </FG>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
-                    <input type="checkbox" checked={c.verified} onChange={e => updComment(c.id, { verified: e.target.checked })} />
-                    Verified badge ✓
-                  </label>
-                </div>
-              )}
-            </div>
-          )
-        })}
-
-        <AddBtn onClick={addComment} label="Add Comment" />
+              {v === 'carousel' ? '← Carousel →' : '⊞ Grid'}
+            </button>
+          ))}
+        </div>
+      </FG>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
+          <input type="checkbox" checked={d.showTitle ?? true} onChange={e => onUpdate({ showTitle: e.target.checked })} />
+          Show section title
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
+          <input type="checkbox" checked={d.showTikTokIcon ?? true} onChange={e => onUpdate({ showTikTokIcon: e.target.checked })} />
+          Show TikTok icon
+        </label>
       </div>
 
-      {/* ── Style ── */}
-      <div style={{ borderTop: `1px solid ${T.border}`, margin: '4px 0' }}>
-        <button onClick={() => setStyleOpen(s => !s)} style={{
-          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '9px 14px', border: 'none', background: 'none', cursor: 'pointer', fontSize: 11.5, fontWeight: 600, color: T.ink2,
-        }}>
-          <span>Style</span>
-          <ChevronDown size={13} color={T.ink3} style={{ transform: styleOpen ? 'rotate(180deg)' : 'none', transition: 'transform .18s' }} />
-        </button>
-        {styleOpen && (
-          <div style={{ padding: '0 14px 14px' }}>
-            {sub('Colors')}
-            {([
-              ['Section Background', 'sectionBackground', '#0B0B12'],
-              ['Title Color',        'titleColor',        '#ffffff'],
-              ['Accent Color',       'accentColor',       '#FF2D55'],
-              ['Card Background',    'cardBackground',    '#1a1a22'],
-              ['Card Text',          'cardTextColor',     '#ffffff'],
-              ['Username Color',     'usernameColor',     '#ffffff'],
-              ['Meta Color',         'metaColor',         'rgba(255,255,255,0.5)'],
-            ] as [string, keyof TikTokCommentCardsData, string][]).map(([label, key, def]) => (
-              <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
-                <input type="color"
-                  value={((d[key] as string | undefined) ?? def).startsWith('#') ? ((d[key] as string | undefined) ?? def) : '#1F1F22'}
-                  onChange={e => onUpdate({ [key]: e.target.value })}
-                  style={{ width: 26, height: 26, border: 'none', borderRadius: 6, cursor: 'pointer', padding: 2, background: 'none', flexShrink: 0 }}
-                />
-                <span style={{ flex: 1, fontSize: 11.5, color: T.ink2 }}>{label}</span>
+      {/* ── Comments list ── */}
+      <div style={{ fontSize: 11, fontWeight: 700, color: T.purple, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>
+        Comments · {comments.length}
+      </div>
+      {comments.map(c => {
+        const isOpen = expandedId === c.id
+        const avBg = c.avatarUrl ? 'transparent' : (['#FF2D55','#7B61FF','#0EA5E9','#10B981'] as const)[c.username.charCodeAt(0) % 4] ?? '#FF2D55'
+        const ini  = c.username.replace(/^@/, '').slice(0, 2).toUpperCase() || '?'
+        return (
+          <div key={c.id} style={{
+            marginBottom: 6, borderRadius: 10, overflow: 'hidden',
+            border: `1px solid ${isOpen ? '#c4a9f4' : T.border2}`,
+            background: T.card,
+            opacity: c.enabled ? 1 : 0.55,
+          }}>
+            {/* Row header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px' }}>
+              <div style={{ width: 24, height: 24, borderRadius: '50%', background: avBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {c.avatarUrl
+                  // eslint-disable-next-line @next/next/no-img-element
+                  ? <img src={c.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                  : <span style={{ color: '#fff', fontSize: 8, fontWeight: 700 }}>{ini}</span>
+                }
               </div>
-            ))}
-            {sub('Card Shape')}
-            <div style={{ display: 'flex', gap: 4 }}>
-              {(['square', 'soft', 'medium', 'round'] as const).map(v => (
-                <button key={v} onClick={() => onUpdate({ cardRadius: v })} style={{
-                  flex: 1, padding: '5px 0', borderRadius: 6, cursor: 'pointer', fontSize: 10, fontWeight: 600,
-                  border: `1.5px solid ${d.cardRadius === v ? T.purple : T.border2}`,
-                  background: d.cardRadius === v ? '#f3effe' : T.card,
-                  color: d.cardRadius === v ? T.purple : T.ink2,
-                }}>{v}</button>
-              ))}
+              <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: T.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {c.username}
+              </span>
+              <button onClick={() => updComment(c.id, { enabled: !c.enabled })} title={c.enabled ? 'Hide' : 'Show'} style={{ width: 26, height: 26, borderRadius: 6, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}>
+                {c.enabled ? <Eye size={13} /> : <EyeOff size={13} />}
+              </button>
+              <button onClick={() => duplicateComment(c.id)} title="Duplicate" style={{ width: 26, height: 26, borderRadius: 6, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}>
+                <Copy size={13} />
+              </button>
+              <button onClick={() => deleteComment(c.id)} title="Delete" style={{ width: 26, height: 26, borderRadius: 6, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.red }}>
+                <Trash2 size={13} />
+              </button>
+              <ChevronDown size={13} color={T.ink3}
+                style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform .18s', cursor: 'pointer', flexShrink: 0 }}
+                onClick={() => setExpandedId(isOpen ? null : c.id)}
+              />
             </div>
-            {sub('Card Shadow')}
-            <div style={{ display: 'flex', gap: 4 }}>
-              {(['none', 'soft', 'medium', 'strong'] as const).map(v => (
-                <button key={v} onClick={() => onUpdate({ cardShadow: v })} style={{
-                  flex: 1, padding: '5px 0', borderRadius: 6, cursor: 'pointer', fontSize: 10, fontWeight: 600,
-                  border: `1.5px solid ${d.cardShadow === v ? T.purple : T.border2}`,
-                  background: d.cardShadow === v ? '#f3effe' : T.card,
-                  color: d.cardShadow === v ? T.purple : T.ink2,
-                }}>{v}</button>
-              ))}
-            </div>
-            {sub('Section Spacing')}
-            <div style={{ display: 'flex', gap: 8 }}>
-              <FG style={{ flex: 1, marginBottom: 0 }}>
-                <FL>Top (px)</FL>
-                <FI type="number" value={d.spacingTop ?? 28} onChange={e => onUpdate({ spacingTop: Number(e.target.value) })} style={{ textAlign: 'center' }} />
-              </FG>
-              <FG style={{ flex: 1, marginBottom: 0 }}>
-                <FL>Bottom (px)</FL>
-                <FI type="number" value={d.spacingBottom ?? 28} onChange={e => onUpdate({ spacingBottom: Number(e.target.value) })} style={{ textAlign: 'center' }} />
-              </FG>
-            </div>
+            {/* Expanded fields */}
+            {isOpen && (
+              <div style={{ padding: '0 10px 10px', borderTop: `1px solid ${T.border}` }}>
+                <FG mb={7} style={{ marginTop: 8 }}>
+                  <FL>Username</FL>
+                  <FI value={c.username} onChange={e => updComment(c.id, { username: e.target.value })} placeholder="@username" />
+                </FG>
+                <FG mb={7}>
+                  <FL>Comment</FL>
+                  <FTA value={c.text} onChange={e => updComment(c.id, { text: e.target.value })} placeholder="Amazing product! ✨" style={{ minHeight: 56 }} />
+                </FG>
+                <div style={{ display: 'flex', gap: 7 }}>
+                  <FG mb={7} style={{ flex: 1 }}>
+                    <FL>Time ago</FL>
+                    <FI value={c.timeAgo} onChange={e => updComment(c.id, { timeAgo: e.target.value })} placeholder="1w ago" />
+                  </FG>
+                  <FG mb={7} style={{ flex: 1 }}>
+                    <FL>Likes</FL>
+                    <FI value={c.likes} onChange={e => updComment(c.id, { likes: e.target.value })} placeholder="1.8K" />
+                  </FG>
+                </div>
+                <FG mb={0}>
+                  <FL>Avatar URL (optional)</FL>
+                  <FI value={c.avatarUrl ?? ''} onChange={e => updComment(c.id, { avatarUrl: e.target.value })} placeholder="https://..." type="url" />
+                </FG>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 8, cursor: 'pointer', fontSize: 12, color: T.ink2 }}>
+                  <input type="checkbox" checked={c.verified} onChange={e => updComment(c.id, { verified: e.target.checked })} />
+                  Verified badge ✓
+                </label>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </div>
+        )
+      })}
+      <AddBtn onClick={addComment} label="Add Comment" />
+    </>
   )
 }
 
