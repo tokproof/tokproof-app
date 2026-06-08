@@ -1,0 +1,357 @@
+/* ══════════════════════════════════════════════════
+   TOKPROOF POLISH PASS — microinteracciones premium
+   Linear / Stripe / Vercel quality.
+   Regla: 120–220ms, ease-out. Sin cambios de layout.
+   Importado DESPUÉS de tokproof.css.
+══════════════════════════════════════════════════ */
+
+/* ─── MOTION TOKENS ──────────────────────────────── */
+:root {
+  --p-ease: cubic-bezier(.25, 0, 0, 1);
+  --p-fast:  120ms;
+  --p-base:  180ms;
+  --p-slow:  220ms;
+}
+
+/* ══════════════════════════════════════════════════
+   BUTTONS — hover lift · scale · active press
+══════════════════════════════════════════════════ */
+
+/* Universal transition base for class-based buttons */
+.btn {
+  transition:
+    transform  var(--p-base) var(--p-ease),
+    box-shadow var(--p-base) var(--p-ease),
+    opacity    var(--p-base) var(--p-ease),
+    background var(--p-base) var(--p-ease),
+    filter     var(--p-base) var(--p-ease);
+}
+
+/* Primary / gradient buttons — add scale to existing translateY */
+.btn-primary:hover { transform: translateY(-1px) scale(1.01); filter: brightness(1.03); }
+.btn-pink:hover    { transform: translateY(-1px) scale(1.01); filter: brightness(1.03); }
+.btn-pub:hover     { transform: translateY(-1px) scale(1.01); filter: brightness(1.03); }
+
+/* Upgrade sidebar button */
+.nav-upgrade-btn:hover    { transform: translateY(-1px) scale(1.01); }
+.nav-upgrade-icon:hover   { transform: translateY(-1px) scale(1.05); }
+
+/* Active press — all class buttons */
+.btn:active { transform: scale(0.98) !important; transition-duration: 80ms !important; }
+
+/* Active press — all native buttons (inline-styled, etc.) */
+button:not([disabled]):active {
+  transform: scale(0.98);
+  transition: transform 80ms ease-out !important;
+}
+
+/* Focus ring — brand color, keyboard only */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid rgba(124, 58, 237, .5);
+  outline-offset: 3px;
+}
+
+/* ══════════════════════════════════════════════════
+   INPUTS — hover border · focus ring · no blue outline
+══════════════════════════════════════════════════ */
+
+/* Hover — border slightly más oscuro */
+.fi:hover:not(:focus):not(:disabled):not(.fi-disabled) {
+  border-color: #C4C9D8;
+  transition: border-color var(--p-base) var(--p-ease);
+}
+
+/* Focus — ring morado Tokproof (overrides tokproof.css pink ring) */
+.fi:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, .11);
+  transition:
+    border-color var(--p-fast) var(--p-ease),
+    box-shadow   var(--p-fast) var(--p-ease);
+}
+
+/* Eliminar outline del navegador en todos los form elements */
+input:not([type="checkbox"]):not([type="radio"]):focus,
+textarea:focus,
+select:focus {
+  outline: none;
+}
+
+/* Color picker hover */
+.cpf:hover:not(:focus-within) { border-color: #C4C9D8; }
+.cpf:focus-within {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, .1);
+}
+
+/* ══════════════════════════════════════════════════
+   ICON / SMALL BUTTONS — scale hover/active
+══════════════════════════════════════════════════ */
+
+/* Card footer action buttons */
+.lc-foot button,
+.lc-foot a {
+  transition:
+    background  var(--p-base) var(--p-ease),
+    transform   var(--p-base) var(--p-ease),
+    color       var(--p-base) var(--p-ease),
+    box-shadow  var(--p-base) var(--p-ease);
+}
+.lc-foot button:hover  { transform: scale(1.06); }
+.lc-foot button:active { transform: scale(0.94) !important; transition-duration: 80ms !important; }
+
+/* Block order item action buttons */
+.boi-actions button {
+  transition:
+    background var(--p-base) var(--p-ease),
+    transform  var(--p-base) var(--p-ease),
+    color      var(--p-base) var(--p-ease);
+}
+.boi-actions button:hover  { transform: scale(1.08); }
+.boi-actions button:active { transform: scale(0.92) !important; transition-duration: 80ms !important; }
+
+/* Editor / topbar small icon buttons */
+.ed-tb-r button,
+.tb-right button {
+  transition:
+    background var(--p-base) var(--p-ease),
+    transform  var(--p-base) var(--p-ease),
+    color      var(--p-base) var(--p-ease),
+    border-color var(--p-base) var(--p-ease);
+}
+.ed-tb-r button:hover  { transform: scale(1.04); }
+.tb-right button:hover { transform: scale(1.04); }
+
+/* ══════════════════════════════════════════════════
+   SIDEBAR ACTIVE — gradient premium + left accent
+══════════════════════════════════════════════════ */
+
+.nav-item.active {
+  background: linear-gradient(
+    90deg,
+    rgba(236, 72, 153, .1) 0%,
+    rgba(124, 58, 237, .05) 100%
+  );
+  /* inset shadow no altera el layout */
+  box-shadow: inset 2px 0 0 var(--pink);
+}
+
+/* ══════════════════════════════════════════════════
+   CARDS — brightness sutil en hover
+══════════════════════════════════════════════════ */
+
+/* Stats cards — ya tienen translateY(-1px), añadir brightness */
+.db-stat:hover { filter: brightness(1.01); }
+
+/* Page / landing cards — ya tienen translateY(-2px) */
+.lc:hover { filter: brightness(1.006); }
+
+/* ══════════════════════════════════════════════════
+   DRAG & DROP — cursor · opacity · scale
+══════════════════════════════════════════════════ */
+
+.boi {
+  user-select: none;
+}
+.boi-drag {
+  cursor: grab;
+  transition: color var(--p-base) var(--p-ease), opacity var(--p-base) var(--p-ease);
+}
+.boi-drag:hover   { color: var(--text); }
+.boi-drag:active  { cursor: grabbing; }
+
+/* Estado "siendo arrastrado" — añadido por JS */
+.boi.is-dragging {
+  cursor: grabbing;
+  opacity: .88;
+  transform: scale(1.02);
+  box-shadow: 0 8px 32px rgba(15, 23, 42, .18);
+  z-index: 200;
+}
+
+/* ══════════════════════════════════════════════════
+   SWITCHES (toggle) — ya suave, refinar timing
+══════════════════════════════════════════════════ */
+
+.tw input[type="checkbox"] {
+  transition: background 150ms var(--p-ease);
+}
+.tw input[type="checkbox"]::after {
+  transition: left 150ms var(--p-ease);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
+}
+
+/* ══════════════════════════════════════════════════
+   TABS / DEVICE TOGGLE
+══════════════════════════════════════════════════ */
+
+.media-tab {
+  transition:
+    background  var(--p-base) var(--p-ease),
+    color       var(--p-base) var(--p-ease),
+    box-shadow  var(--p-base) var(--p-ease);
+}
+
+.ed-dev-btn {
+  transition:
+    background var(--p-base) var(--p-ease),
+    color      var(--p-base) var(--p-ease);
+}
+
+/* ══════════════════════════════════════════════════
+   ACCORDION (editor sections)
+══════════════════════════════════════════════════ */
+
+.ed-sec > summary {
+  transition: background var(--p-base) var(--p-ease);
+}
+.ed-sec-chev {
+  transition: transform var(--p-base) var(--p-ease);
+}
+
+/* ══════════════════════════════════════════════════
+   TOAST SYSTEM — estilos unificados premium
+══════════════════════════════════════════════════ */
+
+.tp-toast-wrap {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.tp-toast {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 16px 12px 12px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, .07);
+  border-radius: 14px;
+  box-shadow:
+    0 4px 20px rgba(15, 23, 42, .10),
+    0 1px 4px  rgba(15, 23, 42, .05);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #111827;
+  pointer-events: all;
+  max-width: 340px;
+  animation: tp-toast-enter var(--p-slow) var(--p-ease);
+}
+
+.tp-toast-ico {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tp-toast-success .tp-toast-ico {
+  background: rgba(16, 185, 129, .12);
+  color: #10B981;
+}
+.tp-toast-error .tp-toast-ico {
+  background: rgba(239, 68, 68, .1);
+  color: #EF4444;
+}
+.tp-toast-info .tp-toast-ico {
+  background: rgba(124, 58, 237, .1);
+  color: #7C3AED;
+}
+
+.tp-toast-msg { flex: 1; line-height: 1.45; }
+
+.tp-toast.is-exiting {
+  animation: tp-toast-exit var(--p-base) var(--p-ease) forwards;
+}
+
+@keyframes tp-toast-enter {
+  from { opacity: 0; transform: translateY(8px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);   }
+}
+
+@keyframes tp-toast-exit {
+  from { opacity: 1; transform: translateY(0)   scale(1);   }
+  to   { opacity: 0; transform: translateY(6px) scale(.97); }
+}
+
+/* ══════════════════════════════════════════════════
+   MODAL KEYFRAMES — disponibles para todos los modales
+══════════════════════════════════════════════════ */
+
+@keyframes tp-overlay-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes tp-modal-slide-in {
+  from { opacity: 0; transform: translateY(14px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);   }
+}
+@keyframes tp-modal-slide-out {
+  from { opacity: 1; transform: translateY(0)    scale(1);   }
+  to   { opacity: 0; transform: translateY(8px)  scale(.97); }
+}
+
+/* ══════════════════════════════════════════════════
+   SCROLL FADE-IN — elementos al entrar al viewport
+   Usa animation-timeline: view() (Chrome 115+, FF 110+)
+   @supports garantiza degradación suave en Safari < 15.4
+══════════════════════════════════════════════════ */
+
+@supports (animation-timeline: view()) {
+  .db-stat {
+    animation: tp-scroll-fade linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 22%;
+  }
+
+  .lc {
+    animation: tp-scroll-fade linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 18%;
+  }
+}
+
+@keyframes tp-scroll-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ══════════════════════════════════════════════════
+   LINK TRANSITIONS — color fade suave
+══════════════════════════════════════════════════ */
+
+a {
+  transition: color var(--p-base) var(--p-ease), opacity var(--p-base) var(--p-ease);
+}
+
+/* ══════════════════════════════════════════════════
+   BLOCK ORDER ITEMS — hover mejorado
+══════════════════════════════════════════════════ */
+
+.boi {
+  transition:
+    border-color var(--p-base) var(--p-ease),
+    box-shadow   var(--p-base) var(--p-ease),
+    transform    var(--p-base) var(--p-ease);
+}
+
+/* ══════════════════════════════════════════════════
+   EDITOR SECTION SUMMARIES
+══════════════════════════════════════════════════ */
+
+/* Smooth chevron rotation already in tokproof.css; reinforce timing */
+.ed-sec > summary .ed-sec-chev {
+  transition: transform var(--p-base) var(--p-ease);
+}

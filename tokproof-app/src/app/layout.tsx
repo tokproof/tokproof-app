@@ -9,6 +9,7 @@ import {
 } from 'next/font/google'
 import './globals.css'
 import './tokproof.css'
+import './polish.css'
 import Providers from '@/components/shared/Providers'
 
 const nunitoSans = Nunito_Sans({
