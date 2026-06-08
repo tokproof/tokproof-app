@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   Eye, MousePointerClick, TrendingUp, ShieldCheck,
@@ -268,6 +269,7 @@ function CategorySelectModal({
 /* ── Main component ──────────────────────────── */
 export default function DashboardClient({ profile, pages, analytics, pageStats }: DashboardClientProps) {
   const { t } = useTranslation()
+  const router = useRouter()
   const [pageList, setPageList] = useState<Page[]>(pages)
   const [activeFilter, setActiveFilter] = useState<'all' | 'published' | 'draft'>('all')
   const [categoryOpen,  setCategoryOpen]  = useState(false)
@@ -525,7 +527,7 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
                   key={page.id}
                   page={page}
                   pageNumber={i + 1}
-                  onDeleted={id => setPageList(prev => prev.filter(p => p.id !== id))}
+                  onDeleted={id => { setPageList(prev => prev.filter(p => p.id !== id)); router.refresh() }}
                   stats={pageStats?.[page.id]}
                 />
               ))}

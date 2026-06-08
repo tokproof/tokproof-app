@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ShieldCheck, Clock, ExternalLink, TrendingUp, Copy, Check, Pencil, Trash2, Plus } from 'lucide-react'
 import QuickExitModal from './QuickExitModal'
@@ -35,6 +36,7 @@ function getDestUrl(page: Page): string {
 }
 
 export default function QuickExitWidget({ initialExits, userId, username, plan, guides, opens, rate }: Props) {
+  const router = useRouter()
   const [exits,        setExits]        = useState<Page[]>(initialExits)
   const [modalOpen,    setModalOpen]    = useState(false)
   const [limitOpen,    setLimitOpen]    = useState(false)
@@ -65,6 +67,8 @@ export default function QuickExitWidget({ initialExits, userId, username, plan, 
     const supabase = createClient()
     await supabase.from('pages').delete().eq('id', page.id)
     setExits(prev => prev.filter(p => p.id !== page.id))
+    // Refresh server component so analytics re-query with updated page list
+    router.refresh()
   }
 
   const exitUrl = primary?.username ? getPublicExitUrl(primary.username) : ''

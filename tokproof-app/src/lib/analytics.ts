@@ -97,18 +97,27 @@ export async function getDashboardAnalytics(userId: string): Promise<DashboardAn
   const supabase = createAdminClient()
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
+  // Scope events to currently existing pages.
+  // This excludes events from deleted pages even when ON DELETE CASCADE isn't set in production.
+  const { data: activePages } = await supabase
+    .from('pages')
+    .select('id')
+    .eq('user_id', userId)
+
+  const pageIds = (activePages ?? []).map((p: { id: string }) => p.id)
+  if (!pageIds.length) return EMPTY
+
   const { data, error } = await supabase
     .from('analytics_events')
     .select('event_type, session_id, page_id, created_at')
-    .eq('user_id', userId)
+    .in('page_id', pageIds)
     .gte('created_at', since)
 
   if (error) {
-    // session_id column not yet added — retry without it
     const { data: fallback } = await supabase
       .from('analytics_events')
       .select('event_type, page_id, created_at')
-      .eq('user_id', userId)
+      .in('page_id', pageIds)
       .gte('created_at', since)
     if (!fallback?.length) return EMPTY
     return calcMetrics(fallback.map(e => ({ ...e, session_id: null })) as RawEvent[])
@@ -365,10 +374,28 @@ export async function getFullAnalytics(
   const supabase = createAdminClient()
   const since    = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
 
+  const activePageIds = pages.map(p => p.id)
+
+  // No pages and no specific filter → nothing to query
+  if (!activePageIds.length && !pageIdFilter) {
+    return {
+      views: 0, uniqueVisitors: 0, clicks: 0, ctr: 0,
+      rescueRate: 0, exitGuideViews: 0, openBrowserClicks: 0,
+      funnelExitViews: 0, funnelGuideViews: 0, funnelBrowserDetected: 0, funnelLandingViews: 0,
+      timeSeries: buildTimeSeries([], days),
+      devices: [], sources: [], pages: [],
+    }
+  }
+
   const buildQ = (sb: ReturnType<typeof createAdminClient>, cols: string) => {
-    let q = sb.from('analytics_events').select(cols)
-      .eq('user_id', userId).gte('created_at', since)
-    if (pageIdFilter) q = q.eq('page_id', pageIdFilter) as typeof q
+    let q = sb.from('analytics_events').select(cols).gte('created_at', since)
+    // Filter by specific page or all active pages — never by user_id alone,
+    // so deleted-page events are excluded even without ON DELETE CASCADE.
+    if (pageIdFilter) {
+      q = q.eq('page_id', pageIdFilter) as typeof q
+    } else {
+      q = q.in('page_id', activePageIds) as typeof q
+    }
     return q
   }
 
