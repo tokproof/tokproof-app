@@ -410,12 +410,12 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
 
               {/* Gradient headline */}
               <div style={{ fontSize:22, fontWeight:900, lineHeight:1.2, letterSpacing:'-.03em', marginBottom:14, background:'linear-gradient(135deg,#F647A9 0%,#7B61FF 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
-                Con Exit Link, tus clientes<br />siempre llegan a ti.
+                Con TikTok Rescue, tus clientes<br />siempre llegan a ti.
               </div>
 
               {/* Description */}
               <p style={{ fontSize:13, color:'#6B7280', lineHeight:1.7, margin:0 }}>
-                Crea tu Exit Link en 1 clic y redirige a tus clientes de forma segura a tu tienda, incluso si TikTok bloquea el enlace original.
+                Crea tu TikTok Rescue en 1 clic y redirige a tus clientes de forma segura a tu tienda, incluso si TikTok bloquea el enlace original.
               </p>
 
               {/* Benefits bar — single row with separators */}
