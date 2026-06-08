@@ -353,3 +353,187 @@ a {
 .ed-sec > summary .ed-sec-chev {
   transition: transform var(--p-base) var(--p-ease);
 }
+
+/* ══════════════════════════════════════════════════
+   CONSISTENCY PASS — unified visual language
+   Objetivo: mismo lenguaje visual en toda la app.
+   Solo overrides. No cambios de layout ni funcionalidad.
+══════════════════════════════════════════════════ */
+
+/* ─── SHADOW TOKENS — 3 niveles semánticos ───────── */
+:root {
+  --shadow-sm: 0 1px 3px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
+  --shadow-md: 0 4px 12px rgba(15,23,42,.08), 0 1px 4px rgba(15,23,42,.05);
+  --shadow-lg: 0 8px 32px rgba(15,23,42,.12), 0 2px 8px rgba(15,23,42,.06);
+}
+
+/* ─── SCROLLBAR — hover morado Tokproof ─────────── */
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(124,58,237,.35) !important;
+}
+
+/* ─── MODAL ANIMATION — unificada ───────────────── */
+/* Reemplaza .22s ease por el easing Tokproof */
+@keyframes cmSlideUp {
+  from { opacity: 0; transform: translateY(14px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);   }
+}
+
+/* ─── BOTONES DISABLED — estado unificado ───────── */
+button:disabled,
+button[disabled] {
+  cursor: not-allowed !important;
+  opacity: .52 !important;
+}
+button:disabled:hover,
+button[disabled]:hover {
+  transform: none !important;
+  filter: none !important;
+  box-shadow: inherit !important;
+}
+
+/* ─── pm-* TRANSITIONS — var(--t) en todos ──────── */
+.pm-filter-btn {
+  transition:
+    background var(--p-base) var(--p-ease),
+    color      var(--p-base) var(--p-ease),
+    box-shadow var(--p-base) var(--p-ease);
+}
+.pm-table-row  { transition: background var(--p-base) var(--p-ease); }
+.pm-menu-btn   { transition: background var(--p-base) var(--p-ease), color var(--p-base) var(--p-ease); }
+.pm-menu-item  { transition: background var(--p-base) var(--p-ease), color var(--p-base) var(--p-ease); }
+
+/* ─── pm-* TIPOGRAFÍA — pesos y colores unificados ── */
+.pm-filter-btn        { font-weight: 600; }
+.pm-filter-btn.active { color: var(--text); font-weight: 700; }
+.pm-score-label       { font-weight: 600; color: var(--muted); }
+.pm-date-main         { color: var(--text); }
+.pm-date-sub          { color: var(--muted2); }
+.pm-page-name         { color: var(--text); }
+.pm-header-title      { color: var(--text); }
+.pm-header-sub        { color: var(--muted); }
+.pm-table-th          { color: var(--muted2); }
+.pm-menu-item         { color: var(--text); font-weight: 600; font-size: 13px; }
+.pm-menu-item.danger  { color: var(--danger); }
+.pm-page-url          { font-weight: 600; }
+
+/* ─── pm-* COLORES — CSS variables ──────────────── */
+.pm-page            { background: var(--bg); }
+.pm-table           { background: var(--card); border-color: var(--border); }
+.pm-table-header    { background: var(--bg); border-bottom-color: var(--border); }
+.pm-table-row       { border-bottom-color: var(--border); }
+.pm-search-box      { background: var(--card); border-color: var(--border); }
+.pm-search-box input{ color: var(--text); }
+.pm-menu-btn        { color: var(--muted2); }
+.pm-menu-btn:hover  { background: rgba(123,97,255,.07); color: var(--purple); }
+.pm-menu-dropdown   { background: var(--card); border-color: var(--border); box-shadow: var(--shadow-lg); }
+.pm-menu-item:hover { background: rgba(123,97,255,.06); color: var(--text); }
+
+/* ─── pm-* RADIOS — tokens unificados ───────────── */
+.pm-table       { border-radius: var(--r-lg); }
+.pm-header-icon { border-radius: var(--r-lg); }
+.pm-filter-btn  { border-radius: var(--r-sm); }
+.pm-menu-btn    { border-radius: var(--r-sm); }
+
+/* ─── pm-* FILTER GROUP — tono morado consistente ── */
+.pm-filter-group,
+.pm-status-group {
+  background: rgba(124,58,237,.07);
+  border-radius: var(--r-sm);
+}
+
+/* ─── BADGES — bordes + peso unificado ──────────── */
+/* pm-type-chip: añadir borde como .badge */
+.pm-type-chip {
+  font-weight: 700;
+  letter-spacing: .01em;
+  border: 1px solid transparent;
+}
+.pm-type-trust   { border-color: rgba(123,97,255,.22); }
+.pm-type-simple  { border-color: rgba(246,71,169,.2);  }
+.pm-type-creator { border-color: rgba(26,169,96,.2);   }
+
+/* pm-status: peso unificado */
+.pm-status-pub,
+.pm-status-draft { font-weight: 700; }
+
+/* ─── SETTINGS selects — mismo radio que inputs ─── */
+select.fi,
+select {
+  border-radius: var(--r);
+  transition: border-color var(--p-base) var(--p-ease), box-shadow var(--p-base) var(--p-ease);
+}
+select:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(124,58,237,.11);
+  outline: none;
+}
+
+/* ─── ICONOS — grosor 1.8 uniforme en nav ─────────── */
+/* Aplica para evitar que iconos de lucide muestren strokeWidth distinto */
+.nav-item-ico svg { stroke-width: 1.8px; }
+
+/* ─── CARDS — hover unificado (settings + analytics) */
+.hp-feat:hover  { filter: brightness(1.01); }
+.hp-testi:hover { filter: brightness(1.008); }
+
+/* ─── TABLA ROWS — hover más visible ────────────── */
+.pm-table-row:hover { background: rgba(123,97,255,.028); }
+
+/* ══════════════════════════════════════════════════
+   SKELETON / LOADING STATES
+   Shimmer suave lila-gris. Sin parpadeos agresivos.
+══════════════════════════════════════════════════ */
+
+/* Base shimmer — fondo claro */
+.sk {
+  background: linear-gradient(90deg,
+    rgba(123,97,255,.06)  0%,
+    rgba(123,97,255,.12)  50%,
+    rgba(123,97,255,.06)  100%
+  );
+  background-size: 300% auto;
+  animation: sk-shimmer 1.9s ease-in-out infinite;
+  border-radius: var(--r-sm);
+  flex-shrink: 0;
+}
+
+/* Shimmer oscuro — interior del phone frame editor */
+.sk-dark {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,.04)  0%,
+    rgba(255,255,255,.10)  50%,
+    rgba(255,255,255,.04)  100%
+  );
+  background-size: 300% auto;
+  animation: sk-shimmer 1.9s ease-in-out infinite;
+  border-radius: var(--r-sm);
+  flex-shrink: 0;
+}
+
+@keyframes sk-shimmer {
+  0%   { background-position:  200% center; }
+  100% { background-position: -200% center; }
+}
+
+/* Button spinner — reutilizable */
+.tp-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: tp-spin .65s linear infinite;
+  opacity: .65;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+.tp-spinner-sm  { width: 11px; height: 11px; border-width: 1.5px; }
+.tp-spinner-white {
+  border-color: rgba(255,255,255,.35);
+  border-top-color: #fff;
+  opacity: 1;
+}
+
+@keyframes tp-spin { to { transform: rotate(360deg); } }

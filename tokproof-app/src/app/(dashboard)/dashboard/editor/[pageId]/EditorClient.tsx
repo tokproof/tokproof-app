@@ -867,8 +867,10 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
                             ))
                           }
                           {landingConfig.blocks.filter(b => b.visible).length === 0 && (
-                            <div style={{ padding: 32, textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>
-                              {t('editor.addBlocksHint')}
+                            <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'40px 20px', textAlign:'center', gap:10 }}>
+                              <div style={{ width:44, height:44, borderRadius:'50%', background:'rgba(255,255,255,.08)', border:'1px solid rgba(255,255,255,.12)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20 }}>✨</div>
+                              <div style={{ fontSize:12.5, fontWeight:700, color:'rgba(255,255,255,.55)', lineHeight:1.4 }}>Your page is empty</div>
+                              <div style={{ fontSize:11, color:'rgba(255,255,255,.28)', lineHeight:1.5 }}>Add blocks from the left panel</div>
                             </div>
                           )}
                         </div>

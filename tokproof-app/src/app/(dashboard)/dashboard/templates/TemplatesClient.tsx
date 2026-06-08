@@ -657,12 +657,52 @@ export default function TemplatesClient() {
             ))}
           </>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 22 }}
-            className="tmpl-grid">
-            {TEMPLATES.filter(t => t.category === active).map(t => (
-              <TemplateCard key={t.id} tmpl={t} onUse={handleUse} loading={loading === t.id} />
-            ))}
-          </div>
+          (() => {
+            const filtered = TEMPLATES.filter(t => t.category === active)
+            return filtered.length === 0 ? (
+              <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                textAlign: 'center', padding: '72px 32px',
+                background: 'linear-gradient(135deg,rgba(246,71,169,.03),rgba(123,97,255,.04))',
+                border: '1px solid rgba(123,97,255,.1)', borderRadius: 20,
+              }}>
+                <div style={{ width: 72, height: 72, borderRadius: '50%',
+                  background: 'linear-gradient(135deg,rgba(246,71,169,.1),rgba(123,97,255,.12))',
+                  border: '1.5px solid rgba(123,97,255,.14)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  marginBottom: 20, boxShadow: '0 6px 20px rgba(123,97,255,.1)' }}>
+                  <span style={{ fontSize: 36, lineHeight: 1 }}>🎨</span>
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: T.ink, letterSpacing: '-.02em', marginBottom: 10 }}>
+                  More templates are coming
+                </div>
+                <p style={{ fontSize: 14, color: T.muted, lineHeight: 1.65, maxWidth: 340, margin: '0 0 24px' }}>
+                  We&apos;re working on new layouts for this category.
+                </p>
+                <button
+                  onClick={() => router.push('/dashboard/editor/new')}
+                  style={{
+                    padding: '11px 24px', borderRadius: 12, border: 'none',
+                    background: T.pinkGrad, color: '#fff',
+                    fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: T.font,
+                    boxShadow: '0 4px 14px rgba(246,71,169,.28)',
+                    transition: 'transform .18s, filter .18s',
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.filter = 'brightness(1.06)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.filter = ''; (e.currentTarget as HTMLButtonElement).style.transform = '' }}
+                >
+                  Start from blank page
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 22 }}
+                className="tmpl-grid">
+                {filtered.map(t => (
+                  <TemplateCard key={t.id} tmpl={t} onUse={handleUse} loading={loading === t.id} />
+                ))}
+              </div>
+            )
+          })()
         )}
 
         {/* ── Bottom banner ── */}

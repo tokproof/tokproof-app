@@ -23,7 +23,7 @@ const C = {
   muted:      '#5d6473',
 }
 
-const FONT = `var(--font-poppins, 'Poppins'), system-ui, sans-serif`
+const FONT = `'Nunito Sans', -apple-system, BlinkMacSystemFont, sans-serif`
 
 // ─── SVG icons (exact copies from HTML) ───────────────────────────────────────
 const SparkIcon = () => (

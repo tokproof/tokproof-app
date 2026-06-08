@@ -9,6 +9,7 @@ import type { Page, Profile } from '@/types'
 import { getPublicPageDisplay, getPublicPageUrl } from '@/lib/urls'
 import { useTranslation } from '@/lib/i18n'
 import PageMiniPreview from '@/components/shared/PageMiniPreview'
+import EmptyState from '@/components/shared/EmptyState'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -138,48 +139,6 @@ function RowMenu({ page, onDeleted }: { page: Page; onDeleted: (id: string) => v
   )
 }
 
-// ─── Empty state ──────────────────────────────────────────────────────────────
-
-function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
-  const { t } = useTranslation()
-  return (
-    <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E4E7F0', overflow: 'hidden' }}>
-      <div className="pm-empty">
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ width: 100, height: 100, borderRadius: '50%', background: 'linear-gradient(135deg,rgba(16,185,129,.12),rgba(6,182,212,.12))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
-            <User size={44} color="#10B981" strokeWidth={1.5} />
-          </div>
-        </div>
-        <h2 className="pm-empty-title">{t('ecom.emptyTitlePb')}</h2>
-        <p className="pm-empty-sub">{t('ecom.emptySubPb')}</p>
-        <div className="pm-empty-actions">
-          <button className="btn btn-primary" style={{ minWidth: 220, justifyContent: 'center', background: 'linear-gradient(135deg,#10B981,#06B6D4)' }} onClick={onCreateClick}>
-            <Plus size={16} /> {t('ecom.createFirst')}
-          </button>
-          <button className="btn btn-ghost" style={{ minWidth: 220, justifyContent: 'center', fontSize: 13 }}>
-            {t('ecom.seeExamples')}
-          </button>
-        </div>
-        <div className="pm-empty-benefits">
-          {[
-            { icon: '🔗', label: t('ecom.benefit.links'),    desc: t('ecom.benefit.linksDesc') },
-            { icon: '📱', label: t('ecom.benefit.social'),   desc: t('ecom.benefit.socialDesc') },
-            { icon: '💼', label: t('ecom.benefit.services'), desc: t('ecom.benefit.servicesDesc') },
-            { icon: '✨', label: t('ecom.benefit.design'),   desc: t('ecom.benefit.designDesc') },
-          ].map(b => (
-            <div key={b.label} className="pm-benefit">
-              <div className="pm-benefit-icon" style={{ background: 'linear-gradient(135deg,rgba(16,185,129,.1),rgba(6,182,212,.1))' }}>
-                {b.icon}
-              </div>
-              <div className="pm-benefit-label">{b.label}</div>
-              <div className="pm-benefit-desc">{b.desc}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
@@ -268,7 +227,12 @@ export default function PersonalBrandClient({ profile, allPages }: Props) {
 
         {/* Content */}
         {pageList.length === 0 ? (
-          <EmptyState onCreateClick={() => setCreateOpen(true)} />
+          <EmptyState
+            icon="👤"
+            title="No creator pages yet"
+            description="Build your personal link page in under a minute and start sharing everything in one link."
+            primaryAction={{ label: 'Create Personal Page', onClick: () => setCreateOpen(true) }}
+          />
         ) : (
           <div className="pm-table">
             <div className="pm-table-header">
@@ -281,8 +245,13 @@ export default function PersonalBrandClient({ profile, allPages }: Props) {
             </div>
 
             {filtered.length === 0 ? (
-              <div style={{ padding: '40px 20px', textAlign: 'center', color: '#9CA3AF', fontSize: 13 }}>
-                {t('ecom.noMatch')}
+              <div style={{ padding: '16px 0' }}>
+                <EmptyState
+                  icon="🔍"
+                  title="No pages match your search"
+                  description="Try a different filter or search term."
+                  compact
+                />
               </div>
             ) : filtered.map(page => {
               const display = page.username ? getPublicPageDisplay(page.username) : null

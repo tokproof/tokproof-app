@@ -685,8 +685,10 @@ function PagesTable({ data, onMore, isMobile }: { data: FullAnalytics; onMore: (
       </div>
       <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
         {data.pages.length === 0
-          ? <div style={{ textAlign: 'center', padding: '32px 0', color: C.muted2, fontSize: 13 }}>
-              {t('analytics.noPages')}
+          ? <div style={{ textAlign: 'center', padding: '40px 20px', color: C.muted, fontSize: 13.5, fontWeight: 500 }}>
+              <div style={{ fontSize: 28, marginBottom: 10 }}>📊</div>
+              <div style={{ fontWeight: 700, color: C.ink2, marginBottom: 6 }}>No page data yet</div>
+              <div style={{ color: C.muted2 }}>Publish a page and start sharing it to see performance metrics here.</div>
             </div>
           : <table style={{ width: '100%', minWidth: isMobile ? 380 : 640, borderCollapse: 'collapse' }}>
               <thead>
@@ -931,19 +933,99 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
         </button>
       </div>
 
-      {/* KPI grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : isTablet ? 'repeat(4,1fr)' : 'repeat(7,1fr)', gap: isMobile ? 10 : 13 }}
-        className="kpi-analytics-grid">
-        {KPI_CONFIG.map((cfg, i) => (
-          <KpiCard key={cfg.label} cfg={cfg} val={kpiVals[i]}
-            isPro={isPro} onUpgrade={onUpgrade} isMobile={isMobile} />
-        ))}
-      </div>
+      {/* ── Empty state when no traffic at all ── */}
+      {data.views === 0 && data.clicks === 0 ? (
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          textAlign: 'center', padding: isMobile ? '48px 20px' : '72px 32px',
+          background: 'linear-gradient(135deg,rgba(246,71,169,.03),rgba(123,97,255,.04))',
+          border: `1px solid ${C.line}`, borderRadius: 20, marginTop: 4,
+          animation: 'es-fade-up .24s cubic-bezier(.25,0,0,1)',
+        }}>
+          <style>{`@keyframes es-fade-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}`}</style>
 
-      <FunnelSection  data={data} isPro={isPro} onUpgrade={onUpgrade} isMobile={isMobile} />
-      <TripleRow      data={data} isPro={isPro} onMore={onSoon} onUpgrade={onUpgrade} isMobile={isMobile} isTablet={isTablet} />
-      <PerformanceChart data={data} isPro={isPro} onUpgrade={onUpgrade} isMobile={isMobile} />
-      <PagesTable     data={data} onMore={onSoon} isMobile={isMobile} />
+          {/* Icon */}
+          <div style={{
+            width: 76, height: 76, borderRadius: '50%',
+            background: 'linear-gradient(135deg,rgba(246,71,169,.1),rgba(123,97,255,.12))',
+            border: '1.5px solid rgba(123,97,255,.14)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            marginBottom: 22, boxShadow: '0 6px 20px rgba(123,97,255,.1)',
+          }}>
+            <span style={{ fontSize: 36, lineHeight: 1 }}>📈</span>
+          </div>
+
+          <div style={{ fontSize: 20, fontWeight: 800, color: C.ink, letterSpacing: '-.025em', marginBottom: 10, maxWidth: 340 }}>
+            No traffic yet
+          </div>
+          <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.65, maxWidth: 400, margin: '0 0 28px' }}>
+            Share your Tokproof link on TikTok, Instagram or any social network. Your analytics will appear here automatically.
+          </p>
+
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+            {pages.length > 0 && (
+              <button
+                onClick={() => { navigator.clipboard?.writeText(`https://tokproof.app/@${pages[0].username}`) }}
+                style={{
+                  padding: '10px 22px', borderRadius: 12, border: 'none',
+                  background: 'linear-gradient(135deg,#F647A9,#7B61FF)', color: '#fff',
+                  fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+                  boxShadow: '0 4px 14px rgba(246,71,169,.28)',
+                  transition: 'transform .18s, filter .18s',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.filter = 'brightness(1.06)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.filter = ''; (e.currentTarget as HTMLButtonElement).style.transform = '' }}
+              >
+                Copy my link
+              </button>
+            )}
+            {pages.length > 0 && pages[0].username && (
+              <button
+                onClick={() => window.open(`https://tokproof.app/@${pages[0].username}`, '_blank')}
+                style={{
+                  padding: '10px 22px', borderRadius: 12, border: `1.5px solid ${C.line}`,
+                  background: '#fff', color: C.ink2,
+                  fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                  transition: 'background .18s, border-color .18s',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#F9FAFB' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#fff' }}
+              >
+                Preview page
+              </button>
+            )}
+            {pages.length === 0 && (
+              <button
+                onClick={() => router.push('/dashboard')}
+                style={{
+                  padding: '10px 22px', borderRadius: 12, border: 'none',
+                  background: 'linear-gradient(135deg,#F647A9,#7B61FF)', color: '#fff',
+                  fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+                  boxShadow: '0 4px 14px rgba(246,71,169,.28)',
+                }}
+              >
+                Create my first page
+              </button>
+            )}
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* KPI grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : isTablet ? 'repeat(4,1fr)' : 'repeat(7,1fr)', gap: isMobile ? 10 : 13 }}
+            className="kpi-analytics-grid">
+            {KPI_CONFIG.map((cfg, i) => (
+              <KpiCard key={cfg.label} cfg={cfg} val={kpiVals[i]}
+                isPro={isPro} onUpgrade={onUpgrade} isMobile={isMobile} />
+            ))}
+          </div>
+
+          <FunnelSection  data={data} isPro={isPro} onUpgrade={onUpgrade} isMobile={isMobile} />
+          <TripleRow      data={data} isPro={isPro} onMore={onSoon} onUpgrade={onUpgrade} isMobile={isMobile} isTablet={isTablet} />
+          <PerformanceChart data={data} isPro={isPro} onUpgrade={onUpgrade} isMobile={isMobile} />
+          <PagesTable     data={data} onMore={onSoon} isMobile={isMobile} />
+        </>
+      )}
 
       {/* Footer */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',

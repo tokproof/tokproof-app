@@ -12,6 +12,7 @@ import UpgradeProModal from '@/components/shared/UpgradeProModal'
 import CreateEcommerceModal from '@/components/dashboard/CreateEcommerceModal'
 import CreatePersonalBrandModal from '@/components/dashboard/CreatePersonalBrandModal'
 import QuickExitWidget from '@/components/dashboard/QuickExitWidget'
+import EmptyState from '@/components/shared/EmptyState'
 import { useTranslation } from '@/lib/i18n'
 import type { Page, Profile } from '@/types'
 import { getPublicPageUrl, getPublicExitUrl, getPublicPageDisplay, getPublicExitDisplay } from '@/lib/urls'
@@ -581,23 +582,21 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
           </div>
 
           {filteredPages.length === 0 ? (
-            <div className="page-empty">
-              <div className="page-empty-icon">📄</div>
-              <div className="page-empty-title">
-                {activeFilter === 'all'
-                  ? t('dashboard.empty.all')
-                  : activeFilter === 'published'
-                    ? t('dashboard.empty.published')
-                    : t('dashboard.empty.draft')
-                }
-              </div>
-              <p className="page-empty-sub">
-                {activeFilter === 'all'
-                  ? t('dashboard.empty.allSub')
-                  : t('dashboard.empty.filterSub')}
-              </p>
-              {activeFilter === 'all' && (
-                <button className="btn btn-primary" onClick={openNewLanding}>{t('dashboard.createFirst')}</button>
+            <div style={{ marginBottom: 8 }}>
+              {activeFilter === 'all' ? (
+                <EmptyState
+                  icon="🚀"
+                  title="Create your first landing in under 1 minute"
+                  description="Choose a template, customize it and start converting your social traffic with a single link."
+                  primaryAction={{ label: 'Create landing', onClick: openNewLanding }}
+                />
+              ) : (
+                <EmptyState
+                  icon="🔍"
+                  title={activeFilter === 'published' ? t('dashboard.empty.published') : t('dashboard.empty.draft')}
+                  description={t('dashboard.empty.filterSub')}
+                  compact
+                />
               )}
             </div>
           ) : (
