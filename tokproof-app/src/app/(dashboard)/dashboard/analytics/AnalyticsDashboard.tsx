@@ -620,23 +620,38 @@ function PerformanceChart({ data, isPro, onUpgrade, isMobile }: { data: FullAnal
         ))}
       </div>
       <div style={{ width: '100%', height: isMobile ? 200 : 300, marginTop: 8 }}>
-        {pts.length === 0
-          ? <div style={{ height: '100%', display: 'flex', alignItems: 'center',
-              justifyContent: 'center', color: C.muted2, fontSize: 13 }}>{t('analytics.noDataPeriod')}</div>
-          : <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-              {Array.from({ length: 6 }, (_, g) => {
-                const gv = g * (chartMax / 5)
-                const gy = cy(gv)
-                return (
-                  <g key={g}>
-                    <line x1={padL} y1={gy} x2={W - padR} y2={gy} stroke="#F0F1F4" strokeWidth="1"/>
-                    <text x={padL - 12} y={gy + 4} textAnchor="end" fontSize="12"
-                      fill="#A9AEBC" fontFamily="Inter">
-                      {Math.round(gv) === 0 ? '0' : `${Math.round(gv)}${gv >= 1000 ? 'K' : ''}`}
-                    </text>
-                  </g>
-                )
-              })}
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+          {/* Grid lines — always shown */}
+          {Array.from({ length: 6 }, (_, g) => {
+            const gv = g * (chartMax / 5)
+            const gy = cy(gv)
+            return (
+              <g key={g}>
+                <line x1={padL} y1={gy} x2={W - padR} y2={gy} stroke="#F0F1F4" strokeWidth="1"/>
+                <text x={padL - 12} y={gy + 4} textAnchor="end" fontSize="12"
+                  fill="#A9AEBC" fontFamily="Inter">
+                  {Math.round(gv) === 0 ? '0' : `${Math.round(gv)}${gv >= 1000 ? 'K' : ''}`}
+                </text>
+              </g>
+            )
+          })}
+
+          {pts.length === 0 ? (
+            <>
+              {/* Flat dashed baselines — visual placeholder */}
+              {SERIES_META.map(s => (
+                <line key={s.color}
+                  x1={padL} y1={cy(0)} x2={W - padR} y2={cy(0)}
+                  stroke={s.color} strokeWidth="2" strokeDasharray="8 8"
+                  strokeLinecap="round" opacity="0.18" />
+              ))}
+              <text x={W / 2} y={H / 2 + 4} textAnchor="middle"
+                fontSize="14" fill="#C9CCD6" fontFamily="Inter" fontWeight="500">
+                {t('analytics.noDataPeriod')}
+              </text>
+            </>
+          ) : (
+            <>
               {pts.map((p, i) => (
                 <text key={i} x={cx(i)} y={H - 14} textAnchor="middle"
                   fontSize="12" fill="#A9AEBC" fontFamily="Inter">{p.date}</text>
@@ -654,8 +669,9 @@ function PerformanceChart({ data, isPro, onUpgrade, isMobile }: { data: FullAnal
                   </g>
                 )
               })}
-            </svg>
-        }
+            </>
+          )}
+        </svg>
       </div>
     </Card>
   )
@@ -684,13 +700,7 @@ function PagesTable({ data, onMore, isMobile }: { data: FullAnalytics; onMore: (
         </div>
       </div>
       <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-        {data.pages.length === 0
-          ? <div style={{ textAlign: 'center', padding: '40px 20px', color: C.muted, fontSize: 13.5, fontWeight: 500 }}>
-              <div style={{ fontSize: 28, marginBottom: 10 }}>📊</div>
-              <div style={{ fontWeight: 700, color: C.ink2, marginBottom: 6 }}>No page data yet</div>
-              <div style={{ color: C.muted2 }}>Publish a page and start sharing it to see performance metrics here.</div>
-            </div>
-          : <table style={{ width: '100%', minWidth: isMobile ? 380 : 640, borderCollapse: 'collapse' }}>
+        <table style={{ width: '100%', minWidth: isMobile ? 380 : 640, borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
                   {headers.map((h, i) => (
@@ -703,7 +713,17 @@ function PagesTable({ data, onMore, isMobile }: { data: FullAnalytics; onMore: (
                 </tr>
               </thead>
               <tbody>
-                {data.pages.map((row, idx) => (
+                {data.pages.length === 0 ? (
+                  <tr>
+                    <td colSpan={headers.length + 1} style={{
+                      textAlign: 'center', padding: '28px 20px',
+                      color: C.muted2, fontSize: 13, fontWeight: 500,
+                      borderTop: `1px solid ${C.lineSoft}`,
+                    }}>
+                      Todavía no hay datos
+                    </td>
+                  </tr>
+                ) : data.pages.map((row, idx) => (
                   <tr key={row.pageId} style={{ cursor: 'pointer' }}>
                     <td style={{ padding: '13px 0', borderTop: `1px solid ${C.lineSoft}`,
                       textAlign: 'left', whiteSpace: 'nowrap' }}>
@@ -732,7 +752,6 @@ function PagesTable({ data, onMore, isMobile }: { data: FullAnalytics; onMore: (
                 ))}
               </tbody>
             </table>
-        }
       </div>
       <div onClick={onMore} style={{ textAlign: 'center', padding: 16, marginTop: 6,
         background: '#F7F5FD', borderRadius: 12, color: C.violet,
@@ -740,6 +759,32 @@ function PagesTable({ data, onMore, isMobile }: { data: FullAnalytics; onMore: (
         {t('analytics.viewAllPages')}
       </div>
     </Card>
+  )
+}
+
+// ─── No-data info banner ─────────────────────────────────────────────────────
+function NoDataBanner() {
+  const items = ['Visitas','Clics','CTR','Rendimiento por página','Embudo TikTok Rescue','Evolución temporal']
+  return (
+    <div style={{
+      display: 'flex', gap: 14, alignItems: 'flex-start',
+      background: 'linear-gradient(135deg,rgba(246,71,169,.04),rgba(123,97,255,.06))',
+      border: '1px solid rgba(123,97,255,.12)',
+      borderRadius: 14, padding: '14px 18px', marginBottom: 18,
+    }}>
+      <div style={{ fontSize: 22, flexShrink: 0, marginTop: 1 }}>📈</div>
+      <div>
+        <div style={{ fontSize: 13.5, fontWeight: 700, color: C.ink, marginBottom: 4 }}>
+          Tus analytics aparecerán automáticamente cuando empieces a recibir tráfico.
+        </div>
+        <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.55 }}>
+          Comparte tu enlace de Tokproof en TikTok, Instagram o cualquier red social y podrás ver:{' '}
+          <span style={{ color: C.ink2, fontWeight: 500 }}>
+            {items.join(' · ')}
+          </span>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -933,99 +978,22 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
         </button>
       </div>
 
-      {/* ── Empty state when no traffic at all ── */}
-      {data.views === 0 && data.clicks === 0 ? (
-        <div style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          textAlign: 'center', padding: isMobile ? '48px 20px' : '72px 32px',
-          background: 'linear-gradient(135deg,rgba(246,71,169,.03),rgba(123,97,255,.04))',
-          border: `1px solid ${C.line}`, borderRadius: 20, marginTop: 4,
-          animation: 'es-fade-up .24s cubic-bezier(.25,0,0,1)',
-        }}>
-          <style>{`@keyframes es-fade-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}`}</style>
+      {/* ── Info banner — only when no data yet ── */}
+      {data.views === 0 && data.clicks === 0 && <NoDataBanner />}
 
-          {/* Icon */}
-          <div style={{
-            width: 76, height: 76, borderRadius: '50%',
-            background: 'linear-gradient(135deg,rgba(246,71,169,.1),rgba(123,97,255,.12))',
-            border: '1.5px solid rgba(123,97,255,.14)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            marginBottom: 22, boxShadow: '0 6px 20px rgba(123,97,255,.1)',
-          }}>
-            <span style={{ fontSize: 36, lineHeight: 1 }}>📈</span>
-          </div>
+      {/* KPI grid — always visible */}
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : isTablet ? 'repeat(4,1fr)' : 'repeat(7,1fr)', gap: isMobile ? 10 : 13 }}
+        className="kpi-analytics-grid">
+        {KPI_CONFIG.map((cfg, i) => (
+          <KpiCard key={cfg.label} cfg={cfg} val={kpiVals[i]}
+            isPro={isPro} onUpgrade={onUpgrade} isMobile={isMobile} />
+        ))}
+      </div>
 
-          <div style={{ fontSize: 20, fontWeight: 800, color: C.ink, letterSpacing: '-.025em', marginBottom: 10, maxWidth: 340 }}>
-            No traffic yet
-          </div>
-          <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.65, maxWidth: 400, margin: '0 0 28px' }}>
-            Share your Tokproof link on TikTok, Instagram or any social network. Your analytics will appear here automatically.
-          </p>
-
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
-            {pages.length > 0 && (
-              <button
-                onClick={() => { navigator.clipboard?.writeText(`https://tokproof.app/@${pages[0].username}`) }}
-                style={{
-                  padding: '10px 22px', borderRadius: 12, border: 'none',
-                  background: 'linear-gradient(135deg,#F647A9,#7B61FF)', color: '#fff',
-                  fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-                  boxShadow: '0 4px 14px rgba(246,71,169,.28)',
-                  transition: 'transform .18s, filter .18s',
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.filter = 'brightness(1.06)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.filter = ''; (e.currentTarget as HTMLButtonElement).style.transform = '' }}
-              >
-                Copy my link
-              </button>
-            )}
-            {pages.length > 0 && pages[0].username && (
-              <button
-                onClick={() => window.open(`https://tokproof.app/@${pages[0].username}`, '_blank')}
-                style={{
-                  padding: '10px 22px', borderRadius: 12, border: `1.5px solid ${C.line}`,
-                  background: '#fff', color: C.ink2,
-                  fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                  transition: 'background .18s, border-color .18s',
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#F9FAFB' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#fff' }}
-              >
-                Preview page
-              </button>
-            )}
-            {pages.length === 0 && (
-              <button
-                onClick={() => router.push('/dashboard')}
-                style={{
-                  padding: '10px 22px', borderRadius: 12, border: 'none',
-                  background: 'linear-gradient(135deg,#F647A9,#7B61FF)', color: '#fff',
-                  fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-                  boxShadow: '0 4px 14px rgba(246,71,169,.28)',
-                }}
-              >
-                Create my first page
-              </button>
-            )}
-          </div>
-        </div>
-      ) : (
-        <>
-          {/* KPI grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : isTablet ? 'repeat(4,1fr)' : 'repeat(7,1fr)', gap: isMobile ? 10 : 13 }}
-            className="kpi-analytics-grid">
-            {KPI_CONFIG.map((cfg, i) => (
-              <KpiCard key={cfg.label} cfg={cfg} val={kpiVals[i]}
-                isPro={isPro} onUpgrade={onUpgrade} isMobile={isMobile} />
-            ))}
-          </div>
-
-          <FunnelSection  data={data} isPro={isPro} onUpgrade={onUpgrade} isMobile={isMobile} />
-          <TripleRow      data={data} isPro={isPro} onMore={onSoon} onUpgrade={onUpgrade} isMobile={isMobile} isTablet={isTablet} />
-          <PerformanceChart data={data} isPro={isPro} onUpgrade={onUpgrade} isMobile={isMobile} />
-          <PagesTable     data={data} onMore={onSoon} isMobile={isMobile} />
-        </>
-      )}
+      <FunnelSection  data={data} isPro={isPro} onUpgrade={onUpgrade} isMobile={isMobile} />
+      <TripleRow      data={data} isPro={isPro} onMore={onSoon} onUpgrade={onUpgrade} isMobile={isMobile} isTablet={isTablet} />
+      <PerformanceChart data={data} isPro={isPro} onUpgrade={onUpgrade} isMobile={isMobile} />
+      <PagesTable     data={data} onMore={onSoon} isMobile={isMobile} />
 
       {/* Footer */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
