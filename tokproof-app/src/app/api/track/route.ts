@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 
-// Debug mode: set DEBUG_ANALYTICS=true in .env.local (never in production)
-const DEBUG = process.env.DEBUG_ANALYTICS === 'true'
+// Verbose logs — always on until analytics are confirmed working
+const DEBUG = true
 
 // Allowlist of valid event types
 const ALLOWED_EVENTS = new Set([
@@ -47,12 +47,11 @@ export async function POST(req: NextRequest) {
     }
 
     if (!eventType || !ALLOWED_EVENTS.has(eventType)) {
+      console.warn('[track] REJECTED — invalid eventType:', eventType)
       return NextResponse.json({ error: 'invalid eventType' }, { status: 400 })
     }
 
-    if (DEBUG) {
-      console.log('[track] incoming:', { pageId, eventType, sessionId: sessionId?.slice(0, 8) })
-    }
+    console.log('[track] ▶ RECEIVED', { eventType, pageId, slug, sessionId: sessionId?.slice(0, 8) })
 
     const supabase = createAdminClient()
 
@@ -65,10 +64,14 @@ export async function POST(req: NextRequest) {
         .eq('id', pageId)
         .single()
 
-      if (pageErr && DEBUG) {
-        console.warn('[track] page lookup failed:', pageErr.message, 'pageId:', pageId)
+      if (pageErr) {
+        console.warn('[track] page lookup FAILED — pageId may not exist:', pageId, pageErr.message)
+      } else {
+        console.log('[track] page resolved — user_id:', page?.user_id)
       }
       userId = page?.user_id ?? null
+    } else {
+      console.warn('[track] no pageId sent — userId will be null')
     }
 
     const ua  = req.headers.get('user-agent') ?? ''
@@ -77,7 +80,6 @@ export async function POST(req: NextRequest) {
     const enriched = { userAgent: ua, referer: ref, ...metadata }
 
     // ── Deduplication for view-type events ────────────────────────────────
-    // Prevents double-inserts from React Strict Mode or network retries.
     if (DEDUP_EVENTS.has(eventType) && sessionId && pageId) {
       const fiveMinAgo = new Date(Date.now() - 5 * 60_000).toISOString()
       const { data: existing } = await supabase
@@ -89,8 +91,8 @@ export async function POST(req: NextRequest) {
         .gte('created_at', fiveMinAgo)
         .limit(1)
       if (existing?.length) {
-        if (DEBUG) console.log('[track] dedup skip:', eventType)
-        return NextResponse.json({ ok: true, skipped: 'duplicate' })
+        console.log('[track] ⏭ DEDUP SKIP', { eventType, existingId: existing[0].id })
+        return NextResponse.json({ ok: true, skipped: 'duplicate', existingId: existing[0].id })
       }
     }
 
@@ -103,42 +105,47 @@ export async function POST(req: NextRequest) {
       metadata:   enriched,
     }
 
+    console.log('[track] ✍ INSERTING into analytics_events', {
+      table: 'analytics_events',
+      payload: { ...baseRow, session_id: sessionId ?? null },
+    })
+
     // ── Attempt 1: insert WITH session_id ──────────────────────────────────
     let { data: inserted, error: insertError } = await supabase
       .from('analytics_events')
       .insert({ ...baseRow, session_id: sessionId ?? null })
-      .select('id')
+      .select('id, event_type, page_id, created_at')
 
     // ── Attempt 2: session_id column missing (42703) ───────────────────────
     if (insertError?.code === '42703') {
-      console.warn('[track] session_id column missing — retrying without it. Run migration 20260530_analytics_session_id.sql')
+      console.warn('[track] session_id column missing — retrying without it')
       ;({ data: inserted, error: insertError } = await supabase
         .from('analytics_events')
         .insert(baseRow)
-        .select('id'))
+        .select('id, event_type, page_id, created_at'))
     }
 
     // ── Hard failure ───────────────────────────────────────────────────────
     if (insertError) {
       const isTableMissing = insertError.code === '42P01'
-      console.error('[track] INSERT FAILED', {
+      console.error('[track] ❌ INSERT FAILED — full error:', {
         code:    insertError.code,
         message: insertError.message,
+        details: insertError.details,
         hint:    isTableMissing
-          ? 'Table analytics_events does not exist. Run migration 20260608_analytics_complete.sql in Supabase SQL Editor.'
+          ? 'Table analytics_events does not exist. Run migration in Supabase SQL Editor.'
           : insertError.hint,
       })
       return NextResponse.json(
-        { ok: false, error: insertError.message, code: insertError.code },
+        { ok: false, error: insertError.message, code: insertError.code, details: insertError.details, hint: insertError.hint },
         { status: 500 },
       )
     }
 
-    if (DEBUG) {
-      console.log('[track] inserted id:', (inserted as Array<{ id: string }>)?.[0]?.id)
-    }
+    const row = (inserted as Array<{ id: string; event_type: string; page_id: string; created_at: string }>)?.[0]
+    console.log('[track] ✅ INSERT OK', row)
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, inserted: row })
   } catch (err) {
     console.error('[track] exception:', err instanceof Error ? err.message : err)
     return NextResponse.json(
