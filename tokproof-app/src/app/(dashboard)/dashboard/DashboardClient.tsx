@@ -4,7 +4,7 @@ import { useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  Eye, MousePointerClick, TrendingUp, ShieldCheck,
+  Eye, TrendingUp, ShieldCheck,
   ExternalLink, Clock, Lightbulb, Plus, Check,
 } from 'lucide-react'
 import PageCard from '@/components/dashboard/PageCard'
@@ -85,20 +85,6 @@ interface DashboardClientProps {
   pageStats?: Record<string, { views: string; clicks: string; ctr: string }>
 }
 
-/* ── Sparkline SVG ───────────────────────────── */
-function Sparkline({ color, index = 0 }: { color: string; index?: number }) {
-  const paths = [
-    'M0,28 C14,22 24,14 36,18 C48,22 58,8 70,12 C80,14 88,4 96,6',
-    'M0,26 C12,22 22,28 34,16 C46,4 56,20 68,12 C78,4 86,16 96,6',
-    'M0,24 C14,28 24,16 36,20 C48,24 58,10 70,14 C82,18 90,6 96,8',
-    'M0,22 C14,24 24,12 36,16 C48,20 58,8 70,10 C80,12 88,2 96,4',
-  ]
-  return (
-    <svg width="110" height="34" viewBox="0 0 96 32" fill="none" style={{ flexShrink: 0, opacity: .9 }}>
-      <path d={paths[index % paths.length]} stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
 
 /* ── TikTok Rescue widget ────────────────────── */
 function RescueWidget({ guides, opens, rate }: {
@@ -289,13 +275,6 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
   const publicUrl     = profile.username ? getPublicPageUrl(profile.username)     : null
   const publicDisplay = profile.username ? getPublicPageDisplay(profile.username) : null
 
-  const METRICS = [
-    { Icon: Eye,               iconBg: '#FFF1FA', iconColor: '#F647A9', trendColor: '#F647A9', sparkColor: '#F647A9', label: t('dashboard.totalViews'),    key: 'views',   trendKey: 'viewsTrend' },
-    { Icon: MousePointerClick, iconBg: '#F4F0FF', iconColor: '#7B61FF', trendColor: '#7B61FF', sparkColor: '#7B61FF', label: t('dashboard.totalClicks'),    key: 'clicks',  trendKey: 'clicksTrend' },
-    { Icon: TrendingUp,        iconBg: '#FFF1FA', iconColor: '#F647A9', trendColor: '#F647A9', sparkColor: '#F647A9', label: t('dashboard.avgCtr'),         key: 'ctr',     trendKey: 'ctrTrend' },
-    { Icon: ShieldCheck,       iconBg: '#F4F0FF', iconColor: '#7B61FF', trendColor: '#7B61FF', sparkColor: '#7B61FF', label: t('dashboard.rescues'),         key: 'rescues', trendKey: 'rescuesTrend' },
-  ]
-
   function openNewLanding() {
     if (isFree && publishedCount >= 1) { setUpgradeOpen(true); return }
     setCategoryOpen(true)
@@ -401,30 +380,118 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
           </div>
         </div>
 
-        {/* ── Metric cards ── */}
-        <div className="db-metrics">
-          {METRICS.map((m, i) => {
-            const { Icon, iconBg, iconColor, trendColor, sparkColor, label, key, trendKey } = m
-            const value = analytics ? (analytics as any)[key] : '—'
-            const trend = analytics ? (analytics as any)[trendKey] : ''
-            return (
-              <div className="db-metric-card" key={key}>
-                <div className="db-metric-icon" style={{ background: iconBg, color: iconColor }}>
-                  <Icon size={22} strokeWidth={1.8} />
-                </div>
-                <div className="db-metric-left">
-                  <div className="db-metric-label">{label}</div>
-                  <div className="db-metric-value">{value}</div>
-                </div>
-                <div className="db-metric-bottom">
-                  {trend && (
-                    <div className="db-metric-trend" style={{ color: trendColor }}>{trend}</div>
-                  )}
-                  <Sparkline color={sparkColor} index={i} />
-                </div>
+        {/* ── Welcome banner ── */}
+        <div style={{
+          background: '#fff',
+          border: '1px solid #E4E7F0',
+          borderRadius: 18,
+          padding: '24px 28px',
+          marginBottom: 20,
+          boxShadow: '0 1px 6px rgba(15,23,42,.05)',
+          position: 'relative',
+          overflow: 'hidden',
+        }}>
+          {/* Gradient accent strip */}
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, height: 3,
+            background: 'linear-gradient(90deg,#F647A9,#7B61FF)',
+          }} />
+
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 24, flexWrap: 'wrap' }}>
+
+            {/* Left: text + badges + info */}
+            <div style={{ flex: 1, minWidth: 260 }}>
+              <div style={{ fontSize: 19, fontWeight: 800, color: '#15161C', letterSpacing: '-0.02em', marginBottom: 8, lineHeight: 1.3 }}>
+                🚀 Tu página está lista para recibir tráfico
               </div>
-            )
-          })}
+              <p style={{ fontSize: 13.5, color: '#6B7280', lineHeight: 1.65, margin: '0 0 16px' }}>
+                Comparte tu enlace en TikTok, Instagram o cualquier red social y consulta el rendimiento completo desde Analytics.
+              </p>
+
+              {/* Status badges */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginBottom: 14 }}>
+                {publishedCount > 0 && (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                    padding: '4px 11px', borderRadius: 999,
+                    background: 'rgba(16,185,129,.07)', border: '1px solid rgba(16,185,129,.18)',
+                    fontSize: 12, fontWeight: 600, color: '#059669',
+                  }}>
+                    🟢 Landing publicada
+                  </span>
+                )}
+                {publicDisplay && (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                    padding: '4px 11px', borderRadius: 999,
+                    background: '#F4F5F8', border: '1px solid #E4E7F0',
+                    fontSize: 12, fontWeight: 600, color: '#374151',
+                  }}>
+                    🔗 {publicDisplay}
+                  </span>
+                )}
+                {quickExits.length > 0 && profile.username && (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                    padding: '4px 11px', borderRadius: 999,
+                    background: 'rgba(123,97,255,.06)', border: '1px solid rgba(123,97,255,.18)',
+                    fontSize: 12, fontWeight: 600, color: '#7B61FF',
+                  }}>
+                    🛡 Rescue: {getPublicExitDisplay(profile.username)}
+                  </span>
+                )}
+              </div>
+
+              {/* Analytics info note */}
+              <div style={{
+                padding: '10px 14px',
+                background: 'linear-gradient(135deg,rgba(246,71,169,.04),rgba(123,97,255,.06))',
+                borderRadius: 10,
+                border: '1px solid rgba(123,97,255,.11)',
+                fontSize: 12.5, color: '#8B90A0', lineHeight: 1.6,
+              }}>
+                📊 Las métricas en tiempo real están disponibles en <strong style={{ color: '#6B7280' }}>Analytics</strong>, donde podrás ver visitas, clics, CTR, embudo de TikTok Rescue y evolución.
+              </div>
+            </div>
+
+            {/* Right: action buttons */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flexShrink: 0, alignSelf: 'flex-start' }}>
+              <a
+                href="/dashboard/analytics"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                  padding: '11px 22px', borderRadius: 12,
+                  background: 'linear-gradient(135deg,#F647A9,#7B61FF)',
+                  color: '#fff', fontSize: 14, fontWeight: 700,
+                  textDecoration: 'none',
+                  boxShadow: '0 6px 20px rgba(123,97,255,.28)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <TrendingUp size={15} />
+                Ver Analytics
+              </a>
+              {publicUrl && (
+                <button
+                  onClick={() => headerCopy.copy(publicUrl)}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                    padding: '11px 22px', borderRadius: 12,
+                    background: headerCopy.copied ? 'rgba(123,97,255,.08)' : '#F4F5F8',
+                    border: `1px solid ${headerCopy.copied ? 'rgba(123,97,255,.28)' : '#E4E7F0'}`,
+                    color: headerCopy.copied ? '#7B61FF' : '#374151',
+                    fontSize: 14, fontWeight: 600,
+                    cursor: 'pointer', fontFamily: 'inherit',
+                    transition: 'all .18s ease',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {headerCopy.copied ? <Check size={15} /> : <GradLinkIcon size={15} />}
+                  {headerCopy.copied ? '¡Copiado!' : 'Copiar mi link'}
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* ── Plan usage bar ── */}
