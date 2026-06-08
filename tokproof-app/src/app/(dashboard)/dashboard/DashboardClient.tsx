@@ -382,37 +382,39 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
 
         {/* ── Exit Link educational banner ── */}
         <style>{`
-          .elb-wrap  { display:flex; gap:28px; align-items:center; }
-          .elb-left  { flex:1; min-width:260px; }
-          .elb-right { flex-shrink:0; display:flex; align-items:center; justify-content:center; }
-          .elb-perks { display:flex; gap:10px; margin-top:20px; }
-          .elb-perk  { flex:1; min-width:130px; }
+          .elb-wrap  { display:flex; min-height:0; }
+          .elb-left  { flex:0 0 63%; padding:36px 32px 28px; }
+          .elb-right { flex:1; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; padding:24px 20px; }
+          .elb-perks { display:flex; background:rgba(255,255,255,.6); border:1px solid rgba(123,97,255,.1); border-radius:14px; overflow:hidden; margin-top:22px; }
+          .elb-perk  { flex:1; display:flex; align-items:center; gap:10px; padding:11px 14px; }
+          .elb-sep   { width:1px; background:rgba(123,97,255,.1); align-self:stretch; margin:8px 0; flex-shrink:0; }
           @media(max-width:680px){
             .elb-wrap  { flex-direction:column; }
-            .elb-right { width:100%; justify-content:center; }
-            .elb-perks { flex-direction:column; gap:8px; }
-            .elb-perk  { min-width:unset; }
+            .elb-left  { flex:none; padding:28px 22px 20px; }
+            .elb-right { min-height:140px; padding:20px; }
+            .elb-perks { flex-direction:column; }
+            .elb-sep   { width:auto; height:1px; margin:0 10px; align-self:auto; }
           }
         `}</style>
-        <div style={{ background:'linear-gradient(135deg,#fff 55%,#fdf4ff 100%)', border:'1px solid #EDE3FC', borderRadius:20, padding:'28px 32px', marginBottom:20, boxShadow:'0 4px 20px rgba(123,97,255,.07)', position:'relative', overflow:'hidden' }}>
+        <div style={{ background:'linear-gradient(135deg,#fff 0%,#fdf4ff 100%)', border:'1px solid #EDE3FC', borderRadius:20, marginBottom:20, boxShadow:'0 4px 24px rgba(123,97,255,.08)', position:'relative', overflow:'hidden' }}>
 
           {/* Gradient top strip */}
-          <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:'linear-gradient(90deg,#F647A9,#7B61FF)' }} />
-          {/* Decorative radial glow */}
-          <div style={{ position:'absolute', top:-50, right:-50, width:200, height:200, borderRadius:'50%', background:'radial-gradient(circle,rgba(123,97,255,.07) 0%,transparent 70%)', pointerEvents:'none' }} />
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:'linear-gradient(90deg,#F647A9,#7B61FF)', zIndex:1 }} />
 
           <div className="elb-wrap">
 
-            {/* ── LEFT: icon + headline + description + benefits ── */}
+            {/* ── LEFT ── */}
             <div className="elb-left">
 
-              {/* Shield icon in gradient circle */}
-              <div style={{ width:54, height:54, borderRadius:16, background:'linear-gradient(135deg,#F647A9,#7B61FF)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:18, boxShadow:'0 8px 24px rgba(123,97,255,.32)', flexShrink:0 }}>
-                <ShieldCheck size={26} color="white" strokeWidth={2.2} />
+              {/* Double-ring circle icon */}
+              <div style={{ width:58, height:58, borderRadius:'50%', background:'rgba(123,97,255,.08)', border:'1.5px solid rgba(123,97,255,.14)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:20 }}>
+                <div style={{ width:42, height:42, borderRadius:'50%', background:'linear-gradient(135deg,#F647A9,#7B61FF)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 6px 16px rgba(123,97,255,.35)' }}>
+                  <ShieldCheck size={21} color="white" strokeWidth={2} />
+                </div>
               </div>
 
               {/* Pre-title */}
-              <div style={{ fontSize:13.5, fontWeight:600, color:'#9CA3AF', marginBottom:6, letterSpacing:'.01em' }}>
+              <div style={{ fontSize:13, fontWeight:600, color:'#6B7280', marginBottom:7 }}>
                 TikTok puede bloquear tu enlace.
               </div>
 
@@ -422,71 +424,91 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
               </div>
 
               {/* Description */}
-              <p style={{ fontSize:13.5, color:'#6B7280', lineHeight:1.7, margin:0 }}>
+              <p style={{ fontSize:13, color:'#6B7280', lineHeight:1.7, margin:0 }}>
                 Crea tu Exit Link en 1 clic y redirige a tus clientes de forma segura a tu tienda, incluso si TikTok bloquea el enlace original.
               </p>
 
-              {/* 3 benefit cards */}
+              {/* Benefits bar — single row with separators */}
               <div className="elb-perks">
-                {[
-                  { icon:'🛡', title:'Protege tus ventas',        desc:'Evita pérdidas por bloqueos' },
-                  { icon:'⚡', title:'Configuración instantánea', desc:'Crea tu Exit Link en 1 clic' },
-                  { icon:'✅', title:'Llega de forma segura',     desc:'Más confianza, más conversiones' },
-                ].map((b, i) => (
-                  <div key={i} className="elb-perk" style={{ padding:'12px 13px', background:'rgba(255,255,255,.8)', border:'1px solid rgba(123,97,255,.1)', borderRadius:13 }}>
-                    <span style={{ fontSize:18 }}>{b.icon}</span>
-                    <div style={{ fontSize:12, fontWeight:700, color:'#374151', marginTop:5, marginBottom:2 }}>{b.title}</div>
-                    <div style={{ fontSize:11.5, color:'#9CA3AF', lineHeight:1.45 }}>{b.desc}</div>
+                <div className="elb-perk">
+                  <div style={{ width:30, height:30, borderRadius:9, background:'rgba(123,97,255,.1)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                    <ShieldCheck size={15} color="#7B61FF" strokeWidth={2} />
                   </div>
-                ))}
+                  <div>
+                    <div style={{ fontSize:11.5, fontWeight:700, color:'#374151' }}>Protege tus ventas</div>
+                    <div style={{ fontSize:10.5, color:'#9CA3AF', marginTop:1 }}>Evita pérdidas por bloqueos</div>
+                  </div>
+                </div>
+                <div className="elb-sep" />
+                <div className="elb-perk">
+                  <div style={{ width:30, height:30, borderRadius:9, background:'rgba(246,71,169,.1)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F647A9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:11.5, fontWeight:700, color:'#374151' }}>Configuración instantánea</div>
+                    <div style={{ fontSize:10.5, color:'#9CA3AF', marginTop:1 }}>Listo en menos de 1 minuto</div>
+                  </div>
+                </div>
+                <div className="elb-sep" />
+                <div className="elb-perk">
+                  <div style={{ width:30, height:30, borderRadius:9, background:'rgba(16,185,129,.1)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                    <Check size={15} color="#10B981" strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize:11.5, fontWeight:700, color:'#374151' }}>Llega de forma segura</div>
+                    <div style={{ fontSize:10.5, color:'#9CA3AF', marginTop:1 }}>Más confianza, más ventas</div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* ── RIGHT: TikTok → block → Exit Link → success flow ── */}
+            {/* ── RIGHT: horizontal illustration ── */}
             <div className="elb-right">
-              <div style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'18px 22px', background:'rgba(255,255,255,.65)', border:'1px solid rgba(123,97,255,.1)', borderRadius:18, gap:0 }}>
 
-                {/* TikTok icon */}
-                <div style={{ width:46, height:46, borderRadius:14, background:'#000', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 14px rgba(0,0,0,.18)' }}>
-                  <svg width="21" height="21" viewBox="0 0 24 24" fill="white">
-                    <path d="M16.5 5.5c1 1.2 2.3 2 3.9 2.1v3c-1.6 0-3.1-.5-4.4-1.4v6.3a5.5 5.5 0 1 1-5.5-5.5c.3 0 .6 0 .9.1v3.1a2.5 2.5 0 1 0 1.7 2.4V2.5h3.1c.1 1.1.5 2.1 1.3 3z"/>
-                  </svg>
+              {/* Decorative blurred circles */}
+              <div style={{ position:'absolute', top:'8%', left:'12%', width:90, height:90, borderRadius:'50%', background:'rgba(123,97,255,.07)', filter:'blur(14px)', pointerEvents:'none' }} />
+              <div style={{ position:'absolute', bottom:'8%', right:'6%', width:70, height:70, borderRadius:'50%', background:'rgba(246,71,169,.06)', filter:'blur(10px)', pointerEvents:'none' }} />
+              {/* Dot particles */}
+              <div style={{ position:'absolute', top:'22%', right:'16%', width:6, height:6, borderRadius:'50%', background:'rgba(123,97,255,.3)', pointerEvents:'none' }} />
+              <div style={{ position:'absolute', top:'58%', left:'8%', width:5, height:5, borderRadius:'50%', background:'rgba(246,71,169,.35)', pointerEvents:'none' }} />
+              <div style={{ position:'absolute', bottom:'24%', right:'24%', width:4, height:4, borderRadius:'50%', background:'rgba(123,97,255,.25)', pointerEvents:'none' }} />
+              <div style={{ position:'absolute', top:'40%', right:'8%', width:7, height:7, borderRadius:'50%', background:'rgba(16,185,129,.3)', pointerEvents:'none' }} />
+
+              {/* Flow: TikTok card → dashed arrow → ExternalLink card */}
+              <div style={{ display:'flex', alignItems:'center', gap:12, position:'relative', zIndex:2 }}>
+
+                {/* TikTok card with red X badge */}
+                <div style={{ position:'relative' }}>
+                  <div style={{ width:72, height:72, borderRadius:18, background:'#000', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 8px 24px rgba(0,0,0,.22)' }}>
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="white">
+                      <path d="M16.5 5.5c1 1.2 2.3 2 3.9 2.1v3c-1.6 0-3.1-.5-4.4-1.4v6.3a5.5 5.5 0 1 1-5.5-5.5c.3 0 .6 0 .9.1v3.1a2.5 2.5 0 1 0 1.7 2.4V2.5h3.1c.1 1.1.5 2.1 1.3 3z"/>
+                    </svg>
+                  </div>
+                  <div style={{ position:'absolute', bottom:-7, right:-7, width:26, height:26, borderRadius:'50%', background:'#EF4444', display:'flex', alignItems:'center', justifyContent:'center', border:'2.5px solid #fff', boxShadow:'0 3px 8px rgba(239,68,68,.4)' }}>
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round">
+                      <line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/>
+                    </svg>
+                  </div>
                 </div>
 
-                {/* Connector ↓ */}
-                <div style={{ width:1.5, height:10, background:'#E5E7EB', margin:'5px 0 0' }} />
-                <svg width="10" height="7" viewBox="0 0 10 7" fill="none" style={{ marginBottom:5 }}>
-                  <path d="M5 6.5L0 0.5h10L5 6.5z" fill="#E5E7EB"/>
+                {/* Curved dashed arrow */}
+                <svg width="54" height="22" viewBox="0 0 54 22" fill="none" style={{ flexShrink:0 }}>
+                  <path d="M 3 16 Q 27 2 51 16" stroke="#7B61FF" strokeWidth="1.8" strokeDasharray="4 3" fill="none" strokeLinecap="round"/>
+                  <path d="M 44 10 L 52 16 L 44 19" stroke="#7B61FF" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
 
-                {/* Block / X node */}
-                <div style={{ width:46, height:46, borderRadius:14, background:'#FEF2F2', border:'2px solid #FECACA', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 3px 10px rgba(239,68,68,.12)' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round">
-                    <circle cx="12" cy="12" r="9"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-                  </svg>
-                </div>
-
-                {/* Exit Link pivot label */}
-                <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:3, margin:'6px 0' }}>
-                  <div style={{ width:1.5, height:8, background:'#C4B5FD' }} />
-                  <div style={{ fontSize:9.5, fontWeight:800, letterSpacing:'.06em', color:'#7B61FF', padding:'2px 9px', borderRadius:6, background:'rgba(123,97,255,.1)', border:'1px solid rgba(123,97,255,.22)' }}>EXIT LINK</div>
-                  <div style={{ width:1.5, height:8, background:'#6EE7B7' }} />
-                  <svg width="10" height="7" viewBox="0 0 10 7" fill="none">
-                    <path d="M5 6.5L0 0.5h10L5 6.5z" fill="#6EE7B7"/>
-                  </svg>
-                </div>
-
-                {/* Success / check node */}
-                <div style={{ width:46, height:46, borderRadius:14, background:'#F0FDF4', border:'2px solid #86EFAC', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 3px 10px rgba(16,185,129,.12)' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                </div>
-
-                {/* Bottom label */}
-                <div style={{ marginTop:10, textAlign:'center' }}>
-                  <div style={{ fontSize:10.5, color:'#9CA3AF', fontWeight:500 }}>Cliente llega</div>
-                  <div style={{ fontSize:11.5, color:'#10B981', fontWeight:700, marginTop:2 }}>✓ A tu tienda</div>
+                {/* External link card with green check badge */}
+                <div style={{ position:'relative' }}>
+                  <div style={{ width:72, height:72, borderRadius:18, background:'#fff', border:'1.5px solid #EDE3FC', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 8px 28px rgba(123,97,255,.18)' }}>
+                    <ExternalLink size={28} color="#7B61FF" strokeWidth={1.8} />
+                  </div>
+                  <div style={{ position:'absolute', bottom:-7, right:-7, width:26, height:26, borderRadius:'50%', background:'#10B981', display:'flex', alignItems:'center', justifyContent:'center', border:'2.5px solid #fff', boxShadow:'0 3px 8px rgba(16,185,129,.4)' }}>
+                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="1.5 5.5 4.5 8.5 9.5 2.5"/>
+                    </svg>
+                  </div>
                 </div>
 
               </div>
