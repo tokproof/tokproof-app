@@ -1,46 +1,81 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { getPublicExitDisplay } from '@/lib/urls'
 import type { Page } from '@/types'
+import type { Plan } from '@/lib/plans'
 import { X } from 'lucide-react'
 
 interface Props {
   open: boolean
   onClose: () => void
   userId: string
-  /** Profile username — becomes the /@username/go slug automatically */
+  /** Profile username — auto-used for Free, editable for Pro */
   username: string
+  plan: Plan
   /** Pass an existing page to edit it */
   editing?: Page | null
   onSaved: (page: Page) => void
 }
 
-export default function QuickExitModal({ open, onClose, userId, username, editing, onSaved }: Props) {
+type SlugStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid'
+
+function slugify(v: string) {
+  return v.toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 30)
+}
+
+export default function QuickExitModal({ open, onClose, userId, username, plan, editing, onSaved }: Props) {
   const isEditing = !!editing
+  const isPro = plan !== 'free'
 
   const [name,          setName]          = useState('')
+  const [slug,          setSlug]          = useState(username)
   const [destUrl,       setDestUrl]       = useState('')
   const [tiktokProfile, setTiktokProfile] = useState('')
+  const [slugStatus,    setSlugStatus]    = useState<SlugStatus>('idle')
   const [urlError,      setUrlError]      = useState('')
   const [tiktokError,   setTiktokError]   = useState('')
   const [saving,        setSaving]        = useState(false)
+  const [slugTouched,   setSlugTouched]   = useState(false)
 
-  // Pre-fill when editing
   useEffect(() => {
     if (!open) return
     if (editing) {
       const cfg = (editing.settings as Record<string, unknown>)?._landingConfig as Record<string, unknown> | undefined
       setName(editing.title ?? '')
+      setSlug(editing.username ?? username)
       setDestUrl((cfg?.destinationUrl as string) ?? '')
       setTiktokProfile((cfg?.tiktokProfile as string) ?? '')
+      setSlugStatus('available')
+      setSlugTouched(true)
       setTiktokError('')
     } else {
-      setName(''); setDestUrl(''); setTiktokProfile('')
-      setUrlError(''); setTiktokError('')
+      setName(''); setSlug(username); setDestUrl(''); setTiktokProfile('')
+      setSlugStatus('idle'); setSlugTouched(false); setUrlError(''); setTiktokError('')
     }
-  }, [open, editing])
+  }, [open, editing, username])
+
+  const checkSlug = useCallback(async (s: string) => {
+    if (!s || s.length < 2) { setSlugStatus('invalid'); return }
+    setSlugStatus('checking')
+    const supabase = createClient()
+    const query = supabase.from('pages').select('id').eq('username', s)
+    if (editing) query.neq('id', editing.id)
+    const { data } = await query.limit(1)
+    setSlugStatus(data && data.length > 0 ? 'taken' : 'available')
+  }, [editing])
+
+  useEffect(() => {
+    if (!isPro || !slugTouched || isEditing) return
+    const t = setTimeout(() => checkSlug(slug), 500)
+    return () => clearTimeout(t)
+  }, [slug, slugTouched, checkSlug, isEditing, isPro])
+
+  function handleSlugChange(v: string) {
+    setSlugTouched(true)
+    setSlug(slugify(v))
+  }
 
   function validateUrl(v: string): boolean {
     if (!v) { setUrlError('La URL es obligatoria'); return false }
@@ -61,6 +96,9 @@ export default function QuickExitModal({ open, onClose, userId, username, editin
   async function handleSave() {
     if (!validateUrl(destUrl)) return
     if (!validateTikTok(tiktokProfile)) return
+    const effectiveSlug = isPro ? slug : username
+    if (!effectiveSlug || effectiveSlug.length < 2) return
+    if (isPro && !isEditing && slugStatus !== 'available') return
 
     setSaving(true)
     const supabase = createClient()
@@ -69,7 +107,7 @@ export default function QuickExitModal({ open, onClose, userId, username, editin
     const landingConfig = {
       pageType: 'quick_exit',
       title: name,
-      slug: username,
+      slug: effectiveSlug,
       status: 'published',
       destinationUrl: destUrl,
       tiktokProfile: cleanHandle,
@@ -93,7 +131,7 @@ export default function QuickExitModal({ open, onClose, userId, username, editin
       page = data as Page | null
     } else {
       const { data } = await supabase.from('pages')
-        .insert({ user_id: userId, username, type: 'simple', status: 'published', title: name, settings: { _category: 'ecommerce', _pageType: 'quick_exit', _landingConfig: landingConfig } })
+        .insert({ user_id: userId, username: effectiveSlug, type: 'simple', status: 'published', title: name, settings: { _category: 'ecommerce', _pageType: 'quick_exit', _landingConfig: landingConfig } })
         .select().single()
       page = data as Page | null
     }
@@ -104,8 +142,12 @@ export default function QuickExitModal({ open, onClose, userId, username, editin
 
   if (!open) return null
 
+  const slugOk    = !isPro || isEditing || slugStatus === 'available'
   const tikOk     = tiktokProfile.replace(/^@/, '').trim().length > 0
-  const canSubmit = name.trim() && destUrl && tikOk && !saving
+  const canSubmit = name.trim() && destUrl && tikOk && slugOk && !saving
+
+  const slugColor = slugStatus === 'available' ? '#10B981' : slugStatus === 'taken' ? '#EF4444' : slugStatus === 'invalid' ? '#EF4444' : '#9CA3AF'
+  const slugMsg   = slugStatus === 'available' ? '✓ Disponible' : slugStatus === 'taken' ? '✕ No disponible' : slugStatus === 'checking' ? '…' : ''
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 9000, background: 'rgba(10,10,20,.55)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
@@ -139,12 +181,31 @@ export default function QuickExitModal({ open, onClose, userId, username, editin
             style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1.5px solid #E4E7F0', fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
         </div>
 
-        {/* Read-only URL */}
+        {/* Slug: editable for Pro, read-only for Free */}
         <div style={{ marginBottom: 14 }}>
-          <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>Tu enlace TikTok Rescue</label>
-          <div style={{ padding: '9px 12px', background: 'rgba(123,97,255,.06)', borderRadius: 10, border: '1.5px solid rgba(123,97,255,.15)', fontSize: 13, color: '#7B61FF', fontFamily: 'monospace', fontWeight: 600 }}>
-            🔗 {getPublicExitDisplay(username)}
-          </div>
+          <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>
+            Tu enlace TikTok Rescue
+            {isPro && <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 4, background: '#F3F0FF', color: '#7B61FF' }}>PRO</span>}
+          </label>
+          {isPro ? (
+            <div style={{ position: 'relative' }}>
+              <div style={{ display: 'flex' }}>
+                <span style={{ padding: '9px 10px', background: '#F3F4F6', border: '1.5px solid #E4E7F0', borderRight: 'none', borderRadius: '10px 0 0 10px', fontSize: 13, color: '#9CA3AF', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center' }}>@</span>
+                <input value={slug} onChange={e => handleSlugChange(e.target.value)} placeholder={username} disabled={isEditing}
+                  style={{ flex: 1, padding: '9px 12px', borderRadius: '0 10px 10px 0', border: '1.5px solid #E4E7F0', borderLeft: 'none', fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', background: isEditing ? '#F9FAFB' : '#fff' }} />
+              </div>
+              {slugMsg && <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 12, fontWeight: 700, color: slugColor }}>{slugMsg}</span>}
+              {slug && (
+                <div style={{ marginTop: 6, padding: '7px 12px', background: 'rgba(123,97,255,.06)', borderRadius: 8, fontSize: 12, color: '#7B61FF', fontFamily: 'monospace', fontWeight: 600 }}>
+                  🔗 {getPublicExitDisplay(slug)}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{ padding: '9px 12px', background: 'rgba(123,97,255,.06)', borderRadius: 10, border: '1.5px solid rgba(123,97,255,.15)', fontSize: 13, color: '#7B61FF', fontFamily: 'monospace', fontWeight: 600 }}>
+              🔗 {getPublicExitDisplay(username)}
+            </div>
+          )}
         </div>
 
         {/* Destination URL */}
@@ -158,9 +219,7 @@ export default function QuickExitModal({ open, onClose, userId, username, editin
 
         {/* TikTok Profile */}
         <div style={{ marginBottom: 20 }}>
-          <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>
-            Cuenta de TikTok
-          </label>
+          <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>Cuenta de TikTok</label>
           <div style={{ display: 'flex' }}>
             <span style={{ padding: '9px 10px', background: '#F3F4F6', border: `1.5px solid ${tiktokError ? '#FCA5A5' : '#E4E7F0'}`, borderRight: 'none', borderRadius: '10px 0 0 10px', fontSize: 13, fontWeight: 600, color: '#9CA3AF', display: 'flex', alignItems: 'center', flexShrink: 0 }}>@</span>
             <input

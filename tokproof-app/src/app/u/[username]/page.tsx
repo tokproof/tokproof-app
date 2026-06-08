@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import TrustPageRenderer from '@/components/public/TrustPageRenderer'
 import SimplePageRenderer from '@/components/public/SimplePageRenderer'
@@ -79,8 +79,33 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const landingConfig = settings?._landingConfig as LandingConfig | undefined
   if (landingConfig && typeof landingConfig === 'object') {
     const pt = landingConfig.pageType ?? (settings._pageType as string | undefined)
-    // Quick Exit: visiting /@slug redirects to /@slug/go (the exit guide)
-    if (pt === 'quick_exit') redirect(`/@${params.username}/go`)
+
+    // quick_exit pages have no blocks — render a minimal branded landing.
+    // The rescue animation lives at /@username/go (reached via CTA clicks).
+    // We NEVER auto-redirect from /@username to /go.
+    if (pt === 'quick_exit') {
+      const lc = landingConfig as unknown as Record<string, unknown>
+      const destUrl = lc.destinationUrl as string | undefined
+      const goUrl = `/@${params.username}/go`
+      return (
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0f0f1a', color: '#fff', fontFamily: 'Inter,system-ui,sans-serif', padding: 24 }}>
+          <div style={{ textAlign: 'center', maxWidth: 340 }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🛡️</div>
+            <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 8, letterSpacing: '-.02em' }}>
+              {(page.title as string | undefined) ?? `@${params.username}`}
+            </h1>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 28, lineHeight: 1.6 }}>
+              Haz clic para abrir{destUrl ? ` ${new URL(destUrl).hostname}` : ' tu producto'} fuera del navegador de TikTok.
+            </p>
+            <a href={goUrl}
+              style={{ display: 'block', padding: '14px 24px', borderRadius: 14, background: 'linear-gradient(135deg,#F647A9,#7B61FF)', color: '#fff', fontSize: 16, fontWeight: 700, textDecoration: 'none' }}>
+              Abrir en navegador →
+            </a>
+          </div>
+        </div>
+      )
+    }
+
     if (pt === 'simple_page' || pt === 'creator_page' || landingConfig.simplePage) {
       return <SimplePagePublicRenderer config={landingConfig} pageId={page.id} slug={params.username} />
     }

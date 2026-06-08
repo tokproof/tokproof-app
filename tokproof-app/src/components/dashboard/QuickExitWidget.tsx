@@ -172,6 +172,7 @@ export default function QuickExitWidget({ initialExits, userId, username, plan, 
         onClose={() => setModalOpen(false)}
         userId={userId}
         username={username}
+        plan={plan}
         editing={editing}
         onSaved={handleSaved}
       />
