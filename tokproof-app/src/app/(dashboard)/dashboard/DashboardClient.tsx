@@ -383,14 +383,14 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
         {/* ── Exit Link educational banner ── */}
         <style>{`
           .elb-wrap  { display:flex; min-height:0; }
-          .elb-left  { flex:0 0 63%; padding:36px 32px 28px; }
-          .elb-right { flex:1; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; padding:24px 20px; }
+          .elb-left  { flex:0 0 63%; padding:22px 28px 20px; }
+          .elb-right { flex:1; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; padding:16px 20px; }
           .elb-perks { display:flex; background:rgba(255,255,255,.6); border:1px solid rgba(123,97,255,.1); border-radius:14px; overflow:hidden; margin-top:22px; }
           .elb-perk  { flex:1; display:flex; align-items:center; gap:10px; padding:11px 14px; }
           .elb-sep   { width:1px; background:rgba(123,97,255,.1); align-self:stretch; margin:8px 0; flex-shrink:0; }
           @media(max-width:680px){
             .elb-wrap  { flex-direction:column; }
-            .elb-left  { flex:none; padding:28px 22px 20px; }
+            .elb-left  { flex:none; padding:20px 20px 18px; }
             .elb-right { min-height:140px; padding:20px; }
             .elb-perks { flex-direction:column; }
             .elb-sep   { width:auto; height:1px; margin:0 10px; align-self:auto; }
@@ -398,20 +398,10 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
         `}</style>
         <div style={{ background:'linear-gradient(135deg,#fff 0%,#fdf4ff 100%)', border:'1px solid #EDE3FC', borderRadius:20, marginBottom:20, boxShadow:'0 4px 24px rgba(123,97,255,.08)', position:'relative', overflow:'hidden' }}>
 
-          {/* Gradient top strip */}
-          <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:'linear-gradient(90deg,#F647A9,#7B61FF)', zIndex:1 }} />
-
           <div className="elb-wrap">
 
             {/* ── LEFT ── */}
             <div className="elb-left">
-
-              {/* Double-ring circle icon */}
-              <div style={{ width:58, height:58, borderRadius:'50%', background:'rgba(123,97,255,.08)', border:'1.5px solid rgba(123,97,255,.14)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:20 }}>
-                <div style={{ width:42, height:42, borderRadius:'50%', background:'linear-gradient(135deg,#F647A9,#7B61FF)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 6px 16px rgba(123,97,255,.35)' }}>
-                  <ShieldCheck size={21} color="white" strokeWidth={2} />
-                </div>
-              </div>
 
               {/* Pre-title */}
               <div style={{ fontSize:13, fontWeight:600, color:'#6B7280', marginBottom:7 }}>
