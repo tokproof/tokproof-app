@@ -19,6 +19,14 @@ const ALLOWED_EVENTS = new Set([
   'button_click',
 ])
 
+// View-type events deduped: same session + page + event within 5 min = skip
+const DEDUP_EVENTS = new Set([
+  'page_view',
+  'direct_exit_view',
+  'direct_exit_webview_detected',
+  'direct_exit_browser_detected',
+])
+
 export async function POST(req: NextRequest) {
   let pageId: string | undefined
   let eventType: string | undefined
@@ -67,6 +75,24 @@ export async function POST(req: NextRequest) {
     const ref = req.headers.get('referer') ?? ''
     // Client-provided metadata merged with server-detected values
     const enriched = { userAgent: ua, referer: ref, ...metadata }
+
+    // ── Deduplication for view-type events ────────────────────────────────
+    // Prevents double-inserts from React Strict Mode or network retries.
+    if (DEDUP_EVENTS.has(eventType) && sessionId && pageId) {
+      const fiveMinAgo = new Date(Date.now() - 5 * 60_000).toISOString()
+      const { data: existing } = await supabase
+        .from('analytics_events')
+        .select('id')
+        .eq('page_id', pageId)
+        .eq('session_id', sessionId)
+        .eq('event_type', eventType)
+        .gte('created_at', fiveMinAgo)
+        .limit(1)
+      if (existing?.length) {
+        if (DEBUG) console.log('[track] dedup skip:', eventType)
+        return NextResponse.json({ ok: true, skipped: 'duplicate' })
+      }
+    }
 
     // Base row WITHOUT session_id (safe even if column doesn't exist)
     const baseRow = {

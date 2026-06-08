@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { detectWebView } from '@/lib/webview-detection'
 import { getSessionId } from '@/lib/session'
 import BrowserExitGuide from './BrowserExitGuide'
@@ -27,19 +27,21 @@ function track(eventType: string, pageId: string) {
 
 export default function DirectExitClient({ pageId, destinationUrl, guideText }: DirectExitClientProps) {
   const [phase, setPhase] = useState<'detecting' | 'webview'>('detecting')
+  const tracked = useRef(false)
 
   useEffect(() => {
+    // Guard against React Strict Mode double-invoke in development.
+    if (tracked.current) return
+    tracked.current = true
+
     const info = detectWebView()
 
-    // Always track the view (non-blocking)
     track('direct_exit_view', pageId)
 
     if (info.isTikTokWebView) {
       track('direct_exit_webview_detected', pageId)
       setPhase('webview')
     } else {
-      // Already in external browser — track + redirect immediately.
-      // sendBeacon delivers even if the page unloads right after.
       track('direct_exit_browser_detected', pageId)
       track('direct_exit_redirected', pageId)
       window.location.href = destinationUrl

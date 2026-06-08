@@ -1,13 +1,13 @@
 import { createAdminClient } from '@/lib/supabase/server'
 
 export interface DashboardAnalytics {
-  views:             number  // unique sessions with page_view | direct_exit_view
-  clicks:            number  // unique sessions with direct_exit_redirected
+  views:             number  // unique sessions with page_view (landing page visits only)
+  clicks:            number  // unique sessions with cta_click | link_click | shopify_click | button_click
   ctr:               number  // clicks / views %
-  exits:             number  // unique sessions where TikTok WebView was detected
-  exitSuccess:       number  // unique sessions that successfully redirected (direct_exit_redirected)
+  exits:             number  // unique sessions that visited /@username/go (direct_exit_view)
+  exitSuccess:       number  // unique sessions successfully redirected to external browser
   exitRate:          number  // exitSuccess / exits %
-  openBrowserClicks: number  // unique sessions where user was already in normal browser
+  openBrowserClicks: number  // sessions that arrived at /go already in a normal browser
 }
 
 export interface PageStats {
@@ -18,25 +18,19 @@ export interface PageStats {
 
 // ── Event classification ──────────────────────────────────────────────────────
 
-// A visit = one of these events
-const VIEW_EVENTS = ['page_view', 'direct_exit_view']
+// Landing page visits (pages with blocks/CTAs)
+const VIEW_EVENTS = ['page_view']
 
-// A click = user successfully redirected (TikTok Rescue)
-// or tapped a CTA/link on other page types
-const CLICK_EVENTS = [
-  'cta_click', 'link_click', 'shopify_click', 'button_click',
-  'direct_exit_redirected',
-  // direct_exit_browser_detected is intentionally NOT here
-]
+// Clicks on landing page CTAs and links
+const CLICK_EVENTS = ['cta_click', 'link_click', 'shopify_click', 'button_click']
 
-// Exit guide shown = user was trapped inside TikTok WebView
-const EXIT_SHOWN_EVENTS = ['exit_guide_shown', 'direct_exit_webview_detected']
+// Rescue page visits: anyone who opened /@username/go
+const EXIT_SHOWN_EVENTS = ['direct_exit_view']
 
-// Successful rescue = user reached an external browser
-// Only direct_exit_redirected — direct_exit_browser_detected is a separate informational signal
-const EXIT_SUCCESS_EVENTS = ['exit_success', 'direct_exit_redirected']
+// Successful rescue: user was auto-redirected to external browser
+const EXIT_SUCCESS_EVENTS = ['direct_exit_redirected']
 
-// Separate counter: user arrived at /go already in a normal browser (not TikTok)
+// Separate informational signal: arrived at /go already in normal browser
 const OPEN_BROWSER_EVENTS = ['direct_exit_browser_detected']
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -406,6 +400,7 @@ export async function getFullAnalytics(
     rescueRate:        pct(rescued, exits),
     exitGuideViews:    exits,
     openBrowserClicks,
+    // Funnel: raw counts (not deduplicated) for TikTok Rescue flow visualization
     funnelExitViews:       rows.filter(e => e.event_type === 'direct_exit_view').length,
     funnelGuideViews:      rows.filter(e => e.event_type === 'direct_exit_webview_detected').length,
     funnelBrowserDetected: rows.filter(e => e.event_type === 'direct_exit_browser_detected').length,
