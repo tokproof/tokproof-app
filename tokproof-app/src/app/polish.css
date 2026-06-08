@@ -134,8 +134,6 @@ select:focus {
     rgba(236, 72, 153, .1) 0%,
     rgba(124, 58, 237, .05) 100%
   );
-  /* inset shadow no altera el layout */
-  box-shadow: inset 2px 0 0 var(--pink);
 }
 
 /* ══════════════════════════════════════════════════
