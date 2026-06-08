@@ -380,117 +380,118 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
           </div>
         </div>
 
-        {/* ── Welcome banner ── */}
-        <div style={{
-          background: '#fff',
-          border: '1px solid #E4E7F0',
-          borderRadius: 18,
-          padding: '24px 28px',
-          marginBottom: 20,
-          boxShadow: '0 1px 6px rgba(15,23,42,.05)',
-          position: 'relative',
-          overflow: 'hidden',
-        }}>
-          {/* Gradient accent strip */}
-          <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: 3,
-            background: 'linear-gradient(90deg,#F647A9,#7B61FF)',
-          }} />
+        {/* ── Exit Link educational banner ── */}
+        <style>{`
+          .elb-wrap  { display:flex; gap:28px; align-items:center; }
+          .elb-left  { flex:1; min-width:260px; }
+          .elb-right { flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+          .elb-perks { display:flex; gap:10px; margin-top:20px; }
+          .elb-perk  { flex:1; min-width:130px; }
+          @media(max-width:680px){
+            .elb-wrap  { flex-direction:column; }
+            .elb-right { width:100%; justify-content:center; }
+            .elb-perks { flex-direction:column; gap:8px; }
+            .elb-perk  { min-width:unset; }
+          }
+        `}</style>
+        <div style={{ background:'linear-gradient(135deg,#fff 55%,#fdf4ff 100%)', border:'1px solid #EDE3FC', borderRadius:20, padding:'28px 32px', marginBottom:20, boxShadow:'0 4px 20px rgba(123,97,255,.07)', position:'relative', overflow:'hidden' }}>
 
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 24, flexWrap: 'wrap' }}>
+          {/* Gradient top strip */}
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:'linear-gradient(90deg,#F647A9,#7B61FF)' }} />
+          {/* Decorative radial glow */}
+          <div style={{ position:'absolute', top:-50, right:-50, width:200, height:200, borderRadius:'50%', background:'radial-gradient(circle,rgba(123,97,255,.07) 0%,transparent 70%)', pointerEvents:'none' }} />
 
-            {/* Left: text + badges + info */}
-            <div style={{ flex: 1, minWidth: 260 }}>
-              <div style={{ fontSize: 19, fontWeight: 800, color: '#15161C', letterSpacing: '-0.02em', marginBottom: 8, lineHeight: 1.3 }}>
-                🚀 Tu página está lista para recibir tráfico
+          <div className="elb-wrap">
+
+            {/* ── LEFT: icon + headline + description + benefits ── */}
+            <div className="elb-left">
+
+              {/* Shield icon in gradient circle */}
+              <div style={{ width:54, height:54, borderRadius:16, background:'linear-gradient(135deg,#F647A9,#7B61FF)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:18, boxShadow:'0 8px 24px rgba(123,97,255,.32)', flexShrink:0 }}>
+                <ShieldCheck size={26} color="white" strokeWidth={2.2} />
               </div>
-              <p style={{ fontSize: 13.5, color: '#6B7280', lineHeight: 1.65, margin: '0 0 16px' }}>
-                Comparte tu enlace en TikTok, Instagram o cualquier red social y consulta el rendimiento completo desde Analytics.
+
+              {/* Pre-title */}
+              <div style={{ fontSize:13.5, fontWeight:600, color:'#9CA3AF', marginBottom:6, letterSpacing:'.01em' }}>
+                TikTok puede bloquear tu enlace.
+              </div>
+
+              {/* Gradient headline */}
+              <div style={{ fontSize:22, fontWeight:900, lineHeight:1.2, letterSpacing:'-.03em', marginBottom:14, background:'linear-gradient(135deg,#F647A9 0%,#7B61FF 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
+                Con Exit Link, tus clientes<br />siempre llegan a ti.
+              </div>
+
+              {/* Description */}
+              <p style={{ fontSize:13.5, color:'#6B7280', lineHeight:1.7, margin:0 }}>
+                Crea tu Exit Link en 1 clic y redirige a tus clientes de forma segura a tu tienda, incluso si TikTok bloquea el enlace original.
               </p>
 
-              {/* Status badges */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginBottom: 14 }}>
-                {publishedCount > 0 && (
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 5,
-                    padding: '4px 11px', borderRadius: 999,
-                    background: 'rgba(16,185,129,.07)', border: '1px solid rgba(16,185,129,.18)',
-                    fontSize: 12, fontWeight: 600, color: '#059669',
-                  }}>
-                    🟢 Landing publicada
-                  </span>
-                )}
-                {publicDisplay && (
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 5,
-                    padding: '4px 11px', borderRadius: 999,
-                    background: '#F4F5F8', border: '1px solid #E4E7F0',
-                    fontSize: 12, fontWeight: 600, color: '#374151',
-                  }}>
-                    🔗 {publicDisplay}
-                  </span>
-                )}
-                {quickExits.length > 0 && profile.username && (
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 5,
-                    padding: '4px 11px', borderRadius: 999,
-                    background: 'rgba(123,97,255,.06)', border: '1px solid rgba(123,97,255,.18)',
-                    fontSize: 12, fontWeight: 600, color: '#7B61FF',
-                  }}>
-                    🛡 Rescue: {getPublicExitDisplay(profile.username)}
-                  </span>
-                )}
-              </div>
-
-              {/* Analytics info note */}
-              <div style={{
-                padding: '10px 14px',
-                background: 'linear-gradient(135deg,rgba(246,71,169,.04),rgba(123,97,255,.06))',
-                borderRadius: 10,
-                border: '1px solid rgba(123,97,255,.11)',
-                fontSize: 12.5, color: '#8B90A0', lineHeight: 1.6,
-              }}>
-                📊 Las métricas en tiempo real están disponibles en <strong style={{ color: '#6B7280' }}>Analytics</strong>, donde podrás ver visitas, clics, CTR, embudo de TikTok Rescue y evolución.
+              {/* 3 benefit cards */}
+              <div className="elb-perks">
+                {[
+                  { icon:'🛡', title:'Protege tus ventas',        desc:'Evita pérdidas por bloqueos' },
+                  { icon:'⚡', title:'Configuración instantánea', desc:'Crea tu Exit Link en 1 clic' },
+                  { icon:'✅', title:'Llega de forma segura',     desc:'Más confianza, más conversiones' },
+                ].map((b, i) => (
+                  <div key={i} className="elb-perk" style={{ padding:'12px 13px', background:'rgba(255,255,255,.8)', border:'1px solid rgba(123,97,255,.1)', borderRadius:13 }}>
+                    <span style={{ fontSize:18 }}>{b.icon}</span>
+                    <div style={{ fontSize:12, fontWeight:700, color:'#374151', marginTop:5, marginBottom:2 }}>{b.title}</div>
+                    <div style={{ fontSize:11.5, color:'#9CA3AF', lineHeight:1.45 }}>{b.desc}</div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Right: action buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flexShrink: 0, alignSelf: 'flex-start' }}>
-              <a
-                href="/dashboard/analytics"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-                  padding: '11px 22px', borderRadius: 12,
-                  background: 'linear-gradient(135deg,#F647A9,#7B61FF)',
-                  color: '#fff', fontSize: 14, fontWeight: 700,
-                  textDecoration: 'none',
-                  boxShadow: '0 6px 20px rgba(123,97,255,.28)',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                <TrendingUp size={15} />
-                Ver Analytics
-              </a>
-              {publicUrl && (
-                <button
-                  onClick={() => headerCopy.copy(publicUrl)}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-                    padding: '11px 22px', borderRadius: 12,
-                    background: headerCopy.copied ? 'rgba(123,97,255,.08)' : '#F4F5F8',
-                    border: `1px solid ${headerCopy.copied ? 'rgba(123,97,255,.28)' : '#E4E7F0'}`,
-                    color: headerCopy.copied ? '#7B61FF' : '#374151',
-                    fontSize: 14, fontWeight: 600,
-                    cursor: 'pointer', fontFamily: 'inherit',
-                    transition: 'all .18s ease',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {headerCopy.copied ? <Check size={15} /> : <GradLinkIcon size={15} />}
-                  {headerCopy.copied ? '¡Copiado!' : 'Copiar mi link'}
-                </button>
-              )}
+            {/* ── RIGHT: TikTok → block → Exit Link → success flow ── */}
+            <div className="elb-right">
+              <div style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'18px 22px', background:'rgba(255,255,255,.65)', border:'1px solid rgba(123,97,255,.1)', borderRadius:18, gap:0 }}>
+
+                {/* TikTok icon */}
+                <div style={{ width:46, height:46, borderRadius:14, background:'#000', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 14px rgba(0,0,0,.18)' }}>
+                  <svg width="21" height="21" viewBox="0 0 24 24" fill="white">
+                    <path d="M16.5 5.5c1 1.2 2.3 2 3.9 2.1v3c-1.6 0-3.1-.5-4.4-1.4v6.3a5.5 5.5 0 1 1-5.5-5.5c.3 0 .6 0 .9.1v3.1a2.5 2.5 0 1 0 1.7 2.4V2.5h3.1c.1 1.1.5 2.1 1.3 3z"/>
+                  </svg>
+                </div>
+
+                {/* Connector ↓ */}
+                <div style={{ width:1.5, height:10, background:'#E5E7EB', margin:'5px 0 0' }} />
+                <svg width="10" height="7" viewBox="0 0 10 7" fill="none" style={{ marginBottom:5 }}>
+                  <path d="M5 6.5L0 0.5h10L5 6.5z" fill="#E5E7EB"/>
+                </svg>
+
+                {/* Block / X node */}
+                <div style={{ width:46, height:46, borderRadius:14, background:'#FEF2F2', border:'2px solid #FECACA', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 3px 10px rgba(239,68,68,.12)' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round">
+                    <circle cx="12" cy="12" r="9"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                  </svg>
+                </div>
+
+                {/* Exit Link pivot label */}
+                <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:3, margin:'6px 0' }}>
+                  <div style={{ width:1.5, height:8, background:'#C4B5FD' }} />
+                  <div style={{ fontSize:9.5, fontWeight:800, letterSpacing:'.06em', color:'#7B61FF', padding:'2px 9px', borderRadius:6, background:'rgba(123,97,255,.1)', border:'1px solid rgba(123,97,255,.22)' }}>EXIT LINK</div>
+                  <div style={{ width:1.5, height:8, background:'#6EE7B7' }} />
+                  <svg width="10" height="7" viewBox="0 0 10 7" fill="none">
+                    <path d="M5 6.5L0 0.5h10L5 6.5z" fill="#6EE7B7"/>
+                  </svg>
+                </div>
+
+                {/* Success / check node */}
+                <div style={{ width:46, height:46, borderRadius:14, background:'#F0FDF4', border:'2px solid #86EFAC', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 3px 10px rgba(16,185,129,.12)' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </div>
+
+                {/* Bottom label */}
+                <div style={{ marginTop:10, textAlign:'center' }}>
+                  <div style={{ fontSize:10.5, color:'#9CA3AF', fontWeight:500 }}>Cliente llega</div>
+                  <div style={{ fontSize:11.5, color:'#10B981', fontWeight:700, marginTop:2 }}>✓ A tu tienda</div>
+                </div>
+
+              </div>
             </div>
+
           </div>
         </div>
 
