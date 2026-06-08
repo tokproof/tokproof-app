@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      // Legacy /u/:username URLs redirect to canonical /@:username format
+      { source: '/u/:username/go', destination: '/@:username/go', permanent: true },
+      { source: '/u/:username',    destination: '/@:username',    permanent: true },
+    ]
+  },
   async rewrites() {
     return [
       // /@slug/go must come before /@slug so Next.js matches the longer path first

@@ -4,15 +4,14 @@ import { getSessionId } from '@/lib/session'
 import type { LandingBlock, LandingTheme, LinkListData } from '@/types/landing'
 import { resolveBlockStyle } from '@/lib/blockStyle'
 
-interface Props { block: LandingBlock; theme: LandingTheme; pageId?: string }
+interface Props { block: LandingBlock; theme: LandingTheme; pageId?: string; rescueUrl?: string }
 
-export default function LinkListBlock({ block, theme, pageId }: Props) {
+export default function LinkListBlock({ block, theme, pageId, rescueUrl }: Props) {
   const d  = block.data as unknown as LinkListData
   const rs = resolveBlockStyle(block, theme)
 
   function trackClick(linkId: string, url: string) {
     if (!pageId) return
-    // keepalive ensures the request survives page navigation
     fetch('/api/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -35,14 +34,16 @@ export default function LinkListBlock({ block, theme, pageId }: Props) {
       )}
       <div style={{ display: 'flex', flexDirection: 'column', gap: rs.gap }}>
         {(d.links ?? []).filter(l => l.visible !== false).map((link, i) => {
-          const url = link.url?.trim()
+          const directUrl = link.url?.trim()
+          // When rescue is active, route every link through /@slug/go
+          const url = rescueUrl ?? directUrl
 
           if (url) {
             return (
               <a
                 key={link.id ?? i}
                 href={url}
-                onClick={() => trackClick(link.id ?? String(i), url)}
+                onClick={() => directUrl && trackClick(link.id ?? String(i), directUrl)}
                 style={{
                   padding: '12px 16px', borderRadius: rs.btnR,
                   background: rs.btnBg,

@@ -37,19 +37,13 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (profile?.plan === 'free') {
-    const { count } = await admin
+    // Free plan: 1 published page at a time — auto-unpublish all others
+    await admin
       .from('pages')
-      .select('id', { count: 'exact', head: true })
+      .update({ status: 'draft', published_at: null })
       .eq('user_id', user.id)
       .eq('status', 'published')
       .neq('id', pageId)
-
-    if ((count ?? 0) >= 1) {
-      return NextResponse.json(
-        { error: 'PLAN_LIMIT', message: 'Has alcanzado el límite de 1 página publicada en el Plan Free. Actualiza a Pro para publicar más.' },
-        { status: 403 }
-      )
-    }
   }
 
   // Run safe score

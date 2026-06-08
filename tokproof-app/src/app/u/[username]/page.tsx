@@ -80,7 +80,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
   if (landingConfig && typeof landingConfig === 'object') {
     const pt = landingConfig.pageType ?? (settings._pageType as string | undefined)
     // Quick Exit: visiting /@slug redirects to /@slug/go (the exit guide)
-    if (pt === 'quick_exit') redirect(`/u/${params.username}/go`)
+    if (pt === 'quick_exit') redirect(`/@${params.username}/go`)
     if (pt === 'simple_page' || pt === 'creator_page' || landingConfig.simplePage) {
       return <SimplePagePublicRenderer config={landingConfig} pageId={page.id} slug={params.username} />
     }

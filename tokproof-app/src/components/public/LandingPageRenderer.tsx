@@ -12,6 +12,11 @@ interface Props {
 export default function LandingPageRenderer({ config, pageId, slug }: Props) {
   const fontFamily = FONT_FAMILIES[config.theme.fontFamily] ?? config.theme.fontFamily
 
+  // When TikTok Rescue is enabled, all CTA/link clicks route through /@slug/go
+  const rescueEnabled = config.settings?.enableTikTokRescue === true
+  const base = process.env.NEXT_PUBLIC_PUBLIC_APP_URL ?? 'https://tokproof.app'
+  const rescueUrl = rescueEnabled && slug ? `${base}/@${slug}/go` : undefined
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -24,7 +29,7 @@ export default function LandingPageRenderer({ config, pageId, slug }: Props) {
         {config.blocks
           .filter(b => b.visible)
           .map(block => (
-            <BlockRenderer key={block.id} block={block} theme={config.theme} pageId={pageId} />
+            <BlockRenderer key={block.id} block={block} theme={config.theme} pageId={pageId} rescueUrl={rescueUrl} />
           ))
         }
       </div>

@@ -465,6 +465,7 @@ export default function DashboardClient({ profile, pages, analytics, pageStats }
           <QuickExitWidget
             initialExits={quickExits}
             userId={profile.user_id}
+            username={profile.username ?? ''}
             plan={plan}
             guides={analytics?.rescueGuides}
             opens={analytics?.rescueOpens}

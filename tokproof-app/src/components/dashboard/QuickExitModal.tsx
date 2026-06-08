@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { getPublicExitDisplay } from '@/lib/urls'
 import type { Page } from '@/types'
@@ -10,29 +10,22 @@ interface Props {
   open: boolean
   onClose: () => void
   userId: string
+  /** Profile username — becomes the /@username/go slug automatically */
+  username: string
   /** Pass an existing page to edit it */
   editing?: Page | null
   onSaved: (page: Page) => void
 }
 
-type SlugStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid'
-
-function slugify(v: string) {
-  return v.toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 30)
-}
-
-export default function QuickExitModal({ open, onClose, userId, editing, onSaved }: Props) {
+export default function QuickExitModal({ open, onClose, userId, username, editing, onSaved }: Props) {
   const isEditing = !!editing
 
   const [name,          setName]          = useState('')
-  const [slug,          setSlug]          = useState('')
   const [destUrl,       setDestUrl]       = useState('')
   const [tiktokProfile, setTiktokProfile] = useState('')
-  const [slugStatus,    setSlugStatus]    = useState<SlugStatus>('idle')
   const [urlError,      setUrlError]      = useState('')
   const [tiktokError,   setTiktokError]   = useState('')
   const [saving,        setSaving]        = useState(false)
-  const [slugTouched,   setSlugTouched]   = useState(false)
 
   // Pre-fill when editing
   useEffect(() => {
@@ -40,46 +33,14 @@ export default function QuickExitModal({ open, onClose, userId, editing, onSaved
     if (editing) {
       const cfg = (editing.settings as Record<string, unknown>)?._landingConfig as Record<string, unknown> | undefined
       setName(editing.title ?? '')
-      setSlug(editing.username ?? '')
       setDestUrl((cfg?.destinationUrl as string) ?? '')
       setTiktokProfile((cfg?.tiktokProfile as string) ?? '')
-      setSlugStatus('available')
-      setSlugTouched(true)
       setTiktokError('')
     } else {
-      setName(''); setSlug(''); setDestUrl(''); setTiktokProfile('')
-      setSlugStatus('idle'); setSlugTouched(false); setUrlError(''); setTiktokError('')
+      setName(''); setDestUrl(''); setTiktokProfile('')
+      setUrlError(''); setTiktokError('')
     }
   }, [open, editing])
-
-  // Slug availability check (debounced)
-  const checkSlug = useCallback(async (s: string) => {
-    if (!s || s.length < 2) { setSlugStatus('invalid'); return }
-    setSlugStatus('checking')
-    const supabase = createClient()
-    const query = supabase.from('pages').select('id').eq('username', s)
-    // When editing, exclude the current page
-    if (editing) query.neq('id', editing.id)
-    const { data } = await query.limit(1)
-    setSlugStatus(data && data.length > 0 ? 'taken' : 'available')
-  }, [editing])
-
-  useEffect(() => {
-    if (!slugTouched || isEditing) return
-    const t = setTimeout(() => checkSlug(slug), 500)
-    return () => clearTimeout(t)
-  }, [slug, slugTouched, checkSlug, isEditing])
-
-  // Auto-generate slug from name (only if user hasn't manually edited it)
-  function handleNameChange(v: string) {
-    setName(v)
-    if (!slugTouched) setSlug(slugify(v))
-  }
-
-  function handleSlugChange(v: string) {
-    setSlugTouched(true)
-    setSlug(slugify(v))
-  }
 
   function validateUrl(v: string): boolean {
     if (!v) { setUrlError('La URL es obligatoria'); return false }
@@ -100,18 +61,15 @@ export default function QuickExitModal({ open, onClose, userId, editing, onSaved
   async function handleSave() {
     if (!validateUrl(destUrl)) return
     if (!validateTikTok(tiktokProfile)) return
-    if (!slug || slug.length < 2) return
-    if (!isEditing && slugStatus !== 'available') return
 
     setSaving(true)
     const supabase = createClient()
-
     const cleanHandle = tiktokProfile.replace(/^@/, '').trim()
 
     const landingConfig = {
       pageType: 'quick_exit',
       title: name,
-      slug,
+      slug: username,
       status: 'published',
       destinationUrl: destUrl,
       tiktokProfile: cleanHandle,
@@ -135,7 +93,7 @@ export default function QuickExitModal({ open, onClose, userId, editing, onSaved
       page = data as Page | null
     } else {
       const { data } = await supabase.from('pages')
-        .insert({ user_id: userId, username: slug, type: 'simple', status: 'published', title: name, settings: { _category: 'ecommerce', _pageType: 'quick_exit', _landingConfig: landingConfig } })
+        .insert({ user_id: userId, username, type: 'simple', status: 'published', title: name, settings: { _category: 'ecommerce', _pageType: 'quick_exit', _landingConfig: landingConfig } })
         .select().single()
       page = data as Page | null
     }
@@ -146,12 +104,8 @@ export default function QuickExitModal({ open, onClose, userId, editing, onSaved
 
   if (!open) return null
 
-  const slugOk    = isEditing || slugStatus === 'available'
   const tikOk     = tiktokProfile.replace(/^@/, '').trim().length > 0
-  const canSubmit = name.trim() && slug.length >= 2 && slugOk && tikOk && !saving
-
-  const slugColor = slugStatus === 'available' ? '#10B981' : slugStatus === 'taken' ? '#EF4444' : slugStatus === 'invalid' ? '#EF4444' : '#9CA3AF'
-  const slugMsg   = slugStatus === 'available' ? '✓ Disponible' : slugStatus === 'taken' ? '✕ No disponible' : slugStatus === 'checking' ? '…' : ''
+  const canSubmit = name.trim() && destUrl && tikOk && !saving
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 9000, background: 'rgba(10,10,20,.55)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
@@ -181,27 +135,16 @@ export default function QuickExitModal({ open, onClose, userId, editing, onSaved
         {/* Name */}
         <div style={{ marginBottom: 14 }}>
           <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>Nombre</label>
-          <input value={name} onChange={e => handleNameChange(e.target.value)} placeholder="Mi Marca"
+          <input value={name} onChange={e => setName(e.target.value)} placeholder="Mi Marca"
             style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1.5px solid #E4E7F0', fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
         </div>
 
-        {/* Slug */}
+        {/* Read-only URL */}
         <div style={{ marginBottom: 14 }}>
-          <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>Slug público</label>
-          <div style={{ position: 'relative' }}>
-            <div style={{ display: 'flex' }}>
-              <span style={{ padding: '9px 10px', background: '#F3F4F6', border: '1.5px solid #E4E7F0', borderRight: 'none', borderRadius: '10px 0 0 10px', fontSize: 13, color: '#9CA3AF', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center' }}>@</span>
-              <input value={slug} onChange={e => handleSlugChange(e.target.value)} placeholder="mimarca" disabled={isEditing}
-                style={{ flex: 1, padding: '9px 12px', borderRadius: '0 10px 10px 0', border: '1.5px solid #E4E7F0', borderLeft: 'none', fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', background: isEditing ? '#F9FAFB' : '#fff' }} />
-            </div>
-            {slugMsg && <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 12, fontWeight: 700, color: slugColor }}>{slugMsg}</span>}
+          <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>Tu enlace TikTok Rescue</label>
+          <div style={{ padding: '9px 12px', background: 'rgba(123,97,255,.06)', borderRadius: 10, border: '1.5px solid rgba(123,97,255,.15)', fontSize: 13, color: '#7B61FF', fontFamily: 'monospace', fontWeight: 600 }}>
+            🔗 {getPublicExitDisplay(username)}
           </div>
-          {/* Live URL preview */}
-          {slug && (
-            <div style={{ marginTop: 6, padding: '7px 12px', background: 'rgba(123,97,255,.06)', borderRadius: 8, fontSize: 12, color: '#7B61FF', fontFamily: 'monospace', fontWeight: 600 }}>
-              🔗 {getPublicExitDisplay(slug)}
-            </div>
-          )}
         </div>
 
         {/* Destination URL */}

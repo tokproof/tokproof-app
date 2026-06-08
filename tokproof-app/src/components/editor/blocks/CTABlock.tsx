@@ -4,19 +4,17 @@ import { getSessionId } from '@/lib/session'
 import type { LandingBlock, LandingTheme, CTAData } from '@/types/landing'
 import { resolveBlockStyle } from '@/lib/blockStyle'
 
-interface Props { block: LandingBlock; theme: LandingTheme; pageId?: string }
+interface Props { block: LandingBlock; theme: LandingTheme; pageId?: string; rescueUrl?: string }
 
-export default function CTABlock({ block, theme, pageId }: Props) {
+export default function CTABlock({ block, theme, pageId, rescueUrl }: Props) {
   const d  = block.data as unknown as CTAData
   const rs = resolveBlockStyle(block, theme)
 
   function handleClick() {
-    const url = d.url?.trim()
+    const directUrl = d.url?.trim()
+    // When rescue is active, always route through /@slug/go regardless of individual URL
+    const destination = rescueUrl ?? directUrl
 
-    // DEBUG: temporary log — remove after analytics confirmed working
-    console.log('[tracker] sending cta_click', { pageId, url, endpoint: '/api/track' })
-
-    // Fire analytics with keepalive — request survives page navigation
     if (pageId) {
       fetch('/api/track', {
         method: 'POST',
@@ -25,29 +23,14 @@ export default function CTABlock({ block, theme, pageId }: Props) {
           pageId,
           eventType: 'cta_click',
           sessionId: getSessionId(),
-          metadata: { destinationUrl: url ?? '' },
+          metadata: { destinationUrl: directUrl ?? '' },
         }),
         keepalive: true,
-      })
-        .then(async res => {
-          const json = await res.json().catch(() => ({}))
-          if (!res.ok) {
-            console.error('[tracker] cta_click FAILED', { status: res.status, body: json })
-          } else {
-            console.log('[tracker] cta_click OK', json)
-          }
-        })
-        .catch(err => console.error('[tracker] cta_click fetch error:', err))
-    } else {
-      console.warn('[tracker] cta_click: no pageId — event NOT sent')
+      }).catch(() => {})
     }
 
-    if (!url) {
-      console.warn('[CTABlock] No destination URL configured for this CTA')
-      return
-    }
-
-    window.location.href = url
+    if (!destination) return
+    window.location.href = destination
   }
 
   const btnStyle: React.CSSProperties =

@@ -12,6 +12,7 @@ import { getPlanLimits, type Plan } from '@/lib/plans'
 interface Props {
   initialExits: Page[]
   userId: string
+  username: string
   plan: Plan
   guides?: string
   opens?: string
@@ -33,7 +34,7 @@ function getDestUrl(page: Page): string {
   return (cfg?.destinationUrl as string) ?? ''
 }
 
-export default function QuickExitWidget({ initialExits, userId, plan, guides, opens, rate }: Props) {
+export default function QuickExitWidget({ initialExits, userId, username, plan, guides, opens, rate }: Props) {
   const [exits,        setExits]        = useState<Page[]>(initialExits)
   const [modalOpen,    setModalOpen]    = useState(false)
   const [limitOpen,    setLimitOpen]    = useState(false)
@@ -170,6 +171,7 @@ export default function QuickExitWidget({ initialExits, userId, plan, guides, op
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         userId={userId}
+        username={username}
         editing={editing}
         onSaved={handleSaved}
       />
