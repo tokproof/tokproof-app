@@ -189,16 +189,19 @@ export default function QuickExitModal({ open, onClose, userId, username, plan, 
           </label>
           {isPro ? (
             <div style={{ position: 'relative' }}>
-              <div style={{ display: 'flex' }}>
+              <div style={{ display: 'flex', position: 'relative' }}>
                 <span style={{ padding: '9px 10px', background: '#F3F4F6', border: '1.5px solid #E4E7F0', borderRight: 'none', borderRadius: '10px 0 0 10px', fontSize: 13, color: '#9CA3AF', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center' }}>@</span>
                 <input value={slug} onChange={e => handleSlugChange(e.target.value)} placeholder={username} disabled={isEditing}
-                  style={{ flex: 1, padding: '9px 12px', borderRadius: '0 10px 10px 0', border: '1.5px solid #E4E7F0', borderLeft: 'none', fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', background: isEditing ? '#F9FAFB' : '#fff' }} />
+                  style={{ flex: 1, padding: '9px 12px', paddingRight: slugStatus !== 'idle' && slugMsg ? 112 : 12, borderRadius: '0 10px 10px 0', border: '1.5px solid #E4E7F0', borderLeft: 'none', fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', background: isEditing ? '#F9FAFB' : '#fff' }} />
+                {slugStatus !== 'idle' && slugMsg && (
+                  <span style={{
+                    position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+                    fontSize: 11.5, fontWeight: 700, padding: '3px 8px', borderRadius: 6, pointerEvents: 'none',
+                    background: slugStatus === 'available' ? 'rgba(16,185,129,.12)' : slugStatus === 'checking' ? 'rgba(156,163,175,.1)' : 'rgba(239,68,68,.1)',
+                    color:      slugStatus === 'available' ? '#059669'              : slugStatus === 'checking' ? '#9CA3AF'               : '#DC2626',
+                  }}>{slugMsg}</span>
+                )}
               </div>
-              {slugStatus !== 'idle' && slugMsg && (
-                <div style={{ textAlign: 'center', fontSize: 12, fontWeight: 700, color: slugColor, marginTop: 6 }}>
-                  {slugMsg}
-                </div>
-              )}
               {slug && (
                 <div style={{ marginTop: 6, padding: '7px 12px', background: 'rgba(123,97,255,.06)', borderRadius: 8, fontSize: 12, color: '#7B61FF', fontFamily: 'monospace', fontWeight: 600 }}>
                   🔗 {getPublicExitDisplay(slug)}
