@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { uploadImage, deleteImageByUrl, IMAGE_LIMITS } from '@/lib/imageUpload'
 import type { Plan } from '@/lib/plans'
+import { toast as fireToast } from '@/lib/toast'
 
 interface ImageUploadFieldProps {
   label?: string
@@ -88,6 +89,7 @@ export default function ImageUploadField({
     }
 
     onChange(result.url)
+    fireToast('Imagen subida ✓', 'success', 2000)
   }
 
   async function handleRemove() {
@@ -104,6 +106,7 @@ export default function ImageUploadField({
     <div style={{ marginBottom: 10 }}>
       <style>{`
         @keyframes imgFieldSpin { to { transform: rotate(360deg); } }
+        @keyframes imgFadeIn { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: scale(1); } }
       `}</style>
 
       {label && (
@@ -122,9 +125,10 @@ export default function ImageUploadField({
         }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
+            key={value}
             src={value}
             alt="preview"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', animation: 'imgFadeIn .35s ease' }}
             onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
           />
           <button

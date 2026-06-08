@@ -537,3 +537,19 @@ select:focus {
 }
 
 @keyframes tp-spin { to { transform: rotate(360deg); } }
+
+/* ══════════════════════════════════════════════════
+   TOAST — mobile responsive
+══════════════════════════════════════════════════ */
+
+@media (max-width: 640px) {
+  .tp-toast-wrap {
+    left: 12px;
+    right: 12px;
+    bottom: 16px;
+    align-items: stretch;
+  }
+  .tp-toast {
+    max-width: 100%;
+  }
+}

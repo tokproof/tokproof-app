@@ -9,6 +9,7 @@ import UpgradeProModal from '@/components/shared/UpgradeProModal'
 import type { Page } from '@/types'
 import { getPublicExitUrl, getPublicExitDisplay } from '@/lib/urls'
 import { getPlanLimits, type Plan } from '@/lib/plans'
+import { toast, confettiOnce } from '@/lib/toast'
 
 interface Props {
   initialExits: Page[]
@@ -55,11 +56,18 @@ export default function QuickExitWidget({ initialExits, userId, username, plan, 
   function openEdit(page: Page) { setEditing(page); setModalOpen(true) }
 
   function handleSaved(page: Page) {
+    const isNew = !exits.find(p => p.id === page.id)
     setExits(prev => {
       const idx = prev.findIndex(p => p.id === page.id)
       if (idx >= 0) { const next = [...prev]; next[idx] = page; return next }
       return [...prev, page]
     })
+    if (isNew) {
+      toast('Exit Rápido creado', 'success')
+      confettiOnce('tp_confetti_exit')
+    } else {
+      toast('Exit Rápido actualizado', 'success')
+    }
   }
 
   async function handleDelete(page: Page) {
@@ -67,7 +75,7 @@ export default function QuickExitWidget({ initialExits, userId, username, plan, 
     const supabase = createClient()
     await supabase.from('pages').delete().eq('id', page.id)
     setExits(prev => prev.filter(p => p.id !== page.id))
-    // Refresh server component so analytics re-query with updated page list
+    toast('Exit Rápido eliminado', 'info')
     router.refresh()
   }
 

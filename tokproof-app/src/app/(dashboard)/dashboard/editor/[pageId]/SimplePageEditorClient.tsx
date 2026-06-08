@@ -6,8 +6,9 @@ import { createClient } from '@/lib/supabase/client'
 import {
   ArrowLeft, Pencil, ChevronDown, UploadCloud,
   User, Share2, Link2, Palette, Shield, Signal,
-  Plus, Trash2, GripVertical, Eye, Monitor, Minus,
+  Plus, Trash2, GripVertical, Eye, Monitor, Minus, Check,
 } from 'lucide-react'
+import { toast as globalToast, confettiOnce } from '@/lib/toast'
 import type { FullPage } from '@/types'
 import type { LandingTheme, LandingConfig, SimplePageConfig, SimplePageLink, SimplePagePlatform, TrafficSource } from '@/types/landing'
 import { makeDefaultSimplePageConfig } from '@/types/landing'
@@ -159,6 +160,7 @@ export default function SimplePageEditorClient({ fullPage, pageType }: Props) {
   const [saving,       setSaving]       = useState(false)
   const [saved,        setSaved]        = useState(false)
   const [toast,        setToast]        = useState<string | null>(null)
+  const [copied,       setCopied]       = useState(false)
   const [preview,      setPreview]      = useState<'mobile' | 'desktop'>('mobile')
   const [zoom,         setZoom]         = useState(100)
 
@@ -230,7 +232,6 @@ export default function SimplePageEditorClient({ fullPage, pageType }: Props) {
       return
     }
 
-    // Persist current state (including trafficSources) before publishing
     await handleSave(true)
 
     const res = await fetch('/api/publish-page', {
@@ -238,8 +239,14 @@ export default function SimplePageEditorClient({ fullPage, pageType }: Props) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pageId }),
     })
-    if (res.ok) { setStatus('published'); showToast('Página publicada ✓') }
-    else { const d = await res.json(); alert(d.error ?? 'Error al publicar') }
+    if (res.ok) {
+      setStatus('published')
+      globalToast('¡Página publicada!', 'success')
+      confettiOnce('tp_confetti_pub')
+    } else {
+      const d = await res.json()
+      globalToast(d.error ?? 'Error al publicar', 'error')
+    }
   }
 
   const isPublished = status === 'published'
@@ -519,8 +526,17 @@ export default function SimplePageEditorClient({ fullPage, pageType }: Props) {
               <span style={{ fontSize: 11, fontWeight: 600, color: T.ink2, minWidth: 36, textAlign: 'center' }}>{zoom}%</span>
               <button onClick={() => setZoom(z => Math.min(150, z + 10))} style={{ width: 28, height: 28, borderRadius: 7, border: 'none', background: 'none', cursor: 'pointer', color: T.ink2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={12} /></button>
             </div>
-            <button onClick={() => { const u = `https://${publicDisplay}`; navigator.clipboard?.writeText?.(u); showToast('Enlace copiado') }} style={{ height: 36, padding: '0 14px', borderRadius: 10, border: `1px solid ${T.border2}`, background: T.card, color: T.ink2, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5 }}>
-              <UploadCloud size={14} /> Copiar link
+            <button
+              onClick={() => {
+                const u = `https://${publicDisplay}`
+                navigator.clipboard?.writeText?.(u)
+                setCopied(true)
+                setTimeout(() => setCopied(false), 1500)
+                showToast('Enlace copiado')
+              }}
+              style={{ height: 36, padding: '0 14px', borderRadius: 10, border: `1px solid ${T.border2}`, background: copied ? T.greenBg : T.card, color: copied ? T.green : T.ink2, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5, transition: 'background var(--p-base) var(--p-ease), color var(--p-base) var(--p-ease)' }}
+            >
+              {copied ? <Check size={14} /> : <Link2 size={14} />} {copied ? 'Copiado' : 'Copiar link'}
             </button>
           </header>
 

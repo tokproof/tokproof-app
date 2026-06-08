@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import type { Page } from '@/types'
 import { getPublicPageUrl, getPublicExitUrl, getPublicPageDisplay, getPublicExitDisplay } from '@/lib/urls'
 import PageMiniPreview from '@/components/shared/PageMiniPreview'
+import { toast, confettiOnce } from '@/lib/toast'
 
 interface PageCardProps {
   page: Page
@@ -60,9 +61,11 @@ export default function PageCard({ page, pageNumber, onDeleted, stats }: PageCar
       })
       if (!res.ok) {
         const data = await res.json()
-        alert(data.error ?? 'Error al publicar')
+        toast(data.error ?? 'Error al publicar', 'error')
       } else {
-        window.location.reload()
+        toast('¡Página publicada!', 'success')
+        confettiOnce('tp_confetti_pub')
+        router.refresh()
       }
     } finally {
       setPublishing(false)
@@ -73,6 +76,7 @@ export default function PageCard({ page, pageNumber, onDeleted, stats }: PageCar
     if (!confirm('¿Eliminar esta página? Esta acción no se puede deshacer.')) return
     const supabase = createClient()
     await supabase.from('pages').delete().eq('id', page.id)
+    toast('Página eliminada', 'info')
     onDeleted?.(page.id)
   }
 
@@ -89,7 +93,10 @@ export default function PageCard({ page, pageNumber, onDeleted, stats }: PageCar
       shopify_url: page.shopify_url,
       settings: page.settings,
     }).select().single()
-    if (data) window.location.href = `/dashboard/editor/${data.id}`
+    if (data) {
+      toast('Página duplicada', 'success')
+      window.location.href = `/dashboard/editor/${data.id}`
+    }
   }
 
   const menuItems = [
@@ -100,7 +107,7 @@ export default function PageCard({ page, pageNumber, onDeleted, stats }: PageCar
     { icon: '📊', label: 'Analytics',    onClick: () => { router.push('/dashboard/analytics'); setMenuOpen(false) } },
     { icon: '⧉',  label: 'Duplicar',    onClick: () => { handleDuplicate(); setMenuOpen(false) } },
     publicUrl && isPublished
-      ? { icon: '🔗', label: 'Copiar link', onClick: () => { navigator.clipboard?.writeText(publicUrl); setMenuOpen(false) } }
+      ? { icon: '🔗', label: 'Copiar link', onClick: () => { navigator.clipboard?.writeText(publicUrl!); toast('¡Link copiado!', 'info'); setMenuOpen(false) } }
       : null,
     !isPublished
       ? { icon: '🚀', label: publishing ? '...' : 'Publicar', onClick: handlePublish }

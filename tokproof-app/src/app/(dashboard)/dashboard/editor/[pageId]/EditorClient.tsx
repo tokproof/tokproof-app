@@ -7,9 +7,10 @@ import type { FullPage } from '@/types'
 import {
   BarChart3, ShieldCheck, LayoutGrid, Settings,
   Link2, ArrowLeft, Pencil, ChevronDown,
-  Eye, UploadCloud, Plus, Undo2, Redo2, Monitor, Minus, Palette, X,
+  Eye, UploadCloud, Plus, Undo2, Redo2, Monitor, Minus, Palette, X, Check,
   type LucideIcon,
 } from 'lucide-react'
+import { toast as globalToast, confettiOnce } from '@/lib/toast'
 import { arrayMove } from '@dnd-kit/sortable'
 import type { LandingConfig, LandingBlock, LandingTheme, LandingSettings, BlockStyle, TrafficSource } from '@/types/landing'
 import { makeDefaultConfig, makeDefaultBlocks } from '@/types/landing'
@@ -238,6 +239,7 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
   const [saved, setSaved]             = useState(false)
   const [toast, setToast]             = useState<string | null>(null)
   const [focusCard, setFocusCard]     = useState(false)
+  const [copied, setCopied]           = useState(false)
 
   // ── Mobile state ──
   const [isMobile, setIsMobile]               = useState(false)
@@ -398,15 +400,18 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
     })
     if (res.ok) {
       setLandingConfig(prev => ({ ...prev, status: 'published' }))
-      showToast(t('editor.pagePublished'))
+      globalToast('¡Página publicada!', 'success')
+      confettiOnce('tp_confetti_pub')
     } else {
       const d = await res.json()
-      alert(d.error ?? 'Error publishing')
+      globalToast(d.error ?? 'Error al publicar', 'error')
     }
   }
 
   function handleCopy() {
     navigator.clipboard?.writeText?.(getPublicPageUrl(landingConfig.slug))
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
     showToast(t('editor.linkCopied'))
   }
 
@@ -805,8 +810,8 @@ export default function EditorClient({ fullPage: initial, demoMode = false }: Ed
 
               {/* Copy link — desktop only */}
               {!isMobile && (
-                <button onClick={handleCopy} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 999, border: `1px solid ${T.border2}`, background: T.card, color: T.pink, fontSize: 13, fontWeight: 500, cursor: 'pointer', flexShrink: 0 }}>
-                  <Link2 size={13} />{t('editor.copyLink')}
+                <button onClick={handleCopy} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 999, border: `1px solid ${T.border2}`, background: copied ? T.greenBg : T.card, color: copied ? T.green : T.pink, fontSize: 13, fontWeight: 500, cursor: 'pointer', flexShrink: 0, transition: 'background var(--p-base) var(--p-ease), color var(--p-base) var(--p-ease)' }}>
+                  {copied ? <Check size={13} /> : <Link2 size={13} />}{copied ? 'Copiado' : t('editor.copyLink')}
                 </button>
               )}
 

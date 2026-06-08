@@ -7,6 +7,7 @@ import {
   TEMPLATES, FILTERS, CATEGORY_META, BADGE_META, CATEGORY_ORDER,
 } from './data'
 import type { Template, FilterKey, PreviewType, Category, Badge } from './data'
+import { toast as fireToast } from '@/lib/toast'
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 const T = {
@@ -509,7 +510,10 @@ export default function TemplatesClient() {
       settings: { _templateId: tmpl.id },
     }).select().single()
 
-    if (page) router.push(`/dashboard/editor/${page.id}`)
+    if (page) {
+      fireToast('Template listo, abriendo editor…', 'info', 1500)
+      router.push(`/dashboard/editor/${page.id}`)
+    }
     setLoading(null)
   }
 
