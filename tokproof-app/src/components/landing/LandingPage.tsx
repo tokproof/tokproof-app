@@ -19,13 +19,22 @@ const CHAT_MESSAGES = [
 
 const SALE_VALUES = ['$34.99', '$89.00', '$24.99', '$149.00', '$59.99', '$34.99', '$79.00']
 
+// Unsplash free-to-embed CDN — 15 unique portraits, no repeats across sections
 const CREATOR_DATA = [
-  { name: 'Sofia Ramírez', handle: '@sofiabeauty', niche: 'Beauty & Skincare', foll: '1.2M seguidores', tag: 'Belleza', grad: 'linear-gradient(160deg,#FFD1B1,#FFB1E7)' },
-  { name: 'Carlos Tech', handle: '@carlostech_', niche: 'Tecnología & Gadgets', foll: '890K seguidores', tag: 'Tech', grad: 'linear-gradient(160deg,#B1D4FF,#C9A0FF)' },
-  { name: 'Laura Fit', handle: '@laurafit.mx', niche: 'Fitness & Nutrición', foll: '2.1M seguidores', tag: 'Fitness', grad: 'linear-gradient(160deg,#C9F4D4,#A0E0FF)' },
-  { name: 'Diego Style', handle: '@diegostyle', niche: 'Moda Masculina', foll: '650K seguidores', tag: 'Moda', grad: 'linear-gradient(160deg,#FFB1C1,#FF9BE0)' },
-  { name: 'Ana Cocina', handle: '@anacocina', niche: 'Recetas & Comida', foll: '3.4M seguidores', tag: 'Foodie', grad: 'linear-gradient(160deg,#FFE4B1,#FFD1B1)' },
-  { name: 'Marta Deco', handle: '@martadeco', niche: 'Hogar & Decoración', foll: '780K seguidores', tag: 'Deco', grad: 'linear-gradient(160deg,#E0D4FF,#C9A0FF)' },
+  { name: 'Sofia Ramírez', handle: '@sofiabeauty', niche: 'Beauty & Skincare', foll: '1.2M seguidores', tag: 'Belleza', grad: 'linear-gradient(160deg,#FFD1B1,#FFB1E7)', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=faces&auto=format' },
+  { name: 'Carlos Tech', handle: '@carlostech_', niche: 'Tecnología & Gadgets', foll: '890K seguidores', tag: 'Tech', grad: 'linear-gradient(160deg,#B1D4FF,#C9A0FF)', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=faces&auto=format' },
+  { name: 'Laura Fit', handle: '@laurafit.mx', niche: 'Fitness & Nutrición', foll: '2.1M seguidores', tag: 'Fitness', grad: 'linear-gradient(160deg,#C9F4D4,#A0E0FF)', img: 'https://images.unsplash.com/photo-1512361436605-a484bdb34b5f?w=400&h=400&fit=crop&crop=faces&auto=format' },
+  { name: 'Diego Style', handle: '@diegostyle', niche: 'Moda Masculina', foll: '650K seguidores', tag: 'Moda', grad: 'linear-gradient(160deg,#FFB1C1,#FF9BE0)', img: 'https://images.unsplash.com/photo-1488161628813-04466f872be2?w=400&h=400&fit=crop&crop=faces&auto=format' },
+  { name: 'Ana Cocina', handle: '@anacocina', niche: 'Recetas & Comida', foll: '3.4M seguidores', tag: 'Foodie', grad: 'linear-gradient(160deg,#FFE4B1,#FFD1B1)', img: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=400&h=400&fit=crop&crop=faces&auto=format' },
+  { name: 'Marta Deco', handle: '@martadeco', niche: 'Hogar & Decoración', foll: '780K seguidores', tag: 'Deco', grad: 'linear-gradient(160deg,#E0D4FF,#C9A0FF)', img: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=faces&auto=format' },
+]
+
+const TESTIMONIALS_DATA = [
+  { q: '"Desde que usamos Tokproof nuestras conversiones desde TikTok aumentaron más de 40%. Impresionante."', nm: 'María Gómez', rl: '@skinglow', grad: 'linear-gradient(135deg,#FFD1B1,#FFB1E7)', img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&h=120&fit=crop&crop=faces&auto=format' },
+  { q: '"Por fin una herramienta que entiende TikTok y me permite vender sin miedo a bloqueos."', nm: 'Javier Ruiz', rl: 'Fitness Pro', grad: 'linear-gradient(135deg,#B1D4FF,#C9A0FF)', img: 'https://images.unsplash.com/photo-1552058544-f2b08422138a?w=120&h=120&fit=crop&crop=faces&auto=format' },
+  { q: '"Centralicé todos mis enlaces y ahora todo se ve más profesional y mis ventas se duplicaron."', nm: 'Laura Martínez', rl: 'Cozy Home', grad: 'linear-gradient(135deg,#FFB1C1,#FF9BE0)', img: 'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=120&h=120&fit=crop&crop=faces&auto=format' },
+  { q: '"La página de confianza eliminó las dudas de mis clientes. Las ventas subieron sin gastar más en ads."', nm: 'Diego Salas', rl: 'TechDrop', grad: 'linear-gradient(135deg,#C9F4D4,#A0E0FF)', img: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=120&h=120&fit=crop&crop=faces&auto=format' },
+  { q: '"Configurarlo me tomó 10 minutos. Ahora mi link in bio convierte como una tienda real."', nm: 'Carla Vega', rl: 'Beauty Studio', grad: 'linear-gradient(135deg,#FFD1B1,#FFB1E7)', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=120&h=120&fit=crop&crop=faces&auto=format' },
 ]
 
 const MAP_DOTS_DATA = [
@@ -328,13 +337,21 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
 
             <div className="hero-proof">
               <div className="hero-avs">
-                {['linear-gradient(135deg,#FFD1B1,#FFB1E7)', 'linear-gradient(135deg,#B1D4FF,#C9A0FF)', 'linear-gradient(135deg,#FFB1C1,#FF9BE0)', 'linear-gradient(135deg,#C9F4D4,#A0E0FF)'].map((g, i) => (
-                  <span key={i} style={{ background: g }} />
+                {[
+                  { img: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=48&h=48&fit=crop&crop=faces&auto=format', grad: 'linear-gradient(135deg,#FFD1B1,#FFB1E7)' },
+                  { img: 'https://images.unsplash.com/photo-1463453091185-61582044d556?w=48&h=48&fit=crop&crop=faces&auto=format', grad: 'linear-gradient(135deg,#B1D4FF,#C9A0FF)' },
+                  { img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=48&h=48&fit=crop&crop=faces&auto=format', grad: 'linear-gradient(135deg,#FFB1C1,#FF9BE0)' },
+                  { img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=48&h=48&fit=crop&crop=faces&auto=format', grad: 'linear-gradient(135deg,#C9F4D4,#A0E0FF)' },
+                ].map((a, i) => (
+                  <span key={i} style={{ background: a.grad, overflow: 'hidden', display: 'inline-block' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={a.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                  </span>
                 ))}
               </div>
               <div>
                 <div className="stars">★★★★★</div>
-                <div className="ptxt"><b>+2.4K marcas</b> ya venden con Tokproof</div>
+                <div className="ptxt"><b>Diseñado para</b> creadores, marcas y afiliados</div>
               </div>
             </div>
           </div>
@@ -756,9 +773,9 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
       {/* ── TESTIMONIALS ── */}
       <section className="testi" id="recursos">
         <div className="wrap">
-          <div className="kicker reveal">+2.4K marcas ya venden con Tokproof</div>
+          <div className="kicker reveal">Historias de nuestra comunidad</div>
           <div className="testi-head reveal" style={{ marginTop: 14 }}>
-            <h2 className="section-title" style={{ margin: 0 }}>Resultados reales de creadores y marcas</h2>
+            <h2 className="section-title" style={{ margin: 0 }}>Historias inspiradas en casos reales de tráfico social</h2>
             <div className="testi-nav">
               <button className="tnav" onClick={() => setTestiIndex(i => Math.max(0, i - 1))}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -770,18 +787,15 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
           </div>
           <div className="testi-track-wrap">
             <div className="testi-track" ref={testiTrackRef}>
-              {[
-                { q: '"Desde que usamos Tokproof nuestras conversiones desde TikTok aumentaron más de 40%. Impresionante."', nm: 'María Gómez', rl: '@skinglow', grad: 'linear-gradient(135deg,#FFD1B1,#FFB1E7)' },
-                { q: '"Por fin una herramienta que entiende TikTok y me permite vender sin miedo a bloqueos."', nm: 'Javier Ruiz', rl: 'Fitness Pro', grad: 'linear-gradient(135deg,#B1D4FF,#C9A0FF)' },
-                { q: '"Centralicé todos mis enlaces y ahora todo se ve más profesional y mis ventas se duplicaron."', nm: 'Laura Martínez', rl: 'Cozy Home', grad: 'linear-gradient(135deg,#FFB1C1,#FF9BE0)' },
-                { q: '"La página de confianza eliminó las dudas de mis clientes. Las ventas subieron sin gastar más en ads."', nm: 'Diego Salas', rl: 'TechDrop', grad: 'linear-gradient(135deg,#C9F4D4,#A0E0FF)' },
-                { q: '"Configurarlo me tomó 10 minutos. Ahora mi link in bio convierte como una tienda real."', nm: 'Carla Vega', rl: 'Beauty Studio', grad: 'linear-gradient(135deg,#FFD1B1,#FFB1E7)' },
-              ].map((t, i) => (
+              {TESTIMONIALS_DATA.map((t, i) => (
                 <div key={i} className="testi-card">
                   <div className="stars">★★★★★</div>
                   <div className="quote">{t.q}</div>
                   <div className="who">
-                    <div className="av" style={{ background: t.grad }} />
+                    <div className="av" style={{ background: t.grad, overflow: 'hidden', flexShrink: 0 }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={t.img} alt={t.nm} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                    </div>
                     <div><div className="nm">{t.nm}</div><div className="rl">{t.rl}</div></div>
                   </div>
                 </div>
@@ -802,7 +816,9 @@ export default function LandingPage({ isLoggedIn }: LandingPageProps) {
           <div className="cr-track">
             {[...CREATOR_DATA, ...CREATOR_DATA].map((c, i) => (
               <div key={i} className="cr-card">
-                <div className="cr-photo" style={{ background: c.grad }}>
+                <div className="cr-photo" style={{ background: c.grad, position: 'relative', overflow: 'hidden' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={c.img} alt={c.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
                   <div className="cr-tag">{c.tag}</div>
                 </div>
                 <div className="cr-body">

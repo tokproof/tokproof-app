@@ -4,10 +4,10 @@ export interface DashboardAnalytics {
   views:             number  // unique sessions with page_view (landing page visits only)
   clicks:            number  // unique sessions with cta_click | link_click | shopify_click | button_click
   ctr:               number  // clicks / views %
-  exits:             number  // unique sessions that visited /@username/go (direct_exit_view)
-  exitSuccess:       number  // unique sessions successfully redirected to external browser
-  exitRate:          number  // exitSuccess / exits %
-  openBrowserClicks: number  // sessions that arrived at /go already in a normal browser
+  exits:             number  // unique sessions where guide was shown (direct_exit_webview_detected)
+  exitSuccess:       number  // unique sessions redirected to external browser (direct_exit_redirected)
+  exitRate:          number  // exitSuccess / exits % — '—' when exits=0
+  openBrowserClicks: number  // sessions redirected to browser (direct_exit_redirected)
 }
 
 export interface PageStats {
@@ -24,14 +24,17 @@ const VIEW_EVENTS = ['page_view']
 // Clicks on landing page CTAs and links
 const CLICK_EVENTS = ['cta_click', 'link_click', 'shopify_click', 'button_click']
 
-// Rescue page visits: anyone who opened /@username/go
-const EXIT_SHOWN_EVENTS = ['direct_exit_view']
+// Total visits to /@username/go (anyone who opened the rescue link)
+const EXIT_LINK_VISITS = ['direct_exit_view']
 
-// Successful rescue: user was auto-redirected to external browser
+// Guide shown: user was in TikTok WebView and saw the animated exit guide
+const EXIT_SHOWN_EVENTS = ['direct_exit_webview_detected']
+
+// Successful redirect: user was auto-redirected to external browser
 const EXIT_SUCCESS_EVENTS = ['direct_exit_redirected']
 
-// Separate informational signal: arrived at /go already in normal browser
-const OPEN_BROWSER_EVENTS = ['direct_exit_browser_detected']
+// Open browser clicks = same as redirected (they always fire together)
+const OPEN_BROWSER_EVENTS = ['direct_exit_redirected']
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -77,10 +80,10 @@ function calcMetrics(rows: RawEvent[]): DashboardAnalytics {
     views,
     clicks,
     ctr:               pct(clicks, views),
-    exits,
+    exits,             // now webview_detected
     exitSuccess,
     exitRate:          pct(exitSuccess, exits),
-    openBrowserClicks,
+    openBrowserClicks, // now redirected
   }
 }
 
@@ -179,7 +182,7 @@ export function formatAnalytics(a: DashboardAnalytics) {
     rescuesTrend:     '',
     rescueGuides:     fmt(a.exits),
     rescueOpens:      fmt(a.exitSuccess),
-    rescueRate:       `${a.exitRate}%`,
+    rescueRate:       a.exits === 0 ? '—' : `${a.exitRate}%`,
     openBrowserClicks: fmt(a.openBrowserClicks),
   }
 }
@@ -234,9 +237,10 @@ export interface FullAnalytics {
   uniqueVisitors:    number
   clicks:            number
   ctr:               number
-  rescueRate:        number
-  exitGuideViews:    number
-  openBrowserClicks: number
+  rescueRate:        number  // direct_exit_redirected / direct_exit_webview_detected
+  exitGuideViews:    number  // direct_exit_webview_detected (guide shown in TikTok WebView)
+  openBrowserClicks: number  // direct_exit_redirected (auto-redirected to external browser)
+  exitLinkVisits:    number  // direct_exit_view (total visits to /go)
   // Funnel
   funnelExitViews:       number
   funnelGuideViews:      number
@@ -380,7 +384,7 @@ export async function getFullAnalytics(
   if (!activePageIds.length && !pageIdFilter) {
     return {
       views: 0, uniqueVisitors: 0, clicks: 0, ctr: 0,
-      rescueRate: 0, exitGuideViews: 0, openBrowserClicks: 0,
+      rescueRate: 0, exitGuideViews: 0, openBrowserClicks: 0, exitLinkVisits: 0,
       funnelExitViews: 0, funnelGuideViews: 0, funnelBrowserDetected: 0, funnelLandingViews: 0,
       timeSeries: buildTimeSeries([], days),
       devices: [], sources: [], pages: [],
@@ -414,6 +418,7 @@ export async function getFullAnalytics(
 
   const views             = uniqueSessionCount(rows.filter(e => VIEW_EVENTS.includes(e.event_type)))
   const clicks            = uniqueSessionCount(rows.filter(e => CLICK_EVENTS.includes(e.event_type)))
+  const exitLinkVisits    = uniqueSessionCount(rows.filter(e => EXIT_LINK_VISITS.includes(e.event_type)))
   const exits             = uniqueSessionCount(rows.filter(e => EXIT_SHOWN_EVENTS.includes(e.event_type)))
   const rescued           = uniqueSessionCount(rows.filter(e => EXIT_SUCCESS_EVENTS.includes(e.event_type)))
   const openBrowserClicks = uniqueSessionCount(rows.filter(e => OPEN_BROWSER_EVENTS.includes(e.event_type)))
@@ -427,6 +432,7 @@ export async function getFullAnalytics(
     rescueRate:        pct(rescued, exits),
     exitGuideViews:    exits,
     openBrowserClicks,
+    exitLinkVisits,
     // Funnel: raw counts (not deduplicated) for TikTok Rescue flow visualization
     funnelExitViews:       rows.filter(e => e.event_type === 'direct_exit_view').length,
     funnelGuideViews:      rows.filter(e => e.event_type === 'direct_exit_webview_detected').length,

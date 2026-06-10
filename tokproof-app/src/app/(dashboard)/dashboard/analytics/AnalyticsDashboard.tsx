@@ -182,8 +182,8 @@ const KPI_CONFIG = [
   { label: 'Clicks',              tint: 'pink',   sparkColor: '#F43F6B', sparkSeed: 85,  icoPath: '<path d="M5 4l6.5 15 2-6 6-2z"/>',                                                             locked: false },
   { label: 'CTR',                 tint: 'blue',   sparkColor: '#3B82F6', sparkSeed: 122, icoPath: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>',  locked: false },
   { label: 'Rescue Rate',         tint: 'green',  sparkColor: '#16B368', sparkSeed: 159, icoPath: '<path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>',                                   locked: false },
-  { label: 'Exit Guide Views',    tint: 'purple', sparkColor: '#8B5CF6', sparkSeed: 196, icoPath: '<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/>', locked: true },
-  { label: 'Open Browser Clicks', tint: 'pink',   sparkColor: '#F43F6B', sparkSeed: 233, icoPath: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/>',  locked: true },
+  { label: 'Guías mostradas',     tint: 'purple', sparkColor: '#8B5CF6', sparkSeed: 196, icoPath: '<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/>', locked: true },
+  { label: 'Aperturas navegador', tint: 'pink',   sparkColor: '#F43F6B', sparkSeed: 233, icoPath: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/>',  locked: true },
 ]
 
 function kpiValues(data: FullAnalytics) {
@@ -192,7 +192,8 @@ function kpiValues(data: FullAnalytics) {
     fmtNum(data.uniqueVisitors),
     fmtNum(data.clicks),
     `${data.ctr}%`,
-    `${data.rescueRate}%`,
+    // Rescue Rate: show '—' when no TikTok WebView guide views yet
+    data.exitGuideViews === 0 ? '—' : `${data.rescueRate}%`,
     fmtNum(data.exitGuideViews),
     fmtNum(data.openBrowserClicks),
   ]
@@ -280,7 +281,7 @@ const FUNNEL_STATIC = [
     icoSvg: '<path d="M16.5 5.5c1 1.2 2.3 2 3.9 2.1v3c-1.6 0-3.1-.5-4.4-1.4v6.3a5.5 5.5 0 1 1-5.5-5.5c.3 0 .6 0 .9.1v3.1a2.5 2.5 0 1 0 1.7 2.4V2.5h3.1c.1 1.1.5 2.1 1.3 3z" fill="#111"/>' },
   { label: 'Exit Guide Views',    bg: 'linear-gradient(180deg,#F0EBFC,#FAF8FE)', barGrad: 'linear-gradient(90deg,#8B5CF6,#A78BFA)',
     icoSvg: '<path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" stroke="#8B5CF6" fill="none" stroke-width="2"/><polyline points="9 12 11.5 14.5 16 9.5" stroke="#8B5CF6" fill="none" stroke-width="2"/>' },
-  { label: 'Open Browser Clicks', bg: 'linear-gradient(180deg,#E9F1FE,#F7FAFE)', barGrad: 'linear-gradient(90deg,#3B82F6,#6AA4F8)',
+  { label: 'Aperturas navegador', bg: 'linear-gradient(180deg,#E9F1FE,#F7FAFE)', barGrad: 'linear-gradient(90deg,#3B82F6,#6AA4F8)',
     icoSvg: '<path d="M14 4h6v6" stroke="#3B82F6" fill="none" stroke-width="2"/><path d="M20 4l-9 9" stroke="#3B82F6" fill="none" stroke-width="2"/><path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" stroke="#3B82F6" fill="none" stroke-width="2"/>' },
   { label: 'Landing Views',       bg: 'linear-gradient(180deg,#E4F7EC,#F6FCF8)', barGrad: 'linear-gradient(90deg,#16B368,#3FCE86)',
     icoSvg: '<circle cx="12" cy="12" r="9" stroke="#16B368" fill="none" stroke-width="2"/><polyline points="8.5 12 11 14.5 15.5 9.5" stroke="#16B368" fill="none" stroke-width="2"/>' },
@@ -690,7 +691,7 @@ function PagesTable({ data, onMore, isMobile }: { data: FullAnalytics; onMore: (
   const { t } = useTranslation()
   const headers = isMobile
     ? ['Page','Landing Views','Clicks','CTR']
-    : ['Page','Landing Views','Unique visitors','Clicks','CTR','Rescue Rate','Exit Guide Views','Open Browser Clicks']
+    : ['Page','Landing Views','Unique visitors','Clicks','CTR','Rescue Rate','Guías mostradas','Aperturas navegador']
   return (
     <Card style={{ marginTop: 22, padding: isMobile ? '16px 14px' : '22px 24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
