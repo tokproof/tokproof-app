@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Tokproof — Dashboard</title>
+<meta name="viewport" content="width=1440" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF9FC;
+    --card: #FFFFFF;
+    --ink: #171717;
+    --ink-2: #6B7280;
+    --ink-3: #9CA3AF;
+    --pink: #F647A9;
+    --pink-2: #FF4FD8;
+    --purple: #7B61FF;
+    --border: rgba(123,97,255,0.08);
+    --border-2: rgba(123,97,255,0.14);
+    --soft-pink: #FFE6F8;
+    --soft-purple: #ECE6FF;
+    --soft-pink-2: #FFF1FA;
+    --soft-purple-2: #F4F0FF;
+    --grad: linear-gradient(135deg,#F647A9 0%, #7B61FF 100%);
+    --grad-side: linear-gradient(180deg,#FEF5FA 0%, #F4EDFE 100%);
+    --grad-soft: linear-gradient(135deg, rgba(255,79,216,.10) 0%, rgba(123,97,255,.10) 100%);
+    --shadow-card: 0 8px 30px rgba(123,97,255,0.06);
+    --shadow-btn: 0 10px 25px rgba(255,79,216,0.20);
+    --r: 28px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'ss01','cv11';
+    letter-spacing: -0.005em;
+  }
+  button { font-family: inherit; cursor: pointer; border: 0; background: none; color: inherit; }
+  a { color: inherit; text-decoration: none; }
+  input { font-family: inherit; }
+
+  .app {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ───────────────────── SIDEBAR ───────────────────── */
+  .sidebar {
+    background: var(--grad-side);
+    border-right: 1px solid var(--border);
+    padding: 28px 18px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 12px;
+    padding: 4px 10px 6px;
+  }
+  .brand-mark {
+    width: 36px; height: 36px; border-radius: 11px;
+    background: var(--grad);
+    display: grid; place-items: center;
+    box-shadow: 0 6px 16px rgba(255,79,216,.25);
+  }
+  .brand-name { font-weight: 700; font-size: 19px; letter-spacing: -0.02em; }
+
+  .nav { display: flex; flex-direction: column; gap: 4px; }
+  .nav-label {
+    font-size: 11px; font-weight: 600; color: var(--ink-3);
+    letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 18px 14px 8px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px;
+    border-radius: 14px;
+    color: #4B5563;
+    font-size: 14.5px;
+    font-weight: 500;
+    transition: background .15s ease, color .15s ease;
+    position: relative;
+  }
+  .nav-item .ic { color: #9AA0AE; display: flex; }
+  .nav-item:hover { background: rgba(123,97,255,0.05); color: #2B2540; }
+  .nav-item:hover .ic { color: #7B61FF; }
+  .nav-item.active { background: #FFEAF8; color: var(--pink); }
+  .nav-item.active .ic { color: var(--pink); }
+  .nav-item .pro {
+    margin-left: auto;
+    font-size: 10px; font-weight: 700;
+    color: var(--purple);
+    background: var(--soft-purple);
+    padding: 3px 8px; border-radius: 999px;
+    letter-spacing: .04em;
+  }
+  .sep { height: 1px; background: var(--border); margin: 6px 12px; }
+
+  .profile-card {
+    margin-top: auto;
+    border-radius: 22px;
+    padding: 16px 14px 14px;
+    background: var(--grad);
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(255,79,216,.22);
+  }
+  .profile-card::after{
+    content:""; position:absolute; inset:0;
+    background: radial-gradient(120% 80% at 100% 0%, rgba(255,255,255,.18), transparent 50%);
+    pointer-events:none;
+  }
+  .profile-row { display: flex; align-items: center; gap: 12px; }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: #E9D6C7 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'><defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'><stop offset='0' stop-color='%23F4D7C3'/><stop offset='1' stop-color='%23C99A82'/></linearGradient></defs><rect width='44' height='44' rx='22' fill='url(%23g)'/><circle cx='22' cy='17' r='7' fill='%235A3A2A' opacity='.85'/><path d='M6 44c2-9 9-13 16-13s14 4 16 13' fill='%235A3A2A' opacity='.85'/></svg>") center/cover;
+    border: 2px solid rgba(255,255,255,.6);
+    flex: 0 0 44px;
+  }
+  .crown {
+    width: 22px; height: 22px; border-radius: 7px;
+    background: rgba(255,255,255,.22);
+    display: grid; place-items: center;
+    color: white; margin-left: auto;
+  }
+  .pname { font-weight: 600; font-size: 14px; margin-top: 12px; }
+  .pplan { font-size: 12px; opacity: .85; margin-top: 2px; }
+  .pcta {
+    margin-top: 14px;
+    background: rgba(255,255,255,.18);
+    border: 1px solid rgba(255,255,255,.28);
+    color: white;
+    border-radius: 12px;
+    padding: 9px 12px;
+    font-size: 13px; font-weight: 500;
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%;
+    backdrop-filter: blur(4px);
+    transition: background .15s ease;
+  }
+  .pcta:hover { background: rgba(255,255,255,.28); }
+
+  /* ───────────────────── MAIN ───────────────────── */
+  .main {
+    padding: 32px 40px 56px;
+    max-width: 1280px;
+  }
+  .topbar {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 24px; margin-bottom: 28px;
+  }
+  .hello h1 {
+    margin: 0;
+    font-size: 30px; font-weight: 700; letter-spacing: -0.025em;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hello p {
+    margin: 6px 0 0; color: var(--ink-2); font-size: 15px;
+  }
+  .actions { display: flex; gap: 10px; align-items: center; }
+  .btn {
+    border-radius: 999px;
+    padding: 11px 18px;
+    font-size: 14px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: transform .12s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn-ghost {
+    background: #fff;
+    border: 1px solid var(--border-2);
+    color: #374151;
+  }
+  .btn-ghost:hover { background: #FBFAFF; }
+  .btn-ghost .ic { color: var(--purple); }
+  .btn-grad-text {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    font-weight: 600;
+  }
+  .btn-primary {
+    background: var(--grad);
+    color: white;
+    box-shadow: var(--shadow-btn);
+    padding: 12px 20px;
+    font-weight: 600;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(255,79,216,.28); }
+
+  .card {
+    background: var(--card);
+    border-radius: var(--r);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border);
+  }
+
+  /* stats */
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+    margin-bottom: 24px;
+  }
+  .stat {
+    padding: 24px 26px 22px;
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .stat-ic {
+    width: 52px; height: 52px; border-radius: 16px;
+    display: grid; place-items: center;
+  }
+  .stat-ic.pink { background: var(--soft-pink-2); color: var(--pink); }
+  .stat-ic.purple { background: var(--soft-purple-2); color: var(--purple); }
+  .stat-label { font-size: 13px; color: var(--ink-2); font-weight: 500; }
+  .stat-value { font-size: 28px; font-weight: 700; margin-top: 6px; letter-spacing: -0.02em; }
+  .stat-bottom {
+    grid-column: 1 / -1;
+    margin-top: 6px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .stat-delta { font-size: 13px; font-weight: 600; }
+  .stat-delta.pink { color: var(--pink); }
+  .stat-delta.purple { color: var(--purple); }
+  .spark { width: 110px; height: 34px; opacity: .9; }
+
+  /* mid row */
+  .mid {
+    display: grid; grid-template-columns: 1.55fr 1fr; gap: 20px;
+    margin-bottom: 24px;
+  }
+  .rescue {
+    padding: 26px 28px 22px;
+    display: flex; flex-direction: column;
+  }
+  .card-head {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+  }
+  .card-head h3 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.015em; }
+  .badge-pro {
+    font-size: 10px; font-weight: 700; color: var(--purple);
+    background: var(--soft-purple); padding: 4px 9px; border-radius: 999px;
+    letter-spacing: .06em;
+  }
+  .rescue-body {
+    display: grid; grid-template-columns: 220px 1fr; gap: 28px; align-items: center;
+  }
+  .phone {
+    width: 200px; height: 408px;
+    border-radius: 38px;
+    background: #111;
+    padding: 9px;
+    box-shadow: 0 24px 40px -18px rgba(40, 20, 80, .35), 0 4px 12px rgba(20,10,40,.18);
+    position: relative;
+    margin: 0 auto;
+  }
+  .phone::before{
+    content:""; position:absolute; left:50%; top:18px; transform:translateX(-50%);
+    width: 88px; height: 22px; background:#0a0a0a; border-radius: 12px; z-index: 2;
+  }
+  .phone-screen {
+    width: 100%; height: 100%; border-radius: 30px;
+    background: linear-gradient(170deg,#FF8FD9 0%, #C77BFF 60%, #7B61FF 100%);
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: white;
+  }
+  .phone-screen::after{
+    content:""; position:absolute; inset:0;
+    background: radial-gradient(120% 60% at 50% 0%, rgba(255,255,255,.28), transparent 55%);
+    pointer-events: none;
+  }
+  .shield {
+    width: 122px; height: 122px; border-radius: 28px;
+    background: rgba(255,255,255,.22);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,.35);
+    display: grid; place-items: center;
+    margin-bottom: 90px;
+    box-shadow: inset 0 -10px 30px rgba(255,255,255,.18);
+  }
+  .phone-cap {
+    position: absolute; bottom: 36px; left: 0; right: 0;
+    text-align: center; padding: 0 18px;
+  }
+  .phone-cap .t1 { font-size: 14px; font-weight: 600; }
+  .phone-cap .t2 { font-size: 11.5px; opacity: .85; margin-top: 4px; line-height: 1.4; }
+
+  .rescue-right { display: flex; flex-direction: column; gap: 18px; }
+  .rescue-right h4 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.015em; }
+  .rescue-right .desc { margin: 0; color: var(--ink-2); font-size: 13.5px; line-height: 1.55; }
+  .metrics { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+  .metric {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 14px;
+  }
+  .metric .mi {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--soft-pink-2); color: var(--pink);
+    display: grid; place-items: center; flex: 0 0 28px;
+  }
+  .metric .ml { color: #4B5563; }
+  .metric .mv { margin-left: auto; font-weight: 700; color: var(--ink); }
+
+  .exit-toggle {
+    margin-top: 8px;
+    background: #FFE3F1;
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .exit-toggle .lbl { color: var(--pink); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px; }
+  .switch {
+    margin-left: auto;
+    width: 46px; height: 26px;
+    background: #F647A9;
+    border-radius: 999px;
+    position: relative;
+    transition: filter .15s ease;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.08);
+  }
+  .switch::after{
+    content:""; position:absolute; top:3px; left: 23px;
+    width: 20px; height: 20px; background:#fff; border-radius:50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,.18);
+    transition: left .18s ease;
+  }
+  .switch.off { background: #E5E7EB; }
+  .switch.off::after { left: 3px; }
+
+  /* link card */
+  .links { padding: 26px 28px; display: flex; flex-direction: column; gap: 14px; }
+  .links h3 { margin: 0 0 6px; font-size: 18px; font-weight: 700; letter-spacing: -0.015em; }
+  .field-label { font-size: 13px; color: var(--ink-2); margin-bottom: -4px; font-weight: 500; }
+  .link-input {
+    background: var(--soft-pink-2);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    color: var(--pink);
+    font-size: 14px; font-weight: 500;
+  }
+  .link-input .url { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .copy-btn {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(255,255,255,.7); color: var(--pink);
+    display: grid; place-items: center;
+    transition: background .15s ease, transform .15s ease;
+  }
+  .copy-btn:hover { background: white; transform: scale(1.05); }
+  .copy-btn.copied { background: var(--pink); color: white; }
+
+  .tip {
+    margin-top: 6px;
+    background: var(--soft-pink-2);
+    border-radius: 18px;
+    padding: 16px 18px;
+    display: grid; grid-template-columns: 36px 1fr; gap: 14px; align-items: start;
+  }
+  .tip-ic {
+    width: 36px; height: 36px; border-radius: 12px;
+    background: white; display: grid; place-items: center;
+    color: var(--pink); font-size: 18px;
+  }
+  .tip h5 { margin: 0; font-weight: 600; font-size: 14px; color: var(--ink); }
+  .tip p { margin: 4px 0 0; color: var(--ink-2); font-size: 13px; line-height: 1.5; }
+  .tip-p { font-size: 12px !important; line-height: 1.45 !important; margin-top: 3px !important; }
+
+  /* pages table */
+  .pages { padding: 26px 28px 8px; }
+  .pages-head {
+    display: flex; align-items: center; gap: 18px; margin-bottom: 18px;
+  }
+  .pages-head h3 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.015em; }
+  .tabs { display: flex; gap: 6px; margin-left: 6px; }
+  .tab {
+    padding: 7px 14px; border-radius: 999px;
+    font-size: 13.5px; font-weight: 500; color: var(--ink-2);
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: background .15s ease, color .15s ease;
+  }
+  .tab .cnt {
+    font-size: 11px; padding: 2px 7px; border-radius: 999px;
+    background: rgba(0,0,0,.06); color: var(--ink-2); font-weight: 600;
+  }
+  .tab:hover { background: #F3F0F9; }
+  .tab.active { background: var(--soft-pink-2); color: var(--pink); }
+  .tab.active .cnt { background: rgba(255,79,216,.18); color: var(--pink); }
+
+  .pages-tools { margin-left: auto; display: flex; gap: 10px; }
+  .search {
+    background: #fff; border: 1px solid var(--border-2);
+    border-radius: 999px; padding: 8px 14px;
+    display: flex; align-items: center; gap: 8px;
+    color: var(--ink-2); font-size: 13.5px; width: 180px;
+  }
+  .search input { border: 0; outline: 0; background: transparent; flex: 1; color: var(--ink); font-size: 13.5px; }
+  .sort {
+    background: #fff; border: 1px solid var(--border-2);
+    border-radius: 999px; padding: 8px 14px;
+    color: var(--ink-2); font-size: 13.5px;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+
+  .page-row {
+    display: grid;
+    grid-template-columns: 84px 1fr auto auto;
+    gap: 24px;
+    align-items: center;
+    padding: 18px 6px;
+    border-top: 1px solid var(--border);
+  }
+  .page-thumb {
+    width: 64px; height: 96px; border-radius: 14px;
+    background: #1a1a1a; padding: 5px;
+    box-shadow: 0 6px 16px rgba(40,20,80,.18);
+    margin: 0 auto;
+  }
+  .page-thumb-inner {
+    width: 100%; height: 100%; border-radius: 10px; overflow: hidden;
+    background: linear-gradient(170deg,#FFD9F0,#E4D7FF);
+    display: flex; flex-direction: column; padding: 6px;
+  }
+  .pt-bar { height: 6px; border-radius: 3px; background: rgba(123,97,255,.35); margin-bottom: 4px; }
+  .pt-bar.w-50 { width: 50%; }
+  .pt-bar.w-30 { width: 30%; }
+  .pt-card {
+    flex:1; border-radius: 6px; background: white; opacity:.85;
+    margin-top: 4px;
+  }
+
+  .page-info { min-width: 0; }
+  .page-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .page-title { font-weight: 700; font-size: 15px; }
+  .chip {
+    font-size: 10px; font-weight: 700; letter-spacing: .06em;
+    padding: 4px 9px; border-radius: 999px;
+  }
+  .chip.trust { background: var(--soft-purple); color: var(--purple); }
+  .chip.simple { background: var(--soft-pink); color: var(--pink); }
+  .chip.pub {
+    background: #E6F9EE; color: #1AA960;
+    font-weight: 600; letter-spacing: 0;
+    font-size: 11px;
+  }
+  .page-sub { color: var(--ink-2); font-size: 13px; margin-top: 6px; }
+  .page-meta {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--ink-3); font-size: 12.5px; margin-top: 6px;
+  }
+  .page-links { display: flex; gap: 10px; margin-top: 10px; }
+  .page-link-pill {
+    background: var(--soft-pink-2); color: var(--pink);
+    padding: 7px 12px; border-radius: 999px;
+    font-size: 12.5px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+
+  .page-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+    align-items: center;
+  }
+  .page-stat { text-align: center; }
+  .page-stat .l { font-size: 12px; color: var(--ink-2); }
+  .page-stat .v { font-size: 18px; font-weight: 700; margin-top: 2px; }
+
+  .page-right { display: flex; align-items: center; gap: 14px; }
+  .de {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 10px 6px 12px;
+    border: 1px solid var(--border-2); border-radius: 999px;
+    font-size: 12.5px; color: #4B5563;
+  }
+  .de .pill-on {
+    font-size: 10px; font-weight: 700; color: white;
+    background: var(--grad); padding: 3px 8px; border-radius: 999px;
+  }
+  .de .pill-off {
+    font-size: 10px; font-weight: 700; color: var(--ink-3);
+    background: #F1F0F7; padding: 3px 8px; border-radius: 999px;
+  }
+  .more {
+    width: 36px; height: 36px; border-radius: 12px;
+    background: white; border: 1px solid var(--border-2);
+    display: grid; place-items: center;
+    color: var(--ink-2);
+    transition: background .15s ease;
+  }
+  .more:hover { background: #FBFAFF; color: var(--purple); }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #1a1a1a; color: white; padding: 12px 20px;
+    border-radius: 999px; font-size: 14px; font-weight: 500;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    box-shadow: 0 10px 30px rgba(0,0,0,.2);
+    z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .wave { display: inline-block; transform-origin: 70% 70%; animation: wave 2.6s ease-in-out infinite; }
+  @keyframes wave {
+    0%, 60%, 100% { transform: rotate(0deg); }
+    10% { transform: rotate(14deg); }
+    20% { transform: rotate(-8deg); }
+    30% { transform: rotate(14deg); }
+    40% { transform: rotate(-4deg); }
+    50% { transform: rotate(10deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ─────────── SIDEBAR ─────────── -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="brand-name">Tokproof</div>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-item active" data-screen="dashboard" href="#">
+        <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg></span>
+        Dashboard
+      </a>
+      <a class="nav-item" data-screen="analytics" href="#">
+        <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-8"/><path d="M22 20H2"/></svg></span>
+        Analytics
+      </a>
+      <a class="nav-item" data-screen="rescue" href="#">
+        <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span>
+        TikTok Rescue
+        <span class="pro">PRO</span>
+      </a>
+      <a class="nav-item" data-screen="templates" href="#">
+        <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></span>
+        Templates
+      </a>
+
+      <div class="nav-label">Cuenta</div>
+
+      <a class="nav-item" href="#">
+        <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 11h20"/></svg></span>
+        Billing
+        <span class="pro">PRO</span>
+      </a>
+      <a class="nav-item" href="#">
+        <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>
+        Settings
+      </a>
+      <a class="nav-item" href="#">
+        <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l4-4a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-4 4a5 5 0 0 0 7 7l1-1"/></svg></span>
+        Integraciones
+      </a>
+      <a class="nav-item" href="#">
+        <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 1 1 5.8 1c0 2-3 2-3 4"/><path d="M12 17h.01"/></svg></span>
+        Help
+      </a>
+      <a class="nav-item" href="#">
+        <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span>
+        Cerrar sesión
+      </a>
+    </nav>
+
+    <div class="profile-card">
+      <div class="profile-row">
+        <div class="avatar"></div>
+        <div class="crown">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M3 18l2-10 5 4 2-8 2 8 5-4 2 10H3z"/></svg>
+        </div>
+      </div>
+      <div class="pname">Paula Núñez</div>
+      <div class="pplan">Plan Pro</div>
+      <button class="pcta">
+        Ver mi perfil
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ─────────── MAIN ─────────── -->
+  <main class="main" data-screen-label="Dashboard">
+
+    <header class="topbar">
+      <div class="hello">
+        <h1>Hola, Paula <span class="wave">👋</span></h1>
+        <p>Aquí tienes un resumen de tu actividad y rendimiento.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost" data-copy="tokproof.app/@mibrand">
+          <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="url(#gradLink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><defs><linearGradient id="gradLink" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F647A9"/><stop offset="1" stop-color="#7B61FF"/></linearGradient></defs><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span>
+          <span class="btn-grad-text">Copiar mi link</span>
+        </button>
+        <button class="btn btn-ghost">
+          <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          Vista previa
+        </button>
+        <button class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          Nueva landing
+        </button>
+      </div>
+    </header>
+
+    <!-- ─── Stats ─── -->
+    <section class="stats">
+      <!-- 1 -->
+      <div class="card stat">
+        <div class="stat-ic pink">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div>
+          <div class="stat-label">Vistas totales</div>
+          <div class="stat-value">12.4K</div>
+        </div>
+        <div class="stat-bottom">
+          <div class="stat-delta pink">+18.2%</div>
+          <svg class="spark" viewBox="0 0 110 34" fill="none"><path d="M2 24 L14 18 L24 22 L34 12 L44 16 L54 8 L66 18 L76 14 L88 22 L100 16 L108 20" stroke="#FF4FD8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <!-- 2 -->
+      <div class="card stat">
+        <div class="stat-ic purple">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l-7 7 7 7"/><path d="M2 18h12a8 8 0 0 0 8-8V3"/></svg>
+        </div>
+        <div>
+          <div class="stat-label">Clicks totales</div>
+          <div class="stat-value">3.8K</div>
+        </div>
+        <div class="stat-bottom">
+          <div class="stat-delta purple">+22.6%</div>
+          <svg class="spark" viewBox="0 0 110 34" fill="none"><path d="M2 22 L14 14 L26 20 L36 10 L48 14 L60 6 L70 14 L82 10 L92 18 L102 12 L108 16" stroke="#7B61FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <!-- 3 -->
+      <div class="card stat">
+        <div class="stat-ic pink">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+        </div>
+        <div>
+          <div class="stat-label">CTR promedio</div>
+          <div class="stat-value">30.6%</div>
+        </div>
+        <div class="stat-bottom">
+          <div class="stat-delta pink">+14.5%</div>
+          <svg class="spark" viewBox="0 0 110 34" fill="none"><path d="M2 24 L14 16 L24 20 L34 10 L46 18 L56 8 L66 16 L78 10 L88 20 L100 14 L108 18" stroke="#FF4FD8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <!-- 4 -->
+      <div class="card stat">
+        <div class="stat-ic purple">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        </div>
+        <div>
+          <div class="stat-label">Rescates exitosos</div>
+          <div class="stat-value">1.2K</div>
+        </div>
+        <div class="stat-bottom">
+          <div class="stat-delta purple">+27.8%</div>
+          <svg class="spark" viewBox="0 0 110 34" fill="none"><path d="M2 22 L14 18 L24 22 L36 14 L46 18 L58 10 L68 14 L78 8 L90 16 L100 10 L108 6" stroke="#7B61FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Mid row ─── -->
+    <section class="mid">
+      <div class="card rescue">
+        <div class="card-head">
+          <h3>TikTok Rescue</h3>
+          <span class="badge-pro">PRO</span>
+        </div>
+        <div class="rescue-body">
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="shield">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255,79,216,.35)"/>
+                  <path d="M9 12l2 2 4-4"/>
+                </svg>
+              </div>
+              <div class="phone-cap">
+                <div class="t1">Exit Guide activo</div>
+                <div class="t2">Protegiendo tus clics<br/>desde TikTok</div>
+              </div>
+            </div>
+          </div>
+          <div class="rescue-right">
+            <h4>Protege tus clics desde TikTok</h4>
+            <p class="desc">Activa el Exit Guide para mostrar un paso intermedio y aumentar las aperturas en navegador.</p>
+            <div class="metrics">
+              <div class="metric">
+                <div class="mi"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18"/></svg></div>
+                <div class="ml">Guías mostradas</div>
+                <div class="mv">2.4K</div>
+              </div>
+              <div class="metric">
+                <div class="mi"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg></div>
+                <div class="ml">Aperturas en navegador</div>
+                <div class="mv">1.6K</div>
+              </div>
+              <div class="metric">
+                <div class="mi"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+                <div class="ml">Tasa de éxito</div>
+                <div class="mv">66.7%</div>
+              </div>
+            </div>
+            <div class="exit-toggle">
+              <div class="lbl">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Exit Guide activo
+              </div>
+              <button class="switch" id="exitSwitch" aria-label="Toggle Exit Guide"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card links">
+        <h3>Tu link principal</h3>
+        <div class="field-label">Enlace principal</div>
+        <div class="link-input">
+          <span class="url">tokproof.app/@mibrand</span>
+          <button class="copy-btn" data-copy="tokproof.app/@mibrand" aria-label="Copiar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+        <div class="field-label">Enlace Direct Exit</div>
+        <div class="link-input">
+          <span class="url">tokproof.app/@mibrand/go</span>
+          <button class="copy-btn" data-copy="tokproof.app/@mibrand/go" aria-label="Copiar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+        <div class="tip">
+          <div class="tip-ic">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.5c.6.5 1 1.3 1 2.1V18h6v-1.4c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/></svg>
+          </div>
+          <div>
+            <h5>Usa tu enlace /go en TikTok</h5>
+            <p class="tip-p">Los usuarios verán el Exit Guide antes de salir a tu producto. Más aperturas, más ventas.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Pages list ─── -->
+    <section class="card pages">
+      <div class="pages-head">
+        <h3>Tus páginas</h3>
+        <div class="tabs">
+          <button class="tab active" data-tab="all">Todas <span class="cnt">3</span></button>
+          <button class="tab" data-tab="pub">Publicadas <span class="cnt">2</span></button>
+          <button class="tab" data-tab="draft">Borradores <span class="cnt">1</span></button>
+        </div>
+        <div class="pages-tools">
+          <div class="search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input placeholder="Buscar" />
+          </div>
+          <button class="sort">
+            Ordenar
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- row 1 -->
+      <div class="page-row">
+        <div class="page-thumb">
+          <div class="page-thumb-inner">
+            <div class="pt-bar w-50"></div>
+            <div class="pt-bar w-30"></div>
+            <div class="pt-card"></div>
+          </div>
+        </div>
+        <div class="page-info">
+          <div class="page-title-row">
+            <div class="page-title">Crema Hidratante Premium</div>
+            <span class="chip trust">TRUST PAGE</span>
+            <span class="chip pub">● Publicada</span>
+          </div>
+          <div class="page-sub">glowlab.myshopify.com</div>
+          <div class="page-meta">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Creada el 10 ene 2025
+          </div>
+          <div class="page-links">
+            <span class="page-link-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+              tokproof.app/@mibrand
+            </span>
+            <span class="page-link-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5L3 21l4.5-1.5"/><path d="M14 4c5 0 7 2 7 7-2 4-5 7-9 9l-4-4c2-4 5-7 9-9z"/></svg>
+              tokproof.app/@mibrand/go
+            </span>
+          </div>
+        </div>
+        <div class="page-stats">
+          <div class="page-stat"><div class="l">Vistas</div><div class="v">2.4K</div></div>
+          <div class="page-stat"><div class="l">Clicks</div><div class="v">840</div></div>
+          <div class="page-stat"><div class="l">CTR</div><div class="v">34.8%</div></div>
+        </div>
+        <div class="page-right">
+          <span class="de">Direct Exit <span class="pill-on">ON</span></span>
+          <button class="more" aria-label="Más">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- row 2 -->
+      <div class="page-row">
+        <div class="page-thumb">
+          <div class="page-thumb-inner" style="background:linear-gradient(170deg,#E4D7FF,#FFD9F0);">
+            <div class="pt-bar w-50"></div>
+            <div class="pt-bar w-30"></div>
+            <div class="pt-card"></div>
+          </div>
+        </div>
+        <div class="page-info">
+          <div class="page-title-row">
+            <div class="page-title">Bundle Skincare x 3</div>
+            <span class="chip simple">SIMPLE PAGE</span>
+            <span class="chip pub">● Publicada</span>
+          </div>
+          <div class="page-sub">glowlab.myshopify.com</div>
+          <div class="page-meta">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Creada el 18 ene 2025
+          </div>
+          <div class="page-links">
+            <span class="page-link-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+              tokproof.app/@mibrand-2
+            </span>
+            <span class="page-link-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5L3 21l4.5-1.5"/><path d="M14 4c5 0 7 2 7 7-2 4-5 7-9 9l-4-4c2-4 5-7 9-9z"/></svg>
+              tokproof.app/@mibrand-2/go
+            </span>
+          </div>
+        </div>
+        <div class="page-stats">
+          <div class="page-stat"><div class="l">Vistas</div><div class="v">1.7K</div></div>
+          <div class="page-stat"><div class="l">Clicks</div><div class="v">620</div></div>
+          <div class="page-stat"><div class="l">CTR</div><div class="v">36.5%</div></div>
+        </div>
+        <div class="page-right">
+          <span class="de">Direct Exit <span class="pill-off">OFF</span></span>
+          <button class="more" aria-label="Más">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast">Copiado al portapapeles</div>
+
+<script>
+  // Copy buttons
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg || 'Copiado al portapapeles';
+    t.classList.add('show');
+    clearTimeout(window.__toastT);
+    window.__toastT = setTimeout(() => t.classList.remove('show'), 1600);
+  }
+  document.querySelectorAll('[data-copy]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const txt = btn.getAttribute('data-copy');
+      navigator.clipboard?.writeText(txt).catch(() => {});
+      btn.classList.add('copied');
+      setTimeout(() => btn.classList.remove('copied'), 1000);
+      showToast('Copiado: ' + txt);
+    });
+  });
+
+  // Tabs
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+
+  // Sidebar nav
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+      n.classList.add('active');
+    });
+  });
+
+  // Toggle
+  const sw = document.getElementById('exitSwitch');
+  let on = true;
+  sw.addEventListener('click', () => {
+    on = !on;
+    sw.classList.toggle('off', !on);
+    showToast(on ? 'Exit Guide activado' : 'Exit Guide desactivado');
+  });
+</script>
+</body>
+</html>

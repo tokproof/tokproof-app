@@ -63,6 +63,9 @@ export default async function DirectExitPage({ params }: Props) {
   const guideText = typeof s.direct_exit_guide_text === 'string' ? s.direct_exit_guide_text : undefined
   const brandName = page.brand_name ?? undefined
 
+  const rawLang = landingConfig?.language
+  const language: 'es' | 'en' = rawLang === 'en' ? 'en' : 'es'
+
   return (
     <DirectExitClient
       pageId={page.id}
@@ -70,6 +73,7 @@ export default async function DirectExitPage({ params }: Props) {
       delay={delay}
       guideText={guideText}
       brandName={brandName ?? undefined}
+      language={language}
     />
   )
 }

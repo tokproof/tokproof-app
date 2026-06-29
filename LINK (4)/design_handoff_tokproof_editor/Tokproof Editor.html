@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Tokproof — Editor</title>
+<meta name="viewport" content="width=1520" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF9FC;
+    --card:#FFFFFF;
+    --ink:#171717;
+    --ink-2:#6B7280;
+    --ink-3:#9CA3AF;
+    --pink:#F647A9;
+    --pink-2:#FF4FD8;
+    --purple:#7B61FF;
+    --green:#1AA960;
+    --green-bg:#E6F9EE;
+    --border:rgba(123,97,255,0.10);
+    --border-2:rgba(123,97,255,0.16);
+    --soft-pink:#FFF1FA;
+    --soft-pink-2:#FFE3F1;
+    --soft-purple:#F4F0FF;
+    --grad:linear-gradient(135deg,#FF4FD8 0%, #7B61FF 100%);
+    --grad-side:linear-gradient(180deg,#FEF5FA 0%, #F4EDFE 100%);
+    --shadow-card:0 8px 30px rgba(123,97,255,0.06);
+    --shadow-pop:0 18px 50px -12px rgba(40,20,80,.18);
+    --shadow-btn:0 10px 25px rgba(255,79,216,0.22);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    background:#EDE8F4;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    letter-spacing:-0.006em;
+    height:100vh; overflow:hidden;
+  }
+  button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit;}
+  a{color:inherit;text-decoration:none;}
+  input{font-family:inherit;}
+  .ic{display:inline-flex;align-items:center;justify-content:center;}
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:rgba(123,97,255,.18);border-radius:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+
+  .editor{display:flex;height:100vh;width:100%;background:var(--bg);}
+
+  /* ─────────────── COL 1 — NAV ─────────────── */
+  .nav{
+    width:224px; flex:0 0 224px;
+    background:var(--grad-side);
+    border-right:1px solid var(--border);
+    display:flex;flex-direction:column;gap:22px;
+    padding:24px 16px 18px;
+    transition:width .28s cubic-bezier(.5,.1,.2,1),flex-basis .28s cubic-bezier(.5,.1,.2,1),padding .28s,opacity .2s;
+    overflow:hidden;
+  }
+  .brand{display:flex;align-items:center;gap:11px;padding:2px 8px 4px;white-space:nowrap;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:10px;background:var(--grad);
+    display:grid;place-items:center;flex:0 0 34px;
+    box-shadow:0 6px 16px rgba(255,79,216,.25);
+  }
+  .brand-name{font-weight:700;font-size:18px;letter-spacing:-0.02em;}
+  .nav-list{display:flex;flex-direction:column;gap:3px;}
+  .nav-cap{font-size:10.5px;font-weight:600;color:var(--ink-3);letter-spacing:.12em;text-transform:uppercase;padding:16px 12px 6px;white-space:nowrap;}
+  .nav-item{
+    display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:13px;
+    color:#4B5563;font-size:14px;font-weight:500;white-space:nowrap;
+    transition:background .15s,color .15s;
+  }
+  .nav-item .ic{color:#9AA0AE;flex:0 0 20px;}
+  .nav-item:hover{background:rgba(123,97,255,.06);color:#2B2540;}
+  .nav-item:hover .ic{color:var(--purple);}
+  .nav-item.active{background:#FFEAF8;color:var(--pink);}
+  .nav-item.active .ic{color:var(--pink);}
+  .nav-pro{margin-left:auto;font-size:9.5px;font-weight:700;color:var(--purple);background:var(--soft-purple);padding:3px 7px;border-radius:999px;letter-spacing:.04em;}
+  .nav-profile{
+    margin-top:auto;border-radius:20px;padding:14px 13px 12px;background:var(--grad);color:#fff;position:relative;overflow:hidden;
+    box-shadow:0 10px 24px rgba(255,79,216,.22);
+  }
+  .nav-profile::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 100% 0%,rgba(255,255,255,.18),transparent 50%);}
+  .np-row{display:flex;align-items:center;gap:10px;position:relative;}
+  .np-av{width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,.6);background:linear-gradient(135deg,#F4D7C3,#C99A82);flex:0 0 40px;position:relative;overflow:hidden;}
+  .np-av::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 38%,#5a3a2a 0 9px,transparent 10px),radial-gradient(ellipse at 50% 96%,#5a3a2a 0 30%,transparent 34%);opacity:.85;}
+  .np-gear{margin-left:auto;width:24px;height:24px;border-radius:8px;background:rgba(255,255,255,.22);display:grid;place-items:center;color:#fff;}
+  .np-name{font-weight:600;font-size:13.5px;margin-top:11px;}
+  .np-plan{font-size:11.5px;opacity:.85;margin-top:1px;}
+  .np-cta{margin-top:12px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:11px;padding:8px 11px;font-size:12.5px;font-weight:500;display:flex;align-items:center;justify-content:space-between;width:100%;}
+  .np-cta:hover{background:rgba(255,255,255,.28);}
+
+  /* nav collapsed (icon only) */
+  .editor.nav-collapsed .nav{width:72px;flex-basis:72px;padding:24px 12px 18px;}
+  .editor.nav-collapsed .brand-name,
+  .editor.nav-collapsed .nav-cap,
+  .editor.nav-collapsed .nav-item span.lbl,
+  .editor.nav-collapsed .nav-pro,
+  .editor.nav-collapsed .nav-profile .np-name,
+  .editor.nav-collapsed .nav-profile .np-plan,
+  .editor.nav-collapsed .nav-profile .np-cta,
+  .editor.nav-collapsed .nav-profile .np-gear{display:none;}
+  .editor.nav-collapsed .nav-item{justify-content:center;padding:10px;}
+  .editor.nav-collapsed .nav-profile{padding:10px;background:none;box-shadow:none;}
+  .editor.nav-collapsed .np-row{justify-content:center;}
+
+  /* ─────────────── COL 2 — SECTIONS ─────────────── */
+  .sectionsWrap{position:relative;display:flex;flex:0 0 auto;}
+  .sections{
+    width:308px;flex:0 0 308px;
+    background:var(--bg);
+    border-right:1px solid var(--border);
+    padding:22px 20px;
+    overflow-y:auto;
+    transition:width .28s cubic-bezier(.5,.1,.2,1),flex-basis .28s;
+  }
+  .panel-card{
+    background:var(--card);border:1px solid var(--border);border-radius:18px;
+    box-shadow:var(--shadow-card);padding:16px 16px 18px;margin-bottom:14px;
+  }
+  .panel-head{display:flex;align-items:center;gap:9px;}
+  .panel-head .dot{width:26px;height:26px;border-radius:9px;background:var(--soft-pink);display:grid;place-items:center;color:var(--pink);}
+  .panel-head h3{margin:0;font-size:14.5px;font-weight:700;color:var(--pink);}
+  .panel-head .chev{margin-left:auto;color:var(--ink-3);}
+  .panel-sub{font-size:12px;color:var(--ink-2);margin:10px 0 0;line-height:1.45;}
+  .field{margin-top:16px;}
+  .field-lbl{font-size:12px;font-weight:600;color:#4B5563;margin-bottom:7px;}
+  .field-input{
+    width:100%;background:#fff;border:1px solid var(--border-2);border-radius:11px;
+    padding:11px 12px;font-size:13px;color:var(--ink);display:flex;align-items:center;gap:8px;
+  }
+  .field-input input{border:0;outline:0;flex:1;background:transparent;font-size:13px;color:var(--ink);min-width:0;}
+  .field-input .count{font-size:11px;color:var(--ink-3);}
+  .field-input .cp{color:var(--ink-3);cursor:pointer;}
+  .field-input .cp:hover{color:var(--pink);}
+  .field-input.state{color:var(--green);font-weight:600;}
+  .field-select{justify-content:space-between;cursor:pointer;}
+
+  .sec-list{margin-top:4px;display:flex;flex-direction:column;}
+  .sec-row{
+    display:flex;align-items:center;gap:11px;padding:13px 4px;border-top:1px solid var(--border);
+    font-size:13.5px;font-weight:500;color:#374151;cursor:pointer;transition:color .15s;
+  }
+  .sec-row:hover{color:var(--ink);}
+  .sec-row .si{color:var(--purple);opacity:.8;flex:0 0 18px;}
+  .sec-row .pro{font-size:9.5px;font-weight:700;color:var(--purple);background:var(--soft-purple);padding:3px 7px;border-radius:999px;margin-left:auto;}
+  .sec-row .chev{margin-left:auto;color:var(--ink-3);transition:transform .2s;}
+  .sec-row .pro + .chev{margin-left:8px;}
+  .sec-row.open .chev{transform:rotate(180deg);}
+  .sec-body{font-size:12.5px;color:var(--ink-2);line-height:1.5;padding:0 4px 14px 33px;display:none;}
+  .sec-row.open + .sec-body{display:block;}
+  .add-sec{
+    margin-top:16px;width:100%;border:1.5px dashed var(--border-2);border-radius:14px;
+    padding:13px;color:var(--purple);font-weight:600;font-size:13.5px;
+    display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s;
+  }
+  .add-sec:hover{background:var(--soft-purple);}
+
+  /* floating mini rail */
+  .mini-rail{
+    position:absolute;top:96px;right:-74px;z-index:6;
+    background:#fff;border:1px solid var(--border);border-radius:18px;
+    box-shadow:var(--shadow-pop);padding:12px 8px;display:flex;flex-direction:column;gap:6px;
+  }
+  .mr-item{width:56px;display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px;border-radius:13px;color:var(--ink-2);font-size:10.5px;font-weight:600;transition:background .15s,color .15s;}
+  .mr-item .ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:#F5F2FB;color:var(--ink-2);}
+  .mr-item.active{color:var(--pink);}
+  .mr-item.active .ic{background:var(--soft-pink-2);color:var(--pink);}
+  .mr-item:hover .ic{color:var(--pink);}
+
+  /* collapse handle on sections */
+  .nav-toggle{
+    position:absolute;top:20px;left:14px;z-index:7;
+    width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid var(--border-2);
+    display:grid;place-items:center;color:var(--ink-2);box-shadow:0 2px 8px rgba(40,20,80,.08);
+    transition:transform .2s,background .15s;
+  }
+  .nav-toggle:hover{background:var(--soft-pink);color:var(--pink);}
+
+  /* ─────────────── MAIN (topbar + work) ─────────────── */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg);}
+  .work{flex:1;display:flex;min-height:0;}
+  .canvas{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg);}
+  .topbar{
+    display:flex;align-items:center;gap:10px;padding:16px 22px 16px 22px;border-bottom:1px solid var(--border);
+    background:var(--bg);
+  }
+  .tb-title{white-space:nowrap;}
+  .tb-back{width:38px;height:38px;border-radius:12px;background:#fff;border:1px solid var(--border-2);display:grid;place-items:center;color:var(--ink-2);}
+  .tb-back:hover{background:var(--soft-pink);color:var(--pink);}
+  .tb-title{display:flex;align-items:center;gap:9px;font-size:17px;font-weight:700;letter-spacing:-0.02em;flex:0 1 auto;min-width:0;}
+  .tb-title .ttxt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+  .tb-spacer{flex:1 1 12px;min-width:12px;}
+  .tb-title .edit{color:var(--ink-3);cursor:pointer;flex:0 0 auto;}
+  .tb-title .edit:hover{color:var(--pink);}
+  .tb-status{
+    display:inline-flex;align-items:center;gap:7px;background:var(--green-bg);color:var(--green);
+    border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer;
+  }
+  .tb-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto;}
+  .btn{border-radius:999px;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:7px;transition:transform .12s,box-shadow .15s,background .15s;}
+  .btn-ghost{background:#fff;border:1px solid var(--border-2);color:#374151;padding:9px 13px;white-space:nowrap;}
+  .btn-ghost:hover{background:#FBFAFF;}
+  .btn-ghost .ic{color:var(--purple);}
+  .btn-ghost.link .ic{color:var(--pink);}
+  .btn-ghost.link{color:var(--pink);}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:var(--shadow-btn);padding:11px 16px;font-weight:600;white-space:nowrap;}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 14px 30px rgba(255,79,216,.3);}
+
+  .stage{flex:1;overflow:auto;padding:22px 26px 0;display:flex;flex-direction:column;align-items:center;}
+  .device-toggle{display:inline-flex;background:#F1ECF7;border-radius:999px;padding:5px;gap:4px;margin-bottom:22px;}
+  .dt-btn{padding:9px 18px;border-radius:999px;font-size:13.5px;font-weight:600;color:var(--ink-2);display:inline-flex;align-items:center;gap:8px;transition:all .15s;}
+  .dt-btn.active{background:#fff;color:var(--pink);box-shadow:0 2px 8px rgba(40,20,80,.1);}
+
+  .phone-zoom{transform-origin:top center;transition:transform .2s;}
+  .phone{
+    width:312px;height:642px;border-radius:46px;background:linear-gradient(160deg,#23202b,#0c0b12);
+    padding:9px;box-shadow:0 40px 70px -24px rgba(40,20,80,.45),0 0 0 1px rgba(255,255,255,.04);position:relative;
+  }
+  .phone::before{content:"";position:absolute;top:20px;left:50%;transform:translateX(-50%);width:92px;height:24px;background:#0a0a0a;border-radius:13px;z-index:5;}
+  .pscreen{width:100%;height:100%;border-radius:38px;overflow:hidden;background:#fff;position:relative;display:flex;flex-direction:column;}
+  .pstatus{display:flex;align-items:center;justify-content:space-between;padding:13px 22px 6px;font-size:12px;font-weight:700;color:#1a1a1a;}
+  .pstatus .r{display:flex;gap:5px;align-items:center;}
+  .pbrand{display:flex;align-items:center;gap:8px;padding:6px 18px 10px;font-size:12.5px;font-weight:700;letter-spacing:.06em;color:#3a3a3a;}
+  .pbrand .lg{width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#FFB1E7,#C9A0FF);display:grid;place-items:center;color:#fff;font-size:11px;}
+  .pbrand .dots{margin-left:auto;color:#9CA3AF;}
+  .pscroll{flex:1;overflow:hidden;}
+  .phero{height:200px;margin:0 16px;border-radius:20px;position:relative;overflow:hidden;background:linear-gradient(160deg,#F3DCEC,#E7DAF7 60%,#F0E4F5);display:grid;place-items:center;}
+  .phero .stripes{position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.25) 0 10px,transparent 10px 20px);opacity:.5;}
+  .phero .ghost-jar{width:96px;height:110px;border-radius:18px 18px 14px 14px;background:rgba(255,255,255,.55);box-shadow:inset 0 -10px 20px rgba(180,140,200,.25);position:relative;}
+  .phero .play{position:relative;z-index:2;width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.85);display:grid;place-items:center;box-shadow:0 8px 20px rgba(0,0,0,.15);}
+  .phero .rev{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.9);border-radius:12px;padding:6px 9px;font-size:11px;font-weight:700;color:#1a1a1a;display:flex;flex-direction:column;line-height:1.25;box-shadow:0 4px 12px rgba(0,0,0,.1);}
+  .prev-stars{color:#F5A623;}
+  .phero .rev .sub{font-size:9px;color:#9CA3AF;font-weight:500;}
+  .pbody{padding:16px;}
+  .ptitle{font-size:21px;font-weight:800;letter-spacing:-0.02em;line-height:1.15;}
+  .ptitle .accent{color:var(--pink);}
+  .pdesc{font-size:12.5px;color:#6B7280;margin-top:7px;line-height:1.5;}
+  .pchips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;}
+  .pchip{font-size:10.5px;color:#4B5563;display:inline-flex;align-items:center;gap:5px;background:#F5F2FB;border-radius:999px;padding:5px 9px;font-weight:500;}
+  .pchip .ic{color:var(--pink);}
+  .pbuy{margin-top:14px;width:100%;background:var(--grad);color:#fff;border-radius:14px;padding:14px;font-size:14px;font-weight:700;box-shadow:0 8px 20px rgba(255,79,216,.25);}
+  .pmore{margin-top:9px;width:100%;background:#F7F3FB;border-radius:13px;padding:12px;font-size:13px;font-weight:600;color:#4B5563;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .psocial{margin-top:9px;background:#FBF6FB;border-radius:13px;padding:10px 12px;display:flex;align-items:center;gap:10px;}
+  .pavs{display:flex;}
+  .pavs span{width:24px;height:24px;border-radius:50%;border:2px solid #fff;margin-left:-8px;background:linear-gradient(135deg,#FFB1E7,#B49BFF);}
+  .pavs span:first-child{margin-left:0;}
+  .psocial .pt{font-size:11.5px;font-weight:700;color:#1a1a1a;white-space:nowrap;}
+  .psocial .ps{font-size:10px;color:#9CA3AF;white-space:nowrap;}
+  .pcomments{margin-top:16px;}
+  .pcomments .ch{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;}
+  .pcomments .ch a{font-size:11px;color:var(--pink);font-weight:600;}
+  .pcomment{display:flex;gap:9px;margin-top:11px;}
+  .pcomment .ca{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#FFD1B1,#FFB1E7);flex:0 0 30px;}
+  .pcomment .cn{font-size:11.5px;font-weight:700;}
+  .pcomment .ct{font-size:11px;color:#6B7280;margin-top:2px;line-height:1.35;}
+  .pcomment .cd{font-size:9.5px;color:#B6B6C2;margin-top:3px;}
+  .pcomment .heart{margin-left:auto;text-align:center;color:var(--pink);font-size:10px;font-weight:600;}
+
+  .canvas-tools{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-card);padding:8px;margin:22px auto;}
+  .ct-btn{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;color:var(--ink-2);transition:background .15s,color .15s;}
+  .ct-btn:hover{background:var(--soft-pink);color:var(--pink);}
+  .ct-btn.disabled{color:var(--ink-3);opacity:.5;pointer-events:none;}
+  .ct-sep{width:1px;height:24px;background:var(--border);margin:0 4px;}
+  .ct-zoom{display:flex;align-items:center;gap:10px;padding:0 6px;}
+  .ct-zoom .z{font-size:13px;font-weight:600;color:#4B5563;min-width:42px;text-align:center;}
+
+  /* ─────────────── COL 4 — STATS ─────────────── */
+  .stats{
+    width:360px;flex:0 0 360px;background:var(--bg);border-left:1px solid var(--border);
+    padding:18px 20px;overflow-y:auto;transition:width .28s,flex-basis .28s,opacity .2s;
+  }
+  .stats-top{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:16px;}
+  .stats-top .lbl{font-size:13px;font-weight:600;color:#4B5563;}
+  .scard{background:var(--card);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-card);padding:18px;margin-bottom:16px;}
+  .scard-head{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+  .scard-head h4{margin:0;font-size:15px;font-weight:700;}
+  .scard-head .badge{font-size:9.5px;font-weight:700;color:var(--purple);background:var(--soft-purple);padding:3px 7px;border-radius:999px;}
+  .scard-head .range{margin-left:auto;font-size:11.5px;color:var(--ink-2);background:#F5F2FB;border-radius:999px;padding:5px 10px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;}
+  .scard-head .info{margin-left:auto;color:var(--ink-3);}
+  .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px 16px;}
+  .sg-lbl{font-size:12px;color:var(--ink-2);}
+  .sg-val{font-size:22px;font-weight:700;letter-spacing:-0.02em;margin-top:3px;}
+  .sg-delta{font-size:11.5px;font-weight:600;margin-top:2px;}
+  .sg-delta.pink{color:var(--pink);}
+  .sg-delta.purple{color:var(--purple);}
+  .sg-spark{width:100%;height:26px;margin-top:6px;}
+
+  .rescue-desc{font-size:12.5px;color:var(--ink-2);line-height:1.5;margin:0 0 14px;max-width:240px;}
+  .rescue-shield{float:right;width:64px;height:64px;border-radius:18px;background:var(--soft-pink);display:grid;place-items:center;color:var(--pink);margin:-44px 0 0;}
+  .rrow{display:flex;align-items:center;gap:10px;background:var(--soft-pink);border-radius:13px;padding:12px 13px;margin-top:10px;font-size:12.5px;}
+  .rrow .ic{color:var(--pink);}
+  .rrow .lbl{color:#4B5563;font-weight:500;}
+  .rrow .tag{margin-left:auto;font-size:11px;font-weight:700;color:var(--green);}
+  .switch{width:42px;height:24px;background:var(--pink);border-radius:999px;position:relative;flex:0 0 42px;transition:background .15s;margin-left:auto;}
+  .switch::after{content:"";position:absolute;top:3px;left:21px;width:18px;height:18px;background:#fff;border-radius:50%;box-shadow:0 2px 5px rgba(0,0,0,.18);transition:left .18s;}
+  .switch.off{background:#E5E7EB;}
+  .switch.off::after{left:3px;}
+  .rrow.split{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .rrow.split .half{display:flex;align-items:center;gap:8px;}
+  .rrow.split .half .v{margin-left:auto;font-weight:700;color:var(--ink);}
+
+  .lk-lbl{font-size:12px;color:var(--ink-2);margin:14px 0 7px;}
+  .lk-lbl:first-child{margin-top:0;}
+  .lk-input{background:var(--soft-pink);border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:10px;color:var(--pink);font-size:12.5px;font-weight:500;}
+  .lk-input .u{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lk-input .cp{cursor:pointer;color:var(--pink);opacity:.7;}
+  .lk-input .cp:hover{opacity:1;}
+
+  .scores{display:flex;justify-content:space-between;gap:8px;margin-top:4px;}
+  .score{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;}
+  .gauge{width:74px;height:74px;position:relative;}
+  .gauge .num{position:absolute;inset:0;display:grid;place-items:center;font-size:17px;font-weight:700;}
+  .gauge .num small{font-size:9px;color:var(--ink-3);font-weight:600;}
+  .score .sl{font-size:11.5px;color:var(--ink-2);font-weight:500;text-align:center;}
+  .score-banner{margin-top:16px;background:var(--soft-pink);border-radius:13px;padding:12px;text-align:center;font-size:12.5px;font-weight:600;color:#4B5563;}
+
+  /* ─────────────── COL 5 — RAIL ─────────────── */
+  .rail{
+    width:64px;flex:0 0 64px;background:#fff;border-left:1px solid var(--border);
+    display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 0;overflow-y:auto;
+  }
+  .rail-toggle{width:34px;height:34px;border-radius:10px;background:#F5F2FB;display:grid;place-items:center;color:var(--ink-2);margin-bottom:8px;transition:background .15s,color .15s;}
+  .rail-toggle:hover{background:var(--soft-pink);color:var(--pink);}
+  .rail-ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:var(--ink-2);transition:background .15s,color .15s;flex:0 0 auto;}
+  .rail-ic:hover{background:var(--soft-pink);color:var(--pink);}
+  .rail-ic.active{background:var(--soft-pink-2);color:var(--pink);}
+  .rail-sep{width:30px;height:1px;background:var(--border);margin:6px 0;}
+  .rail-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#F4D7C3,#C99A82);margin-top:6px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.12);}
+  .rail-spacer{flex:1;}
+
+  /* focus mode header card (floats over editor top-right) */
+  .focus-card{
+    position:absolute;top:84px;right:20px;z-index:8;width:188px;
+    background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-pop);
+    padding:13px 14px;display:none;
+  }
+  .focus-card.show{display:block;}
+  .focus-card .fh{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;}
+  .focus-card .fh .ic{color:var(--purple);}
+  .focus-card .fd{font-size:11.5px;color:var(--ink-2);line-height:1.45;margin-top:7px;}
+
+  /* FOCUS MODE active: hide nav + sections */
+  .editor.focus .nav,
+  .editor.focus .sectionsWrap{display:none;}
+  .editor.focus .stage{padding-top:30px;}
+  /* keep nav width tidy on smaller screens */
+  .nav{flex:0 0 210px;width:210px;}
+  .sections{flex:0 0 290px;width:290px;}
+
+  /* landing-activa header strip in canvas */
+  .canvas-rel{position:relative;flex:1;display:flex;flex-direction:column;min-height:0;}
+
+  /* toast */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a1a;color:#fff;padding:11px 19px;border-radius:999px;font-size:13.5px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;box-shadow:0 10px 30px rgba(0,0,0,.2);z-index:99;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .landing-flag{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#4B5563;}
+</style>
+</head>
+<body>
+
+<div class="editor" id="editor">
+
+  <!-- ───── COL 1 — NAV ───── -->
+  <aside class="nav">
+    <div class="brand">
+      <div class="brand-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="brand-name">Tokproof</div>
+    </div>
+    <nav class="nav-list">
+      <a class="nav-item active" href="#"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="lbl">Dashboard</span></a>
+      <a class="nav-item" href="#"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg></span><span class="lbl">Analytics</span></a>
+      <a class="nav-item" href="#"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span><span class="lbl">TikTok Rescue</span><span class="nav-pro">PRO</span></a>
+      <a class="nav-item" href="#"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg></span><span class="lbl">Templates</span></a>
+      <div class="nav-cap">Cuenta</div>
+      <a class="nav-item" href="#"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 11h20"/></svg></span><span class="lbl">Billing</span><span class="nav-pro">PRO</span></a>
+      <a class="nav-item" href="#"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.8 1.2V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-2.8-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.8H3a2 2 0 0 1 0-4h.1A1.7 1.7 0 0 0 4.3 9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 9 4.3V3a2 2 0 0 1 4 0v.1A1.7 1.7 0 0 0 15 4.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.8H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span><span class="lbl">Settings</span></a>
+      <a class="nav-item" href="#"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l4-4a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-4 4a5 5 0 0 0 7 7l1-1"/></svg></span><span class="lbl">Integraciones</span></a>
+      <a class="nav-item" href="#"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 1 1 5.8 1c0 2-3 2-3 4"/><path d="M12 17h.01"/></svg></span><span class="lbl">Help</span></a>
+      <a class="nav-item" href="#"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></span><span class="lbl">Cerrar sesión</span></a>
+    </nav>
+    <div class="nav-profile">
+      <div class="np-row">
+        <div class="np-av"></div>
+        <div class="np-gear"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.3.9a7 7 0 0 0-1.7-1L14.5 2h-4l-.4 2.5a7 7 0 0 0-1.7 1l-2.3-.9-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 1.7 1l.4 2.5h4l.4-2.5a7 7 0 0 0 1.7-1l2.3.9 2-3.4-2-1.5c.1-.3.1-.7.1-1z"/></svg></div>
+      </div>
+      <div class="np-name">Paula Núñez</div>
+      <div class="np-plan">Plan Pro</div>
+      <button class="np-cta">Ver mi perfil <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+    </div>
+  </aside>
+
+  <!-- ───── COL 2 — SECTIONS ───── -->
+  <div class="sectionsWrap">
+    <button class="nav-toggle" id="navToggle" title="Contraer sidebar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+
+    <div class="mini-rail">
+      <button class="mr-item active"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Secciones</button>
+      <button class="mr-item"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="12.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="13.5" r="2.5"/><path d="M12 22a10 10 0 1 1 10-10c0 2-1 3-3 3h-2a2 2 0 0 0-1 4 2 2 0 0 1-1 3z"/></svg></span>Estilos</button>
+      <button class="mr-item"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8 2 2 0 1 1-2.8 2.8 1.7 1.7 0 0 0-2.8 1.2 2 2 0 0 1-4 0 1.7 1.7 0 0 0-2.8-1.2 2 2 0 1 1-2.8-2.8A1.7 1.7 0 0 0 4 15a2 2 0 0 1 0-4 1.7 1.7 0 0 0 .3-1.8 2 2 0 1 1 2.8-2.8A1.7 1.7 0 0 0 9 4.3a2 2 0 0 1 4 0 1.7 1.7 0 0 0 2.8 1.2 2 2 0 1 1 2.8 2.8A1.7 1.7 0 0 0 20 11a2 2 0 0 1 0 4z"/></svg></span>Ajustes</button>
+    </div>
+
+    <div class="sections">
+      <div class="panel-card">
+        <div class="panel-head">
+          <span class="dot"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <h3>General</h3>
+          <span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></span>
+        </div>
+        <p class="panel-sub">Configura la información básica de tu landing.</p>
+        <div class="field">
+          <div class="field-lbl">Nombre de la landing</div>
+          <div class="field-input"><input value="Crema Hidratante Premium" /><span class="count">24/60</span></div>
+        </div>
+        <div class="field">
+          <div class="field-lbl">Estado</div>
+          <div class="field-input field-select state">Publicado <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+        </div>
+        <div class="field">
+          <div class="field-lbl">Slug / Enlace principal</div>
+          <div class="field-input"><span style="color:var(--ink-2)">tokproof.app/@mibrand</span><span class="cp" data-copy="tokproof.app/@mibrand"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span></div>
+        </div>
+      </div>
+
+      <div class="panel-card" style="padding-top:6px;padding-bottom:6px;">
+        <div class="sec-list" id="secList">
+          <div class="sec-row"><span class="si"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg></span>Branding<span class="chev"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+          <div class="sec-body">Logo, colores de marca, tipografía y favicon de tu landing.</div>
+          <div class="sec-row"><span class="si"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span>Profile<span class="chev"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+          <div class="sec-body">Nombre, avatar, bio y redes sociales que aparecen arriba.</div>
+          <div class="sec-row"><span class="si"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg></span>Producto<span class="chev"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+          <div class="sec-body">Título, descripción, imágenes, precio y badges de confianza.</div>
+          <div class="sec-row"><span class="si"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/></svg></span>Media<span class="chev"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+          <div class="sec-body">Galería de fotos y vídeos del producto.</div>
+          <div class="sec-row"><span class="si"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M5 5h11a3 3 0 0 1 0 6H7a3 3 0 0 0 0 6h12"/></svg></span>Precios<span class="chev"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+          <div class="sec-body">Precio, descuentos, ofertas y moneda.</div>
+          <div class="sec-row"><span class="si"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>Comentarios TikTok<span class="pro">PRO</span><span class="chev"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+          <div class="sec-body">Importa comentarios reales de TikTok como prueba social.</div>
+          <div class="sec-row"><span class="si"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6.5 7 .6-5.3 4.6 1.7 6.8L12 17l-6.1 3.5 1.7-6.8L2 9.1l7-.6z"/></svg></span>Reseñas<span class="chev"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+          <div class="sec-body">Valoraciones con estrellas y testimonios de clientes.</div>
+          <div class="sec-row"><span class="si"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9.1 9a3 3 0 1 1 5.8 1c0 2-3 2-3 4"/><path d="M12 17h.01"/></svg></span>FAQ<span class="chev"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+          <div class="sec-body">Preguntas frecuentes en acordeón.</div>
+          <div class="sec-row"><span class="si"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M8 8h8M8 16h5"/></svg></span>Botones<span class="chev"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+          <div class="sec-body">CTAs, enlaces y acciones personalizadas.</div>
+          <div class="sec-row"><span class="si"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg></span>Analytics<span class="chev"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+          <div class="sec-body">Píxeles de seguimiento y eventos de conversión.</div>
+          <div class="sec-row"><span class="si"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>TikTok Rescue<span class="pro">PRO</span><span class="chev"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+          <div class="sec-body">Exit Guide y Direct Exit para escapar del navegador de TikTok.</div>
+          <div class="sec-row"><span class="si"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>Enlace seguro / SEO<span class="chev"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+          <div class="sec-body">Meta título, descripción, OG image y certificado SSL.</div>
+        </div>
+        <button class="add-sec"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> Añadir sección</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── COL 3 — MAIN (topbar full-width + work row) ───── -->
+  <div class="main">
+    <header class="topbar">
+      <button class="tb-back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <div class="tb-title"><span class="ttxt">Crema Hidratante Premium</span> <span class="edit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span></div>
+      <div class="tb-status">Publicado <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="tb-spacer"></div>
+      <div class="tb-actions">
+        <button class="btn btn-ghost" id="focusToggle" title="Focus mode" style="padding:9px 11px;"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></span></button>
+        <button class="btn btn-ghost link" data-copy="tokproof.app/@mibrand"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span>Copiar link</button>
+        <button class="btn btn-ghost"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span>Vista previa</button>
+        <button class="btn btn-ghost"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10a4 4 0 0 0-1-7.9A6 6 0 0 0 5 8a4.5 4.5 0 0 0 1 8.9"/><path d="M12 12v9M8 17l4 4 4-4"/></svg></span>Guardar</button>
+        <button class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Publicar cambios</button>
+      </div>
+    </header>
+
+    <div class="work">
+    <main class="canvas">
+    <div class="canvas-rel">
+      <!-- focus mode floating card -->
+      <div class="focus-card" id="focusCard">
+        <div class="fh"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></span>Focus mode</div>
+        <div class="fd">Oculta la sidebar para concentrarte en el editor.</div>
+      </div>
+
+      <div class="stage">
+        <div class="device-toggle">
+          <button class="dt-btn active" data-device="movil"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg>Móvil</button>
+          <button class="dt-btn" data-device="escritorio"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Escritorio</button>
+        </div>
+
+        <div class="phone-zoom" id="phoneZoom">
+          <div class="phone">
+            <div class="pscreen">
+              <div class="pstatus"><span>9:41</span><span class="r"><svg width="15" height="11" viewBox="0 0 16 11" fill="#1a1a1a"><rect x="0" y="7" width="2.5" height="4" rx=".5"/><rect x="3.5" y="5" width="2.5" height="6" rx=".5"/><rect x="7" y="2.5" width="2.5" height="8.5" rx=".5"/><rect x="10.5" y="0" width="2.5" height="11" rx=".5"/></svg><svg width="15" height="11" viewBox="0 0 24 18" fill="none" stroke="#1a1a1a" stroke-width="2"><path d="M2 8a14 14 0 0 1 20 0M5 12a9 9 0 0 1 14 0M9 16a4 4 0 0 1 6 0" stroke-linecap="round"/></svg><svg width="22" height="11" viewBox="0 0 22 11" fill="none"><rect x=".5" y=".5" width="18" height="10" rx="2.5" stroke="#1a1a1a" stroke-opacity=".5"/><rect x="2" y="2" width="14" height="7" rx="1" fill="#1a1a1a"/><rect x="19.5" y="3.5" width="1.5" height="4" rx=".5" fill="#1a1a1a" opacity=".5"/></svg></span></div>
+              <div class="pbrand"><span class="lg">G</span>GLOWLAB<span class="dots"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span></div>
+              <div class="pscroll">
+                <div class="phero">
+                  <div class="stripes"></div>
+                  <div class="rev"><span class="prev-stars">★ 4.9/5</span><span class="sub">+2.4K reviews</span></div>
+                  <div class="play"><svg width="20" height="20" viewBox="0 0 24 24" fill="#1a1a1a"><path d="M8 5v14l11-7z"/></svg></div>
+                </div>
+                <div class="pbody">
+                  <div class="ptitle">Crema Hidratante <span class="accent">Premium</span></div>
+                  <div class="pdesc">Hidratación profunda 24h. Piel más suave, luminosa y saludable.</div>
+                  <div class="pchips">
+                    <span class="pchip"><span class="ic"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>Envío gratis</span>
+                    <span class="pchip"><span class="ic"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Garantía 30 días</span>
+                    <span class="pchip"><span class="ic">🇪🇸</span>Hecho en…</span>
+                  </div>
+                  <button class="pbuy">Comprar ahora · 29,90€</button>
+                  <button class="pmore">Más información <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+                  <div class="psocial">
+                    <div class="pavs"><span></span><span></span><span></span><span></span></div>
+                    <div><div class="pt">+2.4K personas</div><div class="ps">ya están usando</div></div>
+                  </div>
+                  <div class="pcomments">
+                    <div class="ch">Comentarios en TikTok <a href="#">Ver más</a></div>
+                    <div class="pcomment">
+                      <div class="ca"></div>
+                      <div><div class="cn">@sofi_beauty</div><div class="ct">Increíble! Mi piel cambió por completo ✨</div><div class="cd">Hace 2 días</div></div>
+                      <div class="heart"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-9.5-9A5 5 0 0 1 12 6a5 5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg><div>342</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-tools">
+          <button class="ct-btn" id="undoBtn" title="Deshacer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a6 6 0 0 1 0 12h-3"/></svg></button>
+          <button class="ct-btn disabled" id="redoBtn" title="Rehacer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a6 6 0 0 0 0 12h3"/></svg></button>
+          <div class="ct-sep"></div>
+          <button class="ct-btn" title="Previsualizar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button class="ct-btn" title="Pantalla"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+          <div class="ct-sep"></div>
+          <div class="ct-zoom">
+            <button class="ct-btn" id="zoomOut" title="Alejar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></button>
+            <span class="z" id="zoomVal">100%</span>
+            <button class="ct-btn" id="zoomIn" title="Acercar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </main>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">Copiado</div>
+
+<script>
+  const editor = document.getElementById('editor');
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(window.__t); window.__t = setTimeout(()=>t.classList.remove('show'),1500);
+  }
+
+  // copy
+  document.querySelectorAll('[data-copy]').forEach(b=>{
+    b.addEventListener('click',()=>{const v=b.getAttribute('data-copy');navigator.clipboard?.writeText(v).catch(()=>{});showToast('Copiado: '+v);});
+  });
+
+  // nav collapse (‹)
+  const navToggle = document.getElementById('navToggle');
+  navToggle.addEventListener('click',()=>{
+    editor.classList.toggle('nav-collapsed');
+    const collapsed = editor.classList.contains('nav-collapsed');
+    navToggle.style.transform = collapsed ? 'rotate(180deg)' : 'rotate(0deg)';
+    navToggle.title = collapsed ? 'Expandir sidebar' : 'Contraer sidebar';
+  });
+
+  // focus mode
+  const focusToggle = document.getElementById('focusToggle');
+  const focusCard = document.getElementById('focusCard');
+  focusToggle.addEventListener('click',()=>{
+    const on = editor.classList.toggle('focus');
+    focusToggle.classList.toggle('btn-primary', on);
+    focusToggle.classList.toggle('btn-ghost', !on);
+    focusToggle.querySelector('svg').innerHTML = on
+      ? '<path d="M3 8V5a2 2 0 0 1 2-2h3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M21 16v3a2 2 0 0 1-2 2h-3"/>'
+      : '<path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/>';
+    focusCard.classList.toggle('show', on);
+    showToast(on ? 'Focus mode activado' : 'Focus mode desactivado');
+    setTimeout(()=>focusCard.classList.remove('show'), on?2200:0);
+  });
+
+  // device toggle
+  document.querySelectorAll('.dt-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('.dt-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+
+  // mini rail
+  document.querySelectorAll('.mr-item').forEach(b=>{
+    b.addEventListener('click',()=>{document.querySelectorAll('.mr-item').forEach(x=>x.classList.remove('active'));b.classList.add('active');});
+  });
+
+  // section accordions
+  document.querySelectorAll('#secList .sec-row').forEach(r=>{
+    r.addEventListener('click',()=>r.classList.toggle('open'));
+  });
+
+  // switches
+  document.querySelectorAll('.switch').forEach(sw=>{
+    sw.addEventListener('click',()=>{
+      sw.classList.toggle('off');
+      if(sw.id==='exitSwitch'){
+        const tag = sw.closest('.rrow').querySelector('.tag');
+        const on = !sw.classList.contains('off');
+        tag.textContent = on ? 'Activo' : 'Inactivo';
+        tag.style.color = on ? 'var(--green)' : 'var(--ink-3)';
+        showToast(on?'Exit Guide activado':'Exit Guide desactivado');
+      }
+      if(sw.id==='landingSwitch'){
+        showToast(sw.classList.contains('off')?'Landing pausada':'Landing activa');
+      }
+    });
+  });
+
+  // zoom
+  let zoom = 100;
+  const zoomVal = document.getElementById('zoomVal');
+  const phoneZoom = document.getElementById('phoneZoom');
+  function applyZoom(){zoomVal.textContent=zoom+'%';phoneZoom.style.transform='scale('+(zoom/100)+')';}
+  document.getElementById('zoomIn').addEventListener('click',()=>{zoom=Math.min(150,zoom+10);applyZoom();});
+  document.getElementById('zoomOut').addEventListener('click',()=>{zoom=Math.max(50,zoom-10);applyZoom();});
+
+  // gauges (conic-gradient ring)
+  document.querySelectorAll('.gauge').forEach(g=>{
+    const val = +g.getAttribute('data-val');
+    const color = g.getAttribute('data-color');
+    g.style.background = `conic-gradient(${color} ${val*3.6}deg, #EFEAF6 0)`;
+    g.style.borderRadius='50%';
+    const inner = document.createElement('div');
+    inner.style.cssText='position:absolute;inset:7px;background:#fff;border-radius:50%;';
+    g.insertBefore(inner, g.firstChild);
+    g.querySelector('.num').style.color = color;
+  });
+</script>
+</body>
+</html>

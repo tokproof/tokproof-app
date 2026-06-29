@@ -11,6 +11,7 @@ interface DirectExitClientProps {
   delay: number       // kept in signature for API compat; ignored when in external browser
   guideText?: string
   brandName?: string
+  language?: 'es' | 'en'
 }
 
 // Fire-and-forget analytics — never blocks navigation.
@@ -25,7 +26,7 @@ function track(eventType: string, pageId: string) {
   }
 }
 
-export default function DirectExitClient({ pageId, destinationUrl, guideText }: DirectExitClientProps) {
+export default function DirectExitClient({ pageId, destinationUrl, guideText, language }: DirectExitClientProps) {
   const [phase, setPhase] = useState<'detecting' | 'webview'>('detecting')
   const tracked = useRef(false)
 
@@ -64,6 +65,7 @@ export default function DirectExitClient({ pageId, destinationUrl, guideText }: 
         destinationUrl={destinationUrl}
         pageId={pageId}
         guideText={guideText}
+        language={language}
       />
     </div>
   )

@@ -33,6 +33,7 @@ export default function QuickExitModal({ open, onClose, userId, username, plan, 
   const [slug,          setSlug]          = useState(username)
   const [destUrl,       setDestUrl]       = useState('')
   const [tiktokProfile, setTiktokProfile] = useState('')
+  const [language,      setLanguage]      = useState<'es' | 'en'>('es')
   const [slugStatus,    setSlugStatus]    = useState<SlugStatus>('idle')
   const [urlError,      setUrlError]      = useState('')
   const [tiktokError,   setTiktokError]   = useState('')
@@ -47,11 +48,12 @@ export default function QuickExitModal({ open, onClose, userId, username, plan, 
       setSlug(editing.username ?? username)
       setDestUrl((cfg?.destinationUrl as string) ?? '')
       setTiktokProfile((cfg?.tiktokProfile as string) ?? '')
+      setLanguage((cfg?.language as 'es' | 'en') ?? 'es')
       setSlugStatus('available')
       setSlugTouched(true)
       setTiktokError('')
     } else {
-      setName(''); setSlug(username); setDestUrl(''); setTiktokProfile('')
+      setName(''); setSlug(username); setDestUrl(''); setTiktokProfile(''); setLanguage('es')
       setSlugStatus('idle'); setSlugTouched(false); setUrlError(''); setTiktokError('')
     }
   }, [open, editing, username])
@@ -111,6 +113,7 @@ export default function QuickExitModal({ open, onClose, userId, username, plan, 
       status: 'published',
       destinationUrl: destUrl,
       tiktokProfile: cleanHandle,
+      language,
       settings: {
         enableBrowserGuide: true,
         showTokproofBranding: true,
@@ -241,6 +244,37 @@ export default function QuickExitModal({ open, onClose, userId, username, plan, 
             ? <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 5, marginBottom: 0, lineHeight: 1.45 }}>{tiktokError}</p>
             : <p style={{ fontSize: 11.5, color: 'var(--muted2)', marginTop: 5, marginBottom: 0 }}>Perfil donde compartirás este enlace</p>
           }
+        </div>
+
+        {/* Language selector */}
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: 'var(--muted)', marginBottom: 8 }}>
+            Idioma de la animación
+          </label>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {(['es', 'en'] as const).map(lang => {
+              const active = language === lang
+              return (
+                <button
+                  key={lang}
+                  type="button"
+                  onClick={() => setLanguage(lang)}
+                  style={{
+                    flex: 1, height: 40, borderRadius: 'var(--r)',
+                    border: active ? '2px solid #7B61FF' : '1px solid var(--border)',
+                    background: active ? 'rgba(123,97,255,.1)' : 'var(--bg2)',
+                    color: active ? '#7B61FF' : 'var(--muted)',
+                    fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                    fontFamily: 'inherit', transition: 'all var(--p-base) var(--p-ease)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  }}
+                >
+                  <span style={{ fontSize: 16 }}>{lang === 'es' ? '🇪🇸' : '🇬🇧'}</span>
+                  {lang === 'es' ? 'Español' : 'English'}
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         {/* Buttons */}

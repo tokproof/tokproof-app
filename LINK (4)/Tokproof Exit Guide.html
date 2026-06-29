@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Tokproof — TikTok Exit Guide</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E0B17;
+    --bg-card: #131022;
+    --bg-card-2: #15101F;
+    --ink: #F5F3FA;
+    --ink-2: #9AA0B4;
+    --ink-3: #6B6F86;
+    --pink: #FF4FD8;
+    --purple: #7B61FF;
+    --grad: linear-gradient(135deg, #FF4FD8 0%, #7B61FF 100%);
+    --grad-soft: linear-gradient(135deg, rgba(255,79,216,.18), rgba(123,97,255,.18));
+    --LOOP: 11s;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+    background: #08060F;
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 56px 24px;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+
+  /* ───── outer card ───── */
+  .feature {
+    width: 100%;
+    max-width: 760px;
+    background:
+      radial-gradient(120% 70% at 50% -10%, rgba(123,97,255,.18), transparent 60%),
+      radial-gradient(100% 60% at 50% 110%, rgba(255,79,216,.10), transparent 60%),
+      linear-gradient(180deg, #15101F 0%, #0E0B17 100%);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 32px;
+    padding: 48px 48px 44px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 60px 120px -40px rgba(0,0,0,.6),
+                inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .feature::before{
+    content:""; position:absolute; inset: -1px;
+    border-radius: 33px;
+    background: linear-gradient(135deg, rgba(255,79,216,.35), rgba(123,97,255,.25) 40%, transparent 70%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    padding: 1px;
+    pointer-events:none;
+    opacity: .6;
+  }
+
+  .stage {
+    height: 540px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    margin-bottom: 36px;
+  }
+  .stage::after{
+    content:""; position:absolute;
+    width: 360px; height: 360px;
+    background: radial-gradient(closest-side, rgba(255,79,216,.18), transparent 70%);
+    filter: blur(20px);
+    bottom: -40px; left: 50%; transform: translateX(-50%);
+    pointer-events:none;
+  }
+
+  /* ───── iPhone ───── */
+  .phone {
+    width: 280px; height: 540px;
+    border-radius: 46px;
+    background: linear-gradient(180deg, #2a2630, #0f0d16);
+    padding: 6px;
+    position: relative;
+    box-shadow:
+      0 40px 60px -20px rgba(0,0,0,.7),
+      0 0 0 1px rgba(255,255,255,.06),
+      inset 0 0 0 1px rgba(255,255,255,.04);
+    transform: perspective(1400px) rotateX(2deg) rotateY(-3deg);
+  }
+  .phone-glow {
+    position: absolute; inset: -30px;
+    background: radial-gradient(closest-side, rgba(123,97,255,.25), transparent 70%);
+    filter: blur(30px);
+    z-index: -1;
+    pointer-events:none;
+  }
+  .screen {
+    width: 100%; height: 100%;
+    border-radius: 40px;
+    background: #0A0810;
+    overflow: hidden;
+    position: relative;
+  }
+  .notch {
+    position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
+    width: 96px; height: 26px; background: #000; border-radius: 14px; z-index: 50;
+  }
+
+  /* ── status bar ── */
+  .status {
+    position: absolute; top: 0; left: 0; right: 0; height: 44px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 22px 0;
+    font-size: 13px; font-weight: 600; color: #fff;
+    z-index: 40;
+  }
+  .status .right { display: flex; align-items: center; gap: 5px; opacity: .9; }
+  .status .right svg { display: block; }
+
+  /* ── in-app browser bar ── */
+  .iab {
+    position: absolute; top: 44px; left: 0; right: 0; height: 48px;
+    display: grid; grid-template-columns: 28px 1fr 28px 28px;
+    align-items: center; gap: 8px; padding: 0 14px;
+    color: #fff;
+    z-index: 30;
+    transition: opacity .5s ease;
+  }
+  .iab .pill {
+    height: 30px; border-radius: 8px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.06);
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px;
+    font-size: 11.5px; color: #E8E6F1; font-weight: 500;
+    padding: 0 10px;
+    overflow: hidden;
+  }
+  .iab .pill .lock { opacity: .55; }
+  .iab .pill .url { opacity: .9; }
+  .iab .icb {
+    width: 28px; height: 28px; display:grid; place-items:center;
+    color: rgba(255,255,255,.85);
+  }
+  .iab .dots {
+    position: relative;
+  }
+  .iab .dots .ring {
+    position: absolute; inset: -6px; border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(255,79,216,0);
+    animation: dotsRing var(--LOOP) ease-in-out infinite;
+  }
+  @keyframes dotsRing {
+    0%,18% { box-shadow: 0 0 0 0 rgba(255,79,216,0); }
+    24%,42% { box-shadow: 0 0 0 4px rgba(255,79,216,.55), 0 0 18px 4px rgba(255,79,216,.45); }
+    48%,100% { box-shadow: 0 0 0 0 rgba(255,79,216,0); }
+  }
+
+  /* ── safari bar (external) ── */
+  .safari {
+    position: absolute; top: 44px; left: 0; right: 0; height: 56px;
+    padding: 8px 14px 0;
+    z-index: 30;
+    opacity: 0;
+    animation: safariShow var(--LOOP) ease-in-out infinite;
+  }
+  .safari .bar {
+    height: 36px; border-radius: 12px;
+    background: rgba(255,255,255,.10);
+    border: 1px solid rgba(255,255,255,.08);
+    display: grid; grid-template-columns: 24px 1fr 24px;
+    align-items: center; padding: 0 10px; gap: 8px;
+    color: #fff; font-size: 12px;
+  }
+  .safari .bar .u { text-align:center; color:#E8E6F1; font-weight: 500; }
+  @keyframes safariShow {
+    0%,62% { opacity: 0; transform: translateY(-6px); }
+    66%,96% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-6px); }
+  }
+
+  /* ── profile page (inside IAB) ── */
+  .page {
+    position: absolute; inset: 0;
+    padding: 100px 18px 0;
+    color: #fff;
+    animation: pageDim var(--LOOP) ease-in-out infinite;
+  }
+  @keyframes pageDim {
+    0%,14% { filter: brightness(1) saturate(1); }
+    20%,58% { filter: brightness(.55) saturate(.8); }
+    64%,100% { filter: brightness(1.05) saturate(1.1); }
+  }
+
+  .avatar {
+    width: 76px; height: 76px; border-radius: 50%;
+    margin: 4px auto 12px;
+    background:
+      linear-gradient(135deg, #F4D7C3, #C99A82);
+    box-shadow: 0 4px 20px rgba(0,0,0,.4), inset 0 0 0 2px rgba(255,255,255,.06);
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar::after{
+    content:""; position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 50% 36%, #4a2b1c 0 11px, transparent 12px),
+      radial-gradient(ellipse at 50% 92%, #4a2b1c 0 30%, transparent 35%);
+  }
+  .pname { text-align:center; font-size: 17px; font-weight: 700; letter-spacing: -0.015em; }
+  .phandle { text-align:center; font-size: 12px; color: rgba(255,255,255,.55); margin-top: 2px; }
+  .pbio { text-align:center; font-size: 12px; color: rgba(255,255,255,.75); margin-top: 8px; }
+
+  .socials {
+    display: flex; gap: 6px; justify-content: center; margin-top: 18px;
+  }
+  .soc {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(255,255,255,.08);
+    display: grid; place-items: center;
+    color: rgba(255,255,255,.6);
+  }
+
+  .feed { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .post {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.05);
+    border-radius: 14px;
+    padding: 12px;
+    display: grid; grid-template-columns: 36px 1fr; gap: 10px;
+  }
+  .post-av { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg,#FFB1E7,#B49BFF); }
+  .post-t { font-size: 12px; font-weight: 600; }
+  .post-s { font-size: 11px; color: rgba(255,255,255,.55); margin-top: 3px; line-height: 1.35; }
+
+  /* ── overlay dim (when guide active) ── */
+  .dim {
+    position: absolute; inset: 0;
+    background: rgba(8,4,18,.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    opacity: 0;
+    z-index: 35;
+    animation: dimShow var(--LOOP) ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes dimShow {
+    0%,14% { opacity: 0; }
+    20%,58% { opacity: 1; }
+    64%,100% { opacity: 0; }
+  }
+
+  /* ── cursor circle that floats up ── */
+  .cursor {
+    position: absolute;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: #fff;
+    display: grid; place-items: center;
+    color: #0E0B17;
+    box-shadow: 0 8px 30px rgba(255,79,216,.4), 0 0 0 6px rgba(255,255,255,.08);
+    z-index: 60;
+    left: calc(50% - 28px);
+    top: 340px;
+    opacity: 0;
+    animation: cursorMove var(--LOOP) cubic-bezier(.6,.05,.2,1) infinite;
+  }
+  .cursor svg { display: block; }
+  @keyframes cursorMove {
+    0%,16% { opacity: 0; transform: translate(0, 20px) scale(.85); }
+    20% { opacity: 1; transform: translate(0, 0) scale(1); }
+    32% { opacity: 1; transform: translate(0, 0) scale(1); }
+    44% { opacity: 1; transform: translate(80px, -270px) scale(.7); }
+    48% { opacity: 1; transform: translate(80px, -270px) scale(.55); }
+    56% { opacity: 0; transform: translate(80px, -270px) scale(.45); }
+    100% { opacity: 0; transform: translate(80px, -270px) scale(.45); }
+  }
+
+  /* ── curved arrow ── */
+  .arrow {
+    position: absolute;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    z-index: 55;
+    pointer-events: none;
+  }
+  .arrow path {
+    stroke: #fff;
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 360;
+    stroke-dashoffset: 360;
+    filter: drop-shadow(0 0 6px rgba(255,79,216,.45));
+    animation: drawArrow var(--LOOP) cubic-bezier(.6,.05,.2,1) infinite;
+  }
+  .arrow .head {
+    opacity: 0;
+    animation: arrowHead var(--LOOP) ease-in-out infinite;
+  }
+  @keyframes drawArrow {
+    0%,18% { stroke-dashoffset: 360; opacity: 0; }
+    22% { opacity: 1; }
+    40% { stroke-dashoffset: 0; opacity: 1; }
+    56% { opacity: 1; stroke-dashoffset: 0; }
+    62% { opacity: 0; }
+    100% { opacity: 0; stroke-dashoffset: 0; }
+  }
+  @keyframes arrowHead {
+    0%,38% { opacity: 0; }
+    44%,58% { opacity: 1; }
+    62%,100% { opacity: 0; }
+  }
+
+  /* ── caption inside phone (Para abrir esta página) ── */
+  .caption {
+    position: absolute;
+    left: 18px; right: 18px;
+    top: 380px;
+    text-align: center;
+    z-index: 56;
+    opacity: 0;
+    animation: capShow var(--LOOP) ease-in-out infinite;
+  }
+  .caption .t1 { font-size: 13px; font-weight: 700; color: #fff; letter-spacing: -0.01em; }
+  .caption .t2 {
+    font-size: 11px; color: rgba(255,255,255,.7); margin-top: 6px; line-height: 1.45;
+  }
+  .caption .t2 .hl { color: #fff; font-weight: 600; }
+  .caption .t2 .pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 7px; border-radius: 999px;
+    background: var(--grad-soft); color: #fff;
+    border: 1px solid rgba(255,79,216,.3);
+    font-weight: 600;
+  }
+  @keyframes capShow {
+    0%,32% { opacity: 0; transform: translateY(6px); }
+    38%,58% { opacity: 1; transform: translateY(0); }
+    62%,100% { opacity: 0; transform: translateY(-4px); }
+  }
+
+  /* ── context menu ── */
+  .menu {
+    position: absolute;
+    top: 96px; right: 14px;
+    width: 200px;
+    background: rgba(26,22,40,.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    overflow: hidden;
+    z-index: 65;
+    transform-origin: top right;
+    opacity: 0;
+    transform: scale(.85) translateY(-6px);
+    animation: menuShow var(--LOOP) cubic-bezier(.5,.1,.2,1) infinite;
+  }
+  @keyframes menuShow {
+    0%,48% { opacity: 0; transform: scale(.85) translateY(-6px); }
+    52%,64% { opacity: 1; transform: scale(1) translateY(0); }
+    66%,100% { opacity: 0; transform: scale(.92) translateY(-6px); }
+  }
+  .mitem {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 14px;
+    font-size: 12.5px; color: rgba(255,255,255,.85);
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    font-weight: 500;
+  }
+  .mitem:last-child { border-bottom: 0; }
+  .mitem .mic { color: rgba(255,255,255,.55); display:flex; }
+  .mitem.hl {
+    color: #fff;
+    background: linear-gradient(90deg, rgba(255,79,216,.18), rgba(123,97,255,.18));
+    position: relative;
+  }
+  .mitem.hl::before{
+    content:""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--grad);
+  }
+  .mitem.hl .mic { color: var(--pink); }
+  .mitem.hl::after{
+    content:""; position: absolute; inset: 0;
+    background: radial-gradient(80% 80% at 60% 50%, rgba(255,79,216,.25), transparent 70%);
+    opacity: 0;
+    animation: mitemPulse var(--LOOP) ease-in-out infinite;
+  }
+  @keyframes mitemPulse {
+    0%,54% { opacity: 0; }
+    58%,64% { opacity: 1; }
+    66%,100% { opacity: 0; }
+  }
+
+  /* ── tap ripple on menu item ── */
+  .tap {
+    position: absolute;
+    top: 184px; right: 30px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.9);
+    z-index: 70;
+    opacity: 0;
+    animation: tapRipple var(--LOOP) ease-out infinite;
+  }
+  @keyframes tapRipple {
+    0%,60% { opacity: 0; transform: scale(.4); }
+    62% { opacity: 1; transform: scale(1); }
+    65% { opacity: .6; transform: scale(2.2); }
+    70% { opacity: 0; transform: scale(3); }
+    100% { opacity: 0; transform: scale(3); }
+  }
+
+  /* ── premium reveal glow on screen (external) ── */
+  .reveal {
+    position: absolute; inset: 0;
+    background: radial-gradient(80% 60% at 50% 30%, rgba(255,79,216,.22), transparent 60%);
+    opacity: 0;
+    z-index: 36;
+    pointer-events: none;
+    animation: revealShow var(--LOOP) ease-out infinite;
+  }
+  @keyframes revealShow {
+    0%,66% { opacity: 0; }
+    72%,88% { opacity: 1; }
+    96%,100% { opacity: 0; }
+  }
+
+  /* IAB hides when safari shows */
+  .iab { animation: iabHide var(--LOOP) ease-in-out infinite; }
+  @keyframes iabHide {
+    0%,62% { opacity: 1; }
+    66%,96% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  /* ───── footer text ───── */
+  .text-block { padding: 0 4px; }
+  .title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin: 0 0 14px;
+    color: #fff;
+    text-wrap: balance;
+  }
+  .body {
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: rgba(245,243,250,.65);
+    margin: 0;
+    max-width: 620px;
+    text-wrap: pretty;
+  }
+  .body b { color: #fff; font-weight: 600; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px 6px 8px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,79,216,.18);
+    border-radius: 999px;
+    font-size: 12px;
+    color: rgba(255,255,255,.7);
+    font-weight: 500;
+    margin-bottom: 22px;
+    letter-spacing: .02em;
+  }
+  .badge .dot {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--grad);
+    box-shadow: 0 0 12px rgba(255,79,216,.6);
+    display: grid; place-items: center;
+  }
+
+  /* ambient particles */
+  .particles { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .p {
+    position: absolute;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--pink);
+    box-shadow: 0 0 8px var(--pink);
+    opacity: .35;
+    animation: float 8s ease-in-out infinite;
+  }
+  .p.p2 { background: var(--purple); box-shadow: 0 0 8px var(--purple); }
+  @keyframes float {
+    0%,100% { transform: translateY(0); opacity: .25; }
+    50% { transform: translateY(-12px); opacity: .55; }
+  }
+</style>
+</head>
+<body>
+
+<section class="feature">
+  <div class="particles">
+    <span class="p" style="left:8%;top:18%;animation-delay:.0s"></span>
+    <span class="p p2" style="left:18%;top:62%;animation-delay:1.2s"></span>
+    <span class="p" style="left:88%;top:30%;animation-delay:.6s"></span>
+    <span class="p p2" style="left:92%;top:74%;animation-delay:2.1s"></span>
+    <span class="p" style="left:55%;top:8%;animation-delay:1.6s"></span>
+  </div>
+
+  <div class="stage">
+    <div class="phone">
+      <div class="phone-glow"></div>
+      <div class="screen">
+
+        <!-- status bar -->
+        <div class="notch"></div>
+        <div class="status">
+          <span>20:50</span>
+          <span class="right">
+            <svg width="16" height="11" viewBox="0 0 16 11" fill="none"><path d="M1 7l1.5-1.5M1 7l1.5 1.5M1 7h6m6 0l-1.5-1.5M13 7l-1.5 1.5M13 7H7" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <svg width="14" height="11" viewBox="0 0 14 11" fill="white"><rect x="0" y="7" width="2.5" height="4" rx=".5"/><rect x="3.5" y="5" width="2.5" height="6" rx=".5"/><rect x="7" y="2.5" width="2.5" height="8.5" rx=".5"/><rect x="10.5" y="0" width="2.5" height="11" rx=".5" opacity=".4"/></svg>
+            <span style="font-size:10px">4G</span>
+            <svg width="22" height="11" viewBox="0 0 22 11" fill="none"><rect x=".5" y=".5" width="18" height="10" rx="2.5" stroke="white" stroke-opacity=".7"/><rect x="2" y="2" width="11" height="7" rx="1" fill="white"/><rect x="19.5" y="3.5" width="1.5" height="4" rx=".5" fill="white" opacity=".7"/></svg>
+          </span>
+        </div>
+
+        <!-- in-app browser top bar (TikTok-style generic) -->
+        <div class="iab">
+          <div class="icb">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </div>
+          <div class="pill">
+            <svg class="lock" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 1 1 6 0v3H9z"/></svg>
+            <span class="url">tokproof.app/@glowlab</span>
+          </div>
+          <div class="icb">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+          </div>
+          <div class="icb dots">
+            <span class="ring"></span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+          </div>
+        </div>
+
+        <!-- external (safari-like) bar -->
+        <div class="safari">
+          <div class="bar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            <div class="u">tokproof.app/@glowlab</div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+          </div>
+        </div>
+
+        <!-- profile page -->
+        <div class="page">
+          <div class="avatar"></div>
+          <div class="pname">Glow Lab</div>
+          <div class="phandle">@glow.lab</div>
+          <div class="pbio">Skincare con resultados visibles ✨</div>
+          <div class="socials">
+            <div class="soc"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M2 7l10 7L22 7"/></svg></div>
+            <div class="soc"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 3a5 5 0 0 0 4 4v3a8 8 0 0 1-4-1v7a6 6 0 1 1-6-6v3a3 3 0 1 0 3 3V3z"/></svg></div>
+            <div class="soc"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M22 5.8c-.7.3-1.5.5-2.4.6.9-.5 1.5-1.3 1.8-2.3-.8.5-1.7.8-2.6 1A4.1 4.1 0 0 0 12 9c0 .3 0 .6.1.9A11.6 11.6 0 0 1 3 4.6a4 4 0 0 0 1.3 5.4c-.7 0-1.3-.2-1.9-.5v.1c0 2 1.4 3.6 3.3 4-.3.1-.7.2-1.1.2-.3 0-.5 0-.8-.1.5 1.6 2 2.8 3.8 2.8A8.3 8.3 0 0 1 2 18a11.7 11.7 0 0 0 6.3 1.8c7.5 0 11.6-6.2 11.6-11.6V8c.8-.6 1.5-1.3 2-2.2z"/></svg></div>
+            <div class="soc"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23 7c-.3-1-1-1.8-2-2C19 4.5 12 4.5 12 4.5s-7 0-9 .5c-1 .2-1.7 1-2 2-.5 2-.5 5-.5 5s0 3 .5 5c.3 1 1 1.8 2 2 2 .5 9 .5 9 .5s7 0 9-.5c1-.2 1.7-1 2-2 .5-2 .5-5 .5-5s0-3-.5-5zM10 16V8l6 4-6 4z"/></svg></div>
+            <div class="soc"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-6 9 6v11a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z"/></svg></div>
+            <div class="soc"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></div>
+            <div class="soc"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor"/></svg></div>
+          </div>
+
+          <div class="feed">
+            <div class="post">
+              <div class="post-av"></div>
+              <div>
+                <div class="post-t">🔥 Drop exclusivo Glow Bundle</div>
+                <div class="post-s">Crema + sérum + máscara con regalo<br/>limitado a 200 unidades</div>
+              </div>
+            </div>
+            <div class="post">
+              <div class="post-av" style="background:linear-gradient(135deg,#B49BFF,#FFB1E7)"></div>
+              <div>
+                <div class="post-t">Rutina nocturna personalizada</div>
+                <div class="post-s">Quiz de 30s · Resultados al instante</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- dim overlay -->
+        <div class="dim"></div>
+        <div class="reveal"></div>
+
+        <!-- caption "Para abrir esta página" -->
+        <div class="caption">
+          <div class="t1">Para abrir esta página</div>
+          <div class="t2">
+            toca los <span class="hl">tres puntos ⋯</span> y elige<br/>
+            <span class="pill">Abrir en el navegador</span>
+          </div>
+        </div>
+
+        <!-- curved arrow from cursor to ⋯ -->
+        <svg class="arrow" viewBox="0 0 280 540" preserveAspectRatio="none">
+          <path d="M 152 388 C 200 360, 240 280, 232 120" />
+          <g class="head">
+            <path d="M 232 120 l -10 18 M 232 120 l 8 16" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </g>
+        </svg>
+
+        <!-- floating cursor circle -->
+        <div class="cursor">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+        </div>
+
+        <!-- context menu -->
+        <div class="menu">
+          <div class="mitem">
+            <span class="mic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11l-9-9-9 9"/><path d="M9 22V12h6v10"/></svg></span>
+            Recargar
+          </div>
+          <div class="mitem">
+            <span class="mic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+            Copiar enlace
+          </div>
+          <div class="mitem hl">
+            <span class="mic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg></span>
+            Abrir en el navegador
+          </div>
+          <div class="mitem">
+            <span class="mic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg></span>
+            Compartir
+          </div>
+        </div>
+
+        <!-- tap ripple -->
+        <div class="tap"></div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="text-block">
+    <div class="badge">
+      <span class="dot">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </span>
+      Exit Guide · TikTok Rescue
+    </div>
+    <h2 class="title">¿TikTok está bloqueando tu link?</h2>
+    <p class="body">
+      La mayoría de herramientas de link in bio ignoran el navegador interno de TikTok.
+      <b>Tokproof</b> guía a tus visitantes hacia el navegador externo para aumentar aperturas y conversiones — sin que tengas que tocar nada.
+    </p>
+  </div>
+</section>
+
+</body>
+</html>
