@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /Users/paulanunez/Desktop/TP/tokproof-app/src/app/api/admin/users/\\\\[userId\\\\]/analytics)"
+    ],
+    "additionalDirectories": [
+      "/Users/paulanunez/Desktop/TP/tokproof-app/src/app/api/admin/users/[userId]"
+    ]
+  }
+}

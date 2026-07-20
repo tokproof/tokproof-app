@@ -791,12 +791,16 @@ function NoDataBanner() {
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 interface Props {
-  initialData: FullAnalytics
-  pages:       PageMeta[]
-  isPro:       boolean
+  initialData:   FullAnalytics
+  pages:         PageMeta[]
+  isPro:         boolean
+  /** Override the base fetch URL — used by admin to load another user's analytics */
+  fetchUrlBase?: string
+  /** Extra page list passed from admin endpoint (pageMeta) */
+  adminPages?:   PageMeta[]
 }
 
-export default function AnalyticsDashboard({ initialData, pages, isPro }: Props) {
+export default function AnalyticsDashboard({ initialData, pages, isPro, fetchUrlBase, adminPages }: Props) {
   const router = useRouter()
   const { t } = useTranslation()
 
@@ -828,17 +832,19 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
   const [showPageDrop,   setPageDrop]   = useState(false)
   const [modal,          setModal]      = useState<'soon' | null>(null)
 
+  const baseUrl = fetchUrlBase ?? '/api/analytics'
+
   const load = useCallback(async (d: number, pid: string | null) => {
     setLoading(true)
     try {
       const p = new URLSearchParams({ days: String(d) })
       if (pid) p.set('pageId', pid)
-      const res = await fetch(`/api/analytics?${p}`)
+      const res = await fetch(`${baseUrl}?${p}`)
       if (res.ok) setData(await res.json())
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [baseUrl])
 
   function selectDate(opt: typeof DATE_OPTIONS[0]) {
     setDays(opt.days); setDateLabel(opt.label); setDateDrop(false)
@@ -867,6 +873,7 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
   const onUpgrade = () => router.push('/dashboard/billing')
   const onSoon    = () => setModal('soon')
   const kpiVals   = kpiValues(data)
+  const pageList  = adminPages ?? pages
 
   return (
     <div style={{ padding: isMobile ? '16px 14px 40px' : isTablet ? '20px 24px 40px' : '30px 34px 40px', maxWidth: 1130, background: C.bg,
@@ -939,7 +946,7 @@ export default function AnalyticsDashboard({ initialData, pages, isPro }: Props)
                   background: selectedPageId === null ? '#F3F0FD' : 'transparent' }}>
                 Todas las páginas
               </div>
-              {pages.map(p => (
+              {pageList.map(p => (
                 <div key={p.id} onClick={() => selectPage(p.id,
                     p.title ?? p.product_name ?? p.brand_name ?? p.username ?? p.id.slice(0,8))}
                   style={{ padding: '11px 16px', fontSize: 13.5,

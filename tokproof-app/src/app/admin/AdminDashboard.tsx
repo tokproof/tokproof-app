@@ -4,9 +4,11 @@ import { useState, useMemo, useEffect } from 'react'
 import {
   Users, UserPlus, Crown, TrendingUp, FileText,
   Search, Download, ChevronDown, Copy, ExternalLink,
-  LogIn, ArrowUpRight, X, Check,
+  LogIn, ArrowUpRight, X, Check, BarChart2,
 } from 'lucide-react'
 import type { AdminUserRow } from '@/app/api/admin/users/route'
+import AnalyticsDashboard from '@/app/(dashboard)/dashboard/analytics/AnalyticsDashboard'
+import type { FullAnalytics, PageMeta } from '@/lib/analytics'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -121,6 +123,94 @@ interface UserDetail {
   analytics30d: { views: number; clicks: number }
 }
 
+// ─── Admin analytics modal ────────────────────────────────────────────────────
+function AdminAnalyticsModal({ userId, userName, onClose }: {
+  userId:   string
+  userName: string
+  onClose:  () => void
+}) {
+  const [loading,    setLoading]    = useState(true)
+  const [analytics,  setAnalytics]  = useState<FullAnalytics | null>(null)
+  const [pageMeta,   setPageMeta]   = useState<PageMeta[]>([])
+
+  useEffect(() => {
+    setLoading(true)
+    fetch(`/api/admin/users/${userId}/analytics?days=7`)
+      .then(r => r.json())
+      .then(d => {
+        const { pageMeta: pm, ...rest } = d
+        setAnalytics(rest as FullAnalytics)
+        setPageMeta(pm ?? [])
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [userId])
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9999,
+      background: 'rgba(10,10,20,.6)', backdropFilter: 'blur(4px)',
+      display: 'flex', flexDirection: 'column', overflow: 'hidden',
+    }}>
+      {/* Header bar */}
+      <div style={{
+        flexShrink: 0, height: 56,
+        background: '#fff', borderBottom: '1px solid #eeedf3',
+        display: 'flex', alignItems: 'center', padding: '0 24px', gap: 16,
+      }}>
+        <button onClick={onClose} style={{
+          width: 34, height: 34, borderRadius: 10,
+          border: '1px solid #eeedf3', background: '#f4f3f7',
+          cursor: 'pointer', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', color: '#8b90a0', flexShrink: 0,
+        }}>
+          <X size={15} />
+        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <BarChart2 size={18} color="#8b5cf6" />
+          <span style={{ fontSize: 15, fontWeight: 700, color: '#1d2230' }}>
+            Analytics de <span style={{ color: '#8b5cf6' }}>{userName}</span>
+          </span>
+        </div>
+        <div style={{
+          marginLeft: 'auto', fontSize: 12, fontWeight: 700,
+          padding: '4px 10px', borderRadius: 7,
+          background: 'rgba(123,97,255,.1)', color: '#8b5cf6',
+        }}>
+          Vista admin — solo lectura
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        {loading || !analytics ? (
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            height: '100%', minHeight: 300, gap: 12,
+            color: '#8b90a0', fontSize: 14, fontWeight: 500,
+          }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              style={{ animation: 'spin 1s linear infinite' }}>
+              <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+            </svg>
+            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+            Cargando analytics…
+          </div>
+        ) : (
+          <AnalyticsDashboard
+            initialData={analytics}
+            pages={pageMeta}
+            isPro={true}
+            fetchUrlBase={`/api/admin/users/${userId}/analytics`}
+            adminPages={pageMeta}
+          />
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─── Right-side detail drawer ─────────────────────────────────────────────────
 function UserDrawer({
   userId, users, onClose, onPlanChange,
@@ -130,12 +220,13 @@ function UserDrawer({
   onClose: () => void
   onPlanChange: (id: string, plan: string) => void
 }) {
-  const [detail,      setDetail]      = useState<UserDetail | null>(null)
-  const [loading,     setLoading]     = useState(true)
-  const [activityTab, setActivityTab] = useState<'pages' | 'quickExits' | 'links'>('pages')
-  const [planSaving,  setPlanSaving]  = useState(false)
-  const [copied,      setCopied]      = useState(false)
-  const [toast,       setToast]       = useState<string | null>(null)
+  const [detail,         setDetail]         = useState<UserDetail | null>(null)
+  const [loading,        setLoading]        = useState(true)
+  const [activityTab,    setActivityTab]    = useState<'pages' | 'quickExits' | 'links'>('pages')
+  const [planSaving,     setPlanSaving]     = useState(false)
+  const [copied,         setCopied]         = useState(false)
+  const [toast,          setToast]          = useState<string | null>(null)
+  const [showAnalytics,  setShowAnalytics]  = useState(false)
 
   const userRow = users.find(u => u.id === userId)
 
@@ -189,6 +280,15 @@ function UserDrawer({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18, position: 'relative' }}>
+
+      {/* Analytics full-screen modal */}
+      {showAnalytics && (
+        <AdminAnalyticsModal
+          userId={userId}
+          userName={userRow?.displayName ?? userRow?.email ?? userId}
+          onClose={() => setShowAnalytics(false)}
+        />
+      )}
 
       {/* Inline toast */}
       {toast && (
@@ -273,6 +373,7 @@ function UserDrawer({
         </div>
 
         {([
+          { label: 'Ver analíticas del usuario', icon: <BarChart2 size={15} />,    onClick: () => setShowAnalytics(true) },
           { label: 'Entrar como usuario',        icon: <LogIn size={15} />,        onClick: () => { navigator.clipboard?.writeText(userRow?.email ?? ''); showToast('Email copiado al portapapeles') } },
           { label: 'Ver dashboard del usuario',  icon: <ExternalLink size={15} />, onClick: () => { userRow?.username ? window.open(`/u/${userRow.username}`, '_blank') : showToast('Sin página pública') } },
         ] as const).map(btn => (
